@@ -1,0 +1,7 @@
+The Cobertura ant tasks are licensed under the [Apache Software License,
+Version 1.1] [1]. The rest of Cobertura is licensed under the [GNU General
+Public License, Version 2.0] [2]. See below for [detailed explanations] [3]
+
+[1]: http://perl.apache.org/start/LICENSE.txt
+[2]: http://www.gnu.org/licenses/gpl-2.0.html
+[3]: http://cobertura.sourceforge.net/license.html
