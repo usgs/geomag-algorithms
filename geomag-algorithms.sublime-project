@@ -1,0 +1,23 @@
+{
+  "folders":
+  [
+    {
+      "path": ".",
+      "file_exclude_patterns": [
+      ],
+      "folder_exclude_patterns": [
+      ]
+    }
+  ],
+  "settings": {
+    "ensure_newline_at_eof_on_save": true,
+    "rulers": [80],
+    "tab_size": 2,
+    "auto_indent": true,
+    "smart_indent": true,
+    "indent_to_bracket": false,
+    "translate_tabs_to_spaces": true,
+    "trim_automatic_white_space": true,
+    "trim_trailing_white_space_one_save": true
+  }
+}
