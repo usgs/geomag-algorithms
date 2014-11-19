@@ -1,0 +1,34 @@
+{
+  "name": "geomag-algorithms",
+  "version": "0.0.0",
+  "homepage": "http://geomag.usgs.gov/",
+  "repository": "https://github.com/usgs/geomag-algorithms.git",
+  "description": "Geomagnetism algorithms.",
+  "author": {
+    "name": "Jeremy Fee",
+    "email": "jmfee@usgs.gov"
+  },
+  "contributors": [
+    {
+      "name": "Hal Simpson",
+      "email": "hasimpson@usgs.gov"
+    }
+  ],
+  "keywords": [
+    "usgs",
+    "geomag",
+    "hazdev"
+  ],
+  "scripts": {},
+  "license": "Public Domain",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-flake8": "^0.1.3",
+    "grunt-nose": "^0.4.0"
+  },
+  "engines": {
+    "node": ">=0.1.0"
+  }
+}
