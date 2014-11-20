@@ -13,7 +13,7 @@
   "settings": {
     "ensure_newline_at_eof_on_save": true,
     "rulers": [80],
-    "tab_size": 2,
+    "tab_size": 4,
     "auto_indent": true,
     "smart_indent": true,
     "indent_to_bracket": false,
