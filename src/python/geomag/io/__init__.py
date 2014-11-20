@@ -1,0 +1,3 @@
+"""
+Geomag Timeseries IO Module
+"""
