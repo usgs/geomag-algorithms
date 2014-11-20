@@ -46,6 +46,7 @@ This project adheres to PEP8 standards in most cases:
 
 ### PEP8 Exceptions
 
-- Hanging indents (E126)
+- Hanging/Visual indents (E126, E127, E128, E131)
 
-    line continuations should use two indentations (8 spaces).
+    - line continuations should use two indentations (8 spaces).
+    - do not use visual indents.
