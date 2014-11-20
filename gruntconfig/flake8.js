@@ -3,6 +3,8 @@
 var config = require('./config');
 
 module.exports = {
-  options: {},
+  options: {
+    ignore: ['E126']
+  },
   src: [ config.src + '/**/*.py' ]
 };
