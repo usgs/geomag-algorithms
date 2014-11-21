@@ -77,6 +77,9 @@ def test_parse_comment():
 
 
 def test_parse_decbas():
+    """
+    Test that DECBAS is being set.
+    """
     parser = Parser.Parser()
     parser.parse(IAGA2002_EXAMPLE)
     assert_equals(parser.headers['DECBAS'], '5527')
