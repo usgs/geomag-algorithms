@@ -11,11 +11,17 @@ class ChannelConverter(object):
     """
     Convert between different components and coordinate systems.
     We use three coordinate systems.
-    Geo: Based on Geographic North.  X, Y, Z
+    Geo: Based on Geographic North.  X, Y, Z [I]
     Obs: Based on the observatories orientaion. H, E, Z [d]
-    Mag: Based on Magnetic North. H, D, Z [E]
+    Mag: Based on Magnetic North. H, D, Z [E] [G] [F] [compF]
     obs_d0: The Decbas can be set during class initialization.
             Decbas should be in radians.
+    Vertical components:
+        G: delta F the difference between measured F and computed F.
+        F: measured by the proton magnotometer
+        compF: computed from the components
+        I: inclination
+        V: is the geologic vertical component, we use Z instead.
     """
 
     def __init__(self, obs_d0=0):
@@ -35,7 +41,10 @@ class ChannelConverter(object):
         geo_y = self.get_geo_y_from_mag(mag_h, mag_d)
         return (geo_x, geo_y)
 
-    # inividual get obs from calls
+    # inividual get geo from calls
+    def get_geo_i_from_geo(self, z, f):
+        return math.hypot(z, f)
+
     def get_geo_x_from_obs(self, h, e):
         mag_h = self.get_mag_h_from_obs(h, e)
         mag_d = self.get_mag_d_from_obs(h, e)
@@ -52,14 +61,26 @@ class ChannelConverter(object):
     def get_geo_y_from_mag(self, h, d):
         return h * math.sin(d)
 
+    def get_geo_z_from_geo(self, i, f):
+        return f * math.sin(i)
+
     """
     get magnetic north coordinates from....
     """
+    def get_mag_compf_from_mag(self, h, z):
+        return math.hypot(h, z)
+
     def get_mag_d_from_obs(self, h, e):
         return self.obs_d0 + self.get_obs_d_from_obs(h, e)
 
     def get_mag_d_from_geo(self, x, y):
         return math.atan2(y, x)
+
+    def get_mag_f_from_mag(self, compf, g):
+        return compf - g
+
+    def get_mag_g_from_mag(self, compf, f):
+        return f - compf
 
     def get_mag_h_from_obs(self, h, e):
         return math.hypot(h, e)
@@ -118,3 +139,5 @@ if __name__ == '__main__':
             3262.93317535)
     print "get_obs_h_from_geo", channel.get_obs_h_from_geo(20583.260646,
             3262.93317535)
+    print "get_mag_compf_from_mag", channel.get_mag_compf_from_mag(20819.61,
+            47705.42)  # Measured f was 52585.28
