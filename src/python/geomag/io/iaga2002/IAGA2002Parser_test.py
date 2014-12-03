@@ -1,9 +1,7 @@
-"""
-Tests for the IAGA2002 Parser class.
-"""
+"""Tests for the IAGA2002 Parser class."""
 
 from nose.tools import assert_equals
-from . import Parser
+from IAGA2002Parser import IAGA2002Parser
 
 
 IAGA2002_EXAMPLE = \
@@ -44,31 +42,41 @@ DATE       TIME         DOY     BDTH      BDTD      BDTZ      BDTF   |
 2013-09-01 00:09:00.000 244     21515.04    -28.86  47809.04  52532.10"""
 
 
-def test_merge_comments():
+def test__merge_comments():
     """
-    Verify that merge comments merges lines until they end with a period.
+    geomag.io.iaga2002.IAGA2002Parser_test.test_merge_comments()
+
+    Call the _merge_comments method with 3 lines,
+    only the middle line ending in a period.
+    Verify, the first and second line are merged.
     """
     comments = ['line 1', 'line 2.', 'line 3']
     assert_equals(
-        Parser.merge_comments(comments),
+        IAGA2002Parser()._merge_comments(comments),
         ['line 1 line 2.', 'line 3'])
 
 
-def test_parse_header():
+def test__parse_header():
     """
-    Verify that header is parsed correctly.
+    geomag.io.iaga2002.IAGA2002Parser_test.test_parse_header()
+
+    Call the _parse_header method with a header.
+    Verify the header name and value are split at the correct column.
     """
-    parser = Parser.Parser()
+    parser = IAGA2002Parser()
     parser._parse_header(' Format                 ' +
             'IAGA-2002                                    |')
     assert_equals(parser.headers['Format'], 'IAGA-2002')
 
 
-def test_parse_comment():
+def test__parse_comment():
     """
-    Verify that header comment is parsed correctly.
+    geomag.io.iaga2002.IAGA2002Parser_test.test_parse_header()
+
+    Call the _parse_comment method with a comment.
+    Verify the comment delimiters are removed.
     """
-    parser = Parser.Parser()
+    parser = IAGA2002Parser()
     parser._parse_comment(' # Go to www.intermagnet.org for details on' +
             ' obtaining this product.  |')
     assert_equals(parser.comments[-1],
@@ -76,22 +84,31 @@ def test_parse_comment():
                     ' obtaining this product.')
 
 
-def test_parse_decbas():
+def test__parse_channels():
     """
-    Test that DECBAS is being set.
-    """
-    parser = Parser.Parser()
-    parser.parse(IAGA2002_EXAMPLE)
-    assert_equals(parser.headers['DECBAS'], '5527')
+    geomag.io.iaga2002.IAGA2002Parser_test.test_parse_channels()
 
-
-def test_parse_channels():
+    Call the _parse_header method with an IAGA CODE header, then call
+    the _parse_channels method with a channels header line.
+    Verify the IAGA CODE value is removed from parsed channel names.
     """
-    Test that channel names are parsed correctly.
-    """
-    parser = Parser.Parser()
+    parser = IAGA2002Parser()
     parser._parse_header(' IAGA CODE              ' +
             'BDT                                          |')
     parser._parse_channels('DATE       TIME         DOY     ' +
             'BDTH      BDTD      BDTZ      BDTF   |')
     assert_equals(parser.channels, ['H', 'D', 'Z', 'F'])
+
+
+def test_parse_decbas():
+    """
+    geomag.io.iaga2002.IAGA2002Parser_test.test_parse_decbas()
+
+    Call the parse method with a portion of an IAGA 2002 File,
+    which contains a DECBAS header comment.
+    Verify DECBAS appears in the headers dict, with the expected value.
+    """
+    parser = IAGA2002Parser()
+    parser.parse(IAGA2002_EXAMPLE)
+    assert_equals(parser.headers['DECBAS'], '5527')
+

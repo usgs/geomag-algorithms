@@ -1,10 +1,9 @@
-"""
-Parsing methods for the IAGA2002 Format.
-"""
+"""Parsing methods for the IAGA2002 Format."""
 
 
-from obspy.core.utcdatetime import UTCDateTime
 import numpy
+from obspy.core.utcdatetime import UTCDateTime
+from geomag.io import Timeseries
 
 
 # values that represent missing data points in IAGA2002
@@ -12,36 +11,30 @@ EIGHTS = numpy.float64('88888.88')
 NINES = numpy.float64('99999.99')
 
 
-def merge_comments(comments):
-    """
-    Combine multi-line, period-delimited comments.
-    """
-    merged = []
-    partial = None
-    for comment in comments:
-        if partial is None:
-            partial = comment
-        else:
-            partial = partial + ' ' + comment
-        # comments end with period
-        if partial.endswith('.'):
-            merged.append(partial)
-            partial = None
-    # comment that doesn't end in a period
-    if partial is not None:
-        merged.append(partial)
-    return merged
+class IAGA2002Parser(object):
+    """IAGA2002 parser.
 
+    Based on documentation at:
+      http://www.ngdc.noaa.gov/IAGA/vdat/iagaformat.html
 
-class Parser(object):
-    """
-    IAGA2002 parser.
+    Attributes
+    ----------
+    headers : dict
+        parsed IAGA headers.
+    comments : array
+        parsed comments.
+    channels : array
+        parsed channel names.
+    times : array
+        parsed timeseries times.
+    data : dict
+        keys are channel names (order listed in ``self.channels``).
+        values are ``numpy.array`` of timeseries values, array values are
+        ``numpy.nan`` when values are missing.
     """
 
     def __init__(self):
-        """
-        Create a new IAGA2002 parser.
-        """
+        """Create a new IAGA2002 parser."""
         # header fields
         self.headers = {}
         # header comments
@@ -54,8 +47,12 @@ class Parser(object):
         self.data = {}
 
     def parse(self, data):
-        """
-        Parse a string containing IAGA2002 formatted data.
+        """Parse a string containing IAGA2002 formatted data.
+
+        Parameters
+        ----------
+        data : str
+            IAGA 2002 formatted file contents.
         """
         parsing_headers = True
         lines = data.splitlines()
@@ -73,25 +70,28 @@ class Parser(object):
             else:
                 self._parse_data(line)
         self._post_process()
-        return self
 
     def _parse_header(self, line):
-        """
-        Parse a header line.
+        """Parse header line.
+
+        Adds value to ``self.headers``.
         """
         key = line[1:24].strip()
         value = line[24:69].strip()
         self.headers[key] = value
 
     def _parse_comment(self, line):
-        """
-        Parse a header comment line.
+        """Parse comment line.
+
+        Adds line to ``self.comments``.
         """
         self.comments.append(line[2:69].strip())
 
     def _parse_channels(self, line):
-        """
-        Parse the data header that contains channel names.
+        """Parse data header that contains channel names.
+
+        Adds channel names to ``self.channels``.
+        Creates empty values arrays in ``self.data``.
         """
         iaga_code = self.headers['IAGA CODE']
         self.channels.append(line[30:40].strip().replace(iaga_code, ''))
@@ -103,8 +103,10 @@ class Parser(object):
             self.data[channel] = []
 
     def _parse_data(self, line):
-        """
-        Parse one data point in the timeseries
+        """Parse one data point in the timeseries.
+
+        Adds time to ``self.times``.
+        Adds channel values to ``self.data``.
         """
         channels = self.channels
         self.times.append(UTCDateTime(line[0:24]))
@@ -114,10 +116,14 @@ class Parser(object):
         self.data[channels[3]].append(line[61:70].strip())
 
     def _post_process(self):
+        """Post processing after data is parsed.
+
+        Merges comment lines.
+        Parses additional comment-based header values.
+        Converts data to numpy arrays.
+        Replaces empty values with ``numpy.nan``.
         """
-        Post processing after data is parsed.
-        """
-        self.comments = merge_comments(self.comments)
+        self.comments = self._merge_comments(self.comments)
         self.parse_comments()
         for channel in self.data:
             data = numpy.array(self.data[channel], dtype=numpy.float64)
@@ -127,24 +133,38 @@ class Parser(object):
             self.data[channel] = data
 
     def parse_comments(self):
-        """
-        Parse header values embedded in comments.
-        """
+        """Parse header values embedded in comments."""
         for comment in self.comments:
             if comment.startswith('DECBAS'):
                 # parse DECBAS
                 decbas = comment.replace('DECBAS', '').strip()
                 self.headers['DECBAS'] = decbas[:decbas.find(' ')]
 
+    def _merge_comments(self, comments):
+        """Combine multi-line, period-delimited comments.
 
-def main(data):
-    """
-    Parse and print an IAGA2002 string.
-    """
-    from pprint import pprint
-    pprint(Parser().parse(data))
+        Parameters
+        ----------
+        comments : array_like
+            array of comment strings.
 
-
-if __name__ == '__main__':
-    import sys
-    main(sys.stdin.read())
+        Returns
+        -------
+        array_like
+            merged comment strings.
+        """
+        merged = []
+        partial = None
+        for comment in comments:
+            if partial is None:
+                partial = comment
+            else:
+                partial = partial + ' ' + comment
+            # comments end with period
+            if partial.endswith('.'):
+                merged.append(partial)
+                partial = None
+        # comment that doesn't end in a period
+        if partial is not None:
+            merged.append(partial)
+        return merged
