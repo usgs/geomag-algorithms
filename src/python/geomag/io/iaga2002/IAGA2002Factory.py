@@ -95,14 +95,14 @@ class IAGA2002Factory(TimeseriesFactory):
         timeseries = obspy.core.Stream()
         for day in days:
             url = self._get_url(observatory, day, type, interval)
-            timeseries += self._parse_url(url, type, interval)
+            timeseries += self._parse_url(url)
         # merge channel traces for multiple days
         timeseries.merge()
         # trim to requested start/end time
         timeseries.trim(starttime, endtime)
         return timeseries
 
-    def _parse_url(self, url, type, interval):
+    def _parse_url(self, url):
         """Parse the contents of a url to an IAGA2002 file.
 
         Parameters
@@ -135,8 +135,6 @@ class IAGA2002Factory(TimeseriesFactory):
             stats.network = 'IAGA'
             stats.station = station
             stats.channel = channel
-            stats.type = type
-            stats.interval = interval
             stream += obspy.core.Trace(data[channel], stats)
         return stream
 
