@@ -96,7 +96,10 @@ class IAGA2002Factory(TimeseriesFactory):
         for day in days:
             url = self._get_url(observatory, day, type, interval)
             timeseries += self._parse_url(url, type, interval)
+        # merge channel traces for multiple days
         timeseries.merge()
+        # trim to requested start/end time
+        timeseries.trim(starttime, endtime)
         return timeseries
 
     def _parse_url(self, url, type, interval):
@@ -116,7 +119,7 @@ class IAGA2002Factory(TimeseriesFactory):
         parser.parse(read_url(url))
         headers = parser.headers;
         station = headers['IAGA CODE']
-        comments = parser.comments;
+        comments = tuple(parser.comments);
         starttime = parser.times[0];
         endtime = parser.times[-1];
         data = parser.data
