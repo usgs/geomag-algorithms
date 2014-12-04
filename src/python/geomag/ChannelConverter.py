@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import math
+import numpy
 """
 Convert between different components and coordinate systems used by
 the geomagnetic community.
@@ -113,7 +113,7 @@ class ChannelConverter(object):
         float
             x component
         """
-        return h * math.cos(d)
+        return h * numpy.cos(d)
 
     def get_geo_y_from_obs(self, h, e):
         """gets the geographical y component given the observatory components
@@ -149,7 +149,7 @@ class ChannelConverter(object):
         float
             y component
         """
-        return h * math.sin(d)
+        return h * numpy.sin(d)
 
     # ###
     # get magnetic north coordinates from....
@@ -226,7 +226,7 @@ class ChannelConverter(object):
         float
             the total magnetic declination
         """
-        return math.atan2(y, x)
+        return numpy.arctan2(y, x)
 
     def get_mag_h_from_obs(self, h, e):
         """gets the magnetic h component given the observatory components.
@@ -243,7 +243,7 @@ class ChannelConverter(object):
         float
             the total magnetic h component
         """
-        return math.hypot(h, e)
+        return numpy.hypot(h, e)
 
     def get_mag_h_from_geo(self, x, y):
         """gets the magnetic h component given the geographic components.
@@ -260,7 +260,7 @@ class ChannelConverter(object):
         float
             the total magnetic h component
         """
-        return math.hypot(x, y)
+        return numpy.hypot(x, y)
 
     # ###
     # get observatory coordinates from....
@@ -323,7 +323,7 @@ class ChannelConverter(object):
         float
             the observatory d declination
         """
-        return math.atan2(e, h)
+        return numpy.arctan2(e, h)
 
     def get_obs_d_from_mag(self, d):
         """gets the observatory d declination given the magnetic north
@@ -376,7 +376,7 @@ class ChannelConverter(object):
             the observatory e component
         """
         obs_d = self.get_obs_d_from_mag(d)
-        return h * math.sin(obs_d)
+        return h * numpy.sin(obs_d)
 
     def get_obs_e_from_obs(self, h, d):
         """gets the observatory e component given the observatory components.
@@ -393,7 +393,7 @@ class ChannelConverter(object):
         float
             the observatory e component
         """
-        return h * math.tan(d)
+        return h * numpy.tan(d)
 
     def get_obs_h_from_geo(self, x, y):
         """gets the observatory h component given the geographic components.
@@ -430,18 +430,16 @@ class ChannelConverter(object):
             the observatory h component
         """
         obs_d = self.get_obs_d_from_mag(d)
-        return h * math.cos(obs_d)
+        return h * numpy.cos(obs_d)
 
 """
 short main to test the principal parts work with geomagnetic data.
 """
 if __name__ == '__main__':
-    channel = ChannelConverter((552.7 * math.pi / 60.0 / 180.0))
+    channel = ChannelConverter((552.7 * numpy.pi / 60.0 / 180.0))
     print "get_geo_x_from_obs", channel.get_geo_x_from_obs(20840.15, -74.16)
     print "get_geo_y_from_obs", channel.get_geo_y_from_obs(20840.15, -74.16)
     print "get_obs_e_from_geo", channel.get_obs_e_from_geo(20583.260646,
             3262.93317535)
     print "get_obs_h_from_geo", channel.get_obs_h_from_geo(20583.260646,
             3262.93317535)
-    print "get_mag_compf_from_mag", channel.get_mag_compf_from_mag(20819.61,
-            47705.42)  # Measured f was 52585.28
