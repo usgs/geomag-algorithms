@@ -1,7 +1,7 @@
 """Factory that loads IAGA2002 Files."""
 
 import urllib2
-from obspy.core.utcdatetime import UTCDateTime
+import obspy.core
 from geomag.io import Timeseries, TimeseriesFactory, TimeseriesFactoryException
 from IAGA2002Parser import IAGA2002Parser
 
@@ -71,9 +71,9 @@ class IAGA2002Factory(TimeseriesFactory):
         ----------
         observatory : str
             observatory code.
-        starttime : UTCDateTime
+        starttime : obspy.core.UTCDateTime
             time of first sample.
-        endtime : UTCDateTime
+        endtime : obspy.core.UTCDateTime
             time of last sample.
         type : {'variation', 'quasi-definitive'}
             data type.
@@ -82,7 +82,7 @@ class IAGA2002Factory(TimeseriesFactory):
 
         Returns
         -------
-        Timeseries
+        obspy.core.Stream
             timeseries object with requested data.
 
         Raises
@@ -92,17 +92,14 @@ class IAGA2002Factory(TimeseriesFactory):
             retrieving timeseries.
         """
         days = self._get_days(starttime, endtime)
-        timeseries = None
+        timeseries = obspy.core.Stream()
         for day in days:
             url = self._get_url(observatory, day, type, interval)
-            day_timeseries = self._parse_url(url)
-            if timeseries is None:
-                timeseries = day_timeseries
-            else:
-                timeseries = timeseries + day_timeseries
+            timeseries += self._parse_url(url, type, interval)
+        timeseries.merge()
         return timeseries
 
-    def _parse_url(self, url):
+    def _parse_url(self, url, type, interval):
         """Parse the contents of a url to an IAGA2002 file.
 
         Parameters
@@ -112,22 +109,33 @@ class IAGA2002Factory(TimeseriesFactory):
 
         Returns
         -------
-        Timeseries
-            parsed timeseries.
+        obspy.core.Stream
+            parsed data.
         """
         parser = IAGA2002Parser()
         parser.parse(read_url(url))
+        headers = parser.headers;
+        station = headers['IAGA CODE']
+        comments = parser.comments;
         starttime = parser.times[0];
         endtime = parser.times[-1];
-        metadata = {
-            'headers': parser.headers,
-            'comments': parser.comments,
-            'starttime': starttime,
-            'endtime': endtime
-        }
-        timeseries = Timeseries(parser.headers['IAGA CODE'], parser.data,
-                starttime, endtime, [metadata])
-        return timeseries
+        data = parser.data
+        length = len(data[data.keys()[0]])
+        rate = (length - 1) / (endtime - starttime)
+        stream = obspy.core.Stream()
+        for channel in data.keys():
+            stats = obspy.core.Stats(headers)
+            stats.comments = comments
+            stats.starttime = starttime
+            stats.sampling_rate = rate
+            stats.npts = length
+            stats.network = 'IAGA'
+            stats.station = station
+            stats.channel = channel
+            stats.type = type
+            stats.interval = interval
+            stream += obspy.core.Trace(data[channel], stats)
+        return stream
 
     def _get_url(self, observatory, date, type='variation', interval='minute'):
         """Get the url for a specified IAGA2002 file.
@@ -139,7 +147,7 @@ class IAGA2002Factory(TimeseriesFactory):
         ----------
         observatory : str
             observatory code.
-        date : UTCDateTime
+        date : obspy.core.UTCDateTime
             day to fetch (only year, month, day are used)
         type : {'variation', 'quasi-definitive'}
             data type.
@@ -287,9 +295,9 @@ class IAGA2002Factory(TimeseriesFactory):
 
         Parameters
         ----------
-        starttime : UTCDateTime
+        starttime : obspy.core.UTCDateTime
             the start time
-        endtime : UTCDateTime
+        endtime : obspy.core.UTCDateTime
             the end time
 
         Returns
@@ -314,5 +322,5 @@ class IAGA2002Factory(TimeseriesFactory):
             if lastday == (day.year, day.month, day.day):
                 break
             # move to next day
-            day = UTCDateTime(day.timestamp + 86400)
+            day = obspy.core.UTCDateTime(day.timestamp + 86400)
         return days

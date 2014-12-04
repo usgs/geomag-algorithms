@@ -28,6 +28,16 @@ class TimeseriesFactory(object):
             data type.
         interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
             data interval.
+
+        Returns
+        -------
+        obspy.core.Stream
+            stream containing traces for requested timeseries.
+
+        Raises
+        ------
+        TimeseriesFactoryException
+            if any parameters are unsupported, or errors occur loading data.
         """
         raise NotImplementedError('"get_timeseries" not implemented')
 
