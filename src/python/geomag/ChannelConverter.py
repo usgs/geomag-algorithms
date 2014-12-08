@@ -60,6 +60,24 @@ def get_geo_from_mag(h, d):
 
 
 # inividual get geo from calls
+def get_geo_x_from_mag(h, d):
+    """gets the geographical x component given magnetic north components
+
+    Parameters
+    __________
+    h: float
+        the total h component in the magnetic north direction.
+    d: float
+        the total d declination for the magnetic north direction.
+
+    Returns
+    _______
+    float
+        x component
+    """
+    return h * numpy.cos(d)
+
+
 def get_geo_x_from_obs(h, e, d0=0):
     """gets the geographical x component given the observatory components
 
@@ -80,8 +98,8 @@ def get_geo_x_from_obs(h, e, d0=0):
     return get_geo_x_from_mag(mag_h, mag_d)
 
 
-def get_geo_x_from_mag(h, d):
-    """gets the geographical x component given magnetic north components
+def get_geo_y_from_mag(h, d):
+    """gets the geographical y component given magnetic north components
 
     Parameters
     __________
@@ -93,9 +111,9 @@ def get_geo_x_from_mag(h, d):
     Returns
     _______
     float
-        x component
+        y component
     """
-    return h * numpy.cos(d)
+    return h * numpy.sin(d)
 
 
 def get_geo_y_from_obs(h, e, d0=0):
@@ -116,24 +134,6 @@ def get_geo_y_from_obs(h, e, d0=0):
     mag_h = get_mag_h_from_obs(h, e)
     mag_d = get_mag_d_from_obs(h, e, d0)
     return get_geo_y_from_mag(mag_h, mag_d)
-
-
-def get_geo_y_from_mag(h, d):
-    """gets the geographical y component given magnetic north components
-
-    Parameters
-    __________
-    h: float
-        the total h component in the magnetic north direction.
-    d: float
-        the total d declination for the magnetic north direction.
-
-    Returns
-    _______
-    float
-        y component
-    """
-    return h * numpy.sin(d)
 
 
 # ###
@@ -274,6 +274,8 @@ def get_obs_from_geo(x, y, d0=0):
         [2]: observatory d declination
     """
     mag_h, mag_d = get_mag_from_geo(x, y)
+    print mag_h
+    print mag_d
     return get_obs_from_mag(mag_h, mag_d, d0)
 
 
