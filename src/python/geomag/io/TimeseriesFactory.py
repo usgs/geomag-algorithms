@@ -41,6 +41,19 @@ class TimeseriesFactory(object):
         """
         raise NotImplementedError('"get_timeseries" not implemented')
 
-    def put_timeseries(self, timeseries):
-        """Store timeseries data."""
+    def put_timeseries(self, timeseries, channels):
+        """Store timeseries data.
+
+        Parameters
+        ----------
+        timeseries : obspy.core.Stream
+            stream containing traces to store.
+        channels : list
+            list of channels to store.
+
+        Raises
+        ------
+        TimeseriesFactoryException
+            if any errors occur.
+        """
         raise NotImplementedError('"put_timeseries" not implemented')
