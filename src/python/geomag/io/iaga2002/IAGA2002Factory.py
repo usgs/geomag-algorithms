@@ -2,7 +2,7 @@
 
 import urllib2
 import obspy.core
-from geomag.io import Timeseries, TimeseriesFactory, TimeseriesFactoryException
+from geomag.io import TimeseriesFactory, TimeseriesFactoryException
 from IAGA2002Parser import IAGA2002Parser
 
 
@@ -117,11 +117,11 @@ class IAGA2002Factory(TimeseriesFactory):
         """
         parser = IAGA2002Parser()
         parser.parse(read_url(url))
-        headers = parser.headers;
+        headers = parser.headers
         station = headers['IAGA CODE']
-        comments = tuple(parser.comments);
-        starttime = parser.times[0];
-        endtime = parser.times[-1];
+        comments = tuple(parser.comments)
+        starttime = parser.times[0]
+        endtime = parser.times[-1]
         data = parser.data
         length = len(data[data.keys()[0]])
         rate = (length - 1) / (endtime - starttime)
@@ -230,7 +230,7 @@ class IAGA2002Factory(TimeseriesFactory):
             raise TimeseriesFactoryException(
                     'Unsupported interval "%s"' % interval)
         return interval_name
-    
+
     def _get_type_abbreviation(self, type):
         """Get abbreviation for a data type.
 

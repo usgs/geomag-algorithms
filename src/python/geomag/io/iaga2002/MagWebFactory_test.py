@@ -11,4 +11,3 @@ def test_init():
     """
     factory = MagWebFactory.MagWebFactory()
     assert_equals(factory.urlTemplate, MagWebFactory.MAGWEB_URL_TEMPLATE)
-

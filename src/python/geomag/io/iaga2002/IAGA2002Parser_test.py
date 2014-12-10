@@ -111,4 +111,3 @@ def test_parse_decbas():
     parser = IAGA2002Parser()
     parser.parse(IAGA2002_EXAMPLE)
     assert_equals(parser.headers['DECBAS'], '5527')
-
