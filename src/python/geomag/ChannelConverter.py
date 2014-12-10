@@ -7,6 +7,7 @@ the geomagnetic community.
 
 We use three coordinate systems.
 Geo: Based on Geographic North.  X, Y, Z
+     X is north, Y is east
 Obs: Based on the observatories orientaion. H, E, Z [d]
 Mag: Based on Magnetic North. H, D, Z [E]
 
@@ -78,26 +79,6 @@ def get_geo_x_from_mag(h, d):
     return h * numpy.cos(d)
 
 
-def get_geo_x_from_obs(h, e, d0=0):
-    """gets the geographical x component given the observatory components
-
-    Parameters
-    __________
-    h: float
-        the h component from the observatory
-    e: float
-        the e component from the observatory
-
-    Returns
-    _______
-    float
-        x component
-    """
-    mag_h = get_mag_h_from_obs(h, e)
-    mag_d = get_mag_d_from_obs(h, e, d0)
-    return get_geo_x_from_mag(mag_h, mag_d)
-
-
 def get_geo_y_from_mag(h, d):
     """gets the geographical y component given magnetic north components
 
@@ -114,26 +95,6 @@ def get_geo_y_from_mag(h, d):
         y component
     """
     return h * numpy.sin(d)
-
-
-def get_geo_y_from_obs(h, e, d0=0):
-    """gets the geographical y component given the observatory components
-
-    Parameters
-    __________
-    h: float
-        the h component from the observatory
-    e: float
-        the e component from the observatory
-
-    Returns
-    _______
-    float
-        y component
-    """
-    mag_h = get_mag_h_from_obs(h, e)
-    mag_d = get_mag_d_from_obs(h, e, d0)
-    return get_geo_y_from_mag(mag_h, mag_d)
 
 
 # ###
@@ -274,8 +235,6 @@ def get_obs_from_geo(x, y, d0=0):
         [2]: observatory d declination
     """
     mag_h, mag_d = get_mag_from_geo(x, y)
-    print mag_h
-    print mag_d
     return get_obs_from_mag(mag_h, mag_d, d0)
 
 
@@ -298,8 +257,7 @@ def get_obs_from_mag(h, d, d0=0):
     """
     obs_h = get_obs_h_from_mag(h, d, d0)
     obs_e = get_obs_e_from_mag(h, d, d0)
-    obs_d = get_obs_d_from_mag(d, d0)
-    return (obs_h, obs_e, obs_d)
+    return (obs_h, obs_e)
 
 
 # inividual get obs from calls
@@ -336,26 +294,6 @@ def get_obs_d_from_mag(d, d0=0):
         the observatory d declination
     """
     return d - d0
-
-
-def get_obs_e_from_geo(x, y, d0=0):
-    """gets the observatory e component given the geographic components.
-
-    Parameters
-    __________
-    x: float
-        the geographic x component
-    y: float
-        the geographic y component
-
-    Returns
-    _______
-    float
-        the observatory e component
-    """
-    mag_h = get_mag_h_from_geo(x, y)
-    mag_d = get_mag_d_from_geo(x, y)
-    return get_obs_e_from_mag(mag_h, mag_d, d0)
 
 
 def get_obs_e_from_mag(h, d, d0=0):
@@ -395,26 +333,6 @@ def get_obs_e_from_obs(h, d):
     return h * numpy.tan(d)
 
 
-def get_obs_h_from_geo(x, y, d0=0):
-    """gets the observatory h component given the geographic components.
-
-    Parameters
-    __________
-    x: float
-        the geographic x component
-    y: float
-        the geographic y component
-
-    Returns
-    _______
-    float
-        the observatory h component
-    """
-    mag_h = get_mag_h_from_geo(x, y)
-    mag_d = get_mag_d_from_geo(x, y)
-    return get_obs_h_from_mag(mag_h, mag_d, d0)
-
-
 def get_obs_h_from_mag(h, d, d0=0):
     """gets the observatory h component given the magnetic north components
 
@@ -438,11 +356,6 @@ short main to test the principal parts work with geomagnetic data.
 """
 if __name__ == '__main__':
     dec_bas = 552.7 * numpy.pi / 60.0 / 180.0
-    print "get_geo_x_from_obs", get_geo_x_from_obs(20840.15, -74.16,
+    print "get_geo_from_obs", get_geo_from_obs(20840.15, -74.16, dec_bas)
+    print "get_geo_from_geo", get_obs_from_geo(20583.260646, 3262.93317535,
             dec_bas)
-    print "get_geo_y_from_obs", get_geo_y_from_obs(20840.15, -74.16,
-            dec_bas)
-    print "get_obs_e_from_geo", get_obs_e_from_geo(20583.260646,
-            3262.93317535, dec_bas)
-    print "get_obs_h_from_geo", get_obs_h_from_geo(20583.260646,
-            3262.93317535, dec_bas)
