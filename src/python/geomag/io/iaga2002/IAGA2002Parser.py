@@ -2,9 +2,7 @@
 
 
 import numpy
-from obspy.core.utcdatetime import UTCDateTime
-from geomag.io import Timeseries
-
+from datetime import datetime
 
 # values that represent missing data points in IAGA2002
 EIGHTS = numpy.float64('88888.88')
@@ -41,10 +39,12 @@ class IAGA2002Parser(object):
         self.comments = []
         # array of channel names
         self.channels = []
-        # timestamps of data (obspy.core.utcdatetime.UTCDateTime)
+        # timestamps of data (datetime.datetime)
         self.times = []
         # dictionary of data (channel : numpy.array<float64>)
         self.data = {}
+        # temporary storage for data being parsed
+        self._parsedata = None
 
     def parse(self, data):
         """Parse a string containing IAGA2002 formatted data.
@@ -98,9 +98,8 @@ class IAGA2002Parser(object):
         self.channels.append(line[40:50].strip().replace(iaga_code, ''))
         self.channels.append(line[50:60].strip().replace(iaga_code, ''))
         self.channels.append(line[60:69].strip().replace(iaga_code, ''))
-        # create data arrays
-        for channel in self.channels:
-            self.data[channel] = []
+        # create parsing data arrays
+        self._parsedata = ([], [], [], [], [])
 
     def _parse_data(self, line):
         """Parse one data point in the timeseries.
@@ -108,12 +107,20 @@ class IAGA2002Parser(object):
         Adds time to ``self.times``.
         Adds channel values to ``self.data``.
         """
-        channels = self.channels
-        self.times.append(UTCDateTime(line[0:24]))
-        self.data[channels[0]].append(line[31:40].strip())
-        self.data[channels[1]].append(line[41:50].strip())
-        self.data[channels[2]].append(line[51:60].strip())
-        self.data[channels[3]].append(line[61:70].strip())
+        # parsing time components is much faster
+        time = datetime(
+                # date
+                int(line[0:4]), int(line[5:7]), int(line[8:10]),
+                # time
+                int(line[11:13]), int(line[14:16]), int(line[17:19]),
+                # microseconds
+                int(line[20:23]) * 1000)
+        t, d1, d2, d3, d4 = self._parsedata
+        t.append(time)
+        d1.append(line[31:40])
+        d2.append(line[41:50])
+        d3.append(line[51:60])
+        d4.append(line[61:70])
 
     def _post_process(self):
         """Post processing after data is parsed.
@@ -125,12 +132,14 @@ class IAGA2002Parser(object):
         """
         self.comments = self._merge_comments(self.comments)
         self.parse_comments()
-        for channel in self.data:
-            data = numpy.array(self.data[channel], dtype=numpy.float64)
+        self.times = self._parsedata[0]
+        for channel, data in zip(self.channels, self._parsedata[1:]):
+            data = numpy.array(data, dtype=numpy.float64)
             # filter empty values
             data[data == EIGHTS] = numpy.nan
             data[data == NINES] = numpy.nan
             self.data[channel] = data
+        self._parsedata = None
 
     def parse_comments(self):
         """Parse header values embedded in comments."""

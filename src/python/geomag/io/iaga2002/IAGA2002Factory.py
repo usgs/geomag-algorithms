@@ -120,8 +120,8 @@ class IAGA2002Factory(TimeseriesFactory):
         headers = parser.headers
         station = headers['IAGA CODE']
         comments = tuple(parser.comments)
-        starttime = parser.times[0]
-        endtime = parser.times[-1]
+        starttime = obspy.core.UTCDateTime(parser.times[0])
+        endtime = obspy.core.UTCDateTime(parser.times[-1])
         data = parser.data
         length = len(data[data.keys()[0]])
         rate = (length - 1) / (endtime - starttime)
