@@ -350,12 +350,3 @@ def get_obs_h_from_mag(h, d, d0=0):
     """
     obs_d = get_obs_d_from_mag(d, d0)
     return h * numpy.cos(obs_d)
-
-"""
-short main to test the principal parts work with geomagnetic data.
-"""
-if __name__ == '__main__':
-    dec_bas = 552.7 * numpy.pi / 60.0 / 180.0
-    print "get_geo_from_obs", get_geo_from_obs(20840.15, -74.16, dec_bas)
-    print "get_geo_from_geo", get_obs_from_geo(20583.260646, 3262.93317535,
-            dec_bas)
