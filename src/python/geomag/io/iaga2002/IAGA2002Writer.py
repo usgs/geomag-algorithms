@@ -4,6 +4,7 @@ from geomag.io import TimeseriesFactoryException
 import numpy
 import IAGA2002Parser
 import textwrap
+from datetime import datetime
 
 
 class IAGA2002Writer(object):
@@ -105,11 +106,11 @@ class IAGA2002Writer(object):
         """
         buf = []
         traces = [timeseries.select(channel=c)[0] for c in channels]
-        starttime = traces[0].stats.starttime
+        starttime = float(traces[0].stats.starttime)
         delta = traces[0].stats.delta
         for i in xrange(len(traces[0].data)):
             buf.append(self._format_values(
-                starttime + i * delta,
+                datetime.utcfromtimestamp(starttime + i * delta),
                 (t.data[i] for t in traces)))
         return ''.join(buf)
 
@@ -118,7 +119,7 @@ class IAGA2002Writer(object):
 
         Parameters
         ----------
-        time : UTCDateTime
+        time : datetime
             timestamp for values
         values : sequence
             list and order of channel values to output.
@@ -129,17 +130,14 @@ class IAGA2002Writer(object):
         unicode
             Formatted line containing values.
         """
-        buf = []
-        buf.extend((
-                time.strftime('%Y-%m-%d %H:%M:%S.'),
-                '{:0>3.0f}'.format(round(time.microsecond / 1000, 0)),
-                time.strftime(' %j   ')))
-        for value in values:
-            if numpy.isnan(value):
-                value = self.empty_value
-            buf.append('{:10.2f}'.format(value))
-        buf.append('\n')
-        return ''.join(buf)
+        tt = time.timetuple()
+        return '{0.tm_year:0>4d}-{0.tm_mon:0>2d}-{0.tm_mday:0>2d} ' \
+                '{0.tm_hour:0>2d}:{0.tm_min:0>2d}:{0.tm_sec:0>2d}.{1:0>3d} ' \
+                '{0.tm_yday:0>3d}   ' \
+                '{2:10.2f}{3:10.2f}{4:10.2f}{5:10.2f}\n'.format(
+                tt, int(time.microsecond / 1000),
+                *[self.empty_value if numpy.isnan(val) else val
+                        for val in values])
 
     @classmethod
     def format(self, timeseries, channels):
