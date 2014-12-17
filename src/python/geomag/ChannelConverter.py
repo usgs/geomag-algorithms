@@ -15,8 +15,8 @@ d0: Declination baseline in radians
 import numpy
 
 
-m2r = numpy.pi / 180 / 60       # Minutes to Radians
-r2m = 180.0 / numpy.pi * 60     # Radians to Minutes
+M2R = numpy.pi / 180 / 60       # Minutes to Radians
+R2M = 180.0 / numpy.pi * 60     # Radians to Minutes
 
 
 # ###
@@ -373,17 +373,17 @@ def get_obs_h_from_mag(h, d, d0=0):
     return h * numpy.cos(obs_d)
 
 
-def get_radian_from_minutes(m):
+def get_radians_from_minutes(m):
     """gets the radian value given the decimal value
     Parameters
     __________
     d: array_like
         the decimal value to be converted
     """
-    return m * m2r
+    return m * M2R
 
 
-def get_minutes_from_radian(r):
+def get_minutes_from_radians(r):
     """gets the decimal value given the radian value
 
     Parameters
@@ -391,4 +391,4 @@ def get_minutes_from_radian(r):
     r: float
         the radian value to be converted
     """
-    return r * r2m
+    return r * R2M

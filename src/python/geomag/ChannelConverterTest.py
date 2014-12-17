@@ -34,43 +34,40 @@ class ChannelConverterTest:
     def test_get_geo_from_obs(self):
         """geomag.ChannelConverterTest.test_get_geo_from_obs()
 
-        1) Call get_geo_from_obs using equal h,e values with a d0 of 0
-          the geographic values X,Y will be the same.
         """
+
+        # 1) Call get_geo_from_obs using equal h,e values with a d0 of 0
+        #   the geographic values X,Y will be the same.
         (geo_X, geo_Y) = channel.get_geo_from_obs(1, 1)
         assert_almost_equal(geo_X, 1, 8,
                 'Expect X to almost equal 1.')
         assert_almost_equal(geo_Y, 1, 8,
                 'Expect Y to almost equal 1.')
-        """
-        2) Call get_geo_from_obs using h,e values of 1,tan(45/2) with d0 of
-            45/2. The geographic values X,Y will be 1,1, since the observatory
-        """
+
+        # 2) Call get_geo_from_obs using h,e values of 1,tan(45/2) with d0 of
+        #   45/2. The geographic values X,Y will be 1,1, since the observatory
         (geo_X, geo_Y) = channel.get_geo_from_obs(1, tan_22pt5,
                 22.5 * deg2rad)
         assert_almost_equal(geo_X, geo_Y, 8, 'Expect X,Y to be equal.')
-        """
-        3) Call get_geo_from_obs using h,e values of 1,0 with a d0 of 315
-            degrees. The geographic X,Y will be 1,-1. Since the obs will be
-            in line with magnetic north, at -45 degrees.
-        """
+
+        # 3) Call get_geo_from_obs using h,e values of 1,0 with a d0 of 315
+        #   degrees. The geographic X,Y will be 1,-1. Since the obs will be
+        #   in line with magnetic north, at -45 degrees.
         (geo_X, geo_Y) = channel.get_geo_from_obs(1, 0, numpy.pi * 1.75)
         assert_almost_equal(geo_X, -geo_Y, 8,
                 'Expect X,-Y to be almost equal.')
-        """
-        4) Call get_geo_from_obs using h,e values of 1,tan(30) with d0 of 0.
-            X,Y will be 1, tan(30). The observatory and the geographic values
-            are equal since the observatory is aligned with geographic north.
-        """
+
+        # 4) Call get_geo_from_obs using h,e values of 1,tan(30) with d0 of 0.
+        #   X,Y will be 1, tan(30). The observatory and the geographic values
+        #   are equal since the observatory is aligned with geographic north.
         (geo_X, geo_Y) = channel.get_geo_from_obs(1, tan_30)
         assert_equals(geo_X, 1, 'Expect X to equal 1.')
         assert_equals(geo_Y, tan_30, 'Expect Y to equal tan(30).')
-        """
-        5) Call get_geo_from_obs using h,e values of cos_30,sin_30 and d0 of
-            30 degrees. The geographic X,Y will be cos_60, sin_60, due to
-            combined angle of the observatory declination of 30 degrees, and
-            the d0 of 30 degrees.
-        """
+
+        # 5) Call get_geo_from_obs using h,e values of cos_30,sin_30 and d0 of
+        #   30 degrees. The geographic X,Y will be cos_60, sin_60, due to
+        #   combined angle of the observatory declination of 30 degrees, and
+        #   the d0 of 30 degrees.
         d = 30 * deg2rad
         h = math.cos(d)
         e = math.sin(d)
@@ -370,18 +367,18 @@ class ChannelConverterTest:
         assert_almost_equal(obs_h, 20840.15, 8, 'Expect h to = 20840.15.')
         assert_almost_equal(obs_e, -74.16, 8, 'Expect e to = -74.16')
 
-    def test_get_radian_from_minutes(self):
+    def test_get_radians_from_minutes(self):
         """geomag.ChannelConverterTest.test_get_radian_from_decimal()
 
         Call get_radian_from_decimal using 45 degrees, expect r to be pi/4
         """
-        assert_equals(channel.get_radian_from_minutes(45 * 60),
+        assert_equals(channel.get_radians_from_minutes(45 * 60),
             numpy.pi / 4.0)
 
-    def test_get_minutes_from_radian(self):
+    def test_get_minutes_from_radians(self):
         """geomag.ChannelConverterTest.test_get_decimal_from_radian()
 
         Call get_decimal_from_radian using pi/4, expect d to be 45
         """
-        assert_equals(channel.get_minutes_from_radian(numpy.pi / 4.0),
+        assert_equals(channel.get_minutes_from_radians(numpy.pi / 4.0),
             45 * 60)
