@@ -66,7 +66,7 @@ class TimeseriesFactory(object):
         raise NotImplementedError('"get_timeseries" not implemented')
 
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
-            observatory=None, channels=None, type=None, interval=None):
+            channels=None, type=None, interval=None):
         """Store timeseries data.
 
         Parameters
@@ -79,9 +79,6 @@ class TimeseriesFactory(object):
         endtime : UTCDateTime
             time of last sample in timeseries to store.
             uses last sample if unspecified.
-        observatory : str
-            observatory code, usually 3 characters, optional.
-            uses default if unspecified.
         channels : array_like
             list of channels to store, optional.
             uses default if unspecified.
