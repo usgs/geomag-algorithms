@@ -350,3 +350,24 @@ def get_obs_h_from_mag(h, d, d0=0):
     """
     obs_d = get_obs_d_from_mag(d, d0)
     return h * numpy.cos(obs_d)
+
+
+def get_radian_from_decimal(d):
+    """gets the radian value given the decimal value
+    Parameters
+    __________
+    d: float
+        the decimal value to be converted
+    """
+    return d * numpy.pi / 180.0
+
+
+def get_decimal_from_radian(r):
+    """gets the decimal value given the radian value
+
+    Parameters
+    __________
+    r: float
+        the radian value to be converted
+    """
+    return r * 180.0 / numpy.pi
