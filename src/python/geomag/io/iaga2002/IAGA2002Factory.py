@@ -60,11 +60,13 @@ class IAGA2002Factory(TimeseriesFactory):
     IAGA2002Parser
     """
 
-    def __init__(self, urlTemplate):
+    def __init__(self, urlTemplate, observatory=None, channels=None, type=None,
+            interval=None):
+        TimeseriesFactory.__init__(self, observatory, channels, type, interval)
         self.urlTemplate = urlTemplate
 
-    def get_timeseries(self, observatory, starttime, endtime,
-            type='variation', interval='minute'):
+    def get_timeseries(self, starttime, endtime, observatory=None,
+            channels=None, type=None, interval=None):
         """Get timeseries data
 
         Parameters
@@ -91,6 +93,10 @@ class IAGA2002Factory(TimeseriesFactory):
             if invalid values are requested, or errors occur while
             retrieving timeseries.
         """
+        observatory = observatory or self.observatory
+        channels = channels or self.channels
+        type = type or self.type
+        interval = interval or self.interval
         days = self._get_days(starttime, endtime)
         timeseries = obspy.core.Stream()
         for day in days:
