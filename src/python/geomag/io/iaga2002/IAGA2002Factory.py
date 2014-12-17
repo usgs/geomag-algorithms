@@ -2,8 +2,10 @@
 
 import urllib2
 import obspy.core
+import os
 from geomag.io import TimeseriesFactory, TimeseriesFactoryException
 from IAGA2002Parser import IAGA2002Parser
+from IAGA2002Writer import IAGA2002Writer
 
 
 # pattern for iaga 2002 file names
@@ -331,3 +333,92 @@ class IAGA2002Factory(TimeseriesFactory):
             # move to next day
             day = obspy.core.UTCDateTime(day.timestamp + 86400)
         return days
+
+    def put_timeseries(self, timeseries, starttime=None, endtime=None,
+            channels=None, type=None, interval=None):
+        """Store timeseries data.
+
+        Parameters
+        ----------
+        timeseries : obspy.core.Stream
+            stream containing traces to store.
+        starttime : UTCDateTime
+            time of first sample in timeseries to store.
+            uses first sample if unspecified.
+        endtime : UTCDateTime
+            time of last sample in timeseries to store.
+            uses last sample if unspecified.
+        channels : array_like
+            list of channels to store, optional.
+            uses default if unspecified.
+        type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
+            data type, optional.
+            uses default if unspecified.
+        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+            data interval, optional.
+            uses default if unspecified.
+        """
+        if not self.urlTemplate.startswith('file://'):
+            raise TimeseriesFactoryException('Only file urls are supported')
+        channels = channels or self.channels
+        type = type or self.type
+        interval = interval or self.interval
+        stats = timeseries[0].stats
+        observatory = stats.station
+        starttime = starttime or stats.starttime
+        endtime = endtime or stats.endtime
+        days = self._get_days(starttime, endtime)
+        for day in days:
+            day_filename = self._get_file_from_url(
+                    self._get_url(observatory, day, type, interval))
+            day_timeseries = self._get_slice(timeseries, day)
+            with open(day_filename, 'w') as fh:
+                IAGA2002Writer().write(fh, day_timeseries, channels)
+
+    def _get_file_from_url(self, url):
+        """Get a file for writing.
+
+        Ensures parent directory exists.
+
+        Parameters
+        ----------
+        url : str
+            Url path to IAGA2002
+
+        Returns
+        -------
+        str
+            path to file without file:// prefix
+
+        Raises
+        ------
+        TimeseriesFactoryException
+            if url does not start with file://
+        """
+        if not url.startswith('file://'):
+            raise TimeseriesFactoryException('Only file urls are supported for writing')
+        filename = url.replace('file://', '')
+        parent = os.path.dirname(filename)
+        if not os.path.exists(parent):
+            os.makedirs(parent)
+        return filename
+
+    def _get_slice(self, timeseries, day):
+        """Get the first and last time for a day
+
+        Parameters
+        ----------
+        timeseries : obspy.core.Stream
+            timeseries to slice
+        day : UTCDateTime
+            time in day to slice
+
+        Returns
+        -------
+        obspy.core.Stream
+            sliced stream
+        """
+        day = day.datetime
+        start = obspy.core.UTCDateTime(day.year, day.month, day.day, 0, 0, 0)
+        end = start + 86399.999999
+        return timeseries.slice(start, end)
