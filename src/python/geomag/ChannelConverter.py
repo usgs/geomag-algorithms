@@ -1,6 +1,3 @@
-#! /usr/bin/env python
-
-import numpy
 """
 Convert between different components and coordinate systems used by
 the geomagnetic community.
@@ -14,6 +11,14 @@ Mag: Based on Magnetic North. H, D, Z [E]
 d0: Declination baseline in radians
 """
 
+
+import numpy
+
+
+m2r = numpy.pi / 180 / 60       # Minutes to Radians
+r2m = 180.0 / numpy.pi * 60     # Radians to Minutes
+
+
 # ###
 # get geographic coordinates from....
 # ###
@@ -24,10 +29,12 @@ def get_geo_from_obs(h, e, d0=0):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the h component from the observatory
-    e: float
+    e: array_like
         the e component from the observatory
+    d0: float
+        the declination baseline angle in radians
 
     Returns
     _______
@@ -44,9 +51,9 @@ def get_geo_from_mag(h, d):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the total h component in the magnetic north direction.
-    d: float
+    d: array_like
         the total d declination for the magnetic north direction.
 
     Returns
@@ -66,14 +73,14 @@ def get_geo_x_from_mag(h, d):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the total h component in the magnetic north direction.
-    d: float
+    d: array_like
         the total d declination for the magnetic north direction.
 
     Returns
     _______
-    float
+    array_like
         x component
     """
     return h * numpy.cos(d)
@@ -84,14 +91,14 @@ def get_geo_y_from_mag(h, d):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the total h component in the magnetic north direction.
-    d: float
+    d: array_like
         the total d declination for the magnetic north direction.
 
     Returns
     _______
-    float
+    array_like
         y component
     """
     return h * numpy.sin(d)
@@ -105,10 +112,12 @@ def get_mag_from_obs(h, e, d0=0):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the h component from the observatory
-    e: float
+    e: array_like
         the e component from the observatory
+    d0: float
+        the declination baseline angle in radians
 
     Returns
     _______
@@ -126,9 +135,9 @@ def get_mag_from_geo(x, y):
 
     Parameters
     __________
-    x: float
+    x: array_like
         the geographic x component
-    y: float
+    y: array_like
         the geographic y component
 
     Returns
@@ -147,14 +156,16 @@ def get_mag_d_from_obs(h, e, d0=0):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the h component from the observatory
-    e: float
+    e: array_like
         the e component from the observatory
+    d0: float
+        the declination baseline angle in radians
 
     Returns
     _______
-    float
+    array_like
         the total magnetic declination
     """
     return d0 + get_obs_d_from_obs(h, e)
@@ -165,14 +176,14 @@ def get_mag_d_from_geo(x, y):
 
     Parameters
     __________
-    x: float
+    x: array_like
         the geographic x component
-    y: float
+    y: array_like
         the geographic y component
 
     Returns
     _______
-    float
+    array_like
         the total magnetic declination
     """
     return numpy.arctan2(y, x)
@@ -183,14 +194,14 @@ def get_mag_h_from_obs(h, e):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the h component from the observatory
-    e: float
+    e: array_like
         the e component from the observatory
 
     Returns
     _______
-    float
+    array_like
         the total magnetic h component
     """
     return numpy.hypot(h, e)
@@ -201,14 +212,14 @@ def get_mag_h_from_geo(x, y):
 
     Parameters
     __________
-    x: float
+    x: array_like
         the geographic x component
-    y: float
+    y: array_like
         the geographic y component
 
     Returns
     _______
-    float
+    array_like
         the total magnetic h component
     """
     return numpy.hypot(x, y)
@@ -222,10 +233,12 @@ def get_obs_from_geo(x, y, d0=0):
 
     Parameters
     __________
-    x: float
+    x: array_like
         the geographic x component
-    y: float
+    y: array_like
         the geographic y component
+    d0: float
+        the declination baseline angle in radians
 
      Returns
     _______
@@ -243,10 +256,12 @@ def get_obs_from_mag(h, d, d0=0):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the total h component in the magnetic north direction.
-    d: float
+    d: array_like
         the total d declination for the magnetic north direction.
+    d0: float
+        the declination baseline angle in radians
 
      Returns
     _______
@@ -266,14 +281,14 @@ def get_obs_d_from_obs(h, e):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the h component from the observatory
-    e: float
+    e: array_like
         the e component from the observatory
 
     Returns
     _______
-    float
+    array_like
         the observatory d declination
     """
     return numpy.arctan2(e, h)
@@ -285,12 +300,14 @@ def get_obs_d_from_mag(d, d0=0):
 
     Parameters
     __________
-    d: float
+    d: array_like
         the total declination d to magnetic north
+    d0: float
+        the declination baseline angle in radians
 
     Returns
     _______
-    float
+    array_like
         the observatory d declination
     """
     return d - d0
@@ -301,14 +318,16 @@ def get_obs_e_from_mag(h, d, d0=0):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the total h component in the magnetic north direction.
-    d: float
+    d: array_like
         the total d declination for the magnetic north direction.
+    d0: float
+        the declination baseline angle in radians
 
     Returns
     _______
-    float
+    array_like
         the observatory e component
     """
     obs_d = get_obs_d_from_mag(d, d0)
@@ -320,14 +339,14 @@ def get_obs_e_from_obs(h, d):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the observatory h component.
-    d: float
+    d: array_like
         the observatory d declination.
 
     Returns
     _______
-    float
+    array_like
         the observatory e component
     """
     return h * numpy.tan(d)
@@ -338,31 +357,33 @@ def get_obs_h_from_mag(h, d, d0=0):
 
     Parameters
     __________
-    h: float
+    h: array_like
         the total h component in the magnetic north direction.
-    d: float
+    d: array_like
         the total d declination for the magnetic north direction.
+    d0: float
+        the declination baseline angle in radians
 
     Returns
     _______
-    float
+    array_like
         the observatory h component
     """
     obs_d = get_obs_d_from_mag(d, d0)
     return h * numpy.cos(obs_d)
 
 
-def get_radian_from_decimal(d):
+def get_radian_from_minutes(m):
     """gets the radian value given the decimal value
     Parameters
     __________
-    d: float
+    d: array_like
         the decimal value to be converted
     """
-    return d * numpy.pi / 180.0
+    return m * m2r
 
 
-def get_decimal_from_radian(r):
+def get_minutes_from_radian(r):
     """gets the decimal value given the radian value
 
     Parameters
@@ -370,4 +391,4 @@ def get_decimal_from_radian(r):
     r: float
         the radian value to be converted
     """
-    return r * 180.0 / numpy.pi
+    return r * r2m

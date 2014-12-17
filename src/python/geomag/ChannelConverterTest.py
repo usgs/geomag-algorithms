@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import numpy
+import math
 from nose.tools import assert_equals, assert_sequence_equal
 from nose.tools import assert_almost_equal
 import ChannelConverter as channel
@@ -70,7 +71,10 @@ class ChannelConverterTest:
             combined angle of the observatory declination of 30 degrees, and
             the d0 of 30 degrees.
         """
-        (geo_X, geo_Y) = channel.get_geo_from_obs(cos_30, sin_30, 30 * deg2rad)
+        d = 30 * deg2rad
+        h = math.cos(d)
+        e = math.sin(d)
+        (geo_X, geo_Y) = channel.get_geo_from_obs(h, e, d0=30 * deg2rad)
         assert_equals(geo_X, cos_60)
         assert_equals(geo_Y, sin_60, 'Expect Y to equal sin(60).')
 
@@ -86,17 +90,20 @@ class ChannelConverterTest:
     def test_get_geo_x_from_mag(self):
         """geomag.ChannelConverterTest.test_get_geo_x_from_mag()
 
-        1) Call get_geo_x_from_mag using H,D of 1, 45 degrees. Expect
-            X to be cos(45).
+        ``X`` is the north component of the vector ``H``, which is an angle
+        ``D`` from north.
         """
-        assert_equals(channel.get_geo_x_from_mag(1, 45 * deg2rad),
-                cos_45, 'Expect X to be cos(45).')
-        """
-        2) Call get_geo_x_from_mag using H,D of 1, 30 degrees. Expect
-            X to be cos(30)
-        """
-        assert_equals(channel.get_geo_x_from_mag(1,
-                30 * deg2rad), cos_30, 'Expect X to equal cos(30)')
+
+        # 1) Call get_geo_x_from_mag using H,D of 1, 45 degrees. Expect
+        #    X to be cos(45).
+        h, d = 2, 45 * deg2rad
+        assert_equals(channel.get_geo_x_from_mag(h, d), 2 * math.cos(d),
+                'Expect X to be cos(d).')
+        # 2) Call get_geo_x_from_mag using H,D of 1, 30 degrees. Expect
+        #   X to be cos(30)
+        h, d = 2, 30 * deg2rad
+        assert_equals(channel.get_geo_x_from_mag(h, d), 2 * math.cos(d),
+                'Expect X to equal cos(d)')
 
     def test_get_geo_y_from_mag(self):
         """geomag.ChannelConverterTest.test_get_geo_y_from_mag()
@@ -363,18 +370,18 @@ class ChannelConverterTest:
         assert_almost_equal(obs_h, 20840.15, 8, 'Expect h to = 20840.15.')
         assert_almost_equal(obs_e, -74.16, 8, 'Expect e to = -74.16')
 
-    def test_get_radian_from_decimal(self):
+    def test_get_radian_from_minutes(self):
         """geomag.ChannelConverterTest.test_get_radian_from_decimal()
 
         Call get_radian_from_decimal using 45 degrees, expect r to be pi/4
         """
-        assert_equals(channel.get_radian_from_decimal(45),
+        assert_equals(channel.get_radian_from_minutes(45 * 60),
             numpy.pi / 4.0)
 
-    def test_get_decimal_from_radian(self):
+    def test_get_minutes_from_radian(self):
         """geomag.ChannelConverterTest.test_get_decimal_from_radian()
 
         Call get_decimal_from_radian using pi/4, expect d to be 45
         """
-        assert_equals(channel.get_decimal_from_radian(numpy.pi / 4.0),
-            45)
+        assert_equals(channel.get_minutes_from_radian(numpy.pi / 4.0),
+            45 * 60)
