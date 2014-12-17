@@ -2,11 +2,31 @@
 
 
 class TimeseriesFactory(object):
-    """Base class for timeseries factories."""
+    """Base class for timeseries factories.
 
-    def get_timeseries(self, observatory, starttime, endtime,
-            channels=('H', 'D', 'Z', 'F'),
+    Attributes
+    ----------
+    observatory : str
+        default observatory code, usually 3 characters.
+    channels : array_like
+        default list of channels to load, optional.
+        default ('H', 'D', 'Z', 'F')
+    type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
+        default data type, optional.
+        default 'variation'.
+    interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+        data interval, optional.
+        default 'minute'.
+    """
+    def __init__(self, observatory=None, channels=('H', 'D', 'Z', 'F'),
             type='variation', interval='minute'):
+        self.observatory = observatory
+        self.channels = channels
+        self.type = type
+        self.interval = interval
+
+    def get_timeseries(self, starttime, endtime, observatory=None,
+            channels=None, type=None, interval=None):
         """Get timeseries data.
 
         Support for specific channels, types, and intervals varies
@@ -16,18 +36,22 @@ class TimeseriesFactory(object):
 
         Parameters
         ----------
-        observatory : str
-            observatory code, usually 3 characters.
         starttime : UTCDateTime
             time of first sample in timeseries.
         endtime : UTCDateTime
             time of last sample in timeseries.
+        observatory : str
+            observatory code, usually 3 characters, optional.
+            uses default if unspecified.
         channels : array_like
-            list of channels to load.
+            list of channels to load, optional.
+            uses default if unspecified.
         type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
-            data type.
+            data type, optional.
+            uses default if unspecified.
         interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
-            data interval.
+            data interval, optional.
+            uses default if unspecified.
 
         Returns
         -------
@@ -41,16 +65,32 @@ class TimeseriesFactory(object):
         """
         raise NotImplementedError('"get_timeseries" not implemented')
 
-    def put_timeseries(self, timeseries, channels):
+    def put_timeseries(self, timeseries, starttime=None, endtime=None,
+            observatory=None, channels=None, type=None, interval=None):
         """Store timeseries data.
 
         Parameters
         ----------
         timeseries : obspy.core.Stream
             stream containing traces to store.
-        channels : list
-            list of channels to store.
-
+        starttime : UTCDateTime
+            time of first sample in timeseries to store.
+            uses first sample if unspecified.
+        endtime : UTCDateTime
+            time of last sample in timeseries to store.
+            uses last sample if unspecified.
+        observatory : str
+            observatory code, usually 3 characters, optional.
+            uses default if unspecified.
+        channels : array_like
+            list of channels to store, optional.
+            uses default if unspecified.
+        type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
+            data type, optional.
+            uses default if unspecified.
+        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+            data interval, optional.
+            uses default if unspecified.
         Raises
         ------
         TimeseriesFactoryException
