@@ -2,7 +2,8 @@
 
 import numpy
 import math
-from nose.tools import assert_equals, assert_sequence_equal
+from nose.tools import assert_equals
+from nose.tools import assert_sequence_equal
 from nose.tools import assert_almost_equal
 import ChannelConverter as channel
 
@@ -28,59 +29,80 @@ class ChannelConverterTest:
     Notes
     _____
 
-    X is the northern component, Y is the eastern component.
+    Observatory frame of reference.
+        h: the vector corresponding to the field strength along the
+            observatories primary horizontal axis.
+        e: the vector corresponding to the field strength along the
+            observatories secondary horizonal axis.
+        d: the angle between observatory h and the horizontal field value
+            (ie magnetic north in the horizontal plane.)
+    Magnetic frame of reference.
+        H: the horizontal vector corresponding to the field strength along
+            magnetic north.
+        D: the declination or clockwise angle from the vector pointing to
+            the geographic north pole to the H vector.
+    Geographic frame of reference.
+        X: the vector corresponding to the field strength along
+            geographic north.
+        Y: the vector corresponding to the field strength along
+            geographic east.
     """
 
     def test_get_geo_from_obs(self):
         """geomag.ChannelConverterTest.test_get_geo_from_obs()
 
+        The observetory vectors ``h`` and ``e`` combined with the declination
+        basline angle ``d0`` converts to the geographic north vector
+        ``X`` and east vector ``Y``
         """
 
         # 1) Call get_geo_from_obs using equal h,e values with a d0 of 0
-        #   the geographic values X,Y will be the same.
+        #   the geographic values X,Y will be the same. This proves the simple
+        #   case where the observatory is aligned with geographic north.
         (geo_X, geo_Y) = channel.get_geo_from_obs(1, 1)
         assert_almost_equal(geo_X, 1, 8,
                 'Expect X to almost equal 1.')
         assert_almost_equal(geo_Y, 1, 8,
                 'Expect Y to almost equal 1.')
 
-        # 2) Call get_geo_from_obs using h,e values of 1,tan(45/2) with d0 of
-        #   45/2. The geographic values X,Y will be 1,1, since the observatory
-        (geo_X, geo_Y) = channel.get_geo_from_obs(1, tan_22pt5,
-                22.5 * deg2rad)
-        assert_almost_equal(geo_X, geo_Y, 8, 'Expect X,Y to be equal.')
+        # 2) Call get_geo_from_obs using h,e values of cos(15), sin(15)
+        #       (to create a d of 15 degrees) and a d0 of 15 degrees.
+        #       X and Y will be cos(30), sin(30)
+        h = math.cos(15 * deg2rad)
+        e = math.sin(15 * deg2rad)
+        d0 = 15 * deg2rad
+        (geo_X, geo_Y) = channel.get_geo_from_obs(h, e, d0)
+        assert_equals(geo_X, math.cos(30 * deg2rad))
+        assert_equals(geo_Y, math.sin(30 * deg2rad))
 
         # 3) Call get_geo_from_obs using h,e values of 1,0 with a d0 of 315
-        #   degrees. The geographic X,Y will be 1,-1. Since the obs will be
-        #   in line with magnetic north, at -45 degrees.
-        (geo_X, geo_Y) = channel.get_geo_from_obs(1, 0, numpy.pi * 1.75)
-        assert_almost_equal(geo_X, -geo_Y, 8,
-                'Expect X,-Y to be almost equal.')
+        #   degrees. The geographic X,Y will be 1,-1.
+        (geo_X, geo_Y) = channel.get_geo_from_obs(1, 0, 315 * deg2rad)
+        assert_almost_equal(geo_X, math.cos(45 * deg2rad), 8,
+            'Expect X to equal cos(45)')
+        assert_almost_equal(geo_Y, math.sin(-45 * deg2rad), 8,
+            'Expect Y to equal sin(45)')
 
-        # 4) Call get_geo_from_obs using h,e values of 1,tan(30) with d0 of 0.
-        #   X,Y will be 1, tan(30). The observatory and the geographic values
-        #   are equal since the observatory is aligned with geographic north.
-        (geo_X, geo_Y) = channel.get_geo_from_obs(1, tan_30)
-        assert_equals(geo_X, 1, 'Expect X to equal 1.')
-        assert_equals(geo_Y, tan_30, 'Expect Y to equal tan(30).')
-
-        # 5) Call get_geo_from_obs using h,e values of cos_30,sin_30 and d0 of
-        #   30 degrees. The geographic X,Y will be cos_60, sin_60, due to
+        # 4) Call get_geo_from_obs using h,e values of cos_30,sin_30 and d0 of
+        #   30 degrees. The geographic X,Y will be cos(-30), sin(-30), due to
         #   combined angle of the observatory declination of 30 degrees, and
-        #   the d0 of 30 degrees.
+        #   the d0 of -60 degrees.
         d = 30 * deg2rad
         h = math.cos(d)
         e = math.sin(d)
-        (geo_X, geo_Y) = channel.get_geo_from_obs(h, e, d0=30 * deg2rad)
-        assert_equals(geo_X, cos_60)
-        assert_equals(geo_Y, sin_60, 'Expect Y to equal sin(60).')
+        (geo_X, geo_Y) = channel.get_geo_from_obs(h, e, d0=-60 * deg2rad)
+        assert_equals(geo_X, math.cos(-30 * deg2rad),
+            'Expect X to equal cos(60)')
+        assert_equals(geo_Y, math.sin(-30 * deg2rad),
+            'Expect Y to equal sin(60).')
 
     def test_get_geo_from_mag(self):
         """geomag.ChannelConverterTest.test_get_geo_from_mag()
 
-        Call get_geo_from_mag using H,D of 1, 45 degrees. Expect
-            X,Y to be cos_45, sin_45.
         """
+
+        # Call get_geo_from_mag using H,D of 1, 45 degrees. Expect
+        #   X,Y to be cos_45, sin_45.
         assert_sequence_equal(channel.get_geo_from_mag(1, 45 * deg2rad),
                 (cos_45, sin_45), 'Expect X,Y to be cos(45), sin(45).')
 
