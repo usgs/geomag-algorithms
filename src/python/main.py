@@ -15,10 +15,11 @@ def main():
     import pprint
     iaga_dir = path.normpath(path.join(script_dir, '../../etc/iaga2002'))
     factory = iaga2002.IAGA2002Factory('file://' + iaga_dir +
-            '/%(OBS)s/%(interval)s%(type)s/%(obs)s%(ymd)s%(t)s%(i)s.%(i)s')
-    timeseries = factory.get_timeseries('BOU',
-            UTCDateTime('2014-11-01'), UTCDateTime('2014-11-02'),
+            '/%(OBS)s/%(interval)s%(type)s/%(obs)s%(ymd)s%(t)s%(i)s.%(i)s',
+            observatory='BOU', channels=('H', 'D', 'Z', 'F'),
             interval='minute', type='variation')
+    timeseries = factory.get_timeseries(
+            UTCDateTime('2014-11-01'), UTCDateTime('2014-11-02'))
     print timeseries
 
 
