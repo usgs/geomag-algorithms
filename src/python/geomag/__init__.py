@@ -1,3 +1,0 @@
-"""
-Geomag Algorithm Module
-"""
