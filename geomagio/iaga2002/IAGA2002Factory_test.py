@@ -6,7 +6,7 @@ from nose.tools import assert_equals
 
 
 def test__get_days():
-    """geomag.io.iaga2002.IAGA2002Factory_test.test__get_days()
+    """geomagio.iaga2002.IAGA2002Factory_test.test__get_days()
 
     Call the _get_days method with starttime and endtime separated by more
     than one day.

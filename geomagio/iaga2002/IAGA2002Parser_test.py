@@ -43,8 +43,7 @@ DATE       TIME         DOY     BDTH      BDTD      BDTZ      BDTF   |
 
 
 def test__merge_comments():
-    """
-    geomag.io.iaga2002.IAGA2002Parser_test.test_merge_comments()
+    """geomagio.iaga2002.IAGA2002Parser_test.test_merge_comments()
 
     Call the _merge_comments method with 3 lines,
     only the middle line ending in a period.
@@ -57,8 +56,7 @@ def test__merge_comments():
 
 
 def test__parse_header():
-    """
-    geomag.io.iaga2002.IAGA2002Parser_test.test_parse_header()
+    """geomagio.iaga2002.IAGA2002Parser_test.test_parse_header()
 
     Call the _parse_header method with a header.
     Verify the header name and value are split at the correct column.
@@ -70,8 +68,7 @@ def test__parse_header():
 
 
 def test__parse_comment():
-    """
-    geomag.io.iaga2002.IAGA2002Parser_test.test_parse_header()
+    """geomagio.iaga2002.IAGA2002Parser_test.test_parse_header()
 
     Call the _parse_comment method with a comment.
     Verify the comment delimiters are removed.
@@ -85,8 +82,7 @@ def test__parse_comment():
 
 
 def test__parse_channels():
-    """
-    geomag.io.iaga2002.IAGA2002Parser_test.test_parse_channels()
+    """geomagio.iaga2002.IAGA2002Parser_test.test_parse_channels()
 
     Call the _parse_header method with an IAGA CODE header, then call
     the _parse_channels method with a channels header line.
@@ -101,8 +97,7 @@ def test__parse_channels():
 
 
 def test_parse_decbas():
-    """
-    geomag.io.iaga2002.IAGA2002Parser_test.test_parse_decbas()
+    """geomagio.iaga2002.IAGA2002Parser_test.test_parse_decbas()
 
     Call the parse method with a portion of an IAGA 2002 File,
     which contains a DECBAS header comment.
