@@ -490,7 +490,8 @@ class ChannelConverterTest:
         """
         minutes = 45 * 60
         radians = channel.get_radians_from_minutes(minutes)
-        assert_equals(radians, math.pi / 4.0)
+        assert_equals(radians, math.pi / 4.0,
+                'Expect radians to be pi/4', True)
 
     def test_get_minutes_from_radians(self):
         """geomag.ChannelConverterTest.test_get_decimal_from_radian()
@@ -499,4 +500,5 @@ class ChannelConverterTest:
         """
         radians = math.pi / 4.0
         minutes = channel.get_minutes_from_radians(radians)
-        assert_equals(minutes, 45 * 60)
+        assert_equals(minutes, 45 * 60,
+                'Expect minutes to be equal to 45 degrees', True)
