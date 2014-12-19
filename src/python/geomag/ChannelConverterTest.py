@@ -2,24 +2,22 @@
 
 import numpy
 import math
-from nose.tools import assert_equals
-from nose.tools import assert_sequence_equal
-from nose.tools import assert_almost_equal
+from nose.tools import assert_equals, assert_almost_equal
 import ChannelConverter as channel
 
 
-deg2rad = numpy.pi / 180
+D2R = numpy.pi / 180
 
-cos_30 = numpy.cos(30 * deg2rad)
-cos_45 = numpy.cos(45 * deg2rad)
-cos_60 = numpy.cos(60 * deg2rad)
-sin_30 = numpy.sin(30 * deg2rad)
-sin_45 = numpy.sin(45 * deg2rad)
-sin_60 = numpy.sin(60 * deg2rad)
-tan_22pt5 = numpy.tan(22.5 * deg2rad)
-tan_30 = numpy.tan(30 * deg2rad)
-tan_45 = numpy.tan(45 * deg2rad)
-tan_60 = numpy.tan(60 * deg2rad)
+cos_30 = numpy.cos(30 * D2R)
+cos_45 = numpy.cos(45 * D2R)
+cos_60 = numpy.cos(60 * D2R)
+sin_30 = numpy.sin(30 * D2R)
+sin_45 = numpy.sin(45 * D2R)
+sin_60 = numpy.sin(60 * D2R)
+tan_22pt5 = numpy.tan(22.5 * D2R)
+tan_30 = numpy.tan(30 * D2R)
+tan_45 = numpy.tan(45 * D2R)
+tan_60 = numpy.tan(60 * D2R)
 dec_bas_rad = 552.7 * numpy.pi / 60.0 / 180.0
 
 
@@ -30,81 +28,89 @@ class ChannelConverterTest:
     _____
 
     Observatory frame of reference.
-        h: the vector corresponding to the field strength along the
+        h: the component corresponding to the field strength along the
             observatories primary horizontal axis.
-        e: the vector corresponding to the field strength along the
+        e: the component corresponding to the field strength along the
             observatories secondary horizonal axis.
         d: the angle between observatory h and the horizontal field value
-            (ie magnetic north in the horizontal plane.)
+            (aka magnetic north in the horizontal plane.)
+        d0: the declination baseline angle of the observatory as originally
+            set up.
     Magnetic frame of reference.
         H: the horizontal vector corresponding to the field strength along
             magnetic north.
         D: the declination or clockwise angle from the vector pointing to
             the geographic north pole to the H vector.
     Geographic frame of reference.
-        X: the vector corresponding to the field strength along
+        X: the component corresponding to the field strength along
             geographic north.
-        Y: the vector corresponding to the field strength along
+        Y: the component corresponding to the field strength along
             geographic east.
     """
 
     def test_get_geo_from_obs(self):
         """geomag.ChannelConverterTest.test_get_geo_from_obs()
 
-        The observetory vectors ``h`` and ``e`` combined with the declination
-        basline angle ``d0`` converts to the geographic north vector
+        The observatory component ``h`` and ``e`` combined with the declination
+        basline angle ``d0`` converts to the geographic north component
         ``X`` and east vector ``Y``
         """
 
         # 1) Call get_geo_from_obs using equal h,e values with a d0 of 0
         #   the geographic values X,Y will be the same. This proves the simple
         #   case where the observatory is aligned with geographic north.
-        (geo_X, geo_Y) = channel.get_geo_from_obs(1, 1)
-        assert_almost_equal(geo_X, 1, 8,
-                'Expect X to almost equal 1.')
-        assert_almost_equal(geo_Y, 1, 8,
-                'Expect Y to almost equal 1.')
+        h = 1
+        e = 1
+        (X, Y) = channel.get_geo_from_obs(h, e)
+        assert_almost_equal(X, 1, 8, 'Expect X to almost equal 1.')
+        assert_almost_equal(Y, 1, 8, 'Expect Y to almost equal 1.')
 
         # 2) Call get_geo_from_obs using h,e values of cos(15), sin(15)
         #       (to create a d of 15 degrees) and a d0 of 15 degrees.
         #       X and Y will be cos(30), sin(30)
-        h = math.cos(15 * deg2rad)
-        e = math.sin(15 * deg2rad)
-        d0 = 15 * deg2rad
-        (geo_X, geo_Y) = channel.get_geo_from_obs(h, e, d0)
-        assert_equals(geo_X, math.cos(30 * deg2rad))
-        assert_equals(geo_Y, math.sin(30 * deg2rad))
+        h = math.cos(15 * D2R)
+        e = math.sin(15 * D2R)
+        d0 = 15 * D2R
+        (X, Y) = channel.get_geo_from_obs(h, e, d0)
+        assert_equals(X, math.cos(30 * D2R), 'Expect X to equal cos(30)')
+        assert_equals(Y, math.sin(30 * D2R), 'Expect Y to equal sin(30)')
 
         # 3) Call get_geo_from_obs using h,e values of 1,0 with a d0 of 315
-        #   degrees. The geographic X,Y will be 1,-1.
-        (geo_X, geo_Y) = channel.get_geo_from_obs(1, 0, 315 * deg2rad)
-        assert_almost_equal(geo_X, math.cos(45 * deg2rad), 8,
-            'Expect X to equal cos(45)')
-        assert_almost_equal(geo_Y, math.sin(-45 * deg2rad), 8,
-            'Expect Y to equal sin(45)')
+        #   degrees. The geographic X,Y will be cos(45), sin(-45)
+        h = 1
+        e = 0
+        d0 = 315 * D2R
+        (X, Y) = channel.get_geo_from_obs(h, e, d0)
+        assert_almost_equal(X, math.cos(45 * D2R), 8,
+            'Expect X to equal cos(45).')
+        assert_almost_equal(Y, math.sin(-45 * D2R), 8,
+            'Expect Y to equal sin(45).')
 
         # 4) Call get_geo_from_obs using h,e values of cos_30,sin_30 and d0 of
         #   30 degrees. The geographic X,Y will be cos(-30), sin(-30), due to
         #   combined angle of the observatory declination of 30 degrees, and
         #   the d0 of -60 degrees.
-        d = 30 * deg2rad
-        h = math.cos(d)
-        e = math.sin(d)
-        (geo_X, geo_Y) = channel.get_geo_from_obs(h, e, d0=-60 * deg2rad)
-        assert_equals(geo_X, math.cos(-30 * deg2rad),
-            'Expect X to equal cos(60)')
-        assert_equals(geo_Y, math.sin(-30 * deg2rad),
-            'Expect Y to equal sin(60).')
+        h = math.cos(30 * D2R)
+        e = math.sin(30 * D2R)
+        d0 = -60 * D2R
+        (X, Y) = channel.get_geo_from_obs(h, e, d0)
+        assert_equals(X, math.cos(-30 * D2R), 'Expect X to equal cos(60).')
+        assert_equals(Y, math.sin(-30 * D2R), 'Expect Y to equal sin(60).')
 
     def test_get_geo_from_mag(self):
         """geomag.ChannelConverterTest.test_get_geo_from_mag()
 
+        ``X``, ``Y`` are the north component, and east component of the
+        vector ``H`` which is an angle ``D`` from north.
         """
 
         # Call get_geo_from_mag using H,D of 1, 45 degrees. Expect
-        #   X,Y to be cos_45, sin_45.
-        assert_sequence_equal(channel.get_geo_from_mag(1, 45 * deg2rad),
-                (cos_45, sin_45), 'Expect X,Y to be cos(45), sin(45).')
+        #   X, Y to be cos_45, sin_45.
+        h = 1
+        d = 45 * D2R
+        (X, Y) = channel.get_geo_from_mag(h, d)
+        assert_equals(X, math.cos(45 * D2R), 'Expect X to be cos(45).')
+        assert_equals(Y, math.sin(45 * D2R), 'Expect Y to be sin(45).')
 
     def test_get_geo_x_from_mag(self):
         """geomag.ChannelConverterTest.test_get_geo_x_from_mag()
@@ -115,165 +121,222 @@ class ChannelConverterTest:
 
         # 1) Call get_geo_x_from_mag using H,D of 1, 45 degrees. Expect
         #    X to be cos(45).
-        h, d = 2, 45 * deg2rad
-        assert_equals(channel.get_geo_x_from_mag(h, d), 2 * math.cos(d),
-                'Expect X to be cos(d).')
+        h = 2
+        d = 45 * D2R
+        X = channel.get_geo_x_from_mag(h, d)
+        assert_equals(X, 2 * math.cos(d), 'Expect X to be cos(45).')
         # 2) Call get_geo_x_from_mag using H,D of 1, 30 degrees. Expect
         #   X to be cos(30)
-        h, d = 2, 30 * deg2rad
-        assert_equals(channel.get_geo_x_from_mag(h, d), 2 * math.cos(d),
-                'Expect X to equal cos(d)')
+        h = 2
+        d = 30 * D2R
+        X = channel.get_geo_x_from_mag(h, d)
+        assert_equals(X, 2 * math.cos(d), 'Expect X to equal cos(30).')
 
     def test_get_geo_y_from_mag(self):
         """geomag.ChannelConverterTest.test_get_geo_y_from_mag()
 
-        1) Call get_geo_y_from_mag using H,D of 1, 45 degrees. Expect
-            Y to be sin_45.
+        ``Y`` is the north component of the vector ``H``, which is an angle
+        ``D`` from north.
         """
-        assert_equals(channel.get_geo_y_from_mag(1, 45 * deg2rad),
-                sin_45, 'Expect Y to be sin(45).')
-        """
-        2) Call get_geo_x_from_mag using H,D of 1, 30 degrees. Expect
-            X to be cos(30)
-        """
-        assert_equals(channel.get_geo_y_from_mag(1,
-                30 * deg2rad), sin_30, 'Expect Y to equal cos(30)')
+
+        # 1) Call get_geo_y_from_mag using H,D of 1, 45 degrees. Expect
+        #   Y to be sin_45.
+        h = 2
+        d = 45 * D2R
+        Y = channel.get_geo_y_from_mag(h, d)
+        assert_equals(Y, 2 * math.sin(45 * D2R), 'Expect Y to be 2sin(45).')
+        # 2) Call get_geo_x_from_mag using H,D of 1, 30 degrees. Expect
+        #   X to be cos(30)
+        h = 2
+        d = 30 * D2R
+        Y = channel.get_geo_y_from_mag(h, d)
+        assert_equals(Y, 2 * math.sin(30 * D2R), 'Expect Y to be 2sin(30).')
 
     def test_get_mag_from_obs(self):
         """geomag.ChannelConverterTest.test_get_geo_y_from_obs()
 
-        Call get_mag_from_obs using h,d of 1,0 and d0 of 45 degrees.
-            Expect X,Y to equal 1,45 degrees. This is the simple case
-            where the observatory values align with magnetic north
+        ``h``, ``e`` are the primary and secondary axis of the ``H``
+        vector in the horizontal plane of the magnetic field.  ``d0``
+        is the declination baseline of the observatory frame of reference.
+        ``D`` comes from the combination of ``d0`` and the angle produced
+        from the ``h`` and ``e`` components.
         """
-        assert_sequence_equal(channel.get_mag_from_obs(1, 0, 45 * deg2rad),
-                (1, 45 * deg2rad), 'Expect X,Y to be 1,45 degrees.')
+
+        # Call get_mag_from_obs using h,d of cos(30), sin(30) and
+        #   d0 of 15 degrees. Expect H,D to equal 1, 45.
+        h = math.cos(30 * D2R)
+        e = math.sin(30 * D2R)
+        d0 = 15 * D2R
+        H, D = channel.get_mag_from_obs(h, e, d0)
+        assert_equals(H, 1, 'Expect H to be 1.')
+        assert_equals(D, 45 * D2R, 'Expect D to be 45.')
 
     def test_get_mag_from_geo(self):
         """geomag.ChannelConverterTest.test_get_geo_y_from_obs()
 
-        Call get_mag_from_geo using X,Y equal to each other.
-            Expect H to be the hypotenuse of X,Y, and D to
-            be 45 degrees.
+        ``X`` and ``Y are the north and east components of the ``H`` total
+        magnetic field horizontal vector.  ``D`` is the angle from north of
+        that vector.
         """
-        assert_sequence_equal(channel.get_mag_from_geo(1, 1),
-                (numpy.hypot(1, 1), 45 * deg2rad),
-                'Expect H to be hypotenuse(1,1) and D to equal 45 degrees.')
+
+        # Call get_mag_from_geo using X,Y of cos(30), sin(30).
+        #    Expect H to be 1, and D to be 30 degrees.
+        X = math.cos(30 * D2R)
+        Y = math.sin(30 * D2R)
+        H, D = channel.get_mag_from_geo(X, Y)
+        assert_equals(H, 1, 'Expect H to equal 1.')
+        assert_equals(D, 30 * D2R, 'Expect D to be 30.')
 
     def test_get_mag_d_from_obs(self):
         """geomag.ChannelConverterTest.test_get_mag_d_from_obs()
 
-        1) Call get_mag_d_from_obs using h,e equal to each other.
-            Expect D to be 45 degrees.
+        The observatory components ``h`` and ``e`` form an angle (d) with
+        the horizontal magnetic vector. Adding d to the observatory
+        declination baseline ``d0`` the magnetic declination angle ``D`` can
+        be found.
         """
-        assert_equals(channel.get_mag_d_from_obs(2, 2), 45 * deg2rad,
-                'Expect D to be 45 degrees.')
-        """
-        2) Call get_mag_d_from_obs using h,e cos(30), sin(30).
-            Expect d of 30 degress.
-        """
-        assert_equals(channel.get_mag_d_from_obs(cos_30, sin_30),
-                30 * deg2rad, 'Expect D to equal 30 degrees')
-        """
-        3) Call get_mag_d_from_obs using h,e cos(30), sin(30), d0 = 30 degrees
-            Expect d of 60 degress.
-        """
-        assert_equals(channel.get_mag_d_from_obs(cos_30, sin_30, 30 * deg2rad),
-                60 * deg2rad, 'Expect D to equal 60 degrees')
-        """
-        4) Call get_mag_d_from_obs using h,e cos(30), sin(30), d0 = 330 degrees
-            Expect d of 360 degress.
-        """
-        assert_equals(channel.get_mag_d_from_obs(cos_30, sin_30,
-                330 * deg2rad), 360 * deg2rad,
-                'Expect D to equal 360 degrees')
-        """
-        5) Call get_mag_d_from_obs using h,e cos(30), sin(30), d0 = -30 degrees
-            Expect d of 0 degress.
-        """
-        assert_equals(channel.get_mag_d_from_obs(cos_30, sin_30,
-                -30 * deg2rad), 0, 'Expect D to equal 0 degrees')
-        """
-        6) Call get_mag_d_from_obs using h,e cos(30), -sin(30),
-            d0 = -30 degrees. Expect d of -60 degress.
-        """
-        assert_equals(channel.get_mag_d_from_obs(cos_30, -sin_30,
-                -30 * deg2rad), -60 * deg2rad, 'Expect D to equal -60 degrees')
+
+        # 1) Call get_mag_d_from_obs using h,e equal to each other.
+        #   Expect D to be 45 degrees.
+        h = 2
+        e = 2
+        D = channel.get_mag_d_from_obs(h, e)
+        assert_equals(D, 45 * D2R, 'Expect D to be 45 degrees.')
+        # 2) Call get_mag_d_from_obs using h,e cos(30), sin(30).
+        #   Expect d of 30 degress.
+        h = math.cos(30 * D2R)
+        e = math.sin(30 * D2R)
+        D = channel.get_mag_d_from_obs(h, e)
+        assert_equals(D, 30 * D2R, 'Expect D to equal 30 degrees')
+        # 3) Call get_mag_d_from_obs using h,e cos(30), sin(30),
+        #   d0 = 30 degrees Expect d to be 60 degress.
+        h = math.cos(30 * D2R)
+        e = math.sin(30 * D2R)
+        d0 = 30 * D2R
+        D = channel.get_mag_d_from_obs(h, e, d0)
+        assert_equals(D, 60 * D2R, 'Expect D to equal 60 degrees')
+        # 4) Call get_mag_d_from_obs using h,e cos(30), sin(30),
+        #   d0 = 330 degrees Expect d of 360 degress.
+        h = math.cos(30 * D2R)
+        e = math.sin(30 * D2R)
+        d0 = 330 * D2R
+        D = channel.get_mag_d_from_obs(h, e, d0)
+        assert_equals(D, 360 * D2R, 'Expect D to equal 360 degrees')
+        # 5) Call get_mag_d_from_obs using h,e cos(30), sin(30),
+        #   d0 = -30 degrees Expect d of 0 degress.
+        h = math.cos(30 * D2R)
+        e = math.sin(30 * D2R)
+        d0 = -30 * D2R
+        D = channel.get_mag_d_from_obs(h, e, d0)
+        assert_equals(D, 0, 'Expect D to equal 0 degrees')
+        # 6) Call get_mag_d_from_obs using h,e cos(30), -sin(30),
+        #   d0 = -30 degrees. Expect d of -60 degress.
+        h = math.cos(30 * D2R)
+        e = math.sin(-30 * D2R)
+        d0 = -30 * D2R
+        D = channel.get_mag_d_from_obs(cos_30, -sin_30, -30 * D2R)
+        assert_equals(D, -60 * D2R, 'Expect D to equal -60 degrees')
 
     def test_get_mag_d_from_geo(self):
         """geomag.ChannelConverterTest.test_get_mag_d_from_geo()
 
-        1) Call get_mag_d_from_geo using equal X,Y values. Expect
-            D to be 45 degrees.
+        Angle ``D`` from north of the horizontal vector can be calculated
+        using the arctan of the ``X`` and ``Y`` components.
         """
-        assert_equals(channel.get_mag_d_from_geo(2, 2), 45 * deg2rad,
-                'Expect D to be 45 degrees.')
-        """
-        2) Call get_mag_d_from_geo using X,Y equal to cos(30), sin(30). Expect
-            D to be 30 degrees.
-        """
-        assert_equals(channel.get_mag_d_from_geo(cos_30, sin_30), 30 * deg2rad,
-                'Expect D to be 30 degrees.'),
-        """
-        3) Call get_mag_d_from_geo using X,Y equal to cos(30), -sin(30). Expect
-            D to be -30 degrees.
-        """
-        assert_equals(channel.get_mag_d_from_geo(cos_30, -sin_30),
-                -30 * deg2rad, 'Expect D to equal -30 degrees')
+
+        # 1) Call get_mag_d_from_geo using equal X,Y values. Expect
+        #   D to be 45 degrees.
+        X = 2
+        Y = 2
+        D = channel.get_mag_d_from_geo(X, Y)
+        assert_equals(D, 45 * D2R, 'Expect D to be 45 degrees.')
+        # 2) Call get_mag_d_from_geo using X,Y equal to cos(30), sin(30).
+        #   Expect D to be 30 degrees.
+        X = math.cos(30 * D2R)
+        Y = math.sin(30 * D2R)
+        D = channel.get_mag_d_from_geo(X, Y)
+        assert_equals(D, 30 * D2R, 'Expect D to be 30 degrees.')
+        # 3) Call get_mag_d_from_geo using X,Y equal to cos(30), -sin(30).
+        #   Expect D to be -30 degrees.
+        X = math.cos(30 * D2R)
+        Y = math.sin(-30 * D2R)
+        D = channel.get_mag_d_from_geo(X, Y)
+        assert_equals(D, -30 * D2R, 'Expect D to equal -30 degrees')
 
     def test_get_mag_h_from_obs(self):
         """geomag.ChannelConverterTest.test_get_mag_h_from_obs()
 
-        Call get_mag_h_from_obs using h,e of 3,4. Expect H to be 5.
+        ``h`` and ``e`` are the primary and secondary components of the ``H``
+        vector.
         """
-        assert_equals(channel.get_mag_h_from_obs(3, 4), 5,
-                'Expect H to be 5.')
+
+        # Call get_mag_h_from_obs using h,e of 3,4. Expect H to be 5.
+        h = 3
+        e = 4
+        H = channel.get_mag_h_from_obs(h, e)
+        assert_equals(H, 5, 'Expect H to be 5.')
 
     def test_get_mag_h_from_geo(self):
         """geomag.ChannelConverterTest.test_get_mag_d_from_geo()
 
-        Call get_mag_h_from_geo using X,Y of 3,4. Expect H to be 5.
+        ``X`` and ``Y`` are the north and east components of the horizontal
+        magnetic field vector ``H``
         """
-        assert_equals(channel.get_mag_h_from_geo(3, 4), 5,
-                'Expect H to be 5.')
+
+        # Call get_mag_h_from_geo using X,Y of 3,4. Expect H to be 5.
+        X = 3
+        Y = 4
+        H = channel.get_mag_h_from_geo(X, Y)
+        assert_equals(H, 5, 'Expect H to be 5.')
 
     def test_get_obs_from_geo(self):
         """geomag.io.channelTest.test_get_obs_from_geo()
 
-        1) Call get_obs_from_geo using equal X,Y values with a d0 of 0
-            the observatory values h,e will be the same.
+        The geographic north and east components ``X`` and ``Y`` of the
+        magnetic field vector H, combined with the declination baseline angle
+        ``d0`` can be used to produce the observatory components ``h`` and
+        ```e``
         """
-        (obs_h, obs_e) = channel.get_obs_from_geo(1, 1)
-        assert_almost_equal(obs_h, 1.0, 8, 'Expect h to be 1.')
-        assert_almost_equal(obs_e, 1.0, 8, 'Expect e to be 1.')
-        """
-        2) Call get_obs_from_geo using equal X,Y values to create a 45
-            degree angle (D), with a d0 of 45/2. The observatory declination
-            (d) will be 45/2, the difference between the total field angle,
-            and d0.
-        """
-        (obs_h, obs_e) = channel.get_obs_from_geo(1, 1, 22.5 * deg2rad)
-        d = channel.get_obs_d_from_obs(obs_h, obs_e)
-        assert_equals(d, 22.5 * deg2rad, 'Expect d to be 22.5 degrees.')
-        """
-        3) Call get_obs_from_geo using equal X,Y values to create a 45
-            degree angle (D), with a d0 of 315 degrees. The observatory
-            declination (d) will be 90 degrees.
-        """
-        (obs_h, obs_e) = channel.get_obs_from_geo(1, 1, numpy.pi * 1.75)
-        d = channel.get_obs_d_from_obs(obs_h, obs_e)
-        assert_almost_equal(d, 90 * deg2rad, 8, 'Expect d to be 90 degrees.')
-        """
-        4) Call get_obs_from_geo using X,Y values of cos_60, sin60, and
-            d0 of 30 degrees. The observatory values h,e will be cos_30
-            and sin_30, and the observatory declination will be 30 degrees.
-            The observatory angle of 30 degrees + the d0 of 30 degrees produces
-            the total declination (D) of 60 degrees.
-        """
-        (obs_h, obs_e) = channel.get_obs_from_geo(cos_60, sin_60, 30 * deg2rad)
-        assert_equals(obs_h, cos_30, 'Expect h to be cos(30).')
-        assert_equals(obs_e, sin_30, 'Expect e to be sin(30).')
-        assert_equals(channel.get_obs_d_from_obs(obs_h, obs_e), 30 * deg2rad)
+
+        # 1) Call get_obs_from_geo using equal X,Y values with a d0 of 0
+        #   the observatory values h,e will be the same.
+        X = 1
+        Y = 1
+        (h, e) = channel.get_obs_from_geo(X, Y)
+        assert_almost_equal(h, 1.0, 8, 'Expect h to be 1.')
+        assert_almost_equal(e, 1.0, 8, 'Expect e to be 1.')
+        # 2) Call get_obs_from_geo using equal X,Y values to create a 45
+        #   degree angle (D), with a d0 of 45/2. The observatory declination
+        #   (d) will be 45/2, the difference between the total field angle,
+        #   and d0.
+        X = 1
+        Y = 1
+        d0 = 22.5 * D2R
+        (h, e) = channel.get_obs_from_geo(X, Y, d0)
+        d = channel.get_obs_d_from_obs(h, e)
+        assert_equals(d, 22.5 * D2R, 'Expect d to be 22.5 degrees.')
+        # 3) Call get_obs_from_geo using equal X,Y values to create a 45
+        #   degree angle (D), with a d0 of 315 degrees. The observatory
+        #   declination (d) will be 90 degrees.
+        X = 1
+        Y = 1
+        d0 = 315 * D2R
+        (h, e) = channel.get_obs_from_geo(X, Y, d0)
+        d = channel.get_obs_d_from_obs(h, e)
+        assert_almost_equal(d, 90 * D2R, 8, 'Expect d to be 90 degrees.')
+        # 4) Call get_obs_from_geo using X,Y values of cos(60), sin(60), and
+        #   d0 of 30 degrees. The observatory values h,e will be cos(30)
+        #   and sin(30), and the observatory declination will be 30 degrees.
+        #   The observatory angle of 30 degrees + the d0 of 30 degrees produces
+        #   the total declination (D) of 60 degrees.
+        X = math.cos(60 * D2R)
+        Y = math.sin(60 * D2R)
+        d0 = 30 * D2R
+        (h, e) = channel.get_obs_from_geo(X, Y, d0)
+        assert_equals(h, math.cos(30 * D2R), 'Expect h to be cos(30).')
+        assert_equals(e, math.sin(30 * D2R), 'Expect e to be sin(30).')
+        d = channel.get_obs_d_from_obs(h, e)
+        assert_equals(d, 30 * D2R, 'Expect d to be 30 degrees.')
 
     def test_get_obs_from_mag(self):
         """geomag.ChannelConverterTest.test_get_obs_from_mag()
@@ -282,97 +345,129 @@ class ChannelConverterTest:
         test correctness, including d0. Which should test most of the d0
         calls.
         """
-        (obs_h, obs_e) = channel.get_obs_from_mag(1, -22.5 * deg2rad,
-            22.5 * deg2rad)
-        assert_equals(obs_h, cos_45, 'Expect h to be cos(45)')
-        assert_almost_equal(obs_e, -cos_45, 8, 'Expect e to be -cos(45).')
+
+        H = 1
+        D = -22.5 * D2R
+        (h, e) = channel.get_obs_from_mag(H, D, 22.5 * D2R)
+        assert_equals(h, math.cos(45 * D2R), 'Expect h to be cos(45)')
+        assert_almost_equal(e, -math.cos(45 * D2R), 8,
+            'Expect e to be -cos(45).')
 
     def test_get_obs_d_from_obs(self):
         """geomag.ChannelConverterTest.test_get_obs_d_from_obs()
 
-        1) Call get_obs_d_from_obs using equal values for h,e. Expect
-            d to be 45.
+        ``d`` is the angle formed by the observatory components ``h`` and
+        ``e`` the primary and secondary axis of the horizontal magnetic
+        field vector in the observatories frame of reference.
         """
-        assert_equals(channel.get_obs_d_from_obs(1, 1),
-                45 * deg2rad, 'Expect d to be 45 degrees.')
-        """
-        2) Call get_obs_d_from_obs usine h,e equal to cos(30), sin(30). Expect
-            d to be 30.
-        """
-        assert_equals(channel.get_obs_d_from_obs(cos_30, sin_30),
-                30 * deg2rad, 'Expect d to be 30 degrees.')
-        """
-        3) Call get_obs_d_from_obs using h,e cos(30), -sin(30). Expect
-            d to be 30.
-        """
-        assert_equals(channel.get_obs_d_from_obs(cos_30, -sin_30),
-                -30 * deg2rad, 'Expect d to be 30 degrees.')
+        # 1) Call get_obs_d_from_obs usine h,e equal to cos(30), sin(30).
+        #   Expect d to be 30.
+        h = math.cos(30 * D2R)
+        e = math.sin(30 * D2R)
+        d = channel.get_obs_d_from_obs(h, e)
+        assert_equals(d, 30 * D2R, 'Expect d to be 30 degrees.')
+        # 2) Call get_obs_d_from_obs using h,e cos(30), -sin(30). Expect
+        #   d to be 30.
+        h = math.cos(30 * D2R)
+        e = math.sin(-30 * D2R)
+        d = channel.get_obs_d_from_obs(h, e)
+        assert_equals(d, -30 * D2R, 'Expect d to be 30 degrees.')
 
-    def test_get_obs_d_from_mag(self):
+    def test_get_obs_d_from_mag_d(self):
         """geomag.ChannelConverterTest.test_get_obs_d_from_mag()
 
-        1) Call get_obs_d_from_mag using d = 1. Expect observatory declination
-            of 1 back.
+        The observatory declination angle ``d`` is the difference between
+        the magnetic north declination ``D`` and the observatory baseline
+        declination angle ``d0``.
         """
-        assert_equals(channel.get_obs_d_from_mag(1), 1,
-                'Expect d to be 1.')
-        """
-        2) Call get_obs_d_from_mag using d, d0 values of 22.5, 45. Expect
-            observatory declination of -22.5 degrees.
-        """
-        assert_equals(channel.get_obs_d_from_mag(22.5 * deg2rad, 45 * deg2rad),
-                -22.5 * deg2rad, 'Expect d to be -22.5 degrees.')
-        """
-        3) Call get_obs_d_from_mag using d, d0 values of 60, 30. Expect
-            observatory declination of 30 degrees.
-        """
-        assert_equals(channel.get_obs_d_from_mag(60 * deg2rad, 30 * deg2rad),
-                30 * deg2rad, 'Expect d to be 30 degrees.')
-        """
-        """
-        assert_equals(channel.get_obs_d_from_mag(30 * deg2rad, -30 * deg2rad),
-                60 * deg2rad, 'Expect d to be 60 degrees.')
+
+        # 1) Call get_obs_d_from_mag using d = 1. Expect observatory
+        #   declination of 1 back.
+        D = 1
+        assert_equals(channel.get_obs_d_from_mag_d(D), 1, 'Expect d to be 1.')
+        # 2) Call get_obs_d_from_mag using d, d0 values of 22.5, 45. Expect
+        #   observatory declination of -22.5 degrees.
+        D = 22.5 * D2R
+        d0 = 45 * D2R
+        d = channel.get_obs_d_from_mag_d(D, d0)
+        assert_equals(d, -22.5 * D2R, 'Expect d to be -22.5 degrees.')
+        # 3) Call get_obs_d_from_mag using d, d0 values of 60, 30. Expect
+        #   observatory declination of 30 degrees.
+        D = 60 * D2R
+        d0 = 30 * D2R
+        d = channel.get_obs_d_from_mag_d(D, d0)
+        assert_equals(d, 30 * D2R, 'Expect d to be 30 degrees.')
+        # 4) Call get_obs_d_from_mag using d, d0 values of 30, -30.
+        #   Expect observatory declination of 60 degrees.
+        D = 30 * D2R
+        d0 = -30 * D2R
+        d = channel.get_obs_d_from_mag_d(D, d0)
+        assert_equals(d, 60 * D2R, 'Expect d to be 60 degrees.')
 
     def test_get_obs_e_from_mag(self):
         """geomag.ChannelConverterTest.test_get_obs_e_from_mag()
 
-        1) Call get_obs_e_from mag using H,D of 1,45.  Expect e to be sin(45)
+        ``e`` is the secondary axis or 'east' component of the observatory
+        reference frame. Using the difference between the magnetic declination
+        angle ``D`` and the observatory baseline declination ``d0`` to get the
+        observatory declination angle d the ``e`` component can be found
+        as ``H`` * sin(d)
         """
-        assert_equals(channel.get_obs_e_from_mag(1, 45 * deg2rad),
-                sin_45, 'Expect e to be sin(45).')
-        """
-        2) Call get_obs_e_from_mag using H,D of 1, 30. Expect e to be sin(30)
-        """
-        assert_equals(channel.get_obs_e_from_mag(1, 30 * deg2rad),
-                sin_30, 'Expect e to be sin(30).')
-        """
-        3) Call get_obs_e_from_mag using H,D,d0 of 1, 15, -15. Expect e to
-            be sin(30)
-        """
-        assert_equals(channel.get_obs_e_from_mag(1, 15 * deg2rad,
-                -15 * deg2rad), sin_30)
+
+        # 1) Call get_obs_e_from mag using H,D of 1,45.  Expect e to be sin(45)
+        H = 1
+        D = 45 * D2R
+        e = channel.get_obs_e_from_mag(H, D)
+        assert_equals(e, math.sin(45 * D2R), 'Expect e to be sin(45).')
+        # 2) Call get_obs_e_from_mag using H,D of 1, 30. Expect e to be sin(30)
+        H = 1
+        D = 30 * D2R
+        e = channel.get_obs_e_from_mag(H, D)
+        assert_equals(e, math.sin(30 * D2R), 'Expect e to be sin(30).')
+        # 3) Call get_obs_e_from_mag using H,D,d0 of 1, 15, -15. Expect e to
+        #   be sin(30)
+        H = 1
+        D = 15 * D2R
+        d0 = -15 * D2R
+        e = channel.get_obs_e_from_mag(H, D, d0)
+        assert_equals(e, math.sin(30 * D2R), 'Expect e to be sin(30)')
 
     def test_get_obs_e_from_obs(self):
         """geomag.ChannelConverterTest.test_get_obs_e_from_obs()
 
-        Call get_obs_e_from_obs using h,d of 2, 45. Expect e to be 2 * tan(45)
+        ``e`` is the seconday (east) component of the observatory vector ``h``.
+        ``e`` is calculated using ``h`` * tan(``d``) where ``d`` is the
+        declination angle of the observatory.
         """
-        assert_equals(channel.get_obs_e_from_obs(2, 45 * deg2rad),
-                2 * tan_45, 'Expect e to be 2 * tan(45).')
+
+        # Call get_obs_e_from_obs using h,d of 2, 30.
+        #   Expect e to be 2 * tan(30)
+        h = 2
+        d = 30 * D2R
+        e = channel.get_obs_e_from_obs(h, d)
+        assert_equals(e, 2 * math.tan(30 * D2R), 'Expect e to be 2 * tan(30).')
 
     def test_get_obs_h_from_mag(self):
         """geomag.ChannelConverterTest.test_get_obs_h_from_mag()
 
-        1) Call get_obs_h_from_mag using H,D 1,45. Expect h to be cos(45)
+        The observatories horizontal magnetic vector ``h`` is caculated from
+        the magnetic north vector ``H`` and the observatory declination angle
+        ``d``.  ``d`` is the difference of the magnetic declination ``D`` and
+        the observatory baseline declination ``d0``
         """
-        assert_equals(channel.get_obs_h_from_mag(1, 45 * deg2rad),
-                cos_45, 'Expect h to be cos(45).')
-        """
-        2) Call get_obs_h_from_mag using H,D,d0 1,30,15. Expect h to be cos(15)
-        """
-        assert_equals(channel.get_obs_h_from_mag(1, 30 * deg2rad,
-                15 * deg2rad), numpy.cos(15 * deg2rad),
-                'Expect h to be cos(15)')
+
+        # 1) Call get_obs_h_from_mag using H,D 1,45. Expect h to be cos(45)
+        H = 1
+        D = 45 * D2R
+        h = channel.get_obs_h_from_mag(H, D)
+        assert_equals(h, cos_45, 'Expect h to be cos(45).')
+        # 2) Call get_obs_h_from_mag using H,D,d0 1,30,15.
+        #   Expect h to be cos(15)
+        H = 1
+        D = 30 * D2R
+        d0 = 15 * D2R
+        h = channel.get_obs_h_from_mag(H, D, d0)
+        assert_equals(h, numpy.cos(15 * D2R), 'Expect h to be cos(15)')
 
     def test_geo_to_obs_to_geo(self):
         """geomag.ChannelConverterTest.test_geo_to_obs_to_geo()
@@ -382,25 +477,29 @@ class ChannelConverterTest:
             get_geo_from_obs. Expect the end values to be the same
             as the start values.
         """
-        (geo_X, geo_Y) = channel.get_geo_from_obs(20840.15, -74.16,
-            dec_bas_rad)
-        (obs_h, obs_e) = channel.get_obs_from_geo(geo_X, geo_Y, dec_bas_rad)
+        h_in = 20840.15
+        e_in = -74.16
+        d0 = dec_bas_rad
+        (X, Y) = channel.get_geo_from_obs(h_in, e_in, d0)
+        (h, e) = channel.get_obs_from_geo(X, Y, d0)
 
-        assert_almost_equal(obs_h, 20840.15, 8, 'Expect h to = 20840.15.')
-        assert_almost_equal(obs_e, -74.16, 8, 'Expect e to = -74.16')
+        assert_almost_equal(h, 20840.15, 8, 'Expect h to = 20840.15.')
+        assert_almost_equal(e, -74.16, 8, 'Expect e to = -74.16')
 
     def test_get_radians_from_minutes(self):
         """geomag.ChannelConverterTest.test_get_radian_from_decimal()
 
         Call get_radian_from_decimal using 45 degrees, expect r to be pi/4
         """
-        assert_equals(channel.get_radians_from_minutes(45 * 60),
-            numpy.pi / 4.0)
+        minutes = 45 * 60
+        radians = channel.get_radians_from_minutes(minutes)
+        assert_equals(radians, math.pi / 4.0)
 
     def test_get_minutes_from_radians(self):
         """geomag.ChannelConverterTest.test_get_decimal_from_radian()
 
         Call get_decimal_from_radian using pi/4, expect d to be 45
         """
-        assert_equals(channel.get_minutes_from_radians(numpy.pi / 4.0),
-            45 * 60)
+        radians = math.pi / 4.0
+        minutes = channel.get_minutes_from_radians(radians)
+        assert_equals(minutes, 45 * 60)

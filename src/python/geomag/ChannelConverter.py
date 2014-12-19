@@ -294,7 +294,7 @@ def get_obs_d_from_obs(h, e):
     return numpy.arctan2(e, h)
 
 
-def get_obs_d_from_mag(d, d0=0):
+def get_obs_d_from_mag_d(d, d0=0):
     """gets the observatory d declination given the magnetic north
         declination.
 
@@ -330,7 +330,7 @@ def get_obs_e_from_mag(h, d, d0=0):
     array_like
         the observatory e component
     """
-    obs_d = get_obs_d_from_mag(d, d0)
+    obs_d = get_obs_d_from_mag_d(d, d0)
     return h * numpy.sin(obs_d)
 
 
@@ -369,7 +369,7 @@ def get_obs_h_from_mag(h, d, d0=0):
     array_like
         the observatory h component
     """
-    obs_d = get_obs_d_from_mag(d, d0)
+    obs_d = get_obs_d_from_mag_d(d, d0)
     return h * numpy.cos(obs_d)
 
 
