@@ -12,7 +12,6 @@ from obspy.core.utcdatetime import UTCDateTime
 
 def main():
     """Example loading IAGA2002 test data from a directory."""
-    import pprint
     iaga_dir = path.normpath(path.join(script_dir, '../../etc/iaga2002'))
     factory = iaga2002.IAGA2002Factory('file://' + iaga_dir +
             '/%(OBS)s/%(interval)s%(type)s/%(obs)s%(ymd)s%(t)s%(i)s.%(i)s',
@@ -25,4 +24,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -396,7 +396,8 @@ class IAGA2002Factory(TimeseriesFactory):
             if url does not start with file://
         """
         if not url.startswith('file://'):
-            raise TimeseriesFactoryException('Only file urls are supported for writing')
+            raise TimeseriesFactoryException(
+                    'Only file urls are supported for writing')
         filename = url.replace('file://', '')
         parent = os.path.dirname(filename)
         if not os.path.exists(parent):

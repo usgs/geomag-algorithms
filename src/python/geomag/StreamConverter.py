@@ -7,7 +7,7 @@ Obs: Based on the observatories orientaion. H, E, Z, F, d0
 Mag: Based on Magnetic North. H, D, Z, F
 """
 
-
+import numpy
 import obspy.core
 import ChannelConverter
 
