@@ -8,16 +8,6 @@ import ChannelConverter as channel
 
 D2R = numpy.pi / 180
 
-cos_30 = numpy.cos(30 * D2R)
-cos_45 = numpy.cos(45 * D2R)
-cos_60 = numpy.cos(60 * D2R)
-sin_30 = numpy.sin(30 * D2R)
-sin_45 = numpy.sin(45 * D2R)
-sin_60 = numpy.sin(60 * D2R)
-tan_22pt5 = numpy.tan(22.5 * D2R)
-tan_30 = numpy.tan(30 * D2R)
-tan_45 = numpy.tan(45 * D2R)
-tan_60 = numpy.tan(60 * D2R)
 dec_bas_rad = 552.7 * numpy.pi / 60.0 / 180.0
 
 
@@ -234,7 +224,7 @@ class ChannelConverterTest:
         h = math.cos(30 * D2R)
         e = math.sin(-30 * D2R)
         d0 = -30 * D2R
-        D = channel.get_mag_d_from_obs(cos_30, -sin_30, -30 * D2R)
+        D = channel.get_mag_d_from_obs(h, e, d0)
         assert_equals(D, -60 * D2R, 'Expect D to equal -60 degrees')
 
     def test_get_mag_d_from_geo(self):
@@ -460,7 +450,7 @@ class ChannelConverterTest:
         H = 1
         D = 45 * D2R
         h = channel.get_obs_h_from_mag(H, D)
-        assert_equals(h, cos_45, 'Expect h to be cos(45).')
+        assert_equals(h, math.cos(45 * D2R), 'Expect h to be cos(45).')
         # 2) Call get_obs_h_from_mag using H,D,d0 1,30,15.
         #   Expect h to be cos(15)
         H = 1
