@@ -1,10 +1,8 @@
 'use strict';
 
-var config = require('./config');
-
 module.exports = {
   scripts: {
-    files: [config.src + '/**/*.py'],
+    files: ['geomagio/**/*.py'],
     tasks: ['lint', 'test']
   },
   gruntfile: {
