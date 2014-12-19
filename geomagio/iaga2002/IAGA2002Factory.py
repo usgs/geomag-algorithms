@@ -3,7 +3,7 @@
 import urllib2
 import obspy.core
 import os
-from geomag.io import TimeseriesFactory, TimeseriesFactoryException
+from geomagio import TimeseriesFactory, TimeseriesFactoryException
 from IAGA2002Parser import IAGA2002Parser
 from IAGA2002Writer import IAGA2002Writer
 

@@ -1,6 +1,6 @@
 
 from cStringIO import StringIO
-from geomag.io import TimeseriesFactoryException
+from geomagio import TimeseriesFactoryException
 import numpy
 import IAGA2002Parser
 import textwrap
