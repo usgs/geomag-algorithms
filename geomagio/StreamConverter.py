@@ -55,6 +55,18 @@ def get_geo_from_obs(obs):
 
 
 def get_mag_from_geo(geo):
+    """Convert a stream to magnetic coordinate system.
+
+    Parameters
+    ----------
+    geo: obspy.core.Stream
+        stream containing observatory components X, Y, Z, and F.
+
+    Returns
+    -------
+    obspy.core.Stream
+        new stream object containing magnetic components H, D, Z, and F.
+    """
     x = geo.select(channel='X')[0]
     y = geo.select(channel='Y')[0]
     z = geo.select(channel='Z')[0]
