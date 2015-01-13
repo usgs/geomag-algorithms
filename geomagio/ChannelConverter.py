@@ -380,7 +380,7 @@ def get_radians_from_minutes(m):
     d: array_like
         the decimal value to be converted
     """
-    return m * M2R
+    return numpy.multiply(m, M2R)
 
 
 def get_minutes_from_radians(r):
@@ -391,4 +391,4 @@ def get_minutes_from_radians(r):
     r: float
         the radian value to be converted
     """
-    return r * R2M
+    return numpy.multiply(r, R2M)
