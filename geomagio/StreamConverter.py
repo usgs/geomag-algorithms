@@ -108,7 +108,7 @@ def get_mag_from_obs(obs):
             z, f))
 
 
-def get_obs_from_geo(geo, include_e=False):
+def get_obs_from_geo(geo, include_d=False):
     """Convert a stream to observatory coordinate system.
 
     Parameters
@@ -123,10 +123,10 @@ def get_obs_from_geo(geo, include_e=False):
     obspy.core.Stream
         new stream object containing observatory components H, D, E, Z, and F.
     """
-    return get_obs_from_mag(get_mag_from_geo(geo), include_e)
+    return get_obs_from_mag(get_mag_from_geo(geo), include_d)
 
 
-def get_obs_from_mag(mag, include_e=False):
+def get_obs_from_mag(mag, include_d=False):
     """Convert a stream to magnetic observatory coordinate system.
 
     Parameters
@@ -150,13 +150,14 @@ def get_obs_from_mag(mag, include_e=False):
     d0 = ChannelConverter.get_radians_from_minutes(
         numpy.float64(d.stats['DECBAS']) / 10)
     (obs_h, obs_e) = ChannelConverter.get_obs_from_mag(mag_h, mag_d, d0)
-    obs_d = ChannelConverter.get_obs_d_from_obs(obs_h, obs_e)
+
     traces = (
         __get_trace('H', h.stats, obs_h),
-        __get_trace('D', d.stats, obs_d),
+        __get_trace('E', d.stats, obs_e),
         z, f)
-    if include_e:
-        traces = traces + (__get_trace('E', d.stats, obs_e),)
+    if include_d:
+        obs_d = ChannelConverter.get_obs_d_from_obs(obs_h, obs_e)
+        traces = traces + (__get_trace('D', d.stats, obs_d),)
     return obspy.core.Stream(traces)
 
 
