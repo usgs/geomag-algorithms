@@ -294,7 +294,7 @@ def __create_trace(channel, data, decbase=0):
 
     Parameters
     ----------
-    channel: list/tuple
+    channel: string
         The name of the trace being created.
     data: array
         The array to be inserted into the trace.
@@ -305,10 +305,8 @@ def __create_trace(channel, data, decbase=0):
         Stream containing the channel.
     """
     stats = obspy.core.Stats()
-    stats.comments = ""
     stats.starttime = STARTTIME
     stats.sampling_rate = 0.0166666666667
-    stats.npts = 1
     stats.DECBAS = decbase
     stats.channel = channel
     numpy_data = numpy.array(data, dtype=numpy.float64)
