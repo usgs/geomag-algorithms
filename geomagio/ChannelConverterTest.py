@@ -40,6 +40,10 @@ class ChannelConverterTest:
             geographic north.
         Y: the component corresponding to the field strength along
             geographic east.
+
+    We are using triangle identities for variables to test with.  Specifically
+        the hypotenuse is normally equal to 1, causing the adjacent angle
+        length to be cos(angle) and the opposite length to be sin(angle)
     """
 
     def test_get_geo_from_obs(self):

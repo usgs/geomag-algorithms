@@ -83,7 +83,7 @@ def get_geo_x_from_mag(h, d):
     array_like
         x component
     """
-    return h * numpy.cos(d)
+    return numpy.multiply(h, numpy.cos(d))
 
 
 def get_geo_y_from_mag(h, d):
@@ -101,7 +101,7 @@ def get_geo_y_from_mag(h, d):
     array_like
         y component
     """
-    return h * numpy.sin(d)
+    return numpy.multiply(h, numpy.sin(d))
 
 
 # ###
@@ -168,7 +168,7 @@ def get_mag_d_from_obs(h, e, d0=0):
     array_like
         the total magnetic declination
     """
-    return d0 + get_obs_d_from_obs(h, e)
+    return numpy.add(d0, get_obs_d_from_obs(h, e))
 
 
 def get_mag_d_from_geo(x, y):
@@ -310,7 +310,7 @@ def get_obs_d_from_mag_d(d, d0=0):
     array_like
         the observatory d declination
     """
-    return d - d0
+    return numpy.subtract(d, d0)
 
 
 def get_obs_e_from_mag(h, d, d0=0):
@@ -331,7 +331,7 @@ def get_obs_e_from_mag(h, d, d0=0):
         the observatory e component
     """
     obs_d = get_obs_d_from_mag_d(d, d0)
-    return h * numpy.sin(obs_d)
+    return numpy.multiply(h, numpy.sin(obs_d))
 
 
 def get_obs_e_from_obs(h, d):
@@ -349,7 +349,7 @@ def get_obs_e_from_obs(h, d):
     array_like
         the observatory e component
     """
-    return h * numpy.tan(d)
+    return numpy.multiply(h, numpy.tan(d))
 
 
 def get_obs_h_from_mag(h, d, d0=0):
@@ -370,7 +370,7 @@ def get_obs_h_from_mag(h, d, d0=0):
         the observatory h component
     """
     obs_d = get_obs_d_from_mag_d(d, d0)
-    return h * numpy.cos(obs_d)
+    return numpy.multiply(h, numpy.cos(obs_d))
 
 
 def get_radians_from_minutes(m):
@@ -380,7 +380,7 @@ def get_radians_from_minutes(m):
     d: array_like
         the decimal value to be converted
     """
-    return m * M2R
+    return numpy.multiply(m, M2R)
 
 
 def get_minutes_from_radians(r):
@@ -391,4 +391,4 @@ def get_minutes_from_radians(r):
     r: float
         the radian value to be converted
     """
-    return r * R2M
+    return numpy.multiply(r, R2M)

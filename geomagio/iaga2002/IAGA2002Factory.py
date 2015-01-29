@@ -6,6 +6,7 @@ import os
 from geomagio import TimeseriesFactory, TimeseriesFactoryException
 from IAGA2002Parser import IAGA2002Parser
 from IAGA2002Writer import IAGA2002Writer
+from geomagio import ChannelConverter
 
 
 # pattern for iaga 2002 file names
@@ -103,14 +104,15 @@ class IAGA2002Factory(TimeseriesFactory):
         timeseries = obspy.core.Stream()
         for day in days:
             url = self._get_url(observatory, day, type, interval)
-            timeseries += self._parse_url(url)
+            iagaFile = read_url(url)
+            timeseries += self.parse_file(iagaFile)
         # merge channel traces for multiple days
         timeseries.merge()
         # trim to requested start/end time
         timeseries.trim(starttime, endtime)
         return timeseries
 
-    def _parse_url(self, url):
+    def parse_file(self, iagaFile):
         """Parse the contents of a url to an IAGA2002 file.
 
         Parameters
@@ -124,7 +126,7 @@ class IAGA2002Factory(TimeseriesFactory):
             parsed data.
         """
         parser = IAGA2002Parser()
-        parser.parse(read_url(url))
+        parser.parse(iagaFile)
         headers = parser.headers
         station = headers['IAGA CODE']
         comments = tuple(parser.comments)
@@ -143,6 +145,9 @@ class IAGA2002Factory(TimeseriesFactory):
             stats.network = 'IAGA'
             stats.station = station
             stats.channel = channel
+            if stats.channel == 'D':
+                data[channel] = ChannelConverter.get_radians_from_minutes(
+                    data[channel])
             stream += obspy.core.Trace(data[channel], stats)
         return stream
 

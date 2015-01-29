@@ -1,6 +1,6 @@
 
 from cStringIO import StringIO
-from geomagio import TimeseriesFactoryException
+from geomagio import TimeseriesFactoryException, ChannelConverter
 import numpy
 import IAGA2002Parser
 import textwrap
@@ -105,6 +105,9 @@ class IAGA2002Writer(object):
             list and order of channel values to output.
         """
         buf = []
+        if timeseries.select(channel='D'):
+            d = timeseries.select(channel='D')
+            d[0].data = ChannelConverter.get_minutes_from_radians(d[0].data)
         traces = [timeseries.select(channel=c)[0] for c in channels]
         starttime = float(traces[0].stats.starttime)
         delta = traces[0].stats.delta
