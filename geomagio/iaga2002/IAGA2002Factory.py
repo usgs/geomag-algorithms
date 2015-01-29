@@ -105,7 +105,7 @@ class IAGA2002Factory(TimeseriesFactory):
         for day in days:
             url = self._get_url(observatory, day, type, interval)
             iagaFile = read_url(url)
-            timeseries += self._parse_url(iagaFile)
+            timeseries += self.parse_file(iagaFile)
         # merge channel traces for multiple days
         timeseries.merge()
         # trim to requested start/end time
