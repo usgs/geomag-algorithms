@@ -115,8 +115,8 @@ def get_obs_from_geo(geo, include_d=False):
     ----------
     stream : obspy.core.Stream
         stream containing geographic components X, Y, Z, and F.
-    include_e : boolean
-        whether to also include the observatory E component.
+    include_d : boolean
+        whether to also include the observatory D component.
 
     Returns
     -------
@@ -133,9 +133,8 @@ def get_obs_from_mag(mag, include_d=False):
     ----------
     stream: obspy.core.Stream
         stream containing magnetic components H, D, Z, and F.
-    include_e: boolean
-        whether to also include the observatory E component
-
+    include_d: boolean
+        whether to also include the observatory D component
     Returns
     -------
     obspy.core.Stream
