@@ -24,10 +24,10 @@
 """
 
 import argparse
-from os import path
+import sys
 # ensure geomag is on the path before importing
-if __file__ != 'main.py':
-    import sys
+if __file__ != 'xyz.py':
+    from os import path
     script_dir = path.dirname(path.abspath(__file__))
     sys.path.append(path.normpath(path.join(script_dir, '..')))
 
@@ -83,10 +83,10 @@ def convert_stream(timeseries, informat, outformat):
     if outformat == 'geo' and informat == 'mag':
         out_stream = StreamConverter.get_geo_from_mag(timeseries)
 
-    elif outformat == 'geo' and informat == 'obs':
+    elif outformat == 'geo' and informat == 'obs' or informat == 'obsd':
         out_stream = StreamConverter.get_geo_from_obs(timeseries)
 
-    elif outformat == 'mag' and informat == 'obs':
+    elif outformat == 'mag' and informat == 'obs' or informat == 'obsd':
         out_stream = StreamConverter.get_mag_from_obs(timeseries)
 
     elif outformat == 'mag' and informat == 'geo':
@@ -99,18 +99,40 @@ def convert_stream(timeseries, informat, outformat):
         out_stream = StreamConverter.get_obs_from_geo(timeseries)
 
     elif outformat == 'obsd' and informat == 'geo':
-        out_stream = StreamConverter.get_obs_from_geo(timeseries, True)
+        out_stream = StreamConverter.get_obs_from_geo(timeseries,
+            include_d=True)
 
-    elif outformat == 'obs' and informat == 'obs':
+    elif outformat == 'obs' and informat == 'obs' or informat == 'obsd':
         out_stream = StreamConverter.get_obs_from_obs(timeseries,
-          True, False)
+          include_d=True)
 
     elif outformat == 'obsd' and informat =='obs':
         out_stream = StreamConverter.get_obs_from_obs(timeseries,
-          False, True)
+            include_d=True)
 
     return out_stream
 
+def check_stream(timeseries, channels):
+    """checks an input stream to make certain all the required channels
+        exist.
+
+    Parameters
+    ----------
+    timeseries: obspy.core.Stream
+        stream that was read in.
+    channels: array
+        channels that are expected in stream.
+    """
+    channels_in = []
+    for series in timeseries:
+        channels_in += series.stats.channel
+    for channel in channels:
+        try:
+            channels_in.index(channel)
+        except ValueError:
+            print 'Channel %s not found in input' % channel
+            return False
+    return True
 
 
 def main():
@@ -118,7 +140,7 @@ def main():
         description='Use @ to read commands from a file.',
         fromfile_prefix_chars='@')
 
-    parser.add_argument('--informat', choices=['geo', 'mag', 'obs'])
+    parser.add_argument('--informat', choices=['geo', 'mag', 'obs', 'obsd'])
     parser.add_argument('--outformat', choices=['geo', 'mag', 'obs', 'obsd'])
     parser.add_argument('--infile', help='iaga2002 input file')
     parser.add_argument('--outfile', help='iaga2002 out file')
@@ -134,13 +156,16 @@ def main():
     factory = iaga2002.IAGA2002Factory(None)
 
     timeseries = factory.parse_string(iagaFile)
+    if check_stream(timeseries, CHANNELS[args.informat]) == False:
+        sys.exit()
     out_stream = convert_stream(timeseries, args.informat, args.outformat)
     channels = CHANNELS[args.outformat]
     if args.outfile != None:
         fh = open(args.outfile, 'w')
     else:
         fh = sys.stdout
-    factory.write_string(fh, out_stream, channels)
+    factory.write_file(fh, out_stream, channels)
+    fh.close()
 
 
 if __name__ == '__main__':

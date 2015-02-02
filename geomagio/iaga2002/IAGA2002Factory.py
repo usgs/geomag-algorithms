@@ -339,7 +339,7 @@ class IAGA2002Factory(TimeseriesFactory):
             day = obspy.core.UTCDateTime(day.timestamp + 86400)
         return days
 
-    def write_string(self, fh, timeseries, channels):
+    def write_file(self, fh, timeseries, channels):
         """writes timeseries data to the given file object.
 
         Parameters
@@ -391,7 +391,7 @@ class IAGA2002Factory(TimeseriesFactory):
                     self._get_url(observatory, day, type, interval))
             day_timeseries = self._get_slice(timeseries, day)
             with open(day_filename, 'w') as fh:
-                self.write_string(fh, day_timeseries, channels)
+                self.write_file(fh, day_timeseries, channels)
 
     def _get_file_from_url(self, url):
         """Get a file for writing.
