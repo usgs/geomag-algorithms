@@ -105,20 +105,20 @@ class IAGA2002Factory(TimeseriesFactory):
         for day in days:
             url = self._get_url(observatory, day, type, interval)
             iagaFile = read_url(url)
-            timeseries += self.parse_file(iagaFile)
+            timeseries += self.parse_string(iagaFile)
         # merge channel traces for multiple days
         timeseries.merge()
         # trim to requested start/end time
         timeseries.trim(starttime, endtime)
         return timeseries
 
-    def parse_file(self, iagaFile):
-        """Parse the contents of a url to an IAGA2002 file.
+    def parse_string(self, iaga2002String):
+        """Parse the contents of a string in the format of an IAGA2002 file.
 
         Parameters
         ----------
-        url : str
-            url containing IAGA2002 content.
+        iaga2002String : str
+            string containing IAGA2002 content.
 
         Returns
         -------
@@ -126,7 +126,7 @@ class IAGA2002Factory(TimeseriesFactory):
             parsed data.
         """
         parser = IAGA2002Parser()
-        parser.parse(iagaFile)
+        parser.parse(iaga2002String)
         headers = parser.headers
         station = headers['IAGA CODE']
         comments = tuple(parser.comments)
@@ -339,6 +339,19 @@ class IAGA2002Factory(TimeseriesFactory):
             day = obspy.core.UTCDateTime(day.timestamp + 86400)
         return days
 
+    def write_string(self, fh, timeseries, channels):
+        """writes timeseries data to the given file object.
+
+        Parameters
+        ----------
+        fh: file object
+        timeseries : obspy.core.Stream
+            stream containing traces to store.
+        channels : array_like
+            list of channels to store
+        """
+        IAGA2002Writer().write(fh, timeseries, channels)
+
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
             channels=None, type=None, interval=None):
         """Store timeseries data.
@@ -378,7 +391,7 @@ class IAGA2002Factory(TimeseriesFactory):
                     self._get_url(observatory, day, type, interval))
             day_timeseries = self._get_slice(timeseries, day)
             with open(day_filename, 'w') as fh:
-                IAGA2002Writer().write(fh, day_timeseries, channels)
+                self.write_string(fh, day_timeseries, channels)
 
     def _get_file_from_url(self, url):
         """Get a file for writing.
