@@ -42,30 +42,6 @@ CHANNELS = {
     'obs': ['H', 'E', 'Z', 'F']
     }
 
-def get_out_channels(args):
-    """Returns the output channels based on the flags.
-
-    Parameteers
-    -----------
-    args: namespace/dictionary
-        outformat: string
-            indicates the desired output format
-        d_out: boolean
-            indicates if the 'observatory' ouput format should include d
-                instead of e
-
-    Returns
-    -------
-    array of strings
-        array of output channels
-    """
-    format = args.outformat
-    # obs is only HEZF if --d_out flag is not set.
-    # Otherwise it's HDZF same as mag
-    if format == 'obs' and args.d_out == True:
-        format = 'mag'
-    return CHANNELS[format]
-
 def convert_stream(timeseries, informat, outformat):
     """converts a timeseries stream into a different coordinate system
 
@@ -80,35 +56,34 @@ def convert_stream(timeseries, informat, outformat):
         new stream object containing the converted coordinates.
     """
     out_stream = None
-    if outformat == 'geo' and informat == 'mag':
-        out_stream = StreamConverter.get_geo_from_mag(timeseries)
+    if outformat == 'geo':
+        if informat == 'obs' or informat == 'obsd':
+            out_stream = StreamConverter.get_geo_from_obs(timeseries)
+        elif informat == 'mag':
+            out_stream = StreamConverter.get_geo_from_mag(timeseries)
 
-    elif outformat == 'geo' and informat == 'obs' or informat == 'obsd':
-        out_stream = StreamConverter.get_geo_from_obs(timeseries)
+    elif outformat == 'mag':
+        if informat == 'obs' or informat == 'obsd':
+            out_stream = StreamConverter.get_mag_from_obs(timeseries)
+        elif informat == 'geo':
+            out_stream = StreamConverter.get_mag_from_geo(timeseries)
 
-    elif outformat == 'mag' and informat == 'obs' or informat == 'obsd':
-        out_stream = StreamConverter.get_mag_from_obs(timeseries)
+    elif outformat == 'obs':
+        if informat == 'mag':
+            out_stream = StreamConverter.get_obs_from_mag(timeseries)
+        elif informat == 'geo':
+            out_stream = StreamConverter.get_obs_from_geo(timeseries)
+        elif informat == 'obs' or informat == 'obsd':
+            out_stream = StreamConverter.get_obs_from_obs(timeseries,
+                include_d=True)
 
-    elif outformat == 'mag' and informat == 'geo':
-        out_stream = StreamConverter.get_mag_from_geo(timeseries)
-
-    elif outformat == 'obs' and informat == 'mag':
-        out_stream = StreamConverter.get_obs_from_mag(timeseries)
-
-    elif outformat == 'obs' and informat == 'geo':
-        out_stream = StreamConverter.get_obs_from_geo(timeseries)
-
-    elif outformat == 'obsd' and informat == 'geo':
-        out_stream = StreamConverter.get_obs_from_geo(timeseries,
-            include_d=True)
-
-    elif outformat == 'obs' and informat == 'obs' or informat == 'obsd':
-        out_stream = StreamConverter.get_obs_from_obs(timeseries,
-          include_d=True)
-
-    elif outformat == 'obsd' and informat =='obs':
-        out_stream = StreamConverter.get_obs_from_obs(timeseries,
-            include_d=True)
+    elif outformat == 'obsd':
+        if informat == 'geo':
+            out_stream = StreamConverter.get_obs_from_geo(timeseries,
+                    include_d=True)
+        elif informat == 'obs':
+            out_stream = StreamConverter.get_obs_from_obs(timeseries,
+                    include_d=True)
 
     return out_stream
 
@@ -123,13 +98,8 @@ def check_stream(timeseries, channels):
     channels: array
         channels that are expected in stream.
     """
-    channels_in = []
-    for series in timeseries:
-        channels_in += series.stats.channel
     for channel in channels:
-        try:
-            channels_in.index(channel)
-        except ValueError:
+        if len(timeseries.select(channel=channel)) == 0:
             print 'Channel %s not found in input' % channel
             return False
     return True
