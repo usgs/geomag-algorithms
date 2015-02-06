@@ -8,7 +8,8 @@
         The input format/coordinate system of the input file.
             geo: geographic coordinate system (xyzf)
             mag: magnetic north coordinate system (hdzf)
-            obs: observatory coordinate system (hezf or hdzf)
+            obs: observatory coordinate system (hezf)
+            obsd: observatory coordinate system (hdzf)
     outformat: string
         The ouput format/coordinate system of the output file.
             geo: geographic coordinate system (xyzf)
@@ -61,13 +62,11 @@ def convert_stream(timeseries, informat, outformat):
             out_stream = StreamConverter.get_geo_from_obs(timeseries)
         elif informat == 'mag':
             out_stream = StreamConverter.get_geo_from_mag(timeseries)
-
     elif outformat == 'mag':
         if informat == 'obs' or informat == 'obsd':
             out_stream = StreamConverter.get_mag_from_obs(timeseries)
         elif informat == 'geo':
             out_stream = StreamConverter.get_mag_from_geo(timeseries)
-
     elif outformat == 'obs':
         if informat == 'mag':
             out_stream = StreamConverter.get_obs_from_mag(timeseries)
@@ -75,8 +74,7 @@ def convert_stream(timeseries, informat, outformat):
             out_stream = StreamConverter.get_obs_from_geo(timeseries)
         elif informat == 'obs' or informat == 'obsd':
             out_stream = StreamConverter.get_obs_from_obs(timeseries,
-                include_d=True)
-
+                include_e=True)
     elif outformat == 'obsd':
         if informat == 'geo':
             out_stream = StreamConverter.get_obs_from_geo(timeseries,
@@ -110,8 +108,10 @@ def main():
         description='Use @ to read commands from a file.',
         fromfile_prefix_chars='@')
 
-    parser.add_argument('--informat', choices=['geo', 'mag', 'obs', 'obsd'])
-    parser.add_argument('--outformat', choices=['geo', 'mag', 'obs', 'obsd'])
+    parser.add_argument('--informat', choices=['geo', 'mag', 'obs', 'obsd'],
+            required=True)
+    parser.add_argument('--outformat', choices=['geo', 'mag', 'obs', 'obsd'],
+            required=True)
     parser.add_argument('--infile', help='iaga2002 input file')
     parser.add_argument('--outfile', help='iaga2002 out file')
 
@@ -121,6 +121,7 @@ def main():
     if args.infile != None:
             iagaFile = open(args.infile, 'r').read()
     else:
+        print >> sys.stderr, 'Input set to recieve data from command Line.'
         iagaFile = sys.stdin.read()
 
     factory = iaga2002.IAGA2002Factory(None)
