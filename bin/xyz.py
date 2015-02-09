@@ -19,9 +19,6 @@
         the filename of the Iaga2002 file to be read from
     outfile: string
         the filename of a new Iaga2002 file to be read to
-    d_out: boolean
-        a flag indicating whether the output for the observatory coordinate
-            system should have the e coordinate instead of d.
 """
 
 import argparse
