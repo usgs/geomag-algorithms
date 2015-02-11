@@ -7,9 +7,7 @@ Geomag algorithms includes tools to fetch, process, and output geomag data.
 Install
 -------
 
-We recommend using virtual environments:
-
-    - http://docs.python-guide.org/en/latest/dev/virtualenvs/
+We recommend using virtual environments ( http://docs.python-guide.org/en/latest/dev/virtualenvs/ )
 
 
 1. Install `python` (2.7.X)
