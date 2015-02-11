@@ -23,8 +23,11 @@
 
 import argparse
 import sys
+
 # ensure geomag is on the path before importing
-if __file__ != 'bin/xyz.py':
+try:
+    import geomagio
+except:
     from os import path
     script_dir = path.dirname(path.abspath(__file__))
     sys.path.append(path.normpath(path.join(script_dir, '..')))

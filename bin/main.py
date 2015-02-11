@@ -2,10 +2,13 @@
 
 
 from os import path
+
 # ensure geomag is on the path before importing
-script_dir = path.dirname(path.abspath(__file__))
-if __file__ != 'bin/main.py':
-    import sys
+try:
+    import geomagio
+except:
+    from os import path
+    script_dir = path.dirname(path.abspath(__file__))
     sys.path.append(path.normpath(path.join(script_dir, '..')))
 
 import geomagio.iaga2002 as iaga2002
