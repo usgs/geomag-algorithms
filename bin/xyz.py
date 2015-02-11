@@ -39,8 +39,8 @@ import geomagio.StreamConverter as StreamConverter
 CHANNELS = {
     'geo': ['X', 'Y', 'Z', 'F'],
     'mag': ['H', 'D', 'Z', 'F'],
-    'obsd': ['H', 'D', 'Z', 'F'],
-    'obs': ['H', 'E', 'Z', 'F']
+    'obs': ['H', 'E', 'Z', 'F'],
+    'obsd': ['H', 'D', 'Z', 'F']
     }
 
 def convert_stream(timeseries, informat, outformat):
@@ -58,31 +58,37 @@ def convert_stream(timeseries, informat, outformat):
     """
     out_stream = None
     if outformat == 'geo':
-        if informat == 'obs' or informat == 'obsd':
-            out_stream = StreamConverter.get_geo_from_obs(timeseries)
+        if informat == 'geo':
+            out_stream = timeseries
         elif informat == 'mag':
             out_stream = StreamConverter.get_geo_from_mag(timeseries)
+        elif informat == 'obs' or informat == 'obsd':
+            out_stream = StreamConverter.get_geo_from_obs(timeseries)
     elif outformat == 'mag':
-        if informat == 'obs' or informat == 'obsd':
-            out_stream = StreamConverter.get_mag_from_obs(timeseries)
-        elif informat == 'geo':
+        if informat == 'geo':
             out_stream = StreamConverter.get_mag_from_geo(timeseries)
+        elif informat == 'mag':
+            out_stream = timeseries
+        elif informat == 'obs' or informat == 'obsd':
+            out_stream = StreamConverter.get_mag_from_obs(timeseries)
     elif outformat == 'obs':
-        if informat == 'mag':
-            out_stream = StreamConverter.get_obs_from_mag(timeseries)
-        elif informat == 'geo':
+        if informat == 'geo':
             out_stream = StreamConverter.get_obs_from_geo(timeseries)
+        elif informat == 'mag':
+            out_stream = StreamConverter.get_obs_from_mag(timeseries)
         elif informat == 'obs' or informat == 'obsd':
             out_stream = StreamConverter.get_obs_from_obs(timeseries,
-                include_e=True)
+                    include_e=True)
     elif outformat == 'obsd':
         if informat == 'geo':
             out_stream = StreamConverter.get_obs_from_geo(timeseries,
                     include_d=True)
-        elif informat == 'obs':
+        elif informat == 'mag':
+            out_stream = StreamConverter.get_obs_from_mag(timeseries,
+                    include_d=True)
+        elif informat == 'obs' or informat == 'obsd':
             out_stream = StreamConverter.get_obs_from_obs(timeseries,
                     include_d=True)
-
     return out_stream
 
 def check_stream(timeseries, channels):
