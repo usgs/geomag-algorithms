@@ -4,7 +4,7 @@
 from os import path
 # ensure geomag is on the path before importing
 script_dir = path.dirname(path.abspath(__file__))
-if __file__ != 'main.py':
+if __file__ != 'bin/main.py':
     import sys
     sys.path.append(path.normpath(path.join(script_dir, '..')))
 
