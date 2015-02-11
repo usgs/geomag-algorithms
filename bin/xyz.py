@@ -118,7 +118,7 @@ def main():
     if args.infile != None:
             iagaFile = open(args.infile, 'r').read()
     else:
-        print >> sys.stderr, 'Input set to recieve data from command Line.'
+        print >> sys.stderr, 'Reading iaga2002 format from STDIN'
         iagaFile = sys.stdin.read()
 
     factory = iaga2002.IAGA2002Factory(None)
