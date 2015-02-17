@@ -41,28 +41,8 @@ The purpose of this document then is to provide a mathematical and algorithmic d
 First, following definitions in the previous section, the conversion from cylindrical HDZ to Cartesian XYZ is very straight-forward trigonometry:
 
 
-[](#)[](#)<table cellpadding="0" cellspacing="0" class="c14"><tbody><tr class="c5"><td class="c10" colspan="1" rowspan="1">
-
-![](images/image00.png)
-</td><td class="c12" colspan="1" rowspan="1">
-
-<span class="c3">(1)</span>
-</td></tr><tr class="c5"><td class="c10" colspan="1" rowspan="1">
-
-![](images/image01.png)
-</td><td class="c12" colspan="1" rowspan="1">
-
-<span class="c3">(2)</span>
-</td></tr><tr class="c5"><td class="c10" colspan="1" rowspan="1">
-
-![](images/image02.png)
-</td><td class="c12" colspan="1" rowspan="1">
-
-<span class="c3">(3)</span>
-</td></tr></tbody></table>
-
-|![](images/image00.png) | (1)|
 |------------------------|----|
+|![](images/image00.png) | (1)|
 |![](images/image01.png) | (2)|
 |![](images/image02.png) | (3)|
 
