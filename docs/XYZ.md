@@ -61,9 +61,10 @@ First, following definitions in the previous section, the conversion from cylind
 <span class="c3">(3)</span>
 </td></tr></tbody></table>
 
-![](images/image00.png) | (1)
-![](images/image01.png) | (2)
-![](images/image02.png) | (3)
+|![](images/image00.png) | (1)|
+|------------------------|----|
+|![](images/image01.png) | (2)|
+|![](images/image02.png) | (3)|
 
 
 <span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 243.38px; height: 418.50px;">![](images/image11.png)</span>
