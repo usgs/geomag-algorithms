@@ -1,20 +1,21 @@
+
 Algorithm Theoretical Basis for &ldquo;Geomag XYZ&rdquo;
 
 E. Joshua Rigler &lt;<span class="c15">[erigler@usgs.gov](mailto:erigler@usgs.gov)</span><span>&gt;</span>
 
-#<span>Summary</span>
+#Summary
 
 Mathematical underpinnings and general algorithm considerations are presented for converting geomagnetic observations from so-called HEZ coordinates, used by the USGS geomagnetism program, into XYZ coordinates, used by a growing number of international geomagnetism programs, as well as various academic and commercial entities. Inverse transformations are also provided.
 
-#<span>Background and Motivation</span>
+#Background and Motivation
 
 Historically, the most common coordinate system used to specify measured geomagnetic fields has been HDZ, where:
 
 
 
-1.  <span>H is the magnitude of the geomagnetic field vector tangential to the Earth&rsquo;s surface;</span>
-2.  <span>D is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector;</span>
-3.  <span>Z is the downward component of the geomagnetic field.</span>
+1.  H is the magnitude of the geomagnetic field vector tangential to the Earth&rsquo;s surface;
+2.  D is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector;
+3.  Z is the downward component of the geomagnetic field.
 
 
 
@@ -22,9 +23,9 @@ This coordinate system is useful for navigation (it is the natural coordinate sy
 
 
 
-1.  <span>X points to the geographic north pole;</span>
-2.  <span>Y points eastward;</span>
-3.  <span>Z, as before, points downward.</span>
+1.  X points to the geographic north pole;
+2.  Y points eastward;
+3.  Z, as before, points downward.
 
 
 
@@ -35,7 +36,7 @@ The purpose of this document then is to provide a mathematical and algorithmic d
 
 
 
-#<span>Math and Theory</span>
+#Math and Theory
 
 First, following definitions in the previous section, the conversion from cylindrical HDZ to Cartesian XYZ is very straight-forward trigonometry:
 
@@ -60,6 +61,11 @@ First, following definitions in the previous section, the conversion from cylind
 <span class="c3">(3)</span>
 </td></tr></tbody></table>
 
+![](images/image00.png) | (1)
+![](images/image01.png) | (2)
+![](images/image02.png) | (3)
+
+
 <span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 243.38px; height: 418.50px;">![](images/image11.png)</span>
 
 
@@ -74,9 +80,8 @@ The figure to the right illustrates how the same full magnetic field vector<span
 One thing that is not labeled in this figure is the angle d (see Eq. 4), which is the difference between declination D, and a declination baseline (D<span class="c11">0</span>, or DECBAS).
 
 
-<span>Equations 4, 5, and 6 describe how to convert the horizontal components of a USGS magnetometer&rsquo;s raw data element into more standard H and D components.</span>
+Equations 4, 5, and 6 describe how to convert the horizontal components of a USGS magnetometer&rsquo;s raw data element into more standard H and D components.
 
-<span></span>
 [](#)[](#)<table cellpadding="0" cellspacing="0" class="c14"><tbody><tr class="c5"><td class="c10" colspan="1" rowspan="1">
 
 ![](images/image03.png)
@@ -97,11 +102,9 @@ One thing that is not labeled in this figure is the angle d (see Eq. 4), which i
 <span class="c3">(6)</span>
 </td></tr></tbody></table>
 
-<span></span>
 
-<span>To inverse transform from XY to HD:</span>
+To inverse transform from XY to HD:
 
-<span></span>
 [](#)[](#)<table cellpadding="0" cellspacing="0" class="c14"><tbody><tr class="c5"><td class="c10" colspan="1" rowspan="1">
 
 ![](images/image06.png)
@@ -116,11 +119,9 @@ One thing that is not labeled in this figure is the angle d (see Eq. 4), which i
 <span class="c3">(8)</span>
 </td></tr></tbody></table>
 
-<span></span>
 
-<span>...and from HD to he:</span>
+...and from HD to he:
 
-<span></span>
 [](#)[](#)<table cellpadding="0" cellspacing="0" class="c14"><tbody><tr class="c5"><td class="c10" colspan="1" rowspan="1">
 
 ![](images/image08.png)
@@ -141,33 +142,31 @@ One thing that is not labeled in this figure is the angle d (see Eq. 4), which i
 <span class="c3">(11)</span>
 </td></tr></tbody></table>
 
-<span></span>
 
-<span>It is worth noting that there is potential for mathematically undefined results in several of the preceding equations, where infinite ratios are a possible argument to the arctan() function. However, Python&rsquo;s Numpy package, and indeed most modern math libraries, will return reasonable answers in such situations (hint: arctan(Inf)==pi/2).</span>
+It is worth noting that there is potential for mathematically undefined results in several of the preceding equations, where infinite ratios are a possible argument to the arctan() function. However, Python&rsquo;s Numpy package, and indeed most modern math libraries, will return reasonable answers in such situations (hint: arctan(Inf)==pi/2).
 
-<span></span>
 
-# <a name="h.rsxcajyqdnvk"></a><span>Algorithm</span><span>&nbsp;Considerations</span>
+#Algorithm&nbsp;Considerations
 
-## <a name="h.e7fn5x4g0vlc"></a><span>Magnetic Intensity Units</span>
+##Magnetic Intensity Units
 
-<span>It is understood that all raw data inputs are provided in units of nanoTesla (nT). Of course this is not required for the equations to be valid, but it is incumbent on the programmer to make sure all input data units are the same, and that output units are defined accurately.</span>
+It is understood that all raw data inputs are provided in units of nanoTesla (nT). Of course this is not required for the equations to be valid, but it is incumbent on the programmer to make sure all input data units are the same, and that output units are defined accurately.
 
-## <a name="h.c3gsqbgrcf59"></a><span>Declination Angular Units</span>
+##Declination Angular Units
 
-<span>The equations in the preceding section are relatively simple to code up, with the standard caveat that angles must be appropriate for the trigonometric functions (e.g., if sin/cos/tan expect radians, be sure to provide parameters in radians). One thing that can potentially complicate this is that IAGA standards require declination angles to be in minutes of arc. Furthermore, </span><span>D</span><span class="c11">0</span><span>&nbsp;(DECBAS)</span><sup>[[a]](#cmnt1)</sup><sup>[[b]](#cmnt2)</sup><span>&nbsp;is not very well-defined by IAGA standards, but is typically reported in tenths of minutes of arc. None of these are difficult to convert, but it is incumbent on the programmer to make sure they know what units are being used for the inputs.</span>
+The equations in the preceding section are relatively simple to code up, with the standard caveat that angles must be appropriate for the trigonometric functions (e.g., if sin/cos/tan expect radians, be sure to provide parameters in radians). One thing that can potentially complicate this is that IAGA standards require declination angles to be in minutes of arc. Furthermore, D<span class="c11">0</span>&nbsp;(DECBAS)<sup>[[a]](#cmnt1)</sup><sup>[[b]](#cmnt2)</sup>&nbsp;is not very well-defined by IAGA standards, but is typically reported in tenths of minutes of arc. None of these are difficult to convert, but it is incumbent on the programmer to make sure they know what units are being used for the inputs.
 
-## <a name="h.tzmta19ugqn"></a><span>Declination Baseline</span>
+##Declination Baseline
 
-<span>Declination baseline is not well-defined by IAGA standards. The typical method used to publish it with actual data is to include it in the metadata. For older IMF formatted files, it is part of the periodic block header. For IAGA2002 formatted file, it </span><span class="c8">may</span><span>&nbsp;be in the file header, but is not required. To the best of my knowledge, if it is not included, one should assume it is zero, but no corroborating documentation could be found to justify this statement.</span>
+Declination baseline is not well-defined by IAGA standards. The typical method used to publish it with actual data is to include it in the metadata. For older IMF formatted files, it is part of the periodic block header. For IAGA2002 formatted file, it <span class="c8">may</span>&nbsp;be in the file header, but is not required. To the best of my knowledge, if it is not included, one should assume it is zero, but no corroborating documentation could be found to justify this statement.
 
-## <a name="h.t3w4ufsf9h6w"></a><span>Declination in USGS Variations Data</span>
+## Declination in USGS Variations Data
 
-<span>The</span><span>&nbsp;USGS variations data is actually published in hdZ coordinates. If one wishes to apply equations in the preceding section to USGS variations data, they must first convert &ldquo;d&rdquo; back into &ldquo;e&rdquo; via Eq. 11.</span>
+The&nbsp;USGS variations data is actually published in hdZ coordinates. If one wishes to apply equations in the preceding section to USGS variations data, they must first convert &ldquo;d&rdquo; back into &ldquo;e&rdquo; via Eq. 11.
 
-## <a name="h.efk3flra8ap3"></a><span>Data Flags</span>
+## Data Flags
 
-<span>It should go without saying that bad data in one coordinate system is bad data in another. However, on occasion, operational USGS Geomagnetism Program code has been discovered where coordinate transformations were applied </span><span class="c8">before</span><span>&nbsp;checking data flags. </span><span>This is not an issue if data flags are NaN (not-a-number values), but more typical for Geomag data, these are values like 99999, which can lead to seemingly valid, but erroneous values at times when the raw data were known to be bad.</span><sup>[[c]](#cmnt3)</sup><sup>[[d]](#cmnt4)</sup><sup>[[e]](#cmnt5)</sup><sup>[[f]](#cmnt6)</sup>
+It should go without saying that bad data in one coordinate system is bad data in another. However, on occasion, operational USGS Geomagnetism Program code has been discovered where coordinate transformations were applied <span class="c8">before</span>&nbsp;checking data flags. This is not an issue if data flags are NaN (not-a-number values), but more typical for Geomag data, these are values like 99999, which can lead to seemingly valid, but erroneous values at times when the raw data were known to be bad.<sup>[[c]](#cmnt3)</sup><sup>[[d]](#cmnt4)</sup><sup>[[e]](#cmnt5)</sup><sup>[[f]](#cmnt6)</sup>
 <div class="c1">
 
 [[a]](#cmnt_ref1)<span class="c3">How is this value computed? &nbsp;Is it something that would be configured in advance, or best computed dynamically?</span>
