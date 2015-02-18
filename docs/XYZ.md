@@ -13,9 +13,14 @@ Historically, the most common coordinate system used to specify measured geomagn
 
 
 
-1.  H is the magnitude of the geomagnetic field vector tangential to the Earth&rsquo;s surface;
-2.  D is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector;
-3.  Z is the downward component of the geomagnetic field.
+<dl>
+  <dt>H</dt>
+    <dd>is the magnitude of the geomagnetic field vector tangential to the Earth&rsquo;s surface;</dd>
+  <dt>D</dt>
+    <dd> is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector;</dd>
+  <dt>Z</dt>
+    <dd>is the downward component of the geomagnetic field.</dd>
+</dl>
 
 
 
@@ -73,11 +78,11 @@ One thing that is not labeled in this figure is the angle d (see Eq. 4), which i
 
 Equations 4, 5, and 6 describe how to convert the horizontal components of a USGS magnetometer&rsquo;s raw data element into more standard H and D components.
 
-#|Equation
+ 1 |Equation
 ---|-----------------------
-![](images/image03.png)|(4)
-![](images/image04.png)|(5)
-![](images/image05.png)|(6)
+|(4)|![](images/image03.png)
+|(5)|![](images/image04.png)
+|(6)|![](images/image05.png)
 
 
 
