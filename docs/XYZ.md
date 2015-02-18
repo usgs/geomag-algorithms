@@ -13,14 +13,9 @@ Historically, the most common coordinate system used to specify measured geomagn
 
 
 
-<dl>
-  <dt>H</dt>
-    <dd>is the magnitude of the geomagnetic field vector tangential to the Earth&rsquo;s surface;</dd>
-  <dt>D</dt>
-    <dd> is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector;</dd>
-  <dt>Z</dt>
-    <dd>is the downward component of the geomagnetic field.</dd>
-</dl>
+-  H is the magnitude of the geomagnetic field vector tangential to the Earth&rsquo;s surface
+-  D is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector
+-  Z is the downward component of the geomagnetic field
 
 
 
@@ -28,9 +23,9 @@ This coordinate system is useful for navigation (it is the natural coordinate sy
 
 
 
-1.  X points to the geographic north pole;
-2.  Y points eastward;
-3.  Z, as before, points downward.
+-  X points to the geographic north pole
+-  Y points eastward
+-  Z, as before, points downward
 
 
 
@@ -46,22 +41,11 @@ The purpose of this document then is to provide a mathematical and algorithmic d
 First, following definitions in the previous section, the conversion from cylindrical HDZ to Cartesian XYZ is very straight-forward trigonometry:
 
 
-[](#)[](#)<table cellpadding="0" cellspacing="0" class="c14">
-<tbody>
-  <tr>
-    <td>![](images/image00.png)</td>
-    <td >(1)</td>
-  </tr>
-  <tr>
-    <td>![](images/image01.png)</td>
-    <td>(2)</td>
-  </tr>
-  <tr class="c5">
-    <td>![](images/image02.png)</td>
-    <td>(3)</td>
-  </tr>
-</tbody>
-</table>
+
+1. ![](images/image00.png)
+2. ![](images/image01.png)
+3. ![](images/image02.png)
+
 
 <span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 243.38px; height: 418.50px;">![](images/image11.png)</span>
 
@@ -78,11 +62,10 @@ One thing that is not labeled in this figure is the angle d (see Eq. 4), which i
 
 Equations 4, 5, and 6 describe how to convert the horizontal components of a USGS magnetometer&rsquo;s raw data element into more standard H and D components.
 
- 1 |Equation
----|-----------------------
-|(4)|![](images/image03.png)
-|(5)|![](images/image04.png)
-|(6)|![](images/image05.png)
+
+4. ![](images/image03.png)
+5. ![](images/image04.png)
+6. ![](images/image05.png)
 
 
 
