@@ -11,21 +11,18 @@ Mathematical underpinnings and general algorithm considerations are presented fo
 
 Historically, the most common coordinate system used to specify measured geomagnetic fields has been HDZ, where:
 
-
-
--  H is the magnitude of the geomagnetic field vector tangential to the Earth&rsquo;s surface
--  D is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector
--  Z is the downward component of the geomagnetic field
-
+- H is the magnitude of the geomagnetic field vector tangential to the Earth&rsquo;s surface;
+- D is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector;
+- Z is the downward component of the geomagnetic field.
 
 
 This coordinate system is useful for navigation (it is the natural coordinate system for a magnetic compass), and any scientific analysis conducted in a geomagnetic field-aligned reference frame, but is somewhat awkward for most other applications. A more generally useful set of coordinates for scientific analysis and engineering applications is the XYZ system:
 
 
 
--  X points to the geographic north pole
--  Y points eastward
--  Z, as before, points downward
+-  X points to the geographic north pole;
+-  Y points eastward;
+-  Z, as before, points downward.
 
 
 
@@ -40,75 +37,44 @@ The purpose of this document then is to provide a mathematical and algorithmic d
 
 First, following definitions in the previous section, the conversion from cylindrical HDZ to Cartesian XYZ is very straight-forward trigonometry:
 
-
-
-1. ![](images/image00.png)
-2. ![](images/image01.png)
-3. ![](images/image02.png)
-
-
-<span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 243.38px; height: 418.50px;">![](images/image11.png)</span>
-
+- X = H cos(D)
+- Y = H sin(D)
+- Z = Z
 
 However, as noted previously, the USGS aligns its magnetometers with the magnetic north upon installation at an observatory, meaning raw data is generated in heZ coordinates, where "h" is is the primary axis in a fixed reference frame, "e" is the secondary axis in this reference frame, and "Z" is the tertiary axis, which remains common for all reference frames discussed in this document.
 
+<span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 243.38px; height: 418.50px;">![](images/figure.png)</span>
 
 The figure above illustrates how the same full magnetic field vector **F**, can be represented in heZ, HDZ, and XYZ coordinates. Red objects are specific to the magnetometer&rsquo;s reference frame, while blue objects are specific to the geographic reference frame. Black is common to all frames considered here, and dashed lines help define Cartesian grids.
-
-
 
 One thing that is not labeled in this figure is the angle d (see Eq. 4), which is the difference between declination D, and a declination baseline (D0, or DECBAS).
 
 
-Equations 4, 5, and 6 describe how to convert the horizontal components of a USGS magnetometer&rsquo;s raw data element into more standard H and D components.
+The next 3 equations describe how to convert the horizontal components of a USGS magnetometer&rsquo;s raw data element into more standard H and D components.
 
-
-4. ![](images/image03.png)
-5. ![](images/image04.png)
-6. ![](images/image05.png)
-
-
+- d = arctan(e/h)
+- D = D0 + d
+- H = `sqrt(h*h + e*e)` = h / cos(d)
 
 To inverse transform from XY to HD:
 
-[](#)[](#)<table>
-  <tbody>
-    <tr>
-      <td>![](images/image06.png)</td>
-      <td>(7)</td>
-    </tr>
-    <tr>
-      <td>![](images/image07.png)</td>
-      <td>(8)</td>
-    </tr>
-  </tbody>
-</table>
-
+- H = `sqrt(X*X + Y*Y)`
+- D = arctan(Y/X)
 
 ...and from HD to he:
 
-[](#)[](#)<table>
-  <tbody>
-    <tr>
-      <td>![](images/image08.png)</td>
-      <td>(9)</td>
-    </tr>
-    <tr>
-      <td>![](images/image09.png)</td>
-      <td>(10)</td>
-    </tr>
-    <tr>
-      <td>![](images/image10.png)</td>
-      <td>(11)</td>
-    </tr>
-  </tbody>
-</table>
-
+- d = D - D0
+- h = sqrt(H*H / 1 + tan2(d)) = H cos(d)
 
 It is worth noting that there is potential for mathematically undefined results in several of the preceding equations, where infinite ratios are a possible argument to the arctan() function. However, Python&rsquo;s Numpy package, and indeed most modern math libraries, will return reasonable answers in such situations (hint: arctan(Inf)==pi/2).
 
 
-#Algorithm&nbsp;Considerations
+#Algorithm
+- geo
+- obs
+- mag
+
+#Practical Considerations
 
 ##Magnetic Intensity Units
 
