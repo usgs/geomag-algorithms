@@ -73,22 +73,12 @@ One thing that is not labeled in this figure is the angle d (see Eq. 4), which i
 
 Equations 4, 5, and 6 describe how to convert the horizontal components of a USGS magnetometer&rsquo;s raw data element into more standard H and D components.
 
-[](#)[](#)<table cellpadding="0" cellspacing="0" class="c14">
-  <tbody>
-    <tr class="c5">
-      <td class="c10" colspan="1" rowspan="1">![](images/image03.png)</td>
-      <td>(4)</td>
-    </tr>
-    <tr>
-      <td>![](images/image04.png)</td>
-      <td>(5)</td>
-    </tr>
-    <tr>
-      <td>![](images/image05.png)</td>
-      <td>(6)</td>
-    </tr>
-  </tbody>
-</table>
+#|Equation
+---|-----------------------
+![](images/image03.png)|(4)
+![](images/image04.png)|(5)
+![](images/image05.png)|(6)
+
 
 
 To inverse transform from XY to HD:
