@@ -47,8 +47,8 @@ class IAGA2002Writer(object):
         # build comments
         comments = []
         if 'declination_base' in stats:
-            comments.append('DECBAS               {:<8d}' \
-                    '(Baseline declination value in tenths of minutes East' \
+            comments.append('DECBAS               {:<8d}'
+                    '(Baseline declination value in tenths of minutes East'
                     ' (0-216,000)).'.format(stats.declination_base))
         if 'filter_comments' in stats:
             comments.extend(stats.filter_comments)
@@ -60,7 +60,7 @@ class IAGA2002Writer(object):
             comments.append('Go to www.intermagnet.org for details on' +
                     ' obtaining this product.')
         if 'conditions_of_use' in stats:
-            comments.append('CONDITIONS OF USE: ' + stats.conditions_of_use);
+            comments.append('CONDITIONS OF USE: ' + stats.conditions_of_use)
         # generate comment output
         buf = []
         for comment in comments:

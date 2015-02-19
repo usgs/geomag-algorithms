@@ -105,5 +105,4 @@ def test_parse_decbas():
     """
     parser = IAGA2002Parser()
     parser.parse(IAGA2002_EXAMPLE)
-    print parser.stats
-    assert_equals(parser.stats['declination_base'], '5527')
+    assert_equals(parser.metadata['declination_base'], 5527)

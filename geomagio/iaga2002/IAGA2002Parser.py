@@ -186,7 +186,7 @@ class IAGA2002Parser(object):
                 conditions_of_use = comment.replace(
                         'CONDITIONS OF USE:', '').strip()
             else:
-                comment_upper = comment.upper();
+                comment_upper = comment.upper()
                 if 'FILTER' in comment_upper:
                     filter_comments.append(comment)
                 elif 'INTERMAGNET DVD' in comment_upper or \
