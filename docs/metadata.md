@@ -12,17 +12,17 @@ Metadata is stored in the `Stats` dictionary of each `Trace` object.
   Observatory code.
 
   Examples:
-    `BOU`
+    `BOU`,
     `BDT`
 
 - `channel`
   Data channel.
   
   Examples:
-    `H`
-    'D'
-    'Z'
-    'F'
+    `H`,
+    `D`,
+    `Z`,
+    `F`
 
 - `agency_name`
   Name of agency that operates observatory.
@@ -49,26 +49,26 @@ Metadata is stored in the `Stats` dictionary of each `Trace` object.
   Review level of data.
 
   Examples:
-    `definitive`
-    `provisional`
-    `quasi-definitive`
+    `definitive`,
+    `provisional`,
+    `quasi-definitive`,
     `variation`
 
 - `data_interval`
   Time between data samples.
 
   Examples:
-    `daily`
-    `hourly`
-    `minute`
-    `monthly`
+    `daily`,
+    `hourly`,
+    `minute`,
+    `monthly`,
     `second`
 
 - `data_interval_type`
   How data interval was produced.
 
   Examples:
-    `average 1 second`
+    `average 1 second`,
     `filtered 1-minute (00:15-01:45)`
 
 - `declination_base`
