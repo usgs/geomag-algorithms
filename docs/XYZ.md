@@ -26,7 +26,7 @@ This coordinate system is useful for navigation (it is the natural coordinate sy
 
 
 
-Conversion between these two coordinate systems involves relatively straight-forward trigonometry (see Eqs. 1, 2, and 3). However, in practice, a 3-axis magnetometer necessarily takes on a fixed orientation upon installation. For USGS observatories, this is aligned with the average magnetic north vector and downward, with the final axis completes a right-handed 3-dimensional coordinate system (roughly eastward). &nbsp;This is often referred to as HEZ coordinates, but for the remainder of this document we will refer to it as heZ, to avoid confusion with more traditional definitions of H and E(==Y).
+Conversion between these two coordinate systems involves relatively straight-forward trigonometry (see Eqs. 1, 2, and 3). However, in practice, a 3-axis magnetometer necessarily takes on a fixed orientation upon installation. For USGS observatories, this is aligned with the average magnetic north vector and downward, with the final axis completes a right-handed 3-dimensional coordinate system (roughly eastward). This is often referred to as HEZ coordinates, but for the remainder of this document we will refer to it as heZ, to avoid confusion with more traditional definitions of H and E(==Y).
 
 
 The purpose of this document then is to provide a mathematical and algorithmic description of how one converts data measured in heZ coordinates to true HDZ, and finally to XYZ.
@@ -43,7 +43,7 @@ First, following definitions in the previous section, the conversion from cylind
 
 However, as noted previously, the USGS aligns its magnetometers with the magnetic north upon installation at an observatory, meaning raw data is generated in heZ coordinates, where "h" is is the primary axis in a fixed reference frame, "e" is the secondary axis in this reference frame, and "Z" is the tertiary axis, which remains common for all reference frames discussed in this document.
 
-<span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 243.38px; height: 418.50px;">![](images/figure.png)</span>
+![Magnetic Field Vectors in three coordinate systems](images/figure.png)
 
 The figure above illustrates how the same full magnetic field vector **F**, can be represented in heZ, HDZ, and XYZ coordinates. Red objects are specific to the magnetometer&rsquo;s reference frame, while blue objects are specific to the geographic reference frame. Black is common to all frames considered here, and dashed lines help define Cartesian grids.
 
@@ -70,9 +70,14 @@ It is worth noting that there is potential for mathematically undefined results 
 
 
 #Algorithm
-- geo
-- obs
-- mag
+The geomag algorithm references the 3 reference frames as geo for geographic/cartesian, obs for observatory and mag for magnetic/cylindrical. In reference to this article
+- geo is XYZ
+- obs is heZ
+- mag is HDZ
+
+The underlying library provides calculations for both the basic conversions, such as get_get_y_from_mag, which is based off of Y = H sin(D), and higher level conversions, such as get_geo_from_mag. (Which converts HD to XY)
+Upper libraries only provide higher level conversions, ie get_geo_from_mag. This is the level most users should be accessing.
+
 
 #Practical Considerations
 
