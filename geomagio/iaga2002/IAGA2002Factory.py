@@ -127,9 +127,7 @@ class IAGA2002Factory(TimeseriesFactory):
         """
         parser = IAGA2002Parser()
         parser.parse(iaga2002String)
-        headers = parser.headers
-        station = headers['IAGA CODE']
-        comments = tuple(parser.comments)
+        metadata = parser.metadata
         starttime = obspy.core.UTCDateTime(parser.times[0])
         endtime = obspy.core.UTCDateTime(parser.times[-1])
         data = parser.data
@@ -137,15 +135,12 @@ class IAGA2002Factory(TimeseriesFactory):
         rate = (length - 1) / (endtime - starttime)
         stream = obspy.core.Stream()
         for channel in data.keys():
-            stats = obspy.core.Stats(headers)
-            stats.comments = comments
+            stats = obspy.core.Stats(metadata)
             stats.starttime = starttime
             stats.sampling_rate = rate
             stats.npts = length
-            stats.network = 'IAGA'
-            stats.station = station
             stats.channel = channel
-            if stats.channel == 'D':
+            if channel == 'D':
                 data[channel] = ChannelConverter.get_radians_from_minutes(
                     data[channel])
             stream += obspy.core.Trace(data[channel], stats)

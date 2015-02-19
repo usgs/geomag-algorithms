@@ -35,6 +35,9 @@ class IAGA2002Parser(object):
         """Create a new IAGA2002 parser."""
         # header fields
         self.headers = {}
+        self.metadata = {
+            'network': 'NT'
+        }
         # header comments
         self.comments = []
         # array of channel names
@@ -79,6 +82,32 @@ class IAGA2002Parser(object):
         key = line[1:24].strip()
         value = line[24:69].strip()
         self.headers[key] = value
+        key_upper = key.upper()
+        if key_upper == 'SOURCE OF DATA':
+            key = 'agency_name'
+        elif key_upper == 'STATION NAME':
+            key = 'station_name'
+        elif key_upper == 'IAGA CODE':
+            key = 'station'
+        elif key_upper == 'GEODETIC LATITUDE':
+            key = 'geodetic_latitude'
+        elif key_upper == 'GEODETIC LONGITUDE':
+            key = 'geodetic_longitude'
+        elif key_upper == 'ELEVATION':
+            key = 'elevation'
+        elif key_upper == 'SENSOR ORIENTATION':
+            key = 'sensor_orientation'
+        elif key_upper == 'DIGITAL SAMPLING':
+            key = 'sensor_sampling_rate'
+            value = 1 / float(value.replace('second', '').strip())
+        elif key_upper == 'DATA INTERVAL TYPE':
+            key = 'data_interval_type'
+        elif key_upper == 'DATA TYPE':
+            key = 'data_type'
+        else:
+            # not a required header
+            return
+        self.metadata[key] = value
 
     def _parse_comment(self, line):
         """Parse comment line.
@@ -93,7 +122,7 @@ class IAGA2002Parser(object):
         Adds channel names to ``self.channels``.
         Creates empty values arrays in ``self.data``.
         """
-        iaga_code = self.headers['IAGA CODE']
+        iaga_code = self.metadata['station']
         self.channels.append(line[30:40].strip().replace(iaga_code, ''))
         self.channels.append(line[40:50].strip().replace(iaga_code, ''))
         self.channels.append(line[50:60].strip().replace(iaga_code, ''))
@@ -143,11 +172,33 @@ class IAGA2002Parser(object):
 
     def parse_comments(self):
         """Parse header values embedded in comments."""
+        comments = []
+        filter_comments = []
+        conditions_of_use = None
+        declination_base = None
+        is_intermagnet = False
         for comment in self.comments:
             if comment.startswith('DECBAS'):
                 # parse DECBAS
                 decbas = comment.replace('DECBAS', '').strip()
-                self.headers['DECBAS'] = decbas[:decbas.find(' ')]
+                declination_base = int(decbas[:decbas.find(' ')])
+            elif comment.startswith('CONDITIONS OF USE:'):
+                conditions_of_use = comment.replace(
+                        'CONDITIONS OF USE:', '').strip()
+            else:
+                comment_upper = comment.upper();
+                if 'FILTER' in comment_upper:
+                    filter_comments.append(comment)
+                elif 'INTERMAGNET DVD' in comment_upper or \
+                        'WWW.INTERMAGNET.ORG' in comment_upper:
+                    is_intermagnet = True
+                else:
+                    comments.append(comment)
+        self.metadata['comments'] = tuple(comments)
+        self.metadata['filter_comments'] = tuple(filter_comments)
+        self.metadata['conditions_of_use'] = conditions_of_use
+        self.metadata['declination_base'] = declination_base
+        self.metadata['is_intermagnet'] = is_intermagnet
 
     def _merge_comments(self, comments):
         """Combine multi-line, period-delimited comments.

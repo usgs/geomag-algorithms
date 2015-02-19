@@ -100,7 +100,7 @@ def get_mag_from_obs(obs):
     obs_h = h.data
     obs_e = e.data
     d0 = ChannelConverter.get_radians_from_minutes(
-            numpy.float64(e.stats['DECBAS']) / 10)
+            numpy.float64(e.stats.declination_base) / 10)
     (mag_h, mag_d) = ChannelConverter.get_mag_from_obs(obs_h, obs_e, d0)
     return obspy.core.Stream((
             __get_trace('H', h.stats, mag_h),
@@ -147,7 +147,7 @@ def get_obs_from_mag(mag, include_d=False):
     mag_h = h.data
     mag_d = d.data
     d0 = ChannelConverter.get_radians_from_minutes(
-        numpy.float64(d.stats['DECBAS']) / 10)
+        numpy.float64(d.stats.declination_base) / 10)
     (obs_h, obs_e) = ChannelConverter.get_obs_from_mag(mag_h, mag_d, d0)
 
     traces = (

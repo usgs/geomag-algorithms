@@ -17,34 +17,51 @@ class IAGA2002Writer(object):
     def write(self, out, timeseries, channels):
         stats = timeseries[0].stats
         out.write(self._format_headers(stats, channels))
-        out.write(self._format_comments(stats.comments))
-        out.write(self._format_channels(channels, stats['IAGA CODE']))
+        out.write(self._format_comments(stats))
+        out.write(self._format_channels(channels, stats.station))
         out.write(self._format_data(timeseries, channels))
         pass
 
     def _format_headers(self, stats, channels):
-        values = {}
-        values.update(stats)
-        values['Format'] = 'IAGA-2002'
-        values['Reported'] = ''.join(channels)
         buf = []
-        for header in (
-                'Format',
-                'Source of Data',
-                'Station Name',
-                'IAGA CODE',
-                'Geodetic Latitude',
-                'Geodetic Longitude',
-                'Elevation',
-                'Reported',
-                'Sensor Orientation',
-                'Digital Sampling',
-                'Data Interval Type',
-                'Data Type'):
-            buf.append(self._format_header(header, values[header]))
+        buf.append(self._format_header('Format', 'IAGA-2002'))
+        buf.append(self._format_header('Source of Data', stats.agency_name))
+        buf.append(self._format_header('Station Name', stats.station_name))
+        buf.append(self._format_header('IAGA CODE', stats.station))
+        buf.append(self._format_header('Geodetic Latitude',
+                stats.geodetic_latitude))
+        buf.append(self._format_header('Geodetic Longitude',
+                stats.geodetic_longitude))
+        buf.append(self._format_header('Elevation', stats.elevation))
+        buf.append(self._format_header('Reported', ''.join(channels)))
+        buf.append(self._format_header('Sensor Orientation',
+                stats.sensor_orientation))
+        buf.append(self._format_header('Digital Sampling',
+                str(1 / stats.sensor_sampling_rate) + ' second'))
+        buf.append(self._format_header('Data Interval Type',
+                stats.data_interval_type))
+        buf.append(self._format_header('Data Type', stats.data_type))
         return ''.join(buf)
 
-    def _format_comments(self, comments):
+    def _format_comments(self, stats):
+        # build comments
+        comments = []
+        if 'declination_base' in stats:
+            comments.append('DECBAS               {:<8d}' \
+                    '(Baseline declination value in tenths of minutes East' \
+                    ' (0-216,000)).'.format(stats.declination_base))
+        if 'filter_comments' in stats:
+            comments.extend(stats.filter_comments)
+        if 'comments' in stats:
+            comments.extend(stats.comments)
+        if 'is_intermagnet' in stats and stats.is_intermagnet:
+            comments.append('Final data will be available on the' +
+                    ' INTERMAGNET DVD.')
+            comments.append('Go to www.intermagnet.org for details on' +
+                    ' obtaining this product.')
+        if 'conditions_of_use' in stats:
+            comments.append('CONDITIONS OF USE: ' + stats.conditions_of_use);
+        # generate comment output
         buf = []
         for comment in comments:
             buf.append(self._format_comment(comment))
