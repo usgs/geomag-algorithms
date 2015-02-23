@@ -77,7 +77,7 @@ standard H and D components.
 
 - <a name="eq4"></a>Equation 4:`d = arctan(e/h)`
 - <a name="eq5"></a>Equation 5:`D = D0 + d`
-- <a name="eq6"></a>Equation 6:`H = `sqrt(h*h + e*e)` = h / cos(d)`
+- <a name="eq6"></a>Equation 6:`H = sqrt(h*h + e*e) = h / cos(d)`
 
 To inverse transform from XY to HD:
 
@@ -94,8 +94,7 @@ It is worth noting that there is potential for mathematically undefined results
 in several of the preceding equations, where infinite ratios are a possible
 argument to the arctan() function. However, Python's Numpy package, and indeed
 most modern math libraries, will return reasonable answers in such situations
-(hint: arctan(Inf)==pi/2). Internally we use the atan2 function, that handles
-this problem.
+(hint: arctan(Inf)==pi/2).
 
 # Practical Considerations
 
@@ -163,6 +162,11 @@ This is the level most users should be accessing.
 Note: In the algorithm, all channels are uppercase. We use context (ie obs vs.
 mag), to differentiate between h,e and HD. This mirrors the various data
 formats, (ie IAGA2002, etc).
+
+## Math and theory
+
+In the algorithm we use the atan2 function to handle the noted problem of
+infinity in atan() calls.
 
 ## Declination Angular Units
 
