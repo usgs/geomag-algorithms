@@ -7,9 +7,9 @@ E. Joshua Rigler &lt;[erigler@usgs.gov](mailto:erigler@usgs.gov)&gt;
 
 Mathematical underpinnings and general algorithm considerations are presented
 for converting geomagnetic observations from so-called HEZ coordinates, used by
-the USGS geomagnetism program, into XYZ coordinates, used by a growing number of
-international geomagnetism programs, as well as various academic and commercial
-entities. Inverse transformations are also provided.
+the USGS geomagnetism program, into XYZ coordinates, used by a growing number
+of international geomagnetism programs, as well as various academic and
+commercial entities. Inverse transformations are also provided.
 
 # Background and Motivation
 
@@ -35,9 +35,9 @@ forward trigonometry (see Eqs. 1, 2, and 3). However, in practice, a 3-axis
 magnetometer necessarily takes on a fixed orientation upon installation. For
 USGS observatories, this is aligned with the average magnetic north vector and
 downward, with the final axis completes a right-handed 3-dimensional coordinate
-system (roughly eastward). This is often referred to as HEZ coordinates, but for
-the remainder of this document we will refer to it as heZ, to avoid confusion
-with more traditional definitions of H and E(==Y).
+system (roughly eastward). This is often referred to as HEZ coordinates, but
+for the remainder of this document we will refer to it as heZ, to avoid
+confusion with more traditional definitions of H and E(==Y).
 
 The purpose of this document then is to provide a mathematical and algorithmic
 description of how one converts data measured in heZ coordinates to true HDZ,
@@ -62,17 +62,18 @@ this document.
 ![Magnetic Field Vectors in three coordinate systems](images/figure.png)
 
 The figure above illustrates how the same full magnetic field vector **F**, can
-be represented in heZ, HDZ, and XYZ coordinates. Red objects are specific to the
-magnetometer's reference frame, while blue objects are specific to the
+be represented in heZ, HDZ, and XYZ coordinates. Red objects are specific to
+the magnetometer's reference frame, while blue objects are specific to the
 geographic reference frame. Black is common to all frames considered here, and
 dashed lines help define Cartesian grids.
 
-One thing that is not labeled in this figure is the angle d (see Eq. 4](#eq4)),
-which is the difference between declination D, and a declination baseline (D0,
-or DECBAS).
+One thing that is not labeled in this figure is the angle d (see Eq.
+[4](#eq4)), which is the difference between declination D, and a declination
+baseline (D0, or DECBAS).
 
-The equations Eqs [4](#eq4), [5](#eq5), [6](#eq6) describe how to convert the horizontal components of a USGS
-magnetometer's raw data element into more standard H and D components.
+The equations Eqs [4](#eq4), [5](#eq5), [6](#eq6) describe how to convert the
+horizontal components of a USGS magnetometer's raw data element into more
+standard H and D components.
 
 - <a name="eq4"></a>Equation 4:`d = arctan(e/h)`
 - <a name="eq5"></a>Equation 5:`D = D0 + d`
@@ -85,7 +86,7 @@ To inverse transform from XY to HD:
 
 ...and from HD to he:
 
-- <a name="eq9"></a>Equation  9:`d = D - D0`
+- <a name="eq9"></a>Equation  9: `d = D - D0`
 - <a name="eq10"></a>Equation 10:`h = sqrt(H*H / 1 + tan2(d)) = H cos(d)`
 - <a name="eq10"></a>Equation 11:`e = h * tan(d)`
 
@@ -107,11 +108,15 @@ reference to this article
 - mag is HDZ
 
 The underlying library provides calculations for both the basic conversions,
-such as get_get_y_from_mag, which is based off of Y = H sin(D), and higher level
-conversions, such as get_geo_from_mag. (Which converts HD to XY)
+such as get_get_y_from_mag, which is based off of Y = H sin(D), and higher
+level conversions, such as get_geo_from_mag. (Which converts HD to XY)
 
-Upper libraries only provide higher level conversions, ie get_geo_from_mag. This
-is the level most users should be accessing.
+Upper libraries only provide higher level conversions, ie get_geo_from_mag.
+This is the level most users should be accessing.
+
+Note: In the algorithm, all channels are uppercase. We use context (ie obs vs.
+mag), to differentiate between h,e and HD. This mirrors the various data
+formats, (ie IAGA2002, etc).
 
 ## Declination Angular Units
 
@@ -129,10 +134,6 @@ section. You can optionally link to metadata for where users can find this.
 The library internally represents data gaps as NaN, and factories convert to
 this where possible.
 
-Note: In the algorithm, all channels are uppercase. We use context (ie obs vs.
-mag), to differentiate between h,e and HD. This mirrors the various data
-formats, (ie IAGA2002, etc).
-
 # Practical Considerations
 
 ## Magnetic Intensity Units
@@ -146,13 +147,13 @@ that output units are defined accurately.
 
 The equations in the preceding section are relatively simple to code up, with
 the standard caveat that angles must be appropriate for the trigonometric
-functions (e.g., if sin/cos/tan expect radians, be sure to provide parameters in
-radians). One thing that can potentially complicate this is that IAGA standards
-require declination angles to be in minutes of arc. Furthermore,
-D0 (DECBAS) is not very well-defined by IAGA standards, but is
-typically reported in tenths of minutes of arc. None of these are difficult to
-convert, but it is incumbent on the programmer to make sure they know what units
-are being used for the inputs.
+functions (e.g., if sin/cos/tan expect radians, be sure to provide parameters
+in radians). One thing that can potentially complicate this is that IAGA
+standards require declination angles to be in minutes of arc. Furthermore, D0
+(DECBAS) is not very well-defined by IAGA standards, but is typically reported
+in tenths of minutes of arc. None of these are difficult to convert, but it is
+incumbent on the programmer to make sure they know what units are being used
+for the inputs.
 
 ## Declination Baseline
 
@@ -166,8 +167,8 @@ no corroborating documentation could be found to justify this statement.
 ## Declination in USGS Variations Data
 
 The USGS variations data is actually published in hdZ coordinates. If one
-wishes to apply equations in the preceding section to USGS variations data, they
-must first convert "d" back into "e" via Eq. 11.
+wishes to apply equations in the preceding section to USGS variations data,
+they must first convert "d" back into "e" via Eq. [11](#eq11).
 
 ## Data Flags
 
