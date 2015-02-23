@@ -88,7 +88,7 @@ To inverse transform from XY to HD:
 
 - <a name="eq9"></a>Equation  9: `d = D - D0`
 - <a name="eq10"></a>Equation 10:`h = sqrt(H*H / 1 + tan2(d)) = H cos(d)`
-- <a name="eq10"></a>Equation 11:`e = h * tan(d)`
+- <a name="eq11"></a>Equation 11:`e = h * tan(d)`
 
 It is worth noting that there is potential for mathematically undefined results
 in several of the preceding equations, where infinite ratios are a possible
@@ -96,43 +96,6 @@ argument to the arctan() function. However, Python's Numpy package, and indeed
 most modern math libraries, will return reasonable answers in such situations
 (hint: arctan(Inf)==pi/2). Internally we use the atan2 function, that handles
 this problem.
-
-# Algorithm
-
-The geomag algorithm references the 3 reference frames as geo for
-geographic/cartesian, obs for observatory and mag for magnetic/cylindrical. In
-reference to this article
-
-- geo is XYZ
-- obs is heZ
-- mag is HDZ
-
-The underlying library provides calculations for both the basic conversions,
-such as get_get_y_from_mag, which is based off of Y = H sin(D), and higher
-level conversions, such as get_geo_from_mag. (Which converts HD to XY)
-
-Upper libraries only provide higher level conversions, ie get_geo_from_mag.
-This is the level most users should be accessing.
-
-Note: In the algorithm, all channels are uppercase. We use context (ie obs vs.
-mag), to differentiate between h,e and HD. This mirrors the various data
-formats, (ie IAGA2002, etc).
-
-## Declination Angular Units
-
-The library internally uses radians for all angles, and factories convert into
-this standard. You can optionally reference the
-ChannelConverter.get_radians_from_minutes.
-
-##Declination Baseline
-
-The library IAGA factory attempts to parse DECBAS from the iaga comments
-section. You can optionally link to metadata for where users can find this.
-
-##Data Flags
-
-The library internally represents data gaps as NaN, and factories convert to
-this where possible.
 
 # Practical Considerations
 
@@ -179,3 +142,40 @@ before checking data flags. This is not an issue if data flags are NaN
 (not-a-number values), but more typical for Geomag data, these are values like
 99999, which can lead to seemingly valid, but erroneous values at times when the
 raw data were known to be bad.
+
+# Algorithm
+
+The geomag algorithm references the 3 reference frames as geo for
+geographic/cartesian, obs for observatory and mag for magnetic/cylindrical. In
+reference to this article
+
+- geo is XYZ
+- obs is heZ
+- mag is HDZ
+
+The underlying library provides calculations for both the basic conversions,
+such as get_get_y_from_mag, which is based off of Y = H sin(D), and higher
+level conversions, such as get_geo_from_mag. (Which converts HD to XY)
+
+Upper libraries only provide higher level conversions, ie get_geo_from_mag.
+This is the level most users should be accessing.
+
+Note: In the algorithm, all channels are uppercase. We use context (ie obs vs.
+mag), to differentiate between h,e and HD. This mirrors the various data
+formats, (ie IAGA2002, etc).
+
+## Declination Angular Units
+
+The library internally uses radians for all angles, and factories convert into
+this standard. You can optionally reference the
+ChannelConverter.get_radians_from_minutes.
+
+##Declination Baseline
+
+The library IAGA factory attempts to parse DECBAS from the iaga comments
+section. You can optionally link to metadata for where users can find this.
+
+##Data Flags
+
+The library internally represents data gaps as NaN, and factories convert to
+this where possible.
