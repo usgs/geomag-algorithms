@@ -167,13 +167,12 @@ formats, (ie IAGA2002, etc).
 ## Declination Angular Units
 
 The library internally uses radians for all angles, and factories convert into
-this standard. You can optionally reference the
-ChannelConverter.get_radians_from_minutes.
+this standard.
 
 ##Declination Baseline
 
 The library IAGA factory attempts to parse DECBAS from the iaga comments
-section. You can optionally link to metadata for where users can find this.
+section.
 
 ##Data Flags
 
