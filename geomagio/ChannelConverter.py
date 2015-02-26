@@ -9,6 +9,11 @@ Obs: Based on the observatories orientaion. H, E, Z [d]
 Mag: Based on Magnetic North. H, D, Z [E]
 
 d0: Declination baseline in radians
+
+Notes: We use numpy functions instead of standard python arithmetic funtions
+    for 2 reasons.  1) so that either array's can be passed in, or individual
+    values. 2) Because they are more flexible/robust then the standard python
+    functions.
 """
 
 
