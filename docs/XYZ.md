@@ -4,7 +4,7 @@
 E. Joshua Rigler &lt;[erigler@usgs.gov](mailto:erigler@usgs.gov)&gt;
 
 
-# Summary
+## Summary
 
 Mathematical underpinnings and general algorithm considerations are presented
 for converting geomagnetic observations from so-called HEZ coordinates, used by
@@ -13,7 +13,7 @@ of international geomagnetism programs, as well as various academic and
 commercial entities. Inverse transformations are also provided.
 
 
-# Background and Motivation
+## Background and Motivation
 
 Historically, the most common coordinate system used to specify measured
 geomagnetic fields has been HDZ, where:
@@ -59,7 +59,7 @@ description of how one converts data measured in heZ coordinates to true HDZ,
 and finally to XYZ.
 
 
-# Math and Theory
+## Math and Theory
 
 First, following definitions in the previous section, the conversion from
 cylindrical HDZ to Cartesian XYZ is very straight-forward trigonometry:
@@ -116,16 +116,16 @@ most modern math libraries, will return reasonable answers in such situations
 > infinite ratios.
 
 
-# Practical Considerations
+## Practical Considerations
 
-## Magnetic Intensity Units
+### Magnetic Intensity Units
 
 It is understood that all raw data inputs are provided in units of nanoTesla
 (nT). Of course this is not required for the equations to be valid, but it is
 incumbent on the programmer to make sure all input data units are the same, and
 that output units are defined accurately.
 
-## Declination Angular Units
+### Declination Angular Units
 
 The equations in the preceding section are relatively simple to code up, with
 the standard caveat that angles must be appropriate for the trigonometric
@@ -140,7 +140,7 @@ for the inputs.
 > Note: this library internally uses radians for all angles, and factories
 > convert to and from this standard.
 
-## Declination Baseline
+### Declination Baseline
 
 Declination baseline is not well-defined by IAGA standards. The typical method
 used to publish it with actual data is to include it in the metadata. For older
@@ -154,13 +154,13 @@ no corroborating documentation could be found to justify this statement.
 > also attempts to parse DECBAS from the comments section.
 
 
-## Declination in USGS Variations Data
+### Declination in USGS Variations Data
 
 The USGS variations data is actually published in hdZ coordinates. If one
 wishes to apply equations in the preceding section to USGS variations data,
 they must first convert "d" back into "e" via Eq. [11](#eq11).
 
-## Data Flags
+### Data Flags
 
 It should go without saying that bad data in one coordinate system is bad data
 in another. However, on occasion, operational USGS Geomagnetism Program code has
@@ -174,7 +174,7 @@ raw data were known to be bad.
 > to this where possible.
 
 
-# Algorithm
+## Algorithm
 
 The geomag algorithm references the 3 reference frames as geo for
 geographic/cartesian, obs for observatory and mag for magnetic/cylindrical. In
