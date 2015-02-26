@@ -174,18 +174,17 @@ raw data were known to be bad.
 > to this where possible.
 
 
-## Algorithm
+## Library Notes
 
-The geomag algorithm references the 3 reference frames as geo for
-geographic/cartesian, obs for observatory and mag for magnetic/cylindrical. In
-reference to this article
+This library references the 3 reference frames as `geo` for
+geographic/cartesian, `obs` for observatory and `mag` for magnetic/cylindrical:
 
 - `geo` is XYZ
 - `obs` is heZ
 - `mag` is HDZ
 
-> Note: in this library all channels are uppercase.
-> We use context (ie obs vs. mag), to differentiate between h,e and HD.
+> Note: within this library all channels are uppercase.
+> We use context (ie obs vs. mag vs geo), to differentiate between h,H; e,E; and d,D.
 > This mirrors the various data formats, (ie IAGA2002, etc).
 
 The underlying library provides calculations for both the basic conversions,
