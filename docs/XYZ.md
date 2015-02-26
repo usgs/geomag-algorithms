@@ -41,7 +41,7 @@ analysis and engineering applications is the XYZ system:
 > short for geographic/cartesian.
 
 Conversion between these two coordinate systems involves relatively straight-
-forward trigonometry (see Eqs. [1](#eq1), [2](#eq2), and [3](#eq3)).
+forward trigonometry (see [Eq. 1](#eq1), [Eq. 2](#eq2), and [Eq. 3](#eq3)).
 
 However, in practice, a 3-axis
 magnetometer necessarily takes on a fixed orientation upon installation. For
@@ -87,7 +87,7 @@ One thing that is not labeled in this figure is the angle d (see [Eq. 4](#eq4)),
 which is the difference between declination D, and a declination
 baseline (D0, or DECBAS).
 
-The equations Eqs [4](#eq4), [5](#eq5), [6](#eq6) describe how to convert the
+The equations [Eq. 4](#eq4), [Eq. 5](#eq5), [Eq. 6](#eq6) describe how to convert the
 horizontal components of a USGS magnetometer's raw data element into more
 standard H and D components.
 
@@ -158,7 +158,7 @@ no corroborating documentation could be found to justify this statement.
 
 The USGS variations data is actually published in hdZ coordinates. If one
 wishes to apply equations in the preceding section to USGS variations data,
-they must first convert "d" back into "e" via Eq. [11](#eq11).
+they must first convert "d" back into "e" via [Eq. 11](#eq11).
 
 ### Data Flags
 
