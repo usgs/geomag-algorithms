@@ -16,11 +16,11 @@ We recommend using [virtual environments][]
 
 2. Install numpy, obspy requires this be installed separately.
 
-    `pip install numpy`
+        pip install numpy
 
 3. Install geomagio
 
-    `pip install git+https://github.com/usgs/geomag-algorithms.git`
+        pip install git+https://github.com/usgs/geomag-algorithms.git
 
 4. Use geomagio
 
@@ -35,21 +35,21 @@ Developing
 
 1. Use npm to install `grunt-cli`
 
-    `npm install -g grunt-cli`
+        npm install -g grunt-cli
 
 2. Install `numpy`, `scipy`, `obspy`, and `flake8`
 
 3. Clone this project (or fork and clone your fork)
 
-    `git clone https://github.com/usgs/geomag-algorithms.git`
+        git clone https://github.com/usgs/geomag-algorithms.git
 
 4. From root directory of project, install npm dependencies
 
-    `npm install`
+        npm install
 
 5. Run grunt to run unit tests, and watch for changes to python files
 
-    `grunt`
+        grunt
 
 
 Coding Standards

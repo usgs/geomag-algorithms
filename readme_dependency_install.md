@@ -40,7 +40,7 @@ Readme dependencies
 
 1. Install `obspy` from the terminal.
 
-   `easy_install obspy`
+        easy_install obspy
 
 1. Run `python` to verify that Anaconda's version of Python is being used.
    If it isn't, update your PATH so that Conda's HOME is before any other
@@ -55,26 +55,23 @@ Readme dependencies
 ---
 ### Mac ###
 
-1. Install `node`, `git` and `python` (2.7.X)
-  - On OS X, we recommend using [Homebrew][]
+1. Install `node`, `git` and `python` (2.7.X).
+   On OS X, we recommend using [Homebrew][]
 
-  `brew install node`
-
-  `brew install git`
+        brew install node
+        brew install git
 
 1. Use pip to install `numpy`, `scipy`, `obspy`, and `flake8`
 
-  `pip install numpy scipy obspy flake8`
+        pip install numpy scipy obspy flake8
 
 1. Update paths as needed in your `~/.bash_profile`:
 
-        ```
         export PATH=$PATH:/usr/local/bin`
         # npm installed binaries
         export PATH=$PATH:/usr/local/share/npm/bin
         # gem installed binaries
         export PATH=$PATH:/usr/local/opt/ruby/bin
-        ```
 
 1. Close and re-open your terminal so that your new PATH is loaded.
    Make sure to navigate back to your `geomag-algorithms` project directory.
