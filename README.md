@@ -7,7 +7,7 @@ Geomag algorithms includes tools to fetch, process, and output geomag data.
 Install
 -------
 
-We recommend using virtual environments ( http://docs.python-guide.org/en/latest/dev/virtualenvs/ )
+We recommend using [virtual environments][]
 
 
 1. Install `python` (2.7.X)
@@ -27,31 +27,27 @@ We recommend using virtual environments ( http://docs.python-guide.org/en/latest
     - Use the xyz main script, `xyz.py -h`.
     - In python scripts, `import geomagio` or `import geomagio.iaga2002`.
 
+[virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
+
 
 Developing
 ----------
 
-1. Install `node` and `python` (2.7.X)
-
-    - On OS X, we recommend using Homebrew ( http://brew.sh/ )
-
-2. Use npm to install `grunt-cli`
+1. Use npm to install `grunt-cli`
 
     `npm install -g grunt-cli`
 
-3. Use pip to install `numpy`, `scipy`, `obspy`, and `flake8`
+2. Install `numpy`, `scipy`, `obspy`, and `flake8`
 
-    `pip install numpy scipy obspy flake8`
+3. Clone this project (or fork and clone your fork)
 
-4. Clone this project (or fork and clone your fork)
+    `git clone https://github.com/usgs/geomag-algorithms.git`
 
-    `git checkout https://github.com/usgs/geomag-algorithms.git`
-
-5. From root directory of project, install npm dependencies
+4. From root directory of project, install npm dependencies
 
     `npm install`
 
-6. Run grunt to run unit tests, and watch for changes to python files
+5. Run grunt to run unit tests, and watch for changes to python files
 
     `grunt`
 
@@ -68,3 +64,5 @@ This project adheres to PEP8 standards in most cases:
 
     - line continuations should use two indentations (8 spaces).
     - do not use visual indents.
+
+[Dependency install details for Windows and Mac](readme_dependency_install.md)
