@@ -14,8 +14,7 @@ import numpy
 import StreamConverter
 import ChannelConverter
 
-assert_equals = numpy.testing.assert_equal
-assert_almost_equals = numpy.testing.assert_almost_equal
+assert_almost_equal = numpy.testing.assert_almost_equal
 
 cos = numpy.cos
 sin = numpy.sin
@@ -45,9 +44,9 @@ def test_get_geo_from_mag():
     geo = StreamConverter.get_geo_from_mag(mag)
     X = geo.select(channel='X')[0].data
     Y = geo.select(channel='Y')[0].data
-    assert_equals(X, [cos(15 * D2R), cos(30 * D2R)],
+    assert_almost_equal(X, [cos(15 * D2R), cos(30 * D2R)], 9,
         'Expect X to equal [cos(15), cos(30)]', True)
-    assert_equals(Y, [sin(15 * D2R), sin(30 * D2R)],
+    assert_almost_equal(Y, [sin(15 * D2R), sin(30 * D2R)], 9,
         'Expect Y to equal [sin(15), sin(30)]', True)
 
 
@@ -69,9 +68,9 @@ def test_get_geo_from_obs():
     geo = StreamConverter.get_geo_from_obs(obs)
     X = geo.select(channel='X')[0].data
     Y = geo.select(channel='Y')[0].data
-    assert_almost_equals(X[0], 1, 9,
+    assert_almost_equal(X[0], 1, 9,
         'Expect X to almost equal 1', True)
-    assert_almost_equals(Y[0], 1, 9,
+    assert_almost_equal(Y[0], 1, 9,
         'Expect Y to almost equal 1', True)
 
     # 2) Call get_geo_from_obs using a decbas of 15 degrees, and streams
@@ -86,9 +85,9 @@ def test_get_geo_from_obs():
     geo = StreamConverter.get_geo_from_obs(obs)
     X = geo.select(channel='X')[0].data
     Y = geo.select(channel='Y')[0].data
-    assert_equals(X, [cos(30 * D2R), cos(45 * D2R)],
+    assert_almost_equal(X, [cos(30 * D2R), cos(45 * D2R)], 9,
         'Expect X to equal [cos(30), cos(45)]', True)
-    assert_equals(Y, [sin(30 * D2R), sin(45 * D2R)],
+    assert_almost_equal(Y, [sin(30 * D2R), sin(45 * D2R)], 9,
         'Expect Y to equal [sin(30), sin(45)]', True)
 
 
@@ -112,9 +111,9 @@ def test_get_mag_from_geo():
     mag = StreamConverter.get_mag_from_geo(geo)
     H = mag.select(channel='H')[0].data
     D = mag.select(channel='D')[0].data
-    assert_equals(H, [1, 1],
+    assert_almost_equal(H, [1, 1], 9,
         'Expect H to equal [1,1]', True)
-    assert_equals(D, [15 * D2R, 30 * D2R],
+    assert_almost_equal(D, [15 * D2R, 30 * D2R], 9,
         'Expect D to equal [15 degrees, 30 degrees]', True)
 
 
@@ -137,9 +136,9 @@ def test_get_mag_from_obs():
     mag = StreamConverter.get_mag_from_obs(obs)
     H = mag.select(channel='H')[0].data
     D = mag.select(channel='D')[0].data
-    assert_equals(H, [1, 1],
+    assert_almost_equal(H, [1, 1], 9,
         'Expect H to equal [1,1]', True)
-    assert_equals(D, [30 * D2R, 45 * D2R],
+    assert_almost_equal(D, [30 * D2R, 45 * D2R], 9,
         'Expect D to equal [30 degrees, 45 degrees]', True)
 
 
@@ -165,11 +164,11 @@ def test_get_obs_from_geo():
     H = obs.select(channel='H')[0].data
     E = obs.select(channel='E')[0].data
     D = obs.select(channel='D')[0].data
-    assert_almost_equals(H, [cos(15 * D2R), cos(30 * D2R)], 9,
+    assert_almost_equal(H, [cos(15 * D2R), cos(30 * D2R)], 9,
         'Expect H to equal [cos(15), cos(30)]', True)
-    assert_almost_equals(E, [sin(15 * D2R), sin(30 * D2R)], 9,
+    assert_almost_equal(E, [sin(15 * D2R), sin(30 * D2R)], 9,
         'Expect E to equal [sin(15), sin(30)', True)
-    assert_almost_equals(D, [15 * D2R, 30 * D2R], 9,
+    assert_almost_equal(D, [15 * D2R, 30 * D2R], 9,
         'Expect D to equal [15 degress, 30 degrees]', True)
 
 
@@ -195,11 +194,11 @@ def test_get_obs_from_mag():
     H = obs.select(channel='H')[0].data
     D = obs.select(channel='D')[0].data
     E = obs.select(channel='E')[0].data
-    assert_almost_equals(H, [cos(15 * D2R), cos(30 * D2R)], 9,
+    assert_almost_equal(H, [cos(15 * D2R), cos(30 * D2R)], 9,
         'Expect H to equal [cos(15), cos(30)', True)
-    assert_almost_equals(D, [15 * D2R, 30 * D2R], 9,
+    assert_almost_equal(D, [15 * D2R, 30 * D2R], 9,
         'Expect D to equal [15 degrees, 30 degrees', True)
-    assert_almost_equals(E, [sin(15 * D2R), sin(30 * D2R)], 9,
+    assert_almost_equal(E, [sin(15 * D2R), sin(30 * D2R)], 9,
         'Expect E to equal [sin(15), sin(30)', True)
 
 
@@ -222,7 +221,7 @@ def test_get_obs_from_obs():
     obs_e += __create_trace('F', [1, 1], DECBAS)
     obs_D = StreamConverter.get_obs_from_obs(obs_e, False, True)
     d = obs_D.select(channel='D')[0].data
-    assert_almost_equals(d, [15 * D2R, 30 * D2R], 9,
+    assert_almost_equal(d, [15 * D2R, 30 * D2R], 9,
         'Expect D to equal [15 degrees, 30 degrees]', True)
 
     # 2) Call get_obs_from_obs using a decbase of 15 degrees, a H stream of
@@ -235,7 +234,7 @@ def test_get_obs_from_obs():
     obs_d += __create_trace('F', [1, 1], DECBAS)
     obs_E = StreamConverter.get_obs_from_obs(obs_d, True, False)
     e = obs_E.select(channel='E')[0].data
-    assert_almost_equals(e, [sin(15 * D2R), sin(30 * D2R)], 9,
+    assert_almost_equal(e, [sin(15 * D2R), sin(30 * D2R)], 9,
         'Expect E to equal [sin(15), sin(30)', True)
 
 
@@ -246,7 +245,7 @@ def test_verification_data():
     Since the small angle approximation was used in the other
     converters, AND round off was done differently,  we can't
     get the exact results.
-    Change the precision in assert_almost_equals to larger precision
+    Change the precision in assert_almost_equal to larger precision
     (ie 2 to 8) to see how off the data is. Most are well within
     expectations.
     """
@@ -264,7 +263,7 @@ def test_verification_data():
     d = obs_V.select(channel='D')[0].data
     d = ChannelConverter.get_minutes_from_radians(d)
     # Using d values calculated using small angle approximation.
-    assert_almost_equals(d,
+    assert_almost_equal(d,
         [-3.47, -3.43, -3.40, -3.38, -3.35, -3.31], 2,
         'Expect d to equal [-3.47, -3.43, -3.40, -3.38, -3.35, -3.31]', True)
 
@@ -282,9 +281,9 @@ def test_verification_data():
     geo = StreamConverter.get_geo_from_mag(mag)
     X = geo.select(channel='X')[0].data
     Y = geo.select(channel='Y')[0].data
-    assert_almost_equals(X,
+    assert_almost_equal(X,
         [20611.00, 20610.40, 20610.30, 20610.30, 20609.90, 20609.60], 2)
-    assert_almost_equals(Y,
+    assert_almost_equal(Y,
         [3366.00, 3366.00, 3366.20, 3366.50, 3366.70, 3366.60], 1)
 
 
