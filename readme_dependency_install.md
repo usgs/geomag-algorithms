@@ -19,12 +19,12 @@ Readme dependencies
 ---
 ### Windows ###
 
-1. You will need a terminal tool for Windows. I used [Git Bash][] to test these
+1. You will need a terminal tool for Windows. We used [Git Bash][] to test these
    steps, but [Cygwin][] or another unix-like editor should work fine too.
-  - PATH environment. I recommend the __last option__ here to include Unix
-     tools, but if you don't understand what that entails then use the
-     _second option_ which still adds Git to your system PATH then click
-     **Next**.
+
+  - Choosing PATH environment: We recommend the __last option__ here to include
+     Unix tools, but if you don't understand what that entails then use the
+     _second option_ which still adds Git to your system PATH.
   - Besides that, keep all of the defaults.
 
 1. Install the newest release of [Node][] for Windows, using the Windows
@@ -37,9 +37,12 @@ Readme dependencies
 
 1. Close and re-open your terminal so that your new PATH is loaded.
    Make sure to navigate back to your `geomag-algorithms` project directory.
+
+1. Install `obspy` from the terminal.
+
    `easy_install obspy`
 
-1. Run 'python' to verify that Anaconda's version of Python is being used.
+1. Run `python` to verify that Anaconda's version of Python is being used.
    If it isn't, update your PATH so that Conda's HOME is before any other
    versions of Python.
 
@@ -54,21 +57,26 @@ Readme dependencies
 
 1. Install `node`, `git` and `python` (2.7.X)
   - On OS X, we recommend using [Homebrew][]
-  ```brew install node```
-  ```brew install git```
+
+  `brew install node`
+
+  `brew install git`
 
 1. Use pip to install `numpy`, `scipy`, `obspy`, and `flake8`
+
   `pip install numpy scipy obspy flake8`
 
 1. Update paths as needed in your `~/.bash_profile`:
-   ```# brew installed binaries```
-   ```export PATH=$PATH:/usr/local/bin```
-   ```# npm installed binaries```
-   ```export PATH=$PATH:/usr/local/share/npm/bin```
-   ```# gem installed binaries```
-   ```export PATH=$PATH:/usr/local/opt/ruby/bin```
+
+        ```
+        export PATH=$PATH:/usr/local/bin`
+        # npm installed binaries
+        export PATH=$PATH:/usr/local/share/npm/bin
+        # gem installed binaries
+        export PATH=$PATH:/usr/local/opt/ruby/bin
+        ```
 
 1. Close and re-open your terminal so that your new PATH is loaded.
-   Make sure to navigate back to your `geomag-baseline-calculator` project directory.
+   Make sure to navigate back to your `geomag-algorithms` project directory.
 
 [Homebrew]: http://brew.sh/
