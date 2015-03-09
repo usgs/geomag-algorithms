@@ -53,7 +53,9 @@ def test__get_edge_code_from_channel():
 def dont_get_timeseries():
     """geomagio.edge.EdgeFactory_test.test_get_timeseries()"""
     # Call get_timeseries, and test stats for comfirmation that it came back.
-    edge_factory = EdgeFactory()
+    # TODO, need to pass in host and port from a config file, or manually
+    #   change for a single test.
+    edge_factory = EdgeFactory(host='TODO', port='TODO')
     timeseries = edge_factory.get_timeseries(
         UTCDateTime(2015, 3, 1, 0, 0, 0), UTCDateTime(2015, 3, 1, 1, 0, 0),
         'BOU', ('H'), 'variation', 'minute')
