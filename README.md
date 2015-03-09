@@ -3,6 +3,8 @@ Geomag Algorithms
 
 Geomag algorithms includes tools to fetch, process, and output geomag data.
 
+[Documentation](https://github.com/usgs/geomag-algorithms/blob/master/docs/readme.md)
+
 
 Install
 -------
