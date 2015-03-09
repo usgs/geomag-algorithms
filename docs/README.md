@@ -3,13 +3,13 @@ Geomag Algorithms Documents Folder
 
 Documents explaining geomag-algorithms
 
-[XYZ.md](https://github.com/usgs/geomag-algorithms/blob/master/docs/XYZ.md)
+[XYZ Algorithm](./XYZ.md)
 ------
 
-Describes Geomag XYZ algorithm
+Describes the theory behind the XYZ algorithm,  as well as some implementation issues and solutions.
 
-[Metadata.md](https://github.com/usgs/geomag-algorithms/blob/master/docs/metadata.md)
+[Trace Metadata](./metadata.md)
 -----------
 
-Describes the metadata stored in the obspy.core.trace.stats class used for
-geomag data.
+Describes the metadata stored in the obspy.core.trace.stats class used by the
+geomag algorithms.  
