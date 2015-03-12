@@ -1,52 +1,95 @@
 """Tests for EdgeFactory.py"""
 
 from obspy.core.utcdatetime import UTCDateTime
+from obspy.core.stream import Stream
+from obspy.core.trace import Trace
 from EdgeFactory import EdgeFactory
 from nose.tools import assert_equals
-from nose.tools import assert_raises
-from geomagio import TimeseriesFactoryException
 
 
-def test_get_edge_channel_codes():
-    """geomagio.edge.EdgeFactory_test.test_get_edge_channel_codes()
+def test_get_type_from_edge():
+    """geomagio.edge.EdgeFactory_test.test_get_type_from_edge()
     """
-    # 1) Call get_edge_channel_codes with minute, variation and H,
-    #    expect MVH back
-    channels = EdgeFactory().get_edge_channel_codes('BOU', ('H'), 'variation',
-        'minute')
-    assert_equals(channels, ['MVH'], 'Expect edge channel to equal MVH')
-    # 2) Call get_edge_channel_codes with second, variation and [H,D,Z,F],
-    #    expect SVN, SVD, SVZ and SSF back
-    channels = EdgeFactory().get_edge_channel_codes('BOU',
-        ('H', 'D', 'Z', 'F'), 'variation', 'second')
-    assert_equals(channels[0], 'SVH', 'Expect edge channels to equal SVH')
-    assert_equals(channels[1], 'SVD', 'Expect edge channels to equal SVD')
-    assert_equals(channels[2], 'SVZ', 'Expect edge channels to equal SVZ')
-    assert_equals(channels[3], 'SSF', 'Expect edge channels to equal SSF')
+    # Call get_type_from_edge, make certain it returns the type
+    assert_equals(EdgeFactory().get_type_from_edge('R0'), 'variation')
+    assert_equals(EdgeFactory().get_type_from_edge('R1'), 'variation')
+    assert_equals(EdgeFactory().get_type_from_edge('Q0'), 'quasi-definitive')
+    assert_equals(EdgeFactory().get_type_from_edge('D0'), 'definitive')
 
 
-def test_get_interval_from_edge():
-    """geomagio.edge.EdgeFactory_test.test_get_interval_from_edge()
+def test__get_edge_network():
+    """geomagio.edge.EdgeFactory_test.test__get_edge_network()
     """
-    # 1) Call get_interval_from_edge with Minute channels, get minute back.
-    assert_equals(EdgeFactory().get_interval_from_edge(
-        ('MVH', 'MVE')), 'minute')
-    # 2) Call get_interval_from_edge with Mixed channels, raise exception.
-    assert_raises(TimeseriesFactoryException,
-        EdgeFactory().get_interval_from_edge,
-        ('MVH', 'SVE'))
+    # _get_edge_network should always return NT for use by USGS geomag
+    assert_equals(EdgeFactory()._get_edge_network(' ', ' ', ' ', ' '), 'NT')
 
 
-def test__get_edge_code_from_channel():
-    """geomagio.edge.EdgeFactory_test.test__get_edge_code_from_channel()
+def test__get_edge_station():
+    """geomagio.edge.EdgeFactory_test.test__get_edge_station()
     """
-    # Call private function _get_edge_code_from_channel, make certain
+    # _get_edge_station will return the observatory code passed in.
+    assert_equals(EdgeFactory()._get_edge_station('BOU', ' ', ' ', ' '), 'BOU')
+
+
+def test__get_edge_channel():
+    """geomagio.edge.EdgeFactory_test.test__get_edge_channel()
+    """
+    # Call private function _get_edge_channel, make certain
     # it gets back the appropriate 2 character code.
-    assert_equals(EdgeFactory()._get_edge_code_from_channel('D'), 'VD')
-    assert_equals(EdgeFactory()._get_edge_code_from_channel('E'), 'VE')
-    assert_equals(EdgeFactory()._get_edge_code_from_channel('F'), 'SF')
-    assert_equals(EdgeFactory()._get_edge_code_from_channel('H'), 'VH')
-    assert_equals(EdgeFactory()._get_edge_code_from_channel('Z'), 'VZ')
+    assert_equals(EdgeFactory()._get_edge_channel('', 'D', '', 'minute'),
+            'MVD')
+    assert_equals(EdgeFactory()._get_edge_channel('', 'E', '', 'minute'),
+            'MVE')
+    assert_equals(EdgeFactory()._get_edge_channel('', 'F', '', 'minute'),
+            'MSF')
+    assert_equals(EdgeFactory()._get_edge_channel('', 'H', '', 'minute'),
+            'MVH')
+    assert_equals(EdgeFactory()._get_edge_channel('', 'Z', '', 'minute'),
+            'MVZ')
+
+
+def test__get_edge_location():
+    """geomagio.edge.EdgeFactory_test.test__get_edge_location()
+    """
+    # Call _get_edge_location, make certain it returns the correct edge
+    # location code.
+    assert_equals(EdgeFactory()._get_edge_location(
+            '', '', 'variation', ''), 'R0')
+    assert_equals(EdgeFactory()._get_edge_location(
+            '', '', 'quasi-definitive', ''), 'Q0')
+    assert_equals(EdgeFactory()._get_edge_location(
+            '', '', 'definitive', ''), 'D0')
+
+
+def test__get_interval_from_code():
+    """geomagio.edge.EdgeFactory_test.test__get_interval_from_code()
+    """
+    # Call _get_interval_from_code with an edge interval code.  Make certain
+    # it returns the appropriate interval.
+    assert_equals(EdgeFactory()._get_interval_from_code('M'), 'minute')
+    assert_equals(EdgeFactory()._get_interval_from_code('S'), 'second')
+
+
+def test__get_interval_code():
+    """geomagio.edge.EdgeFactory_test.test__get_interval_code()
+    """
+    assert_equals(EdgeFactory()._get_interval_code('daily'), 'D')
+    assert_equals(EdgeFactory()._get_interval_code('hourly'), 'H')
+    assert_equals(EdgeFactory()._get_interval_code('minute'), 'M')
+    assert_equals(EdgeFactory()._get_interval_code('second'), 'S')
+
+
+def test__set_metadata():
+    """geomagio.edge.EdgeFactory_test.test__set_metadata()
+    """
+    # Call _set_metadata with 2 traces,  and make certain the stats get
+    # set for both traces.
+    trace1 = Trace()
+    trace2 = Trace()
+    stream = Stream(traces=[trace1, trace2])
+    EdgeFactory()._set_metadata(stream, 'BOU', 'H', 'variation', 'minute')
+    assert_equals(stream[0].stats['channel'], 'H')
+    assert_equals(stream[1].stats['channel'], 'H')
 
 
 # def test_get_timeseries():
@@ -59,5 +102,7 @@ def dont_get_timeseries():
     timeseries = edge_factory.get_timeseries(
         UTCDateTime(2015, 3, 1, 0, 0, 0), UTCDateTime(2015, 3, 1, 1, 0, 0),
         'BOU', ('H'), 'variation', 'minute')
-    assert_equals(timeseries.select(channel='MVH')[0].stats.station,
+    assert_equals(timeseries.select(channel='H')[0].stats.station,
         'BOU', 'Expect timeseries to have stats')
+    assert_equals(timeseries.select(channel='H')[0].stats.channel,
+        'H', 'Expect timeseries stats channel to be equal to H')
