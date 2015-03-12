@@ -9,9 +9,15 @@ from ObservatoryMetadata import ObservatoryMetadata
 class EdgeFactory(TimeseriesFactory):
 
     def __init__(self, host=None, port=None, observatory=None,
-            channels=None, type=None, interval=None, ):
+            channels=None, type=None, interval=None,
+            observatoryMetadata=None):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
         self.client = earthworm.Client(host, port)
+
+        if observatoryMetadata is None:
+            self.observatoryMetadata = ObservatoryMetadata()
+        else:
+            self.observatoryMetadata = observatoryMetadata
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -47,16 +53,14 @@ class EdgeFactory(TimeseriesFactory):
         channels = channels or self.channels
         type = type or self.type
         interval = interval or self.interval
-        channels = channels or self.channels
 
-        timeseries = None
+        timeseries = obspy.core.Stream()
         for channel in channels:
             data = self._get_timeseries(starttime, endtime, observatory,
                     channel, type, interval)
-            if timeseries is None:
-                timeseries = data
-            else:
-                timeseries += data
+            timeseries += data
+
+        timeseries.merge()
 
         return timeseries
 
@@ -90,53 +94,7 @@ class EdgeFactory(TimeseriesFactory):
             if invalid values are requested, or errors occur while
             retrieving timeseries.
         """
-        raise NotImplementedError('"get_timeseries" not implemented')
-
-    def get_edge_channel_codes(self, observatory, channels, type, interval):
-        """Get Edge channel(s) codes given single character channel(s)
-
-        Parameters
-        ----------
-        observatory : str
-            observatory code
-        channels : array_like
-            list of single character channels {H, E, D, Z, F}
-        type : str
-            data type {Definitive, Quasi-definitive, Variation}
-        interval : str
-            interval length {minute, second}
-
-        Returns
-        -------
-        array_like
-            list of corresponding edge channel names {MVH, SVH, MVE, SVE, ...}
-        """
-        earthworm_channels = []
-        for channel in channels:
-            earthworm_channels.append(self._get_edge_channel(observatory,
-                channel, type, interval))
-        return earthworm_channels
-
-    def get_interval_from_edge(self, channels):
-        """Get interval from edge style channel codes
-
-        Parameters
-        ----------
-        channels: array_like
-            list of edge channel codes (MVH, MVE, etc)
-
-        Returns
-        -------
-        channels: array_like
-            list of channel codes (H, E, D, Z, etc)
-        """
-        interval = None
-        for channel in channels:
-            if interval is not None and interval is not channel[0]:
-                raise TimeseriesFactoryException(
-                    'Mixed interval values"%s" "%s"' % (interval, channel[0]))
-            interval = channel[0]
-        return self._get_interval_from_code(interval)
+        raise NotImplementedError('"put_timeseries" not implemented')
 
     def get_type_from_edge(self, location):
         """Get type from edge location
@@ -152,38 +110,14 @@ class EdgeFactory(TimeseriesFactory):
             the type of data
         """
         type = None
-        if 'location' == 'R0' or 'location' == 'R1':
+        print location
+        if location == 'R0' or location == 'R1':
             type = 'variation'
-        elif 'location' == 'Q0':
+        elif location == 'Q0':
             type = 'quasi-definitive'
-        elif 'location' == 'D0':
+        elif location == 'D0':
             type = 'definitive'
         return type
-
-    def get_channel_code_from_edge(self, channel):
-        """Get channel code from edge channel code.
-
-        Parameters
-        ----------
-        channel: str
-            An edge style channel code (MVH, MVE, etc)
-
-        Returns
-        -------
-        channel: str
-            A single character channel code (H, E, Z, F, etc)
-
-        Raises
-        ------
-        TimeseriesFactoryException
-            If input channel is invalid.
-        """
-        if len(channel) == 3:
-            code = channel[2]
-        else:
-            raise TimeseriesFactoryException(
-                'Unexpected Edge Channel"%s"' % channel)
-        return code
 
     def _get_edge_network(self, observatory, channel, type, interval):
         """get edge network code.
@@ -290,49 +224,9 @@ class EdgeFactory(TimeseriesFactory):
             location = 'R0'
         elif type == 'quasi-definitive':
             location = 'Q0'
-        elif type == 'definite':
+        elif type == 'definitive':
             location = 'D0'
         return location
-
-    def _get_edge_code_from_channel(self, channel):
-        """get edge code from channel.
-
-        The second character of the edge channel code for geomag represents
-            the instrument type.  Currently Variometer and Scalar are
-            supported.  Which one is currently decided by the channel
-            passed in.
-
-        Parameters
-        ----------
-        observatory : str
-            observatory code
-        channels : array_like
-            list of single character channels {H, E, D, Z, F}
-        type : str
-            data type {Definitive, Quasi-definitive, Variation}
-        interval : str
-            interval length {minute, second}
-
-        Returns
-        -------
-        channel_code
-            partial channel code
-        """
-        edge_channel = None
-        if channel == 'D':
-            edge_channel = 'VD'
-        elif channel == 'E':
-            edge_channel = 'VE'
-        elif channel == 'F':
-            edge_channel = 'SF'
-        elif channel == 'H':
-            edge_channel = 'VH'
-        elif channel == 'Z':
-            edge_channel = 'VZ'
-        else:
-            raise TimeseriesFactoryException(
-                'Unexpected channel code "%s"' % channel)
-        return edge_channel
 
     def _get_interval_from_code(self, interval):
         """get interval from edge Code.
@@ -356,9 +250,9 @@ class EdgeFactory(TimeseriesFactory):
         interval type
         """
         interval_code = None
-        if 'M':
+        if interval == 'M':
             interval_code = 'minute'
-        elif 'S':
+        elif interval == 'S':
             interval_code = 'second'
         else:
             raise TimeseriesFactoryException(
@@ -430,12 +324,22 @@ class EdgeFactory(TimeseriesFactory):
                 type, interval)
         network = self._get_edge_network(observatory, channel,
                 type, interval)
-        channel = self._get_edge_channel(observatory, channel,
+        edge_channel = self._get_edge_channel(observatory, channel,
                 type, interval)
         data = self.client.getWaveform(network, station, location,
-                channel, starttime, endtime)
-        stats = obspy.core.Stats(data[0].stats)
-        stats = ObservatoryMetadata().set_metadata(stats, observatory,
-                channel, type, interval)
-        data[0].stats = stats
+                edge_channel, starttime, endtime)
+        # stats = obspy.core.Stats(data[0].stats)
+        self._set_metadata(data,
+                observatory, channel, type, interval)
+        # data[0].stats = stats
         return data
+
+    def _set_metadata(self, stream, observatory, channel, type, interval):
+        """set metadata for a given stream/channel """
+        print 'channel'
+        print channel
+        for trace in stream:
+            trace.stats['channel'] = channel
+            trace.stats['data_interval'] = interval
+            trace.stats['data_type'] = type
+            self.observatoryMetadata.set_metadata(trace.stats, observatory)
