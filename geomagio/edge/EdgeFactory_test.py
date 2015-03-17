@@ -7,16 +7,6 @@ from EdgeFactory import EdgeFactory
 from nose.tools import assert_equals
 
 
-def test_get_type_from_edge():
-    """geomagio.edge.EdgeFactory_test.test_get_type_from_edge()
-    """
-    # Call get_type_from_edge, make certain it returns the type
-    assert_equals(EdgeFactory().get_type_from_edge('R0'), 'variation')
-    assert_equals(EdgeFactory().get_type_from_edge('R1'), 'variation')
-    assert_equals(EdgeFactory().get_type_from_edge('Q0'), 'quasi-definitive')
-    assert_equals(EdgeFactory().get_type_from_edge('D0'), 'definitive')
-
-
 def test__get_edge_network():
     """geomagio.edge.EdgeFactory_test.test__get_edge_network()
     """
@@ -59,15 +49,6 @@ def test__get_edge_location():
             '', '', 'quasi-definitive', ''), 'Q0')
     assert_equals(EdgeFactory()._get_edge_location(
             '', '', 'definitive', ''), 'D0')
-
-
-def test__get_interval_from_code():
-    """geomagio.edge.EdgeFactory_test.test__get_interval_from_code()
-    """
-    # Call _get_interval_from_code with an edge interval code.  Make certain
-    # it returns the appropriate interval.
-    assert_equals(EdgeFactory()._get_interval_from_code('M'), 'minute')
-    assert_equals(EdgeFactory()._get_interval_from_code('S'), 'second')
 
 
 def test__get_interval_code():
