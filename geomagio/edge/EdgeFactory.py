@@ -60,8 +60,6 @@ class EdgeFactory(TimeseriesFactory):
                     channel, type, interval)
             timeseries += data
 
-        timeseries.merge()
-
         return timeseries
 
     def put_timeseries(self, starttime, endtime, observatory=None,
@@ -96,29 +94,6 @@ class EdgeFactory(TimeseriesFactory):
         """
         raise NotImplementedError('"put_timeseries" not implemented')
 
-    def get_type_from_edge(self, location):
-        """Get type from edge location
-
-        Parameters
-        ----------
-        location: {R0, R1, Q0, D0}
-            the edge location code.
-
-        Returns
-        -------
-        type: {variation, quasi-definitive, definitive}
-            the type of data
-        """
-        type = None
-        print location
-        if location == 'R0' or location == 'R1':
-            type = 'variation'
-        elif location == 'Q0':
-            type = 'quasi-definitive'
-        elif location == 'D0':
-            type = 'definitive'
-        return type
-
     def _get_edge_network(self, observatory, channel, type, interval):
         """get edge network code.
 
@@ -126,10 +101,10 @@ class EdgeFactory(TimeseriesFactory):
         ----------
         observatory : str
             observatory code
-        channels : array_like
-            list of single character channels {H, E, D, Z, F}
+        channel : str
+            single character channel {H, E, D, Z, F}
         type : str
-            data type {Definitive, Quasi-definitive, Variation}
+            data type {definitive, quasi-definitive, variation}
         interval : str
             interval length {minute, second}
 
@@ -147,10 +122,10 @@ class EdgeFactory(TimeseriesFactory):
         ----------
         observatory : str
             observatory code
-        channels : array_like
-            list of single character channels {H, E, D, Z, F}
+        channel : str
+            single character channel {H, E, D, Z, F}
         type : str
-            data type {Definitive, Quasi-definitive, Variation}
+            data type {definitive, quasi-definitive, variation}
         interval : str
             interval length {minute, second}
 
@@ -168,10 +143,10 @@ class EdgeFactory(TimeseriesFactory):
         ----------
         observatory : str
             observatory code
-        channels : array_like
-            list of single character channels {H, E, D, Z, F}
+        channel : str
+            single character channel {H, E, D, Z, F}
         type : str
-            data type {Definitive, Quasi-definitive, Variation}
+            data type {definitive, quasi-definitive, variation}
         interval : str
             interval length {minute, second}
 
@@ -207,10 +182,10 @@ class EdgeFactory(TimeseriesFactory):
         ----------
         observatory : str
             observatory code
-        channels : array_like
-            list of single character channels {H, E, D, Z, F}
+        channel : str
+            single character channel {H, E, D, Z, F}
         type : str
-            data type {Definitive, Quasi-definitive, Variation}
+            data type {definitive, quasi-definitive, variation}
         interval : str
             interval length {minute, second}
 
@@ -228,37 +203,6 @@ class EdgeFactory(TimeseriesFactory):
             location = 'D0'
         return location
 
-    def _get_interval_from_code(self, interval):
-        """get interval from edge Code.
-
-        The first character of an Edge code represents the interval.
-            Currently minute and second are represented.
-
-        Parameters
-        ----------
-        observatory : str
-            observatory code
-        channels : array_like
-            list of single character channels {H, E, D, Z, F}
-        type : str
-            data type {Definitive, Quasi-definitive, Variation}
-        interval : str
-            interval length {minute, second}
-
-        Returns
-        -------
-        interval type
-        """
-        interval_code = None
-        if interval == 'M':
-            interval_code = 'minute'
-        elif interval == 'S':
-            interval_code = 'second'
-        else:
-            raise TimeseriesFactoryException(
-                'Unexpected interval code "%s' % interval)
-        return interval_code
-
     def _get_interval_code(self, interval):
         """get edge interval code.
 
@@ -269,10 +213,10 @@ class EdgeFactory(TimeseriesFactory):
         ----------
         observatory : str
             observatory code
-        channels : array_like
-            list of single character channels {H, E, D, Z, F}
+        channel : str
+            single character channel {H, E, D, Z, F}
         type : str
-            data type {Definitive, Quasi-definitive, Variation}
+            data type {definitive, quasi-definitive, variation}
         interval : str
             interval length {minute, second}
 
@@ -306,10 +250,10 @@ class EdgeFactory(TimeseriesFactory):
             the endtime of the requested data
         observatory : str
             observatory code
-        channels : array_like
-            list of single character channels {H, E, D, Z, F}
+        channel : str
+            single character channel {H, E, D, Z, F}
         type : str
-            data type {Definitive, Quasi-definitive, Variation}
+            data type {definitive, quasi-definitive, variation}
         interval : str
             interval length {minute, second}
 
@@ -328,18 +272,25 @@ class EdgeFactory(TimeseriesFactory):
                 type, interval)
         data = self.client.getWaveform(network, station, location,
                 edge_channel, starttime, endtime)
-        # stats = obspy.core.Stats(data[0].stats)
+        data.merge()
         self._set_metadata(data,
                 observatory, channel, type, interval)
-        # data[0].stats = stats
         return data
 
     def _set_metadata(self, stream, observatory, channel, type, interval):
-        """set metadata for a given stream/channel """
-        print 'channel'
-        print channel
+        """set metadata for a given stream/channel
+        Parameters
+        ----------
+        observatory : str
+            observatory code
+        channel : str
+            edge channel code {MVH, MVE, MVD, ...}
+        type : str
+            data type {definitive, quasi-definitive, variation}
+        interval : str
+            interval length {minute, second}
+        """
+
         for trace in stream:
-            trace.stats['channel'] = channel
-            trace.stats['data_interval'] = interval
-            trace.stats['data_type'] = type
-            self.observatoryMetadata.set_metadata(trace.stats, observatory)
+            self.observatoryMetadata.set_metadata(trace.stats, observatory,
+                    channel, type, interval)
