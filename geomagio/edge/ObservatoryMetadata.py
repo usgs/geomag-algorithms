@@ -2,11 +2,8 @@
 
 
 # default metadata for the 14 USGS observatories.
-DEFAULTMETADATA = {
+DEFAULT_METADATA = {
     'BOU': {
-        'network': 'NT',
-        'station': 'BOU',
-        'channel': 'H',
         'station_name': 'Boulder',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 40.137,
@@ -14,27 +11,20 @@ DEFAULTMETADATA = {
         'elevation': 1682,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 7406,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates can be' +
                 ' found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the  minute. Scalar 1-minute values are' +
                 ' computed from 1-secondvalues  using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                'Final data will be available on the INTERMAGNET DVD. Go to ' +
-                'www.intermagnet.org for details on obtaining this product. '
+                ' gaussian filter centered on the minute. '
     },
     'BRW': {
-        'network': 'NT',
-        'station': 'BRW',
-        'channel': 'H',
         'station_name': 'Barrow',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 71.322,
@@ -42,27 +32,20 @@ DEFAULTMETADATA = {
         'elevation': 12,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 16000,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'BSL': {
-        'network': 'NT',
-        'station': 'BSL',
-        'channel': 'H',
         'station_name': 'Stennis Space Center',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 30.350,
@@ -70,27 +53,20 @@ DEFAULTMETADATA = {
         'elevation': 8,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 1530,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'CMO': {
-        'network': 'NT',
-        'station': 'CMO',
-        'channel': 'H',
         'station_name': 'College',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 64.874,
@@ -98,27 +74,20 @@ DEFAULTMETADATA = {
         'elevation': 197,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 16876,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'DED': {
-        'network': 'NT',
-        'station': 'DED',
-        'channel': 'H',
         'station_name': 'Deadhorse',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 70.356,
@@ -126,27 +95,20 @@ DEFAULTMETADATA = {
         'elevation': 10,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 13200,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'FRD': {
-        'network': 'NT',
-        'station': 'FRD',
-        'channel': 'H',
         'station_name': 'Fredericksburg',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 38.205,
@@ -154,55 +116,40 @@ DEFAULTMETADATA = {
         'elevation': 69,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 210942,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'FRN': {
-        'network': 'NT',
-        'station': 'FRN',
-        'channel': 'H',
         'station_name': 'Fresno',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 37.091,
         'geodetic_longitude': 240.282,
         'elevation': 331,
         'sensor_orientation': 'HDZF',
-        'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 9250,
+        'is_gin': False,
         'is_intermagnet': False,
-                'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'GUA': {
-        'network': 'NT',
-        'station': 'GUA',
-        'channel': 'H',
         'station_name': 'Guam',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 13.588,
@@ -210,27 +157,20 @@ DEFAULTMETADATA = {
         'elevation': 140,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 1157,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'HON': {
-        'network': 'NT',
-        'station': 'HON',
-        'channel': 'H',
         'station_name': 'Honolulu',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 21.316,
@@ -238,27 +178,20 @@ DEFAULTMETADATA = {
         'elevation': 4,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 6920,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'SHU': {
-        'network': 'NT',
-        'station': 'SHU',
-        'channel': 'H',
         'station_name': 'Shumagin',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 55.348,
@@ -266,27 +199,20 @@ DEFAULTMETADATA = {
         'elevation': 80,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 13974,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'SIT': {
-        'network': 'NT',
-        'station': 'SIT',
-        'channel': 'H',
         'station_name': 'Sitka',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 57.058,
@@ -294,27 +220,20 @@ DEFAULTMETADATA = {
         'elevation': 24,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 16523,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'SJG': {
-        'network': 'NT',
-        'station': 'SJG',
-        'channel': 'H',
         'station_name': 'San Juan',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 18.113,
@@ -322,27 +241,20 @@ DEFAULTMETADATA = {
         'elevation': 424,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 209800,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     },
     'TUC': {
-        'network': 'NT',
-        'station': 'TUC',
-        'channel': 'H',
         'station_name': 'Tucson',
         'agency_name': 'United States Geological Survey (USGS)',
         'geodetic_latitude': 32.174,
@@ -350,23 +262,29 @@ DEFAULTMETADATA = {
         'elevation': 946,
         'sensor_orientation': 'HDZF',
         'sensor_sampling_rate': '0.01 second',
-        'data_type': 'variation',
-        'data_interval': 'minute',
         'data_interval_type': 'filtered 1-minute (00:15-01:45)',
         'declination_base': 7258,
+        'is_gin': False,
         'is_intermagnet': False,
-        'condtions_of_use': 'The Conditions of Use for data provided' +
+        'conditions_of_use': 'The Conditions of Use for data provided' +
                 ' through INTERMAGNET and acknowledgement templates' +
                 ' can be found at www.intermagnet.org',
         'filter_comments': 'Vector 1-minute values are computed from' +
                 ' 1-second values using the INTERMAGNET gaussian filter' +
                 ' centered on the minute. Scalar 1-minute values are' +
                 ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ',
-        'comments': ' # This data file was constructed by the Golden GIN.' +
-                ' Final data will be available on the INTERMAGNET DVD. Go to' +
-                ' www.intermagnet.org for details on obtaining this product.'
+                ' gaussian filter centered on the minute. '
     }
+}
+
+DEFAULT_SENSOR_SAMPLING_RATE = {
+        'minute': '0.01 second ',
+        'second': '100 Hz'
+}
+
+DEFAULT_DATA_INTERVAL_TYPE = {
+        'minute': 'filtered 1-minute (00:15-01:45) ',
+        'second': 'Average 1-Second'
 }
 
 
@@ -380,12 +298,9 @@ class ObservatoryMetadata(object):
     """
 
     def __init__(self, metadata=None):
-        if metadata is None:
-            self.metadata = DEFAULTMETADATA
-        else:
-            self.metadata = metadata
+        self.metadata = metadata or DEFAULT_METADATA
 
-    def set_metadata(self, stats, observatory):
+    def set_metadata(self, stats, observatory, channel, type, interval):
         """Set timeseries metadata (aka a traces stats)
 
         Parameters
@@ -395,6 +310,8 @@ class ObservatoryMetadata(object):
             it's metadata
         observatory : string
             the observatory code to look up.
+        channel : str
+            single character channel {H, E, D, Z, F}
         type : {'variation', 'quasi-definitive'}
             data type.
         interval : {'minute', 'second'}
@@ -405,6 +322,11 @@ class ObservatoryMetadata(object):
         obspy.core.trace.stats
           the combined stats and the default metadata.
         """
+        stats['channel'] = channel
+        stats['data_interval'] = interval
+        stats['data_type'] = type
+        stats['data_interval_type'] = DEFAULT_DATA_INTERVAL_TYPE[interval]
+        stats['sensor_sampling_rate'] = DEFAULT_SENSOR_SAMPLING_RATE[interval]
         metadata = self.metadata[observatory]
         for key in metadata:
             if key not in stats:
