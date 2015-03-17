@@ -1,5 +1,6 @@
 
-# Algorithm Theoretical Basis for "Geomag XYZ"
+# XYZ Algorithm
+Algorithm Theoretical Basis for "Geomag XYZ"
 
 E. Joshua Rigler &lt;[erigler@usgs.gov](mailto:erigler@usgs.gov)&gt;
 
