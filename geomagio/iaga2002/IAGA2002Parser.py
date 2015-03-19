@@ -177,7 +177,7 @@ class IAGA2002Parser(object):
         conditions_of_use = None
         declination_base = None
         is_intermagnet = False
-        is_gin = True
+        is_gin = False
         for comment in self.comments:
             if comment.startswith('DECBAS'):
                 # parse DECBAS
