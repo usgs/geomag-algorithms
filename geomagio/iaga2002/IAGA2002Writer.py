@@ -55,7 +55,7 @@ class IAGA2002Writer(object):
         if 'comments' in stats:
             comments.extend(stats.comments)
         if 'is_gin' in stats and stats.is_gin:
-            comments.append('This data file was constructed by the Golden' +
+            comments.append('This data file was constructed by the Golden ' +
                     'GIN.')
         if 'is_intermagnet' in stats and stats.is_intermagnet:
             comments.append('Final data will be available on the' +
