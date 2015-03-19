@@ -14,10 +14,7 @@ class EdgeFactory(TimeseriesFactory):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
         self.client = earthworm.Client(host, port)
 
-        if observatoryMetadata is None:
-            self.observatoryMetadata = ObservatoryMetadata()
-        else:
-            self.observatoryMetadata = observatoryMetadata
+        self.observatoryMetadata = observatoryMetadata or ObservatoryMetadata()
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
