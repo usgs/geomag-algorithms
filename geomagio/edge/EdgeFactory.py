@@ -1,6 +1,8 @@
 """Factory that loads data from earthworm and writes to Edge."""
 
 import obspy.core
+from obspy.core.utcdatetime import UTCDateTime
+import numpy
 from geomagio import TimeseriesFactory, TimeseriesFactoryException
 from obspy import earthworm
 from ObservatoryMetadata import ObservatoryMetadata
@@ -51,11 +53,17 @@ class EdgeFactory(TimeseriesFactory):
         type = type or self.type
         interval = interval or self.interval
 
+        if starttime > endtime:
+            raise TimeseriesFactoryException(
+                'Starttime before endtime "%s" "%s"' % (starttime, endtime))
+
         timeseries = obspy.core.Stream()
         for channel in channels:
             data = self._get_timeseries(starttime, endtime, observatory,
                     channel, type, interval)
             timeseries += data
+
+        self._post_process(timeseries, starttime, endtime, channels)
 
         return timeseries
 
@@ -90,6 +98,17 @@ class EdgeFactory(TimeseriesFactory):
             retrieving timeseries.
         """
         raise NotImplementedError('"put_timeseries" not implemented')
+
+    def _convert_trace_to_decimal(self, stream):
+        """convert geomag edge traces stored as ints, to decimal by dividing
+           by 1000.00
+        Parameters
+        ----------
+        stream : obspy.core.stream
+            a stream retrieved from a geomag edge representing one channel.
+        """
+        for trace in stream:
+            trace.data = numpy.divide(trace.data, 1000.00)
 
     def _get_edge_network(self, observatory, channel, type, interval):
         """get edge network code.
@@ -270,9 +289,37 @@ class EdgeFactory(TimeseriesFactory):
         data = self.client.getWaveform(network, station, location,
                 edge_channel, starttime, endtime)
         data.merge()
+        self._convert_trace_to_decimal(data)
         self._set_metadata(data,
                 observatory, channel, type, interval)
         return data
+
+    def _clean_timeseries(self, timeseries, starttime, endtime, channels):
+        for trace in timeseries:
+            trace_starttime = UTCDateTime(trace.stats.starttime)
+            trace_endtime = UTCDateTime(trace.stats.endtime)
+
+            if trace.stats.starttime > starttime:
+                cnt = int((trace_starttime - starttime) / trace.stats.delta)
+                trace.data = numpy.concatenate([
+                        numpy.full(cnt, numpy.nan, dtype=numpy.float64),
+                        trace.data])
+                trace.stats.starttime = starttime
+            if trace_endtime < endtime:
+                cnt = int((endtime - trace_endtime) / trace.stats.delta)
+                trace.data = numpy.concatenate([
+                        trace.data,
+                        numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
+                trace.stats.endttime = endtime
+
+    def _post_process(self, stream, starttime, endtime, channels):
+        for trace in stream:
+            if isinstance(trace.data, numpy.ma.MaskedArray):
+                trace.data.set_fill_value(numpy.nan)
+                trace.data = trace.data.filled()
+
+        self._clean_timeseries(stream, starttime, endtime, channels)
+        # TODO add in test for missing channel,  if so,  make it all nans?
 
     def _set_metadata(self, stream, observatory, channel, type, interval):
         """set metadata for a given stream/channel
