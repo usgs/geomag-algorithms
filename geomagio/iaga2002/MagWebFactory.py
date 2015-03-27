@@ -13,6 +13,9 @@ MAGWEB_URL_TEMPLATE = 'http://magweb.cr.usgs.gov/data/magnetometer/' + \
 class MagWebFactory(IAGA2002Factory):
     """IAGA2002Factory configured for magweb.cr.usgs.gov"""
 
-    def __init__(self):
+    def __init__(self, observatory=None, channels=None, type=None,
+            interval=None):
         """Create a IAGA2002Factory configured to use magweb.cr.usgs.gov"""
-        IAGA2002Factory.__init__(self, MAGWEB_URL_TEMPLATE)
+        IAGA2002Factory.__init__(self, MAGWEB_URL_TEMPLATE,
+            observatory=observatory, channels=channels, type=type,
+            interval=interval)
