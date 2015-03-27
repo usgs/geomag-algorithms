@@ -14,9 +14,9 @@ METADATA = {
         'metadata': {
             'station_name': 'Boulder',
             'agency_name': 'United States Geological Survey (USGS)',
-            'geodetic_latitude': -90,
-            'geodetic_longitude': -180,
-            'elevation': -1000,
+            'geodetic_latitude': '-90',
+            'geodetic_longitude': '-180',
+            'elevation': '-1000',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': '0.01 second',
             'declination_base': 20000,
