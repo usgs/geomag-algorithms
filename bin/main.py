@@ -2,6 +2,7 @@
 
 
 from os import path
+import sys
 
 # ensure geomag is on the path before importing
 try:
