@@ -14,8 +14,9 @@ class Algorithm(object):
     An algorithm processes a stream of timeseries to produce new timeseries.
     """
 
-    def __init__(self, channels=None):
-        self._channels = channels
+    def __init__(self, inchannels=None, outchannels=None):
+        self._inchannels = inchannels
+        self._outchannels = outchannels
         pass
 
     def process(self, stream):
@@ -41,7 +42,7 @@ class Algorithm(object):
         array_like
             list of channels the algorithm needs to operate.
         """
-        return self._channels
+        return self._inchannels
 
     def get_output_channels(self):
         """Get output channels
@@ -51,4 +52,4 @@ class Algorithm(object):
         array_like
             list of channels the algorithm will be returning.
         """
-        return self._channels
+        return self._outchannels

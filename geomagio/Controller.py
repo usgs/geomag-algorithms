@@ -13,7 +13,7 @@ class Controller(object):
     algorithm: the algorithm(s) that will take procees the timeseries data
     """
 
-    def __init__(self, inputFactory, outputFactory, algorithm=None):
+    def __init__(self, inputFactory, outputFactory, algorithm):
         self._inputFactory = inputFactory
         self._algorithm = algorithm
         self._outputFactory = outputFactory
@@ -31,9 +31,6 @@ class Controller(object):
         input_channels = self._algorithm.get_input_channels()
         timeseries = self._inputFactory.get_timeseries(starttime, endtime,
                 channels=input_channels)
-        if self._algorithm is not None:
-            processed = self._algorithm.process(timeseries)
-        else:
-            processed = timeseries
+        processed = self._algorithm.process(timeseries)
         output_channels = self._algorithm.get_output_channels()
         self._outputFactory.put_timeseries(processed, channels=output_channels)

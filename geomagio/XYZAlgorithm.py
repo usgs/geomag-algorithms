@@ -33,7 +33,8 @@ class XYZAlgorithm(Algorithm):
     """
 
     def __init__(self, informat=None, outformat=None):
-        Algorithm.__init__(self)
+        Algorithm.__init__(self, inchannels=CHANNELS[self.informat],
+                outchannels=CHANNELS[self.outformat])
         self.informat = informat
         self.outformat = outformat
 
@@ -53,26 +54,6 @@ class XYZAlgorithm(Algorithm):
                 print 'Channel %s not found in input' % channel
                 return False
         return True
-
-    def get_input_channels(self):
-        """Get input channels
-
-        Returns
-        -------
-        array_like
-            list of channels the algorithm needs to operate.
-        """
-        return CHANNELS[self.informat]
-
-    def get_output_channels(self):
-        """Get output channels
-
-        Returns
-        -------
-        array_like
-            list of channels the algorithm will be returning.
-        """
-        return CHANNELS[self.outformat]
 
     def process(self, timeseries):
         """converts a timeseries stream into a different coordinate system
