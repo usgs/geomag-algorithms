@@ -1,13 +1,16 @@
-#! /usr/bin/env python
-
-"""Takes a timeseries stream in,  and returns a converted timeseries stream out
+"""Algorithm that converts from one geomagnetic coordinate system to a
+    related coordinate system.
 
 """
 
 from Algorithm import Algorithm
 import StreamConverter as StreamConverter
 
-# static containing the standard output types for iaga2002 files.
+# List of channels by geomagnetic observatory orientation.
+# geo represents a geographic north/south orientation
+# mag represents the (calculated)instantaneous mangnetic north orientation
+# obs represents the sensor orientation aligned close to the mag orientation
+# obsd is the same as obs,  but with D(declination) instead of E (e/w vector)
 CHANNELS = {
     'geo': ['X', 'Y', 'Z', 'F'],
     'mag': ['H', 'D', 'Z', 'F'],
@@ -17,6 +20,17 @@ CHANNELS = {
 
 
 class XYZAlgorithm(Algorithm):
+    """Algorithm for converting data,  probably inapproprately named XYZ.
+
+    Parameters
+    ----------
+    informat: str
+        the code that represents the incoming data form that the Algorithm
+        will be converting from.
+    outformat: str
+        the code that represents what form the incoming data will
+        be converting to.
+    """
 
     def __init__(self, informat=None, outformat=None):
         Algorithm.__init__(self)
@@ -24,14 +38,14 @@ class XYZAlgorithm(Algorithm):
         self.outformat = outformat
 
     def check_stream(self, timeseries, channels):
-        """checks an input stream to make certain all the required channels
+        """checks an stream to make certain all the required channels
             exist.
 
         Parameters
         ----------
         timeseries: obspy.core.Stream
-            stream that was read in.
-        channels: array
+            stream to be checked.
+        channels: array_like
             channels that are expected in stream.
         """
         for channel in channels:
@@ -41,9 +55,23 @@ class XYZAlgorithm(Algorithm):
         return True
 
     def get_input_channels(self):
+        """Get input channels
+
+        Returns
+        -------
+        array_like
+            list of channels the algorithm needs to operate.
+        """
         return CHANNELS[self.informat]
 
     def get_output_channels(self):
+        """Get output channels
+
+        Returns
+        -------
+        array_like
+            list of channels the algorithm will be returning.
+        """
         return CHANNELS[self.outformat]
 
     def process(self, timeseries):

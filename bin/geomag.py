@@ -1,26 +1,5 @@
 #! /usr/bin/env python
 
-"""Converts iaga2002 files from one coordinate system to another.
-
-    Inputs
-    ------
-    informat: string
-        The input format/coordinate system of the input file.
-            geo: geographic coordinate system (xyzf)
-            mag: magnetic north coordinate system (hdzf)
-            obs: observatory coordinate system (hezf)
-            obsd: observatory coordinate system (hdzf)
-    outformat: string
-        The ouput format/coordinate system of the output file.
-            geo: geographic coordinate system (xyzf)
-            mag: magnetic north coordinate system (hdzf)
-            obs: observatory coordinate system (hezf or hdzf)
-    infile: string
-        the filename of the Iaga2002 file to be read from
-    outfile: string
-        the filename of a new Iaga2002 file to be read to
-"""
-
 import argparse
 import sys
 
@@ -42,6 +21,71 @@ from obspy.core.utcdatetime import UTCDateTime
 
 
 def main():
+    """command line factory for geomag algorithms
+
+    Inputs
+    ------
+    --input: string
+        the type of data for input
+        currently either iaga or edge.
+    --output: string
+        the type of data for ouput
+        currently either iaga or edge.
+    --starttime: string
+        formatted as a obspy.core.UTCDateTime object
+        the starttime for data input/output
+    --endtime: string
+        formatted as a obspy.core.UTCDateTime object
+        the endtime for data input/output
+    --observatory:string
+
+    --channels: array_like
+        list of channels
+    --type: string
+        data type
+    --invterval: string
+        data interval.
+    --algorithm: string
+        name of an algorithm to use.
+    --xyz-informat: string
+        The input format/coordinate system of the input file.
+            geo: geographic coordinate system (xyzf)
+            mag: magnetic north coordinate system (hdzf)
+            obs: observatory coordinate system (hezf)
+            obsd: observatory coordinate system (hdzf)
+    --xyz-outformat: string
+        The ouput format/coordinate system of the output file.
+            geo: geographic coordinate system (xyzf)
+            mag: magnetic north coordinate system (hdzf)
+            obs: observatory coordinate system (hezf or hdzf)
+    --input_iaga_magweb: boolean
+        indicates to use http://magweb.cr.usgs.gov/data/magnetometer/ as the
+        source of iaga2002 files.
+    --input_iaga_url: string
+        url of iaga2002 files to use as the data source.
+    --input-iaga-urltemplate: string
+        template for the subdirectories that files are found in.
+        example: %(OBS)s/%(interval)s%(type)s/
+    --input-iaga-filetemplate: string
+        template for the file name
+        example: %(obs)s%(ymd)s%(t)s%(i)s.%(i)s
+    --input-iaga-file: string
+        the filename of the Iaga2002 file to be read from
+    --input-iaga-stdin: boolean
+        indicates the file will be coming from stdin
+    --output_iaga_file: string
+        the filename of a new Iaga2002 file to be read to
+    --output-iaga-url: string
+        url of directory to write output files in.
+    --output-iaga-urltemplate: string
+        template for the subdirectories that files are to be written in.
+        example: %(OBS)s/%(interval)s%(type)s/
+    --output-iaga-filetemplate: string
+        template for the file name
+        example: %(obs)s%(ymd)s%(t)s%(i)s.%(i)s
+    --output-iaga-stdout: boolen
+        indicates output will go to stdout
+    """
 
     args = parse_args()
 
@@ -119,6 +163,13 @@ def main():
     controller.run(UTCDateTime(args.starttime), UTCDateTime(args.endtime))
 
 def parse_args():
+    """parse input arguments
+
+    Returns
+    -------
+    argparse.Namespace
+        dictionary like object containing arguments.
+    """
     parser = argparse.ArgumentParser(
         description='Use @ to read commands from a file.',
         fromfile_prefix_chars='@',)

@@ -1,4 +1,13 @@
-"""Factory that loads data from earthworm and writes to Edge."""
+"""Factory that loads data from earthworm and writes to Edge.
+
+EdgeFactory uses obspy earthworm class to read data from any
+earthworm standard Waveserver using the obspy getWaveform call.
+
+Writing will be implemented with Edge specific capabilities,
+to take advantage of it's newer realtime abilities.
+
+Edge is the USGS earthquake hazard centers replacement for earthworm.
+"""
 
 import obspy.core
 from obspy.core.utcdatetime import UTCDateTime
@@ -9,6 +18,22 @@ from ObservatoryMetadata import ObservatoryMetadata
 
 
 class EdgeFactory(TimeseriesFactory):
+    """TimeseriesFactory for Edge related data.
+
+    Parameters
+    ----------
+    host: str
+        a string representing the IP number of the host to connect to.
+    port: integer
+        the port number the waveserver is listening on.
+    observatoryMetadata: ObservatoryMetadata object
+        an ObservatoryMetadata object used to replace the default
+        ObservatoryMetadata.
+
+    See Also
+    --------
+    TimeseriesFactory
+    """
 
     def __init__(self, host=None, port=None, observatory=None,
             channels=None, type=None, interval=None,
@@ -24,12 +49,12 @@ class EdgeFactory(TimeseriesFactory):
 
         Parameters
         ----------
-        observatory : str
-            observatory code.
         starttime : obspy.core.UTCDateTime
             time of first sample.
         endtime : obspy.core.UTCDateTime
             time of last sample.
+        observatory : str
+            observatory code.
         channels : array_like
             list of channels to load
         type : {'variation', 'quasi-definitive'}
@@ -294,7 +319,22 @@ class EdgeFactory(TimeseriesFactory):
                 observatory, channel, type, interval)
         return data
 
-    def _clean_timeseries(self, timeseries, starttime, endtime, channels):
+    def _clean_timeseries(self, timeseries, starttime, endtime):
+        """Realigns timeseries data so the start and endtimes are the same
+            as what was originally asked for, even if the data was during
+            a gap.
+
+        Parameters
+        ----------
+        timeseries: obspy.core.stream
+            The timeseries stream as returned by the call to getWaveform
+        starttime: obspy.core.UTCDateTime
+            the starttime of the requested data
+        endtime: obspy.core.UTCDateTime
+            the endtime of the requested data
+
+        Notes: the original timeseries object is changed.
+        """
         for trace in timeseries:
             trace_starttime = UTCDateTime(trace.stats.starttime)
             trace_endtime = UTCDateTime(trace.stats.endtime)
@@ -312,13 +352,32 @@ class EdgeFactory(TimeseriesFactory):
                         numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
                 trace.stats.endttime = endtime
 
-    def _post_process(self, stream, starttime, endtime, channels):
-        for trace in stream:
+    def _post_process(self, timeseries, starttime, endtime, channels):
+        """Post process a timeseries stream after the raw data is
+                is fetched from a waveserver. Specifically changes
+                any MaskedArray to a ndarray with nans representing gaps.
+                Then calls _clean_timeseries to deal with gaps at the
+                beggining or end of the streams.
+
+        Parameters
+        ----------
+        timeseries: obspy.core.stream
+            The timeseries stream as returned by the call to getWaveform
+        starttime: obspy.core.UTCDateTime
+            the starttime of the requested data
+        endtime: obspy.core.UTCDateTime
+            the endtime of the requested data
+        channels: array_like
+            list of channels to load
+
+        Notes: the original timeseries object is changed.
+        """
+        for trace in timeseries:
             if isinstance(trace.data, numpy.ma.MaskedArray):
                 trace.data.set_fill_value(numpy.nan)
                 trace.data = trace.data.filled()
 
-        self._clean_timeseries(stream, starttime, endtime, channels)
+        self._clean_timeseries(timeseries, starttime, endtime)
         # TODO add in test for missing channel,  if so,  make it all nans?
 
     def _set_metadata(self, stream, observatory, channel, type, interval):

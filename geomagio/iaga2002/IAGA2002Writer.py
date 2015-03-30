@@ -15,14 +15,38 @@ class IAGA2002Writer(object):
         self.empty_value = empty_value
 
     def write(self, out, timeseries, channels):
+        """write timeseries to iaga file
+
+        Parameters
+        ----------
+        out: file object
+            file object to be written to. could be stdout
+        timeseries: obspy.core.stream
+            timeseries object with data to be written
+        channels: array_like
+            channels to be written from timeseries object
+        """
         stats = timeseries[0].stats
         out.write(self._format_headers(stats, channels))
         out.write(self._format_comments(stats))
         out.write(self._format_channels(channels, stats.station))
         out.write(self._format_data(timeseries, channels))
-        pass
 
     def _format_headers(self, stats, channels):
+        """format headers for IAGA2002 file
+
+        Parameters
+        ----------
+        stats: obspy.core.trace.stats
+            holds the observatory metadata
+        channels: array_like
+            channels to be reported.
+
+        Returns
+        -------
+        array_like
+            an array containing formatted strings of header data.
+        """
         buf = []
         buf.append(self._format_header('Format', 'IAGA-2002'))
         buf.append(self._format_header('Source of Data', stats.agency_name))
@@ -44,7 +68,18 @@ class IAGA2002Writer(object):
         return ''.join(buf)
 
     def _format_comments(self, stats):
-        # build comments
+        """format comments for IAGA2002 file
+
+        Parameters
+        ----------
+        stats: obspy.core.trace.stats
+            holds the observatory metadata
+
+        Returns
+        -------
+        array_like
+            an array containing formatted strings of header data.
+        """
         comments = []
         if 'declination_base' in stats:
             comments.append('DECBAS               {:<8d}'
@@ -71,11 +106,36 @@ class IAGA2002Writer(object):
         return ''.join(buf)
 
     def _format_header(self, name, value):
+        """format headers for IAGA2002 file
+
+        Parameters
+        ----------
+        name: str
+            the name to be written
+        value: str
+            the value to written.
+
+        Returns
+        -------
+        str
+            a string formatted to be a single header line in an IAGA2002 file
+        """
         prefix = ' '
         suffix = ' |\n'
         return ''.join((prefix, name.ljust(23), value.ljust(44), suffix))
 
     def _format_comment(self, comment):
+        """format header for IAGA2002 file
+
+        Parameters
+        ----------
+        comment: str
+            a single comment to be broken formatted if needed.
+        Returns
+        -------
+        str
+            a string formatted to be a single comment in an IAGA2002 file.
+        """
         buf = []
         prefix = ' # '
         suffix = ' |\n'
