@@ -33,8 +33,8 @@ class XYZAlgorithm(Algorithm):
     """
 
     def __init__(self, informat=None, outformat=None):
-        Algorithm.__init__(self, inchannels=CHANNELS[self.informat],
-                outchannels=CHANNELS[self.outformat])
+        Algorithm.__init__(self, inchannels=CHANNELS[informat],
+                outchannels=CHANNELS[outformat])
         self.informat = informat
         self.outformat = outformat
 
