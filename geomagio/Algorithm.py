@@ -17,7 +17,6 @@ class Algorithm(object):
     def __init__(self, inchannels=None, outchannels=None):
         self._inchannels = inchannels
         self._outchannels = outchannels
-        pass
 
     def process(self, stream):
         """Process a stream of data.
