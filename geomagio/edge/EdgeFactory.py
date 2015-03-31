@@ -17,6 +17,19 @@ from obspy import earthworm
 from ObservatoryMetadata import ObservatoryMetadata
 
 
+def edge_add_parse_arguments(parser):
+    """add edge specific arguments to parser
+
+    Parameters
+    ----------
+    parser: argparse.ArgumentParser
+    """
+    parser.add_argument('--input-edge-host',
+            help='ip address of the edge input server')
+    parser.add_argument('--input-edge-port', type=int,
+            help='port number of the edge input server')
+
+
 class EdgeFactory(TimeseriesFactory):
     """TimeseriesFactory for Edge related data.
 

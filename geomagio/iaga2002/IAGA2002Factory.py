@@ -43,6 +43,42 @@ def read_url(url):
     return content
 
 
+def iaga_add_parse_arguments(parser):
+    """add iaga2002 specific arguments to parser
+
+    Parameters
+    ----------
+    parser: argparse.ArgumentParser
+    """
+    parser.add_argument('--input-iaga-file',
+            help='Iaga2002 filename')
+    parser.add_argument('--input-iaga-magweb',
+            action="store_true", default=False,
+            help='Indicates iaga2002 files will be read from \
+            http://magweb.cr.usgs.gov/data/magnetometer/')
+    parser.add_argument('--input-iaga-stdin',
+            action="store_true", default=False,
+            help='Indicates file will be redirected from stdin')
+    parser.add_argument('--input-iaga-url',
+            help='Url or Directory where Iaga2002 files can be read from')
+    parser.add_argument('--input-iaga-urltemplate',
+            help='Template for directory matching')
+    parser.add_argument('--input-iaga-filetemplate',
+            help='Template for iaga filenames')
+
+    parser.add_argument('--output-iaga-url',
+            help='Url or Directory where IAGA2002 files should be written to')
+    parser.add_argument('--output-iaga-stdout',
+            action="store_true", default=False,
+            help='Indicates file will be directed to stdout')
+    parser.add_argument('--output-iaga-urltemplate',
+            help='Template for subdirectories')
+    parser.add_argument('--output-iaga-filetemplate',
+            help='Template for iaga filenames')
+    parser.add_argument('--output-iaga-file',
+            help='Output file name for single iaga file.')
+
+
 class IAGA2002Factory(TimeseriesFactory):
     """TimeseriesFactory for IAGA 2002 formatted files.
 

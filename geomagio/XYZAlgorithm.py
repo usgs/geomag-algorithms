@@ -19,6 +19,19 @@ CHANNELS = {
 }
 
 
+def XYZAlgorithm_add_parse_arguments(parser):
+    """add XYZ specific arguments to parser
+
+    Parameters
+    ----------
+    parser: argparse.ArgumentParser
+    """
+    parser.add_argument('--xyz-informat',
+            choices=['geo', 'mag', 'obs', 'obsd'])
+    parser.add_argument('--xyz-outformat',
+            choices=['geo', 'mag', 'obs', 'obsd'])
+
+
 class XYZAlgorithm(Algorithm):
     """Algorithm for converting data,  probably inapproprately named XYZ.
 

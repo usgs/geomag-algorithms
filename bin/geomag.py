@@ -17,6 +17,9 @@ from geomagio.Algorithm import Algorithm
 from geomagio.XYZAlgorithm import XYZAlgorithm
 from geomagio.Controller import Controller
 from geomagio.iaga2002.IAGA2002Factory import IAGA_FILE_PATTERN
+from geomagio.iaga2002.IAGA2002Factory import iaga_add_parse_arguments
+from geomagio.XYZAlgorithm import XYZAlgorithm_add_parse_arguments
+from geomagio.edge.EdgeFactory import edge_add_parse_arguments
 from obspy.core.utcdatetime import UTCDateTime
 
 
@@ -137,48 +140,12 @@ def parse_args():
     parser.add_argument('--interval', default='minute',
             choices=['minute', 'second'])
 
-    parser.add_argument('--algorithm', choices='xyz')
+    parser.add_argument('--algorithm', choices=['xyz', ])
 
-    # xyz algorithm arguments
-    parser.add_argument('--xyz-informat',
-            choices=['geo', 'mag', 'obs', 'obsd'])
-    parser.add_argument('--xyz-outformat',
-            choices=['geo', 'mag', 'obs', 'obsd'])
-
-    # iaga2002 input arguments
-    parser.add_argument('--input-iaga-file',
-            help='Iaga2002 filename')
-    parser.add_argument('--input-iaga-magweb',
-            action="store_true", default=False,
-            help='Indicates iaga2002 files will be read from \
-            http://magweb.cr.usgs.gov/data/magnetometer/')
-    parser.add_argument('--input-iaga-stdin',
-            action="store_true", default=False,
-            help='Indicates file will be redirected from stdin')
-    parser.add_argument('--input-iaga-url',
-            help='Url or Directory where Iaga2002 files can be read from')
-    parser.add_argument('--input-iaga-urltemplate',
-            help='Template for directory matching')
-    parser.add_argument('--input-iaga-filetemplate',
-            help='Template for iaga filenames')
-
-    parser.add_argument('--output-iaga-url',
-            help='Url or Directory where IAGA2002 files should be written to')
-    parser.add_argument('--output-iaga-stdout',
-            action="store_true", default=False,
-            help='Indicates file will be directed to stdout')
-    parser.add_argument('--output-iaga-urltemplate',
-            help='Template for subdirectories')
-    parser.add_argument('--output-iaga-filetemplate',
-            help='Template for iaga filenames')
-    parser.add_argument('--output-iaga-file',
-            help='Output file name for single iaga file.')
-
-    # Edge input arguments
-    parser.add_argument('--input-edge-host',
-            help='ip address of the edge input server')
-    parser.add_argument('--input-edge-port', type=int,
-            help='port number of the edge input server')
+    # Add I/O and Algorithm specific arguments
+    iaga_add_parse_arguments(parser)
+    edge_add_parse_arguments(parser)
+    XYZAlgorithm_add_parse_arguments(parser)
 
     return parser.parse_args()
 
