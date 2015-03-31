@@ -99,7 +99,8 @@ def main():
     if args.algorithm == 'xyz':
         algorithm = XYZAlgorithm(args.xyz_informat, args.xyz_outformat)
     else:
-        algorithm = Algorithm(channels=args.channels)
+        algorithm = Algorithm(inchannels=args.inchannels,
+                outchannels=args.outchannels)
 
     # TODO check for unused arguments.
 
@@ -133,7 +134,9 @@ def parse_args():
 
     parser.add_argument('--observatory',
             help='Observatory code ie BOU, CMO, etc')
-    parser.add_argument('--channels', nargs='*',
+    parser.add_argument('--inchannels', nargs='*',
+            help='Channels H, E, Z, etc')
+    parser.add_argument('--outchannels', nargs='*',
             help='Channels H, E, Z, etc')
     parser.add_argument('--type', default='variation',
             choices=['variation', 'quasi-definitive', 'definitive'])
