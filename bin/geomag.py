@@ -5,7 +5,7 @@ import sys
 
 # ensure geomag is on the path before importing
 try:
-    import geomagio
+    import geomagio  # noqa
 except:
     from os import path
     script_dir = path.dirname(path.abspath(__file__))
@@ -25,7 +25,7 @@ def main():
 
     Inputs
     ------
-    see --help from commandline.
+    use geomag.py --help to see inputs
 
     Notes
     -----
@@ -104,6 +104,7 @@ def main():
 
     controller.run(UTCDateTime(args.starttime), UTCDateTime(args.endtime))
 
+
 def parse_args():
     """parse input arguments
 
@@ -117,10 +118,10 @@ def parse_args():
         fromfile_prefix_chars='@',)
 
     parser.add_argument('--input', choices=['iaga', 'edge'],
-            help = 'Input type.', required=True)
+            help='Input type.', required=True)
 
     parser.add_argument('--output', choices=['iaga'],
-            help = 'Input type.', required=True)
+            help='Input type.', required=True)
 
     parser.add_argument('--starttime', default=UTCDateTime(),
             help='UTC date YYYY-MM-DD HH:MM:SS')
@@ -181,13 +182,49 @@ def parse_args():
 
     return parser.parse_args()
 
+
 def _get_iaga_input_url(args):
+    """get iaga input url
+
+    Parameters
+    ----------
+    args: argparse.Namespace
+        all the arguments passed to geomag.py
+        input_iaga_url: string
+            the start of the url to read from
+        input_iaga_urltemplate: string
+            the template for the subdirectories to be read from
+        input_iaga_filetemplate:string
+            the template for the file
+
+    Returns
+    -------
+    complete template for the input url
+    """
     url = args.input_iaga_url or 'file://./'
     urltemplate = args.input_iaga_urltemplate or ''
     filetemplate = args.input_iaga_filetemplate or IAGA_FILE_PATTERN
     return url + urltemplate + filetemplate
 
+
 def _get_iaga_output_url(args):
+    """get iaga input url
+
+    Parameters
+    ----------
+    args: argparse.Namespace
+        all the arguments passed to geomag.py
+        output_iaga_url: string
+            the start of the url to read from
+        output_iaga_urltemplate: string
+            the template for the subdirectories to be read from
+        output_iaga_filetemplate:string
+            the template for the file
+
+    Returns
+    -------
+    complete template for the output url
+    """
     url = args.output_iaga_url or 'file://./'
     urltemplate = args.output_iaga_urltemplate or ''
     filetemplate = args.output_iaga_filetemplate or IAGA_FILE_PATTERN
