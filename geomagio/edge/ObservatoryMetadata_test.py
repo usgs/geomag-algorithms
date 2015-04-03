@@ -7,10 +7,6 @@ import obspy.core
 
 METADATA = {
     'BOU': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'Boulder',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -24,20 +20,28 @@ METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': 'Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the  minute. Scalar 1-minute values are' +
-                    ' computed from 1-secondvalues  using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. '
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     }
 }
 
 
 DATA_INTERVAL_TYPE = {
-        'minute': 'filtered 1-minute (00:29-01:30) ',
-        'second': 'filtered 1-Second'
+        'minute': {'data_interval_type': 'filtered 1-minute (00:29-01:30) '},
+        'second': {'data_interval_type': 'filtered 1-Second'}
 }
 
 
@@ -63,4 +67,5 @@ def test_set_metadata():
     observatorymetadata.set_metadata(stats, 'BOU', 'MVH',
             'quasi-definitive', 'second')
     assert_equals(stats['declination_base'], 20000)
-    assert_equals(stats['data_interval_type'], 'filtered 1-Second')
+    print stats
+    assert_equals(stats['data_interval_type'], 'Average 1-Second')
