@@ -5,7 +5,7 @@ import sys
 
 # ensure geomag is on the path before importing
 try:
-    import geomagio  # noqa
+    import geomagio  # noqa (tells linter to ignor this line.)
 except:
     from os import path
     script_dir = path.dirname(path.abspath(__file__))
@@ -16,7 +16,6 @@ import geomagio.edge as edge
 from geomagio.Algorithm import Algorithm
 from geomagio.XYZAlgorithm import XYZAlgorithm
 from geomagio.Controller import Controller
-from geomagio.iaga2002.IAGA2002Factory import IAGA_FILE_PATTERN
 from obspy.core.utcdatetime import UTCDateTime
 
 
@@ -35,66 +34,71 @@ def main():
 
     args = parse_args()
 
-    if args.input == 'iaga':
-        if args.input_iaga_magweb:
-            inputfactory = iaga2002.MagWebFactory(
-                    observatory=args.observatory,
-                    type=args.type,
-                    interval=args.interval)
-        elif args.input_iaga_url is not None:
-            inputfactory = iaga2002.IAGA2002Factory(
-                    urlTemplate=_get_iaga_input_url(args),
-                    observatory=args.observatory,
-                    type=args.type,
-                    interval=args.interval)
-        elif args.input_iaga_file is not None or args.input_iaga_stdin:
-            if args.input_iaga_file is not None:
-                iagaFile = open(args.input_iaga_file, 'r').read()
-            else:
-                print >> sys.stderr, "Iaga Input waiting for data from stdin"
-                iagaFile = sys.stdin.read()
-            inputfactory = iaga2002.StreamIAGA2002Factory(
-                stream=iagaFile,
-                observatory=args.observatory,
-                type=args.type,
-                interval=args.interval)
-        else:
-            print >> sys.stderr, "Iaga Input was missing needed arguments"
-
-    elif args.input == 'edge':
+    # Input Factory
+    if args.input_edge is not None:
+        if len(args.input_edge) != 2:
+            print >> sys.stderr, \
+                '--input-edge requires 2 parameters Host and Port'
         inputfactory = edge.EdgeFactory(
-                host=args.input_edge_host,
-                port=args.input_edge_port,
+            host=args.input_edge[0],
+            port=int(args.input_edge[1]),
+            observatory=args.observatory,
+            type=args.type,
+            interval=args.interval)
+    elif args.input_iaga_magweb:
+        inputfactory = iaga2002.MagWebFactory(
+            observatory=args.observatory,
+            type=args.type,
+            interval=args.interval)
+    elif args.input_iaga_url is not None:
+        inputfactory = iaga2002.IAGA2002Factory(
+            urlTemplate=args.input_iaga_url,
+            observatory=args.observatory,
+            type=args.type,
+            interval=args.interval)
+    elif args.input_iaga_file is not None:
+        inputfactory = iaga2002.StreamIAGA2002Factory(
+                stream=open(args.input_iaga_file, 'r').read(),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
-
-    if args.output == 'iaga':
-        if args.output_iaga_url is not None:
-            outputfactory = iaga2002.IAGA2002Factory(
-                    urlTemplate=_get_iaga_output_url(args),
-                    observatory=args.observatory,
-                    type=args.type,
-                    interval=args.interval)
-        elif args.output_iaga_file is not None:
-            iagaFile = open(args.output_iaga_file, 'w')
-            outputfactory = iaga2002.StreamIAGA2002Factory(
-                stream=iagaFile,
+    elif args.input_iaga_stdin:
+        inputfactory = iaga2002.StreamIAGA2002Factory(
+                stream=sys.stdin.read(),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
-        elif args.output_iaga_stdout:
-            iagaFile = sys.stdout
-            outputfactory = iaga2002.StreamIAGA2002Factory(
-                    stream=iagaFile,
+    else:
+        print >> sys.stderr, 'Missing required input directive.'
+
+    # Output Factory
+    if args.output_iaga_url is not None:
+        outputfactory = iaga2002.IAGA2002Factory(
+                    urlTemplate=args.output_iaga_url,
                     observatory=args.observatory,
                     type=args.type,
                     interval=args.interval)
-        else:
-            print >> sys.stderr, "Iaga Output was missing needed arguments"
+    elif args.output_iaga_file is not None:
+        outputfactory = iaga2002.StreamIAGA2002Factory(
+            stream=open(args.output_iaga_file, 'w'),
+            observatory=args.observatory,
+            type=args.type,
+            interval=args.interval)
+    elif args.output_iaga_stdout:
+        outputfactory = iaga2002.StreamIAGA2002Factory(
+                stream=sys.stdout,
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
+    else:
+            print >> sys.stderr, "Missing required output directive"
 
-    if args.algorithm == 'xyz':
-        algorithm = XYZAlgorithm(args.xyz_informat, args.xyz_outformat)
+    if args.xyz is not None:
+        if len(args.xyz) != 2:
+            print >> sys.stderr, \
+                '--xyz requires 2 parameters Informat and Outformat'
+        algorithm = XYZAlgorithm(informat=args.xyz[0],
+                outformat=args.xyz[1])
     else:
         algorithm = Algorithm(inchannels=args.inchannels,
                 outchannels=args.outchannels)
@@ -118,12 +122,6 @@ def parse_args():
         description='Use @ to read commands from a file.',
         fromfile_prefix_chars='@',)
 
-    parser.add_argument('--input', choices=['iaga', 'edge'],
-            help='Input type.', required=True)
-
-    parser.add_argument('--output', choices=['iaga'],
-            help='Input type.', required=True)
-
     parser.add_argument('--starttime', default=UTCDateTime(),
             help='UTC date YYYY-MM-DD HH:MM:SS')
     parser.add_argument('--endtime', default=UTCDateTime(),
@@ -140,98 +138,42 @@ def parse_args():
     parser.add_argument('--interval', default='minute',
             choices=['minute', 'second'])
 
-    parser.add_argument('--algorithm', choices=['xyz', ])
-
-    # iaga specific args.
-    parser.add_argument('--input-iaga-file',
-            help='Iaga2002 filename')
-    parser.add_argument('--input-iaga-magweb',
-            action="store_true", default=False,
+    # Input group
+    input_group = parser.add_mutually_exclusive_group(required=True)
+    input_group.add_argument('--input-edge', nargs=2,
+            metavar=('Host', 'Port'),
+            help='Requires Host IP # and Port #')
+    input_group.add_argument('--input-iaga-url',
+            help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
+    input_group.add_argument('--input-iaga-file',
+            help='Reads from the specified file.')
+    input_group.add_argument('--input-iaga-stdin',
+            action='store_true', default=False,
+            help='Pass in an iaga file using redirection from stdin.')
+    input_group.add_argument('--input-iaga-magweb',
+            action='store_true', default=False,
             help='Indicates iaga2002 files will be read from \
             http://magweb.cr.usgs.gov/data/magnetometer/')
-    parser.add_argument('--input-iaga-stdin',
-            action="store_true", default=False,
-            help='Indicates file will be redirected from stdin')
-    parser.add_argument('--input-iaga-url',
-            help='Url or Directory where Iaga2002 files can be read from')
-    parser.add_argument('--input-iaga-urltemplate',
-            help='Template for directory matching')
-    parser.add_argument('--input-iaga-filetemplate',
-            help='Template for iaga filenames')
 
-    parser.add_argument('--output-iaga-url',
-            help='Url or Directory where IAGA2002 files should be written to')
-    parser.add_argument('--output-iaga-stdout',
-            action="store_true", default=False,
-            help='Indicates file will be directed to stdout')
-    parser.add_argument('--output-iaga-urltemplate',
-            help='Template for subdirectories')
-    parser.add_argument('--output-iaga-filetemplate',
-            help='Template for iaga filenames')
-    parser.add_argument('--output-iaga-file',
-            help='Output file name for single iaga file.')
+    # Output group
+    output_group = parser.add_mutually_exclusive_group(required=True)
+    output_group.add_argument('--output-iaga-url',
+            help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
+    output_group.add_argument('--output-iaga-file',
+            help='Write to a single iaga file')
+    output_group.add_argument('--output-iaga-stdout',
+            action='store_true', default=False,
+            help='Write to stdout')
 
-    # edge specific args
-    parser.add_argument('--input-edge-host',
-            help='ip address of the edge input server')
-    parser.add_argument('--input-edge-port', type=int,
-            help='port number of the edge input server')
-
-    # XYZ Algorithm specific args
-    parser.add_argument('--xyz-informat',
-            choices=['geo', 'mag', 'obs', 'obsd'])
-    parser.add_argument('--xyz-outformat',
-            choices=['geo', 'mag', 'obs', 'obsd'])
+    # Algorithms group
+    algorithm_group = parser.add_mutually_exclusive_group()
+    algorithm_group.add_argument('--xyz', nargs=2,
+            choices=['geo', 'mag', 'obs', 'obsd'],
+            help='Enter the geomagnetic orientation(s) you want to read from' +
+                    ' and to respectfully.')
 
     return parser.parse_args()
 
-
-def _get_iaga_input_url(args):
-    """get iaga input url
-
-    Parameters
-    ----------
-    args: argparse.Namespace
-        all the arguments passed to geomag.py
-        input_iaga_url: string
-            the start of the url to read from
-        input_iaga_urltemplate: string
-            the template for the subdirectories to be read from
-        input_iaga_filetemplate:string
-            the template for the file
-
-    Returns
-    -------
-    complete template for the input url
-    """
-    url = args.input_iaga_url or 'file://./'
-    urltemplate = args.input_iaga_urltemplate or ''
-    filetemplate = args.input_iaga_filetemplate or IAGA_FILE_PATTERN
-    return url + urltemplate + filetemplate
-
-
-def _get_iaga_output_url(args):
-    """get iaga input url
-
-    Parameters
-    ----------
-    args: argparse.Namespace
-        all the arguments passed to geomag.py
-        output_iaga_url: string
-            the start of the url to read from
-        output_iaga_urltemplate: string
-            the template for the subdirectories to be read from
-        output_iaga_filetemplate:string
-            the template for the file
-
-    Returns
-    -------
-    complete template for the output url
-    """
-    url = args.output_iaga_url or 'file://./'
-    urltemplate = args.output_iaga_urltemplate or ''
-    filetemplate = args.output_iaga_filetemplate or IAGA_FILE_PATTERN
-    return url + urltemplate + filetemplate
 
 if __name__ == '__main__':
     main()
