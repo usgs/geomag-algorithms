@@ -4,10 +4,6 @@
 # default metadata for the 14 USGS observatories.
 DEFAULT_METADATA = {
     'BOU': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'Boulder',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -21,19 +17,23 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the  minute. Scalar 1-minute values are' +
-                    ' computed from 1-secondvalues  using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'BRW': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'Barrow',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -47,19 +47,23 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the minute. Scalar 1-minute values are' +
-                    ' computed from 1-second values using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
+        },
+        'data_interval_type': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'BSL': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'Stennis Space Center',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -73,19 +77,23 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the minute. Scalar 1-minute values are' +
-                    ' computed from 1-second values using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'CMO': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'College',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -99,19 +107,10 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the minute. Scalar 1-minute values are' +
-                    ' computed from 1-second values using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
         }
     },
     'DED': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'Deadhorse',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -125,19 +124,23 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the minute. Scalar 1-minute values are' +
-                    ' computed from 1-second values using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'FRD': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'Fredericksburg',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -151,19 +154,23 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the minute. Scalar 1-minute values are' +
-                    ' computed from 1-second values using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'FRN': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'Fresno',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -177,19 +184,23 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the minute. Scalar 1-minute values are' +
-                    ' computed from 1-second values using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'GUA': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'Guam',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -203,97 +214,113 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the minute. Scalar 1-minute values are' +
-                    ' computed from 1-second values using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'HON': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
-        'station_name': 'Honolulu',
-        'agency_name': 'United States Geological Survey (USGS)',
-        'geodetic_latitude': '21.316',
-        'geodetic_longitude': '202.000',
-        'elevation': '4',
-        'sensor_orientation': 'HDZF',
-        'sensor_sampling_rate': 0.01,
-        'declination_base': 6920,
-        'is_gin': False,
-        'is_intermagnet': False,
-        'conditions_of_use': 'The Conditions of Use for data provided' +
-                ' through INTERMAGNET and acknowledgement templates' +
-                ' can be found at www.intermagnet.org',
-        'filter_comments': ['Vector 1-minute values are computed from' +
-                ' 1-second values using the INTERMAGNET gaussian filter' +
-                ' centered on the minute. Scalar 1-minute values are' +
-                ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ']
+            'station_name': 'Honolulu',
+            'agency_name': 'United States Geological Survey (USGS)',
+            'geodetic_latitude': '21.316',
+            'geodetic_longitude': '202.000',
+            'elevation': '4',
+            'sensor_orientation': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'declination_base': 6920,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'SHU': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
-        'station_name': 'Shumagin',
-        'agency_name': 'United States Geological Survey (USGS)',
-        'geodetic_latitude': '55.348',
-        'geodetic_longitude': '199.538',
-        'elevation': '80',
-        'sensor_orientation': 'HDZF',
-        'sensor_sampling_rate': 0.01,
-        'declination_base': 13974,
-        'is_gin': False,
-        'is_intermagnet': False,
-        'conditions_of_use': 'The Conditions of Use for data provided' +
-                ' through INTERMAGNET and acknowledgement templates' +
-                ' can be found at www.intermagnet.org',
-        'filter_comments': ['Vector 1-minute values are computed from' +
-                ' 1-second values using the INTERMAGNET gaussian filter' +
-                ' centered on the minute. Scalar 1-minute values are' +
-                ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ']
+            'station_name': 'Shumagin',
+            'agency_name': 'United States Geological Survey (USGS)',
+            'geodetic_latitude': '55.348',
+            'geodetic_longitude': '199.538',
+            'elevation': '80',
+            'sensor_orientation': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'declination_base': 13974,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'SIT': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
-        'station_name': 'Sitka',
-        'agency_name': 'United States Geological Survey (USGS)',
-        'geodetic_latitude': '57.058',
-        'geodetic_longitude': '224.674',
-        'elevation': '24',
-        'sensor_orientation': 'HDZF',
-        'sensor_sampling_rate': 0.01,
-        'declination_base': 16523,
-        'is_gin': False,
-        'is_intermagnet': False,
-        'conditions_of_use': 'The Conditions of Use for data provided' +
-                ' through INTERMAGNET and acknowledgement templates' +
-                ' can be found at www.intermagnet.org',
-        'filter_comments': ['Vector 1-minute values are computed from' +
-                ' 1-second values using the INTERMAGNET gaussian filter' +
-                ' centered on the minute. Scalar 1-minute values are' +
-                ' computed from 1-second values using the INTERMAGNET' +
-                ' gaussian filter centered on the minute. ']
+            'station_name': 'Sitka',
+            'agency_name': 'United States Geological Survey (USGS)',
+            'geodetic_latitude': '57.058',
+            'geodetic_longitude': '224.674',
+            'elevation': '24',
+            'sensor_orientation': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'declination_base': 16523,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'SJG': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'San Juan',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -307,19 +334,23 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the minute. Scalar 1-minute values are' +
-                    ' computed from 1-second values using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     },
     'TUC': {
-        'data_interval_type': {
-            'minute': 'filtered 1-minute (00:15-01:45) ',
-            'second': 'Average 1-Second'
-        },
         'metadata': {
             'station_name': 'Tucson',
             'agency_name': 'United States Geological Survey (USGS)',
@@ -333,20 +364,28 @@ DEFAULT_METADATA = {
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
                     ' through INTERMAGNET and acknowledgement templates' +
-                    ' can be found at www.intermagnet.org',
-            'filter_comments': ['Vector 1-minute values are computed from' +
-                    ' 1-second values using the INTERMAGNET gaussian filter' +
-                    ' centered on the minute. Scalar 1-minute values are' +
-                    ' computed from 1-second values using the INTERMAGNET' +
-                    ' gaussian filter centered on the minute. ']
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
         }
     }
 }
 
 
-DEFAULT_DATA_INTERVAL_TYPE = {
-        'minute': 'filtered 1-minute (00:15-01:45) ',
-        'second': 'Average 1-Second'
+DEFAULT_INTERVAL_SPECIFIC = {
+        'minute': {'data_interval_type': 'filtered 1-minute (00:15-01:45) '},
+        'second': {'data_interval_type': 'Average 1-Second'}
 }
 
 
@@ -359,10 +398,10 @@ class ObservatoryMetadata(object):
     pull from a database, or maybe a config file.
     """
 
-    def __init__(self, metadata=None, data_interval_type=None):
+    def __init__(self, metadata=None, interval_specific=None):
         self.metadata = metadata or DEFAULT_METADATA
-        self.data_interval_type = data_interval_type or \
-                DEFAULT_DATA_INTERVAL_TYPE
+        self.interval_specific = interval_specific or \
+                DEFAULT_INTERVAL_SPECIFIC
 
     def set_metadata(self, stats, observatory, channel, type, interval):
         """Set timeseries metadata (aka a traces stats)
@@ -389,9 +428,15 @@ class ObservatoryMetadata(object):
         stats['channel'] = channel
         stats['data_interval'] = interval
         stats['data_type'] = type
-        data_interval_type = self.data_interval_type or \
-                self.metadata[observatory]['data_interval_type']
-        stats['data_interval_type'] = data_interval_type[interval]
+        # copy in standard metadata
         metadata = self.metadata[observatory]['metadata']
         for key in metadata:
-                stats[key] = metadata[key]
+            stats[key] = metadata[key]
+        # copy in interval specific metadata
+        interval_specific = self.interval_specific
+        if 'interval_specific' in self.metadata[observatory]:
+            interval_specific = \
+                self.metadata[observatory]['interval_specific']
+        # stats['data_interval_type'] = data_interval_type[interval]
+        for key in interval_specific[interval]:
+            stats[key] = interval_specific[interval][key]
