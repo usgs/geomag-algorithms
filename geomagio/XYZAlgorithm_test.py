@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 from obspy.core.stream import Stream
 from nose.tools import assert_equals
-from nose.tools import assert_true
+from nose.tools import assert_is
 from XYZAlgorithm import XYZAlgorithm
 from StreamConverter_test import __create_trace
 
@@ -18,8 +18,7 @@ def test_xyzalgorithm_process():
     timeseries += __create_trace('Z', [1, 1])
     timeseries += __create_trace('F', [1, 1])
     outputstream = algorithm.process(timeseries)
-    assert_true(algorithm.check_stream(outputstream,
-            algorithm.get_output_channels()))
+    assert_is(outputstream[0].stats.channel, 'X')
 
 
 def test_xyzalgorithm_channels():
