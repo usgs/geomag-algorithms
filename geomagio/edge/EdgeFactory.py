@@ -17,19 +17,6 @@ from obspy import earthworm
 from ObservatoryMetadata import ObservatoryMetadata
 
 
-def edge_add_parse_arguments(parser):
-    """add edge specific arguments to parser
-
-    Parameters
-    ----------
-    parser: argparse.ArgumentParser
-    """
-    parser.add_argument('--input-edge-host',
-            help='ip address of the edge input server')
-    parser.add_argument('--input-edge-port', type=int,
-            help='port number of the edge input server')
-
-
 class EdgeFactory(TimeseriesFactory):
     """TimeseriesFactory for Edge related data.
 
@@ -327,7 +314,6 @@ class EdgeFactory(TimeseriesFactory):
         data = self.client.getWaveform(network, station, location,
                 edge_channel, starttime, endtime)
         data.merge()
-        self._convert_trace_to_decimal(data)
         self._set_metadata(data,
                 observatory, channel, type, interval)
         return data
@@ -385,6 +371,7 @@ class EdgeFactory(TimeseriesFactory):
 
         Notes: the original timeseries object is changed.
         """
+        self._convert_trace_to_decimal(timeseries)
         for trace in timeseries:
             if isinstance(trace.data, numpy.ma.MaskedArray):
                 trace.data.set_fill_value(numpy.nan)
