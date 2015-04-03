@@ -4,6 +4,7 @@
 """
 
 from Algorithm import Algorithm
+from AlgorithmException import AlgorithmException
 import StreamConverter as StreamConverter
 
 # List of channels by geomagnetic observatory orientation.
@@ -38,7 +39,7 @@ class XYZAlgorithm(Algorithm):
         self.informat = informat
         self.outformat = outformat
 
-    def check_stream(self, timeseries, channels):
+    def check_stream(self, timeseries):
         """checks an stream to make certain all the required channels
             exist.
 
@@ -49,11 +50,10 @@ class XYZAlgorithm(Algorithm):
         channels: array_like
             channels that are expected in stream.
         """
-        for channel in channels:
+        for channel in self._inchannels:
             if len(timeseries.select(channel=channel)) == 0:
-                print 'Channel %s not found in input' % channel
-                return False
-        return True
+                raise AlgorithmException(
+                    'Channel %s not found in input' % channel)
 
     def process(self, timeseries):
         """converts a timeseries stream into a different coordinate system
@@ -67,6 +67,7 @@ class XYZAlgorithm(Algorithm):
         out_stream: obspy.core.Stream
             new stream object containing the converted coordinates.
         """
+        self.check_stream(timeseries)
         out_stream = None
         if self.outformat == 'geo':
             if self.informat == 'geo':
