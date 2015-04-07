@@ -7,7 +7,8 @@ setup(
     url='https://github.com/usgs/geomag-algorithms',
     packages=[
         'geomagio',
-        'geomagio.iaga2002'
+        'geomagio.iaga2002',
+        'geomagio.edge'
     ],
     install_requires=[
         'numpy',
@@ -16,6 +17,6 @@ setup(
         'obspy'
     ],
     scripts=[
-        'bin/xyz.py'
+        'bin/geomag.py'
     ]
 )

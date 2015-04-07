@@ -177,6 +177,7 @@ class IAGA2002Parser(object):
         conditions_of_use = None
         declination_base = None
         is_intermagnet = False
+        is_gin = False
         for comment in self.comments:
             if comment.startswith('DECBAS'):
                 # parse DECBAS
@@ -189,6 +190,8 @@ class IAGA2002Parser(object):
                 comment_upper = comment.upper()
                 if 'FILTER' in comment_upper:
                     filter_comments.append(comment)
+                elif 'GIN' in comment_upper:
+                    is_gin = True
                 elif 'INTERMAGNET DVD' in comment_upper or \
                         'WWW.INTERMAGNET.ORG' in comment_upper:
                     is_intermagnet = True
@@ -199,6 +202,7 @@ class IAGA2002Parser(object):
         self.metadata['conditions_of_use'] = conditions_of_use
         self.metadata['declination_base'] = declination_base
         self.metadata['is_intermagnet'] = is_intermagnet
+        self.metadata['is_gin'] = is_gin
 
     def _merge_comments(self, comments):
         """Combine multi-line, period-delimited comments.

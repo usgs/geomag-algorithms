@@ -42,7 +42,6 @@ def main():
     endtime = UTCDateTime(2014, 6, 12, 5, 30, 0)
     result = factory.getTimeseries('BOU', starttime, endtime, 'R0')
     # result += f.getTimeseries('BOU', starttime, endtime, 'R1')
-    print result
     result.plot()
 
 if __name__ == '__main__':

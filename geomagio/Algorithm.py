@@ -1,11 +1,25 @@
+"""Algorithm Interface."""
 
 
 class Algorithm(object):
-    """An algorithm processes a stream of timeseries to produce new timeseries.
+    """Base class for geomag algorithms
+
+    Parameters
+    ----------
+    channels: array_like
+        the list of channels to be processed.
+
+    Notes
+    -----
+    An algorithm processes a stream of timeseries to produce new timeseries.
     """
 
+    def __init__(self, inchannels=None, outchannels=None):
+        self._inchannels = inchannels
+        self._outchannels = outchannels
+
     def process(self, stream):
-        """Process a chunk of data.
+        """Process a stream of data.
 
         Parameters
         ----------
@@ -18,3 +32,23 @@ class Algorithm(object):
             resulting data
         """
         return stream.copy()
+
+    def get_input_channels(self):
+        """Get input channels
+
+        Returns
+        -------
+        array_like
+            list of channels the algorithm needs to operate.
+        """
+        return self._inchannels
+
+    def get_output_channels(self):
+        """Get output channels
+
+        Returns
+        -------
+        array_like
+            list of channels the algorithm will be returning.
+        """
+        return self._outchannels

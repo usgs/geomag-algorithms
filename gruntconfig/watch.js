@@ -2,7 +2,7 @@
 
 module.exports = {
   scripts: {
-    files: ['geomagio/**/*.py'],
+    files: ['geomagio/**/*.py', 'bin/**/*.py'],
     tasks: ['lint', 'test']
   },
   gruntfile: {

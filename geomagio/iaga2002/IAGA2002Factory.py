@@ -384,7 +384,7 @@ class IAGA2002Factory(TimeseriesFactory):
         for day in days:
             day_filename = self._get_file_from_url(
                     self._get_url(observatory, day, type, interval))
-            day_timeseries = self._get_slice(timeseries, day)
+            day_timeseries = self._get_slice(timeseries, day, interval)
             with open(day_filename, 'w') as fh:
                 self.write_file(fh, day_timeseries, channels)
 
@@ -417,7 +417,7 @@ class IAGA2002Factory(TimeseriesFactory):
             os.makedirs(parent)
         return filename
 
-    def _get_slice(self, timeseries, day):
+    def _get_slice(self, timeseries, day, interval):
         """Get the first and last time for a day
 
         Parameters
@@ -434,5 +434,8 @@ class IAGA2002Factory(TimeseriesFactory):
         """
         day = day.datetime
         start = obspy.core.UTCDateTime(day.year, day.month, day.day, 0, 0, 0)
-        end = start + 86399.999999
+        if interval == 'minute':
+            end = start + 86340.0
+        else:
+            end = start + 86399.999999
         return timeseries.slice(start, end)
