@@ -6,5 +6,5 @@ from ObservatoryMetadata import ObservatoryMetadata
 
 __all__ = [
     'EdgeFactory',
-    'ObservatoryMetadata',
+    'ObservatoryMetadata'
 ]

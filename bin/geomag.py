@@ -36,35 +36,32 @@ def main():
 
     # Input Factory
     if args.input_edge is not None:
-        if len(args.input_edge) != 2:
-            print >> sys.stderr, \
-                '--input-edge requires 2 parameters Host and Port'
         inputfactory = edge.EdgeFactory(
-            host=args.input_edge[0],
-            port=int(args.input_edge[1]),
-            observatory=args.observatory,
-            type=args.type,
-            interval=args.interval)
-    elif args.input_iaga_magweb:
-        inputfactory = iaga2002.MagWebFactory(
-            observatory=args.observatory,
-            type=args.type,
-            interval=args.interval)
-    elif args.input_iaga_url is not None:
-        inputfactory = iaga2002.IAGA2002Factory(
-            urlTemplate=args.input_iaga_url,
-            observatory=args.observatory,
-            type=args.type,
-            interval=args.interval)
+                host=args.input_edge[0],
+                port=int(args.input_edge[1]),
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
     elif args.input_iaga_file is not None:
         inputfactory = iaga2002.StreamIAGA2002Factory(
-                stream=open(args.input_iaga_file, 'r').read(),
+                stream=open(args.input_iaga_file, 'r'),
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
+    elif args.input_iaga_magweb:
+        inputfactory = iaga2002.MagWebFactory(
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
     elif args.input_iaga_stdin:
         inputfactory = iaga2002.StreamIAGA2002Factory(
-                stream=sys.stdin.read(),
+                stream=sys.stdin,
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
+    elif args.input_iaga_url is not None:
+        inputfactory = iaga2002.IAGA2002Factory(
+                urlTemplate=args.input_iaga_url,
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
@@ -72,21 +69,21 @@ def main():
         print >> sys.stderr, 'Missing required input directive.'
 
     # Output Factory
-    if args.output_iaga_url is not None:
-        outputfactory = iaga2002.IAGA2002Factory(
-                    urlTemplate=args.output_iaga_url,
-                    observatory=args.observatory,
-                    type=args.type,
-                    interval=args.interval)
-    elif args.output_iaga_file is not None:
+    if args.output_iaga_file is not None:
         outputfactory = iaga2002.StreamIAGA2002Factory(
-            stream=open(args.output_iaga_file, 'w'),
-            observatory=args.observatory,
-            type=args.type,
-            interval=args.interval)
+                stream=open(args.output_iaga_file, 'w'),
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
     elif args.output_iaga_stdout:
         outputfactory = iaga2002.StreamIAGA2002Factory(
                 stream=sys.stdout,
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
+    elif args.output_iaga_url is not None:
+        outputfactory = iaga2002.IAGA2002Factory(
+                urlTemplate=args.output_iaga_url,
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
@@ -94,9 +91,6 @@ def main():
             print >> sys.stderr, "Missing required output directive"
 
     if args.xyz is not None:
-        if len(args.xyz) != 2:
-            print >> sys.stderr, \
-                '--xyz requires 2 parameters Informat and Outformat'
         algorithm = XYZAlgorithm(informat=args.xyz[0],
                 outformat=args.xyz[1])
     else:
@@ -141,29 +135,29 @@ def parse_args():
     # Input group
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument('--input-edge', nargs=2,
-            metavar=('Host', 'Port'),
+            metavar=('HOST', 'PORT'),
             help='Requires Host IP # and Port #')
-    input_group.add_argument('--input-iaga-url',
-            help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
     input_group.add_argument('--input-iaga-file',
             help='Reads from the specified file.')
-    input_group.add_argument('--input-iaga-stdin',
-            action='store_true', default=False,
-            help='Pass in an iaga file using redirection from stdin.')
     input_group.add_argument('--input-iaga-magweb',
             action='store_true', default=False,
             help='Indicates iaga2002 files will be read from \
             http://magweb.cr.usgs.gov/data/magnetometer/')
+    input_group.add_argument('--input-iaga-stdin',
+            action='store_true', default=False,
+            help='Pass in an iaga file using redirection from stdin.')
+    input_group.add_argument('--input-iaga-url',
+            help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
 
     # Output group
     output_group = parser.add_mutually_exclusive_group(required=True)
-    output_group.add_argument('--output-iaga-url',
-            help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
     output_group.add_argument('--output-iaga-file',
             help='Write to a single iaga file')
     output_group.add_argument('--output-iaga-stdout',
             action='store_true', default=False,
             help='Write to stdout')
+    output_group.add_argument('--output-iaga-url',
+            help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
 
     # Algorithms group
     algorithm_group = parser.add_mutually_exclusive_group()
