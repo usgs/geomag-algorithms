@@ -33,4 +33,5 @@ class Controller(object):
                 channels=input_channels)
         processed = self._algorithm.process(timeseries)
         output_channels = self._algorithm.get_output_channels()
-        self._outputFactory.put_timeseries(processed, channels=output_channels)
+        self._outputFactory.put_timeseries(timeseries=processed,
+                channels=output_channels)
