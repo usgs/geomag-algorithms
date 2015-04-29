@@ -42,7 +42,8 @@ def main():
                 port=int(args.input_edge[1]),
                 observatory=args.observatory,
                 type=args.type,
-                interval=args.interval)
+                interval=args.interval,
+                locationCode=args.locationcode)
     elif args.input_iaga_file is not None:
         inputfactory = iaga2002.StreamIAGA2002Factory(
                 stream=open(args.input_iaga_file, 'r'),
@@ -124,7 +125,15 @@ def main():
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
-
+    elif args.output_edge is not None:
+        locationcode = args.outlocationcode or args.locationcode or None
+        outputfactory = edge.EdgeFactory(
+                host=args.output_edge[0],
+                port=int(args.output_edge[1]),
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval,
+                locationCode=locationcode)
     else:
             print >> sys.stderr, "Missing required output directive"
 
@@ -167,6 +176,10 @@ def parse_args():
             help='Channels H, E, Z, etc')
     parser.add_argument('--type', default='variation',
             choices=['variation', 'quasi-definitive', 'definitive'])
+    parser.add_argument('--locationcode',
+            choices=['R0', 'R1', 'RM', 'Q0' 'D0', 'Z0'])
+    parser.add_argument('--outlocationcode',
+            choices=['R0', 'R1', 'RM', 'Q0' 'D0', 'Z0'])
     parser.add_argument('--interval', default='minute',
             choices=['minute', 'second'])
 
@@ -210,6 +223,9 @@ def parse_args():
             help='Write to stdout.')
     output_group.add_argument('--output-pcdcp-url',
             help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
+    output_group.add_argument('--output-edge', nargs=2,
+            metavar=('HOST', 'PORT'),
+            help='Requires Host IP # and Port #');
 
     # Algorithms group
     algorithm_group = parser.add_mutually_exclusive_group()
