@@ -14,7 +14,7 @@ class WaveserverFactory(object):
     def __init__(self, host, port):
         self.client = earthworm.Client(host, port)
 
-    def getTimeseries(
+    def get_timeseries(
             self, observatory, starttime, endtime,
             channels=('MVH', 'MVE', 'MVZ'), location='R0', network='NT'):
         """
@@ -40,7 +40,8 @@ def main():
     factory = WaveserverFactory('136.177.50.84', 2060)
     starttime = UTCDateTime(2014, 6, 12, 5, 0, 0)
     endtime = UTCDateTime(2014, 6, 12, 5, 30, 0)
-    result = factory.getTimeseries('BOU', starttime, endtime, 'R0')
+    result = factory.get_timeseries('BOU', starttime=starttime,
+            endtime=endtime, location='R0')
     # result += f.getTimeseries('BOU', starttime, endtime, 'R1')
     result.plot()
 
