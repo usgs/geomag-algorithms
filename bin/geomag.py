@@ -225,7 +225,7 @@ def parse_args():
             help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
     output_group.add_argument('--output-edge', nargs=2,
             metavar=('HOST', 'PORT'),
-            help='Requires Host IP # and Port #');
+            help='Requires Host IP # and Port #')
 
     # Algorithms group
     algorithm_group = parser.add_mutually_exclusive_group()
