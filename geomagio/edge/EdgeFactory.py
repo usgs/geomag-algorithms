@@ -159,9 +159,6 @@ class EdgeFactory(TimeseriesFactory):
         type = type or self.type
         interval = interval or self.interval
 
-        self.ric = RawInputClient(self.tag, self.host, self.port,
-                self.cwbhost, self.cwbport)
-
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 sys.stderr.write('Missing channel %s for output, continuing \n'
@@ -171,7 +168,6 @@ class EdgeFactory(TimeseriesFactory):
                     channel=channel)
             for trace in timeseries.select(channel=channel).split():
                 self._put_trace(trace, observatory, channel, type, interval)
-        self.ric.close()
 
     def _put_trace(self, trace, observatory, channel, type, interval):
         """Put trace
@@ -198,6 +194,9 @@ class EdgeFactory(TimeseriesFactory):
         edge_channel = self._get_edge_channel(observatory, channel,
                 type, interval)
 
+        self.ric = RawInputClient(self.tag, self.host, self.port,
+                self.cwbhost, self.cwbport)
+
         totalsamps = len(trace.data)
         starttime = trace.stats.starttime
         if self.interval == 'second':
@@ -221,10 +220,12 @@ class EdgeFactory(TimeseriesFactory):
             endtime = starttime + (nsamp - 1) * timeoffset
             trace_send = trace.slice(starttime, endtime)
             self._convert_trace_to_int(trace_send)
+            print 'send'
             self.ric.send(seedname, nsamp, trace_send.data, starttime,
                     samplerate, 0, 0, 0, 0)
             starttime += nsamp * timeoffset
         self.ric.forceout(seedname)
+        self.ric.close()
 
     def _convert_trace_to_decimal(self, stream):
         """convert geomag edge traces stored as ints, to decimal by dividing
