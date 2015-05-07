@@ -77,14 +77,10 @@ class RawInputClient():
     def close(self):
         """close the open sockets
         """
-        # make certain sockets have time to clear
-        sleep(1)
         if self.socket is not None:
-            self.socket.shutdown(socket.SHUT_WR)
             self.socket.close()
             self.socket = None
         if self.cwbsocket is not None:
-            self.socket.shutdown(socket.SHUT_WR)
             self.cwbsocket.close()
             self.cwbsocket = None
 
