@@ -477,8 +477,9 @@ class EdgeFactory(TimeseriesFactory):
                 edge_channel, starttime, endtime)
         data.merge()
         if data.count() == 0:
-            data = self._create_missing_channel(starttime, endtime, observatory,
-                channel, type, interval, network, station, location)
+            data = self._create_missing_channel(starttime, endtime,
+                observatory, channel, type, interval, network, station,
+                location)
         self._set_metadata(data,
                 observatory, channel, type, interval)
         return data
