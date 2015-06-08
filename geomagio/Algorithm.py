@@ -52,3 +52,6 @@ class Algorithm(object):
             list of channels the algorithm will be returning.
         """
         return self._outchannels
+
+    def get_data_time_extent(self, outstart, outend):
+        return (outstart, outend)
