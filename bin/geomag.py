@@ -138,6 +138,11 @@ def main():
     else:
             print >> sys.stderr, "Missing required output directive"
 
+    if args.update is not None:
+        update = True
+    else:
+        update = False
+
     if args.xyz is not None:
         algorithm = XYZAlgorithm(informat=args.xyz[0],
                 outformat=args.xyz[1])
@@ -147,7 +152,7 @@ def main():
 
     # TODO check for unused arguments.
 
-    controller = Controller(inputfactory, outputfactory, algorithm)
+    controller = Controller(inputfactory, outputfactory, algorithm, update)
 
     controller.run(UTCDateTime(args.starttime), UTCDateTime(args.endtime))
 
@@ -183,6 +188,9 @@ def parse_args():
             choices=['R0', 'R1', 'RM', 'Q0', 'D0', 'C0'])
     parser.add_argument('--interval', default='minute',
             choices=['minute', 'second'])
+    parser.add_argument('--update',
+            action='store_true', default=None,
+            help='Used to update realtime data')
 
     # Input group
     input_group = parser.add_mutually_exclusive_group(required=True)
