@@ -133,7 +133,8 @@ def main():
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
-                locationCode=locationcode)
+                locationCode=locationcode,
+                tag=args.output_edge[2])
     else:
             print >> sys.stderr, "Missing required output directive"
 
@@ -226,6 +227,9 @@ def parse_args():
     output_group.add_argument('--output-edge', nargs=2,
             metavar=('HOST', 'PORT'),
             help='Requires Host IP # and Port #')
+    output_group.add_argument('--output-edge', nargs=3,
+            metavar=('HOST', 'PORT','TAG'),
+            help='Requires Host IP #, Port # and ID TAG ')
 
     # Algorithms group
     algorithm_group = parser.add_mutually_exclusive_group()
