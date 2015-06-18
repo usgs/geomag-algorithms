@@ -135,7 +135,6 @@ def main():
                 interval=args.interval,
                 locationCode=locationcode,
                 tag=args.output_edge[2])
-                locationCode=locationcode)
     else:
             print >> sys.stderr, "Missing required output directive"
 
