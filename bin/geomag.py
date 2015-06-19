@@ -65,6 +65,12 @@ def main():
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
+    elif args.input_pcdcp_stdin:
+        inputfactory = pcdcp.StreamPCDCPFactory(
+                stream=sys.stdin,
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
     else:
         print >> sys.stderr, 'Missing required input directive.'
 
@@ -148,6 +154,9 @@ def parse_args():
             help='Pass in an iaga file using redirection from stdin.')
     input_group.add_argument('--input-iaga-url',
             help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
+    input_group.add_argument('--input-pcdcp-stdin',
+            action='store_true', default=False,
+            help='Pass in an pcdcp file using redirection from stdin.')
 
     # Output group
     output_group = parser.add_mutually_exclusive_group(required=True)
@@ -165,6 +174,9 @@ def parse_args():
             choices=['geo', 'mag', 'obs', 'obsd'],
             help='Enter the geomagnetic orientation(s) you want to read from' +
                     ' and to respectfully.')
+    output_group.add_argument('--output-pcdcp-stdout',
+            action='store_true', default=False,
+            help='Write to stdout')
 
     return parser.parse_args()
 
