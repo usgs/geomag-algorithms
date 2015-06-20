@@ -13,6 +13,7 @@ except:
 
 import geomagio.iaga2002 as iaga2002
 import geomagio.edge as edge
+import geomagio.pcdcp as pcdcp
 from geomagio.Algorithm import Algorithm
 from geomagio.XYZAlgorithm import XYZAlgorithm
 from geomagio.Controller import Controller
