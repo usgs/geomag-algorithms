@@ -5,7 +5,7 @@ import sys
 
 # ensure geomag is on the path before importing
 try:
-    import geomagio  # noqa (tells linter to ignor this line.)
+    import geomagio  # noqa (tells linter to ignore this line.)
 except:
     from os import path
     script_dir = path.dirname(path.abspath(__file__))
