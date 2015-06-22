@@ -94,6 +94,12 @@ def main():
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
+    elif args.output_pcdcp_stdout:
+        outputfactory = pcdcp.StreamPCDCPFactory(
+                stream=sys.stdout,
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
     else:
             print >> sys.stderr, "Missing required output directive"
 
