@@ -57,7 +57,6 @@ class PCDCPParser(object):
 
         Adds value to ``self.header``.
         """
-        print "Header:", line
         self.header['header'] = line
         self.header['observatory'] = line[0:3]
         self.header['year'] = line[6:10]
@@ -70,13 +69,12 @@ class PCDCPParser(object):
         Adds time to ``self.times``.
         Adds channel values to ``self.data``.
         """
-        print "Parse data!"
         t, d1, d2, d3, d4 = self._parsedata
         t.append(line[0:4])
-        d1.append(line[5:13])
-        d2.append(line[14:21])
-        d3.append(line[22:30])
-        d4.append(line[31:39])
+        d1.append(int(line[5:13]))
+        d2.append(int(line[14:22]))
+        d3.append(int(line[23:31]))
+        d4.append(int(line[32:40]))
 
     def _post_process(self):
         """Post processing after data is parsed.

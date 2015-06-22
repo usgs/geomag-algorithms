@@ -90,7 +90,7 @@ class PCDCPFactory(TimeseriesFactory):
         Raises
         ------
         TimeseriesFactoryException
-            if invalid values are requested, or errors occur while
+            If invalid values are requested, or errors occur while
             retrieving timeseries.
         """
         observatory = observatory or self.observatory
@@ -110,12 +110,12 @@ class PCDCPFactory(TimeseriesFactory):
         return timeseries
 
     def parse_string(self, pcdcpString):
-        """Parse the contents of a string in the format of an pcdcp file.
+        """Parse the contents of a string in the format of a pcdcp file.
 
         Parameters
         ----------
         pcdcpString : str
-            string containing PCDCP content.
+            String containing PCDCP content.
 
         Returns
         -------
@@ -163,7 +163,7 @@ class PCDCPFactory(TimeseriesFactory):
         Raises
         ------
         TimeseriesFactoryException
-            if type or interval are not supported.
+            If type or interval are not supported.
         """
         return self.urlTemplate % {
                 'i': self._get_interval_abbreviation(interval),
