@@ -99,11 +99,10 @@ class PCDCPWriter(object):
             Formatted line containing values.
         """
         tt = time.timetuple()
-        return '{0.tm_year:0>4d}-{0.tm_mon:0>2d}-{0.tm_mday:0>2d} ' \
-                '{0.tm_hour:0>2d}:{0.tm_min:0>2d}:{0.tm_sec:0>2d}.{1:0>3d} ' \
-                '{0.tm_yday:0>3d}   ' \
-                '{2:10.2f}{3:10.2f}{4:10.2f}{5:10.2f}\n'.format(
-                tt, int(time.microsecond / 1000),
+        totalMinutes = tt.tm_hour * 60 + tt.tm_min
+        return '{0:0>4d} ' \
+                '{2:10.2f}{3:10.3f}{4:10.2f}{5:10.2f}\n'.format(
+                totalMinutes, int(time.microsecond / 1000),
                 *[self.empty_value if numpy.isnan(val) else val
                         for val in values])
 
