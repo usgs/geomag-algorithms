@@ -78,7 +78,7 @@ class PCDCPWriter(object):
         for i in xrange(len(traces[0].data)):
             buf.append(self._format_values(
                 datetime.utcfromtimestamp(starttime + i * delta),
-                (t.data[i] for t in traces)))
+                (int(round(t.data[i]*100)) for t in traces)))
 
         return ''.join(buf)
 
@@ -101,7 +101,7 @@ class PCDCPWriter(object):
         tt = time.timetuple()
         totalMinutes = tt.tm_hour * 60 + tt.tm_min
         return '{0:0>4d} ' \
-                '{2:10.2f}{3:10.3f}{4:10.2f}{5:10.2f}\n'.format(
+                '{2: >8d} {3: >8d} {4: >8d} {5: >8d}\n'.format(
                 totalMinutes, int(time.microsecond / 1000),
                 *[self.empty_value if numpy.isnan(val) else val
                         for val in values])
