@@ -35,9 +35,9 @@ class PCDCPWriter(object):
 
         Parameters
         ----------
-        name: str
+        name : str
             the name to be written
-        value: str
+        value : str
             the value to written.
 
         Returns
@@ -45,13 +45,16 @@ class PCDCPWriter(object):
         str
             a string formatted to be a single header line in a PCDCP file
         """
-        observatory = 'BOU'
-        year = '2015'
-        date = '01-Jan-15'
+        buf = []
+        observatory = name.station
+        year = str(name.starttime.year)
+        yearday = str(name.starttime.julday).zfill(3)
+        date = name.starttime.strftime("%d-%b-%y")
         space = '  '
+        buf.append(observatory + '  ' + year + '  ' + yearday + '  ' +
+                    date + '  HEZF  0.01nT  File Version 2.00\n')
 
-        return ''.join(observatory, space, year, space, '001', space,
-                    date, space, 'HEZF  0.01nT  File Version 2.00')
+        return ''.join(buf)
 
     def _format_data(self, timeseries, channels):
         """Format all data lines.
