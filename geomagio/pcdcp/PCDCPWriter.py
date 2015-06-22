@@ -1,9 +1,8 @@
 
 from cStringIO import StringIO
-from geomagio import TimeseriesFactoryException, ChannelConverter
+from geomagio import ChannelConverter
 import numpy
 import PCDCPParser
-import textwrap
 from datetime import datetime
 
 
@@ -15,7 +14,7 @@ class PCDCPWriter(object):
         self.empty_value = empty_value
 
     def write(self, out, timeseries, channels):
-        """write timeseries to pcdcp file
+        """Write timeseries to pcdcp file.
 
         Parameters
         ----------
@@ -24,8 +23,9 @@ class PCDCPWriter(object):
             timeseries : obspy.core.stream
                 Timeseries object with data to be written.
             channels : array_like
-                Channels to be written from timeseries object
+                Channels to be written from timeseries object.
         """
+        print "OUT:", out
         stats = timeseries[0].stats
         out.write(self._format_header(stats, channels))
         out.write(self._format_data(timeseries, channels))
