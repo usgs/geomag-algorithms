@@ -14,6 +14,7 @@ from obspy.core.utcdatetime import UTCDateTime
 import numpy
 from RawInputClient import RawInputClient
 from geomagio import TimeseriesFactory, TimeseriesFactoryException
+from geomagio import ChannelConverter
 from obspy import earthworm
 from ObservatoryMetadata import ObservatoryMetadata
 from datetime import datetime
@@ -535,6 +536,11 @@ class EdgeFactory(TimeseriesFactory):
                 trace.data.set_fill_value(numpy.nan)
                 trace.data = trace.data.filled()
 
+        if 'D' in channels:
+            for trace in timeseries.select(channel='D'):
+                trace.data = ChannelConverter.get_radians_from_minutes(
+                    trace.data)
+
         self._clean_timeseries(timeseries, starttime, endtime)
 
     def _put_channel(self, timeseries, observatory, channel, type, interval,
@@ -585,6 +591,10 @@ class EdgeFactory(TimeseriesFactory):
         for trace in timeseries.select(channel=channel).split():
             trace.trim(starttime, endtime)
             trace_send = trace.copy()
+            if channel == 'D':
+                trace_send.data = ChannelConverter.get_minutes_from_radians(
+                    trace_send.data)
+                print trace_send.data
             self._convert_trace_to_int(trace_send)
             self.ric.send_trace(seedname, interval, trace_send)
         self.ric.forceout(seedname)
