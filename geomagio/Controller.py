@@ -1,8 +1,6 @@
 """Controller class for geomag algorithms"""
 
-import obspy.core
 import numpy.ma as ma
-import sys
 
 
 class Controller(object):
@@ -47,8 +45,8 @@ class Controller(object):
         timeseries_out = self._inputFactory.get_timeseries(starttime,
                 endtime, channels=output_channels)
 
-        full_gaps, gaps = self._create_gap_stream(timeseries_out,
-                output_channels)
+        output_full_gaps, output_gaps = self._inputFactory.create_gap_stream(
+                timeseries_out, output_channels)
 
         #self.get_gap_times(timeseries_out, output_channels)
 
@@ -83,50 +81,3 @@ class Controller(object):
         """
         for trace in timeseries.select(channel=channel):
             trace.data = ma.masked_invalid(trace.data)
-
-    def _create_gap_stream(self, timeseries, channels):
-        gap_stream = obspy.core.Stream()
-        for channel in channels:
-            for trace in timeseries.select(channel=channel):
-                trace.data = ma.masked_invalid(trace.data)
-                for data in trace.split():
-                    gap_stream += data
-
-        gaps = gap_stream.getGaps()
-        for gap in gaps:
-            gap[4] = gap[4] + 60
-            gap[5] = gap[5] - 60
-        print gaps
-
-    # sync gaps across channels
-
-        full_gaps = []
-        gap_cnt = len(gaps)
-        for i in range(0, gap_cnt):
-            gap = gaps[i]
-            if self._contained_in_gap(gap, full_gaps):
-                continue
-
-            starttime = gap[4]
-            endtime = gap[5]
-            for x in range(i+1, gap_cnt):
-                nxtgap = gaps[x]
-                if ((nxtgap[4] >= starttime and nxtgap[4] <= endtime)
-                        or (nxtgap[5] >= starttime and nxtgap[5] <= endtime)):
-                    if nxtgap[4] < starttime:
-                        starttime = nxtgap[4]
-                    if nxtgap[5] > endtime:
-                        endtime = nxtgap[5]
-
-            full_gaps.append([starttime, endtime])
-
-        print full_gaps
-        return (full_gaps, gaps)
-
-    def _contained_in_gap(self, gap, gaps):
-        starttime = gap[4]
-        endtime = gap[5]
-        for gap in gaps:
-            if starttime >= gap[0] and endtime <= gap[1]:
-                    return True
-        return False
