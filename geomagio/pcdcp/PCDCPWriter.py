@@ -77,7 +77,7 @@ class PCDCPWriter(object):
         for i in xrange(len(traces[0].data)):
             buf.append(self._format_values(
                 datetime.utcfromtimestamp(starttime + i * delta),
-                (int(round(t.data[i]*100)) for t in traces)))
+                (t.data[i] for t in traces)))
 
         return ''.join(buf)
 
@@ -98,11 +98,11 @@ class PCDCPWriter(object):
             Formatted line containing values.
         """
         tt = time.timetuple()
-        totalMinutes = tt.tm_hour * 60 + tt.tm_min
+        totalMinutes = int(tt.tm_hour * 60 + tt.tm_min)
         return '{0:0>4d} ' \
                 '{2: >8d} {3: >8d} {4: >8d} {5: >8d}\n'.format(
                 totalMinutes, int(time.microsecond / 1000),
-                *[self.empty_value if numpy.isnan(val) else val
+                *[self.empty_value if numpy.isnan(val) else int(round(val*100))
                         for val in values])
 
     @classmethod
