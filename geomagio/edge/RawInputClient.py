@@ -29,6 +29,9 @@ MAXINPUTSIZE = 32767
 HOURSECONDS = 3600
 DAYMINUTES = 1440
 
+TAG = -1
+FORCEOUT = -2
+
 
 class RawInputClient():
     Sequence = 0
@@ -262,11 +265,12 @@ class RawInputClient():
             ratedivisor = -10000
 
         # Construct the packet to be sent.
-        packStr = '!1H1h12s4h4B3i0i'
+        packStr = '!1H1h12s4h4B3i'
         if forceout:
-            buf = struct.pack(packStr, 0xa1b2, -1, seedname, yr, doy,
-                    ratemantissa, ratedivisor, activity, ioclock, quality,
-                    timingquality, secs, usecs, RawInputClient.Sequence)
+            buf = struct.pack(packStr, 0xa1b2, FORCEOUT, seedname, yr,
+                    doy, ratemantissa, ratedivisor, activity, ioclock,
+                    quality, timingquality, secs, usecs,
+                    RawInputClient.Sequence)
         else:
             packStr = '%s%d%s' % (packStr, nsamp, 'i')
             buf = struct.pack(packStr, 0xa1b2, nsamp, seedname, yr, doy,
@@ -333,5 +337,6 @@ class RawInputClient():
         The Packet must be 40 Bytes long.
         """
         tg = self.tag + '            '
-        tb = struct.pack('!1H1h12s6i', 0xa1b2, -1, tg[:12], 0, 0, 0, 0, 0, 0)
+        tb = struct.pack('!1H1h12s6i', 0xa1b2, TAG, tg[:12],
+                0, 0, 0, 0, 0, 0)
         return tb
