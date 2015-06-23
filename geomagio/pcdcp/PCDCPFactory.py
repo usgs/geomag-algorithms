@@ -10,7 +10,7 @@ from geomagio import ChannelConverter
 
 
 # pattern for pcdcp file names
-PCDCP_FILE_PATTERN = '%(obs)s%(y)s%(j)s.min'
+PCDCP_FILE_PATTERN = '%(obs)s%(y)s%(j)s.%(i)s'
 
 
 def read_url(url):
@@ -50,10 +50,15 @@ class PCDCPFactory(TimeseriesFactory):
     ----------
     urlTemplate : str
         A string that contains any of the following replacement patterns:
+        - '%(i)s' : interval abbreviation
+        - '%(interval)s' interval name
+        - '%(julian)s' julian day formatted as JJJ
         - '%(obs)s' lowercase observatory code
         - '%(OBS)s' uppercase observatory code
+        - '%(t)s' type abbreviation
+        - '%(type)s' type name
         - '%(year)s' year formatted as YYYY
-        - '%(julian)s' julian day formatted as JJJ
+        - '%(ymd)s' time formatted as YYYYMMDD
 
     See Also
     --------
@@ -72,15 +77,15 @@ class PCDCPFactory(TimeseriesFactory):
         Parameters
         ----------
         observatory : str
-            observatory code.
+            3-letter observatory code.
         starttime : obspy.core.UTCDateTime
-            time of first sample.
+            Time of first sample.
         endtime : obspy.core.UTCDateTime
-            time of last sample.
+            Time of last sample.
         type : {'variation', 'quasi-definitive'}
-            data type.
+            Data type.
         interval : {'minute', 'second'}
-            data interval.
+            Data interval.
 
         Returns
         -------
@@ -120,7 +125,7 @@ class PCDCPFactory(TimeseriesFactory):
         Returns
         -------
         obspy.core.Stream
-            parsed data.
+            Parsed data.
         """
         parser = PCDCPParser()
         parser.parse(pcdcpString)
@@ -141,6 +146,7 @@ class PCDCPFactory(TimeseriesFactory):
         starttime = obspy.core.UTCDateTime(start)
         endtime = obspy.core.UTCDateTime(end)
 
+        # TODO - this seems fishy, data is a 2-D array containing a 1-D array...
         data = parser.data
         length = len(data[data.keys()[0]][0])
         rate = (length - 1) / (endtime - starttime)
