@@ -124,23 +124,40 @@ class PCDCPFactory(TimeseriesFactory):
         """
         parser = PCDCPParser()
         parser.parse(pcdcpString)
-        metadata = parser.metadata
-        starttime = obspy.core.UTCDateTime(parser.times[0])
-        endtime = obspy.core.UTCDateTime(parser.times[-1])
+
+        year = parser.header['year']
+        yearday = parser.header['yearday']
+
+        begin = int(parser.times[0])
+        startHour = str(int(begin/60.0))
+        startMinute = str(int(begin%60.0))
+        ending = int(parser.times[-1])
+        endHour = str(int(ending/60.0))
+        endMinute = str(int(ending%60.0))
+
+        start = year + yearday + "T" + startHour + ":" + startMinute + "00.0"
+        end = year + yearday + "T" + endHour + ":" + endMinute + "00.0"
+
+        starttime = obspy.core.UTCDateTime(start)
+        endtime = obspy.core.UTCDateTime(end)
+
         data = parser.data
-        length = len(data[data.keys()[0]])
+        length = len(data[data.keys()[0]][0])
         rate = (length - 1) / (endtime - starttime)
         stream = obspy.core.Stream()
+
         for channel in data.keys():
-            stats = obspy.core.Stats(metadata)
+            stats = obspy.core.Stats()
             stats.starttime = starttime
             stats.sampling_rate = rate
             stats.npts = length
             stats.channel = channel
+
             if channel == 'D':
-                data[channel] = ChannelConverter.get_radians_from_minutes(
-                    data[channel])
-            stream += obspy.core.Trace(data[channel], stats)
+                data[channel[0]] = ChannelConverter.get_radians_from_minutes(
+                    data[channel[0]])
+
+            stream += obspy.core.Trace(data[channel[0]], stats)
         return stream
 
     def _get_url(self, observatory, date, type='variation', interval='minute'):

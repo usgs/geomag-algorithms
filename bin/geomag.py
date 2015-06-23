@@ -66,9 +66,21 @@ def main():
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
+    elif args.input_pcdcp_file is not None:
+        inputfactory = pcdcp.StreamPCDCPFactory(
+                stream=open(args.input_pcdcp_file, 'r'),
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
     elif args.input_pcdcp_stdin:
         inputfactory = pcdcp.StreamPCDCPFactory(
                 stream=sys.stdin,
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
+    elif args.input_pcdcp_url is not None:
+        inputfactory = pcdcp.PCDCPFactory(
+                urlTemplate=args.input_pcdcp_url,
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
@@ -94,12 +106,25 @@ def main():
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
+    elif args.output_pcdcp_file is not None:
+        outputfactory = pcdcp.StreamPCDCPFactory(
+                stream=open(args.output_pcdcp_file, 'w'),
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
     elif args.output_pcdcp_stdout:
         outputfactory = pcdcp.StreamPCDCPFactory(
                 stream=sys.stdout,
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
+    elif args.output_pcdcp_url is not None:
+        outputfactory = pcdcp.PCDCPFactory(
+                urlTemplate=args.output_pcdcp_url,
+                observatory=args.observatory,
+                type=args.type,
+                interval=args.interval)
+
     else:
             print >> sys.stderr, "Missing required output directive"
 
@@ -161,9 +186,13 @@ def parse_args():
             help='Pass in an iaga file using redirection from stdin.')
     input_group.add_argument('--input-iaga-url',
             help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
+    input_group.add_argument('--input-pcdcp-file',
+            help='Reads from the specified file.')
     input_group.add_argument('--input-pcdcp-stdin',
             action='store_true', default=False,
             help='Pass in an pcdcp file using redirection from stdin.')
+    input_group.add_argument('--input-pcdcp-url',
+            help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
 
     # Output group
     output_group = parser.add_mutually_exclusive_group(required=True)
@@ -174,6 +203,13 @@ def parse_args():
             help='Write to stdout')
     output_group.add_argument('--output-iaga-url',
             help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
+    output_group.add_argument('--output-pcdcp-file',
+            help='Write to a single pcdcp file')
+    output_group.add_argument('--output-pcdcp-stdout',
+            action='store_true', default=False,
+            help='Write to stdout')
+    output_group.add_argument('--output-pcdcp-url',
+            help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
 
     # Algorithms group
     algorithm_group = parser.add_mutually_exclusive_group()
@@ -181,9 +217,6 @@ def parse_args():
             choices=['geo', 'mag', 'obs', 'obsd'],
             help='Enter the geomagnetic orientation(s) you want to read from' +
                     ' and to respectfully.')
-    output_group.add_argument('--output-pcdcp-stdout',
-            action='store_true', default=False,
-            help='Write to stdout')
 
     return parser.parse_args()
 

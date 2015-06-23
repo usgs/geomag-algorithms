@@ -25,7 +25,6 @@ class PCDCPWriter(object):
             channels : array_like
                 Channels to be written from timeseries object.
         """
-        print "OUT:", out
         stats = timeseries[0].stats
         out.write(self._format_header(stats, channels))
         out.write(self._format_data(timeseries, channels))

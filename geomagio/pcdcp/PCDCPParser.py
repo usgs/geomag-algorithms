@@ -60,8 +60,12 @@ class PCDCPParser(object):
         """
         self.header['header'] = line
         self.header['observatory'] = line[0:3]
-        self.header['year'] = line[6:10]
+        self.header['year'] = line[5:10]
+        self.header['yearday'] = line[11:14]
         self.header['date'] = line[16:25]
+
+        self._parsedata = ([], [], [], [], [])
+
         return
 
     def _parse_data(self, line):
@@ -71,6 +75,7 @@ class PCDCPParser(object):
         Adds channel values to ``self.data``.
         """
         t, d1, d2, d3, d4 = self._parsedata
+
         t.append(line[0:4])
         d1.append(int(line[5:13]))
         d2.append(int(line[14:22]))
@@ -84,9 +89,11 @@ class PCDCPParser(object):
         Replaces empty values with ``numpy.nan``.
         """
         self.times = self._parsedata[0]
-        for channel, data in zip(self.channels, self._parsedata[1:]):
+        i = 0
+        for data in zip(self._parsedata[1:]):
             data = numpy.array(data, dtype=numpy.float64)
             # filter empty values
             data[data == NINES] = numpy.nan
-            self.data[channel] = data
+            self.data[i] = data
+            i += 1
         self._parsedata = None
