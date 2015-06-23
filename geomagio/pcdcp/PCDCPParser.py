@@ -5,9 +5,9 @@ import numpy
 from datetime import datetime
 
 # values that represent missing data points in PCDCP
-NINES = numpy.float64('9999999')
-NINES_RAW = numpy.float64('99999990')
-NINES_DEG = numpy.float64('9999')
+NINES = numpy.int('9999999')
+NINES_RAW = numpy.int('99999990')
+NINES_DEG = numpy.int('9999')
 
 class PCDCPParser(object):
     """PCDCP parser.
