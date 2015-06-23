@@ -174,7 +174,7 @@ def parse_args():
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument('--input-edge', nargs=2,
             metavar=('HOST', 'PORT'),
-            help='Requires Host IP # and Port #')
+            help='Requires Host IP # and Port #.')
     input_group.add_argument('--input-iaga-file',
             help='Reads from the specified file.')
     input_group.add_argument('--input-iaga-magweb',
@@ -197,17 +197,17 @@ def parse_args():
     # Output group
     output_group = parser.add_mutually_exclusive_group(required=True)
     output_group.add_argument('--output-iaga-file',
-            help='Write to a single iaga file')
+            help='Write to a single iaga file.')
     output_group.add_argument('--output-iaga-stdout',
             action='store_true', default=False,
-            help='Write to stdout')
+            help='Write to stdout.')
     output_group.add_argument('--output-iaga-url',
             help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
     output_group.add_argument('--output-pcdcp-file',
-            help='Write to a single pcdcp file')
+            help='Write to a single pcdcp file.')
     output_group.add_argument('--output-pcdcp-stdout',
             action='store_true', default=False,
-            help='Write to stdout')
+            help='Write to stdout.')
     output_group.add_argument('--output-pcdcp-url',
             help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
 

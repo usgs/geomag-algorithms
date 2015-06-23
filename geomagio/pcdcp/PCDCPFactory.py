@@ -52,8 +52,8 @@ class PCDCPFactory(TimeseriesFactory):
         A string that contains any of the following replacement patterns:
         - '%(obs)s' lowercase observatory code
         - '%(OBS)s' uppercase observatory code
-        - '%(y)s' year formatted as YYYY
-        - '%(j)s' julian day formatted as JJJ
+        - '%(year)s' year formatted as YYYY
+        - '%(julian)s' julian day formatted as JJJ
 
     See Also
     --------
@@ -185,11 +185,14 @@ class PCDCPFactory(TimeseriesFactory):
         return self.urlTemplate % {
                 'i': self._get_interval_abbreviation(interval),
                 'interval': self._get_interval_name(interval),
+                'julian': date.strftime("%j"),
                 'obs': observatory.lower(),
                 'OBS': observatory.upper(),
                 't': self._get_type_abbreviation(type),
                 'type': self._get_type_name(type),
-                'ymd': date.strftime("%Y%m%d")}
+                'year': date.strftime("%Y"),
+                'ymd': date.strftime("%Y%m%d")
+                }
 
     def _get_interval_abbreviation(self, interval):
         """Get abbreviation for a data interval.
