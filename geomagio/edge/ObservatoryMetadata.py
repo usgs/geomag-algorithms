@@ -12,7 +12,7 @@ DEFAULT_METADATA = {
             'elevation': '1682',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 7406,
+            'declination_base': 5527,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
