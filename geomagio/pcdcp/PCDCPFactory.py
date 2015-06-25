@@ -146,24 +146,25 @@ class PCDCPFactory(TimeseriesFactory):
         starttime = obspy.core.UTCDateTime(start)
         endtime = obspy.core.UTCDateTime(end)
 
-        # TODO - this seems fishy, data is a 2-D array containing a 1-D array...
         data = parser.data
-        length = len(data[data.keys()[0]][0])
+        length = len(data[data.keys()[0]])
         rate = (length - 1) / (endtime - starttime)
         stream = obspy.core.Stream()
 
         for channel in data.keys():
             stats = obspy.core.Stats()
+            stats.network = 'NT'
+            stats.station = parser.header['station']
             stats.starttime = starttime
             stats.sampling_rate = rate
             stats.npts = length
             stats.channel = channel
 
             if channel == 'D':
-                data[channel[0]] = ChannelConverter.get_radians_from_minutes(
-                    data[channel[0]])
+                data[channel] = ChannelConverter.get_radians_from_minutes(
+                    data[channel])
 
-            stream += obspy.core.Trace(data[channel[0]], stats)
+            stream += obspy.core.Trace(data[channel], stats)
         return stream
 
     def _get_url(self, observatory, date, type='variation', interval='minute'):
@@ -409,6 +410,7 @@ class PCDCPFactory(TimeseriesFactory):
         for day in days:
             day_filename = self._get_file_from_url(
                     self._get_url(observatory, day, type, interval))
+
             day_timeseries = self._get_slice(timeseries, day, interval)
             with open(day_filename, 'w') as fh:
                 self.write_file(fh, day_timeseries, channels)
