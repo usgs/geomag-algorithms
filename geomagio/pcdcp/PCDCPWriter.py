@@ -70,6 +70,7 @@ class PCDCPWriter(object):
             A string formatted to be the data lines in a PCDCP file.
         """
         buf = []
+
         if timeseries.select(channel='D'):
             d = timeseries.select(channel='D')
             d[0].data = ChannelConverter.get_minutes_from_radians(d[0].data)

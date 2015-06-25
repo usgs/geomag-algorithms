@@ -104,14 +104,18 @@ class PCDCPFactory(TimeseriesFactory):
         interval = interval or self.interval
         days = self._get_days(starttime, endtime)
         timeseries = obspy.core.Stream()
+
         for day in days:
             url = self._get_url(observatory, day, type, interval)
             pcdcpFile = read_url(url)
             timeseries += self.parse_string(pcdcpFile)
+
         # merge channel traces for multiple days
         timeseries.merge()
+
         # trim to requested start/end time
         timeseries.trim(starttime, endtime)
+
         return timeseries
 
     def parse_string(self, pcdcpString):
@@ -165,6 +169,7 @@ class PCDCPFactory(TimeseriesFactory):
                     data[channel])
 
             stream += obspy.core.Trace(data[channel], stats)
+
         return stream
 
     def _get_url(self, observatory, date, type='variation', interval='minute'):
