@@ -10,6 +10,7 @@ from Controller import Controller
 from TimeseriesFactory import TimeseriesFactory
 from TimeseriesFactoryException import TimeseriesFactoryException
 from XYZAlgorithm import XYZAlgorithm
+import TimeseriesUtilities
 
 __all__ = [
     'Algorithm',
@@ -19,5 +20,6 @@ __all__ = [
     'StreamConverter',
     'TimeseriesFactory',
     'TimeseriesFactoryException',
-    'XYZAlgorithm'
+    'XYZAlgorithm',
+    'TimeseriesUtilities'
 ]
