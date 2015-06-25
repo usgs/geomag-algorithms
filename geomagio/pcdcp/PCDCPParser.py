@@ -16,6 +16,8 @@ class PCDCPParser(object):
     ----------
     header : dict
         parsed PCDCP header.
+    channels : array
+        parsed channel names.
     times : array
         parsed timeseries times.
     data : dict
@@ -28,6 +30,8 @@ class PCDCPParser(object):
         """Create a new PCDCP parser."""
         # header fields
         self.header = {}
+        # array of channel names
+        self.channels = []
         # timestamps of data (datetime.datetime)
         self.times = []
         # dictionary of data (channel : numpy.array<float64>)
@@ -43,6 +47,8 @@ class PCDCPParser(object):
         data : str
             PCDCP formatted file contents.
         """
+        self._set_channels()
+
         parsing_header = True
         lines = data.splitlines()
         for line in lines:
@@ -59,12 +65,10 @@ class PCDCPParser(object):
         Adds value to ``self.header``.
         """
         self.header['header'] = line
-        self.header['observatory'] = line[0:3]
+        self.header['station'] = line[0:3]
         self.header['year'] = line[5:10]
         self.header['yearday'] = line[11:14]
         self.header['date'] = line[16:25]
-
-        self._parsedata = ([], [], [], [], [])
 
         return
 
@@ -89,11 +93,23 @@ class PCDCPParser(object):
         Replaces empty values with ``numpy.nan``.
         """
         self.times = self._parsedata[0]
-        i = 0
-        for data in zip(self._parsedata[1:]):
+
+        for channel, data in zip(self.channels, self._parsedata[1:]):
             data = numpy.array(data, dtype=numpy.float64)
             # filter empty values
             data[data == NINES] = numpy.nan
-            self.data[i] = data
-            i += 1
+            data = numpy.divide(data, 100)
+            self.data[channel] = data
+
         self._parsedata = None
+
+    def _set_channels(self):
+        """Adds channel names to ``self.channels``.
+        Creates empty values arrays in ``self.data``.
+        """
+        self.channels.append('H')
+        self.channels.append('E')
+        self.channels.append('Z')
+        self.channels.append('F')
+
+        self._parsedata = ([], [], [], [], [])
