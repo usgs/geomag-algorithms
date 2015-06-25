@@ -1,6 +1,6 @@
 """Controller class for geomag algorithms"""
 
-import numpy.ma as ma
+import TimeseriesUtilities
 
 
 class Controller(object):
@@ -45,18 +45,19 @@ class Controller(object):
         timeseries_out = self._inputFactory.get_timeseries(starttime,
                 endtime, channels=output_channels)
 
-        output_full_gaps, output_gaps = self._inputFactory.create_gap_stream(
-                timeseries_out, output_channels)
+        #TODO get input gaps
 
-        #self.get_gap_times(timeseries_out, output_channels)
+        output_gaps = TimeseriesUtilities.get_timeseries_gaps(
+            timeseries_out, output_channels, starttime, endtime)
 
-        #starttime, endtime = self._algorithm.get_data_time_extent(channels, )
+        output_merged_gaps = TimeseriesUtilities.get_merged_gaps(output_gaps,
+                output_channels)
+        # TODO compare gaps.
+        #   if there is new data, run algorithm over entire time.
+        #   save any new data.
 
-        #for each gap in start/end array
-            # get corresponding input timeseries
-            # processed = self._algorithm.process(timeseries)
-            # self._outputFactory.put_timeseries(timeseries=processed,
-                # channels=output_channels)
+        #TODO iterate is starttime of gaps is starttime and new data found
+
 
     def run_as_timeseries(self, starttime, endtime):
         input_channels = self._algorithm.get_input_channels()
@@ -68,16 +69,3 @@ class Controller(object):
         output_channels = self._algorithm.get_output_channels()
         self._outputFactory.put_timeseries(timeseries=processed,
                 channels=output_channels)
-
-    def _convert_stream_to_masked(self, timeseries, channel):
-        """convert geomag edge traces in a timeseries stream to a MaskedArray
-            This allows for gaps and splitting.
-        Parameters
-        ----------
-        stream : obspy.core.stream
-            a stream retrieved from a geomag edge representing one channel.
-        channel: string
-            the channel to be masked.
-        """
-        for trace in timeseries.select(channel=channel):
-            trace.data = ma.masked_invalid(trace.data)
