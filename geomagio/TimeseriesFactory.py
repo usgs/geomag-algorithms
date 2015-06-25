@@ -1,6 +1,7 @@
 """Abstract Timeseries Factory Interface."""
 import numpy.ma as ma
 import obspy
+import numpy
 
 class TimeseriesFactory(object):
     """Base class for timeseries factories.
@@ -95,50 +96,3 @@ class TimeseriesFactory(object):
             if any errors occur.
         """
         raise NotImplementedError('"put_timeseries" not implemented')
-
-    def create_gap_stream(self, timeseries, channels):
-        gap_stream = obspy.core.Stream()
-        for channel in channels:
-            for trace in timeseries.select(channel=channel):
-                trace.data = ma.masked_invalid(trace.data)
-                for data in trace.split():
-                    gap_stream += data
-
-        # gaps are returned from getGaps from the point before, to the
-        # point after, so remove that point to get the gap.
-        gaps = gap_stream.getGaps()
-        for gap in gaps:
-            gap[4] = gap[4] + 60
-            gap[5] = gap[5] - 60
-
-        # sync gaps across channels
-
-        full_gaps = []
-        gap_cnt = len(gaps)
-        for i in range(0, gap_cnt):
-            gap = gaps[i]
-            if self._contained_in_gap(gap, full_gaps):
-                continue
-
-            starttime = gap[4]
-            endtime = gap[5]
-            for x in range(i+1, gap_cnt):
-                nxtgap = gaps[x]
-                if ((nxtgap[4] >= starttime and nxtgap[4] <= endtime)
-                        or (nxtgap[5] >= starttime and nxtgap[5] <= endtime)):
-                    if nxtgap[4] < starttime:
-                        starttime = nxtgap[4]
-                    if nxtgap[5] > endtime:
-                        endtime = nxtgap[5]
-
-            full_gaps.append([starttime, endtime])
-
-        return (full_gaps, gaps)
-
-    def _contained_in_gap(self, gap, gaps):
-        starttime = gap[4]
-        endtime = gap[5]
-        for gap in gaps:
-            if starttime >= gap[0] and endtime <= gap[1]:
-                    return True
-        return False
