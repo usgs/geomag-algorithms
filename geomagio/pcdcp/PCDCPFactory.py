@@ -144,8 +144,9 @@ class PCDCPFactory(TimeseriesFactory):
         endHour = str(int(ending/60.0))
         endMinute = str(int(ending%60.0))
 
-        start = year + yearday + "T" + startHour + ":" + startMinute + "00.0"
-        end = year + yearday + "T" + endHour + ":" + endMinute + "00.0"
+        start = year + yearday + "T" + startHour + ":" + \
+                startMinute + ":" + "00.0"
+        end = year + yearday + "T" + endHour + ":" + endMinute + ":" + "00.0"
 
         starttime = obspy.core.UTCDateTime(start)
         endtime = obspy.core.UTCDateTime(end)
