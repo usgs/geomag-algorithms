@@ -410,13 +410,10 @@ class RawInputClient():
     def _open_socket(self):
         """Open a socket
 
-        RETURNS
-        -------
-        socket
-
         NOTES
         -----
         Loops until a socket is opened, with a 1 second wait between attempts
+        Sends tag.
         """
         done = False
         newsocket = None
