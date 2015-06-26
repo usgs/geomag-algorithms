@@ -583,21 +583,18 @@ class EdgeFactory(TimeseriesFactory):
             host = self.host
             port = self.port
 
-        self.ric = RawInputClient(self.tag, host, port)
-
-        seedname = self.ric.create_seedname(station,
+        self.ric = RawInputClient(self.tag, host, port, station,
                 edge_channel, location, network)
 
         for trace in timeseries.select(channel=channel).split():
-            trace.trim(starttime, endtime)
             trace_send = trace.copy()
+            trace_send.trim(starttime, endtime)
             if channel == 'D':
                 trace_send.data = ChannelConverter.get_minutes_from_radians(
                     trace_send.data)
-                print trace_send.data
             self._convert_trace_to_int(trace_send)
-            self.ric.send_trace(seedname, interval, trace_send)
-        self.ric.forceout(seedname)
+            self.ric.send_trace(interval, trace_send)
+        self.ric.forceout()
         self.ric.close()
 
     def _set_metadata(self, stream, observatory, channel, type, interval):
