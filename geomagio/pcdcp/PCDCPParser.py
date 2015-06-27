@@ -66,7 +66,7 @@ class PCDCPParser(object):
         """
         self.header['header'] = line
         self.header['station'] = line[0:3]
-        self.header['year'] = line[5:10]
+        self.header['year'] = line[5:9]
         self.header['yearday'] = line[11:14]
         self.header['date'] = line[16:25]
 

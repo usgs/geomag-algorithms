@@ -29,7 +29,7 @@ def test__parse_header():
     parser._parse_header('BOU  2015  001  01-Jan-15  HEZF  0.01nT' +
             '  File Version 2.00')
 
-    assert_equals(parser.headers['date'], '01-Jan-15')
-    assert_equals(parser.headers['observatory'], 'BOU')
-    assert_equals(parser.headers['year'], '2015')
-    assert_equals(parser.headers['yearday'], '001')
+    assert_equals(parser.header['date'], '01-Jan-15')
+    assert_equals(parser.header['station'], 'BOU')
+    assert_equals(parser.header['year'], '2015')
+    assert_equals(parser.header['yearday'], '001')
