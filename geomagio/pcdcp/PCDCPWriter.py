@@ -116,7 +116,8 @@ class PCDCPWriter(object):
 
         return '{0:0>4d} {2: >8d} {3: >8d} {4: >8d} {5: >8d}\n'.format(
                 totalMinutes, int(time.microsecond / 1000),
-                *[self.empty_value if numpy.isnan(val) else int(round(val*100))
+                *[self.empty_value if numpy.isnan(val) else int(round(
+                            val * 100))
                         for val in values])
 
     @classmethod

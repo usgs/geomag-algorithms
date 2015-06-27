@@ -351,7 +351,8 @@ class PCDCPFactory(TimeseriesFactory):
             if starttime is after endtime
         """
         if starttime > endtime:
-            raise TimeseriesFactoryException('starttime must be before endtime')
+            raise TimeseriesFactoryException(
+                'starttime must be before endtime.')
 
         days = []
         day = starttime
