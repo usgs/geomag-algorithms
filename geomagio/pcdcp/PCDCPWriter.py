@@ -74,10 +74,15 @@ class PCDCPWriter(object):
         # Use a copy of the trace so that we don't modify the original.
         timeseriesLocal = timeseries.copy()
 
-        # move the int(round(val*100)) into here, numpy.round(numpy.multiply(trace, 100))
         if timeseriesLocal.select(channel='D'):
             d = timeseriesLocal.select(channel='D')
             d[0].data = ChannelConverter.get_minutes_from_radians(d[0].data)
+
+        # TODO - is this doing anything?
+        i = 0
+        for trace in timeseriesLocal:
+            timeseriesLocal[i].trace = numpy.round(numpy.multiply(trace, 100))
+            i += 1
 
         traces = [timeseriesLocal.select(channel=c)[0] for c in channels]
         starttime = float(traces[0].stats.starttime)

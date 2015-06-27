@@ -138,11 +138,11 @@ class PCDCPFactory(TimeseriesFactory):
         yearday = parser.header['yearday']
 
         begin = int(parser.times[0])
-        startHour = str(int(begin/60.0))
-        startMinute = str(int(begin%60.0))
+        startHour = str(int(begin / 60.0))
+        startMinute = str(int(begin % 60.0))
         ending = int(parser.times[-1])
-        endHour = str(int(ending/60.0))
-        endMinute = str(int(ending%60.0))
+        endHour = str(int(ending / 60.0))
+        endMinute = str(int(ending % 60.0))
 
         start = year + yearday + "T" + startHour + ":" + \
                 startMinute + ":" + "00.0"
@@ -196,16 +196,16 @@ class PCDCPFactory(TimeseriesFactory):
             If type or interval are not supported.
         """
         return self.urlTemplate % {
-                'i': self._get_interval_abbreviation(interval),
-                'interval': self._get_interval_name(interval),
-                'julian': date.strftime("%j"),
-                'obs': observatory.lower(),
-                'OBS': observatory.upper(),
-                't': self._get_type_abbreviation(type),
-                'type': self._get_type_name(type),
-                'year': date.strftime("%Y"),
-                'ymd': date.strftime("%Y%m%d")
-                }
+                                'i': self._get_interval_abbreviation(interval),
+                                'interval': self._get_interval_name(interval),
+                                'julian': date.strftime("%j"),
+                                'obs': observatory.lower(),
+                                'OBS': observatory.upper(),
+                                't': self._get_type_abbreviation(type),
+                                'type': self._get_type_name(type),
+                                'year': date.strftime("%Y"),
+                                'ymd': date.strftime("%Y%m%d")
+                                  }
 
     def _get_interval_abbreviation(self, interval):
         """Get abbreviation for a data interval.
