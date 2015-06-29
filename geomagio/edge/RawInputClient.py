@@ -152,7 +152,8 @@ class RawInputClient():
             Fourceout tells edge that we're done sending data for now, and
             to go ahead and make it available
         """
-        self._send([], UTCDateTime(datetime.utcnow()), 0., True)
+        buf = self._get_forceout(UTCDateTime(datetime.utcnow()), 0.)
+        self._send(buf)
 
     def send_trace(self, interval, trace):
         """send an obspy trace using send.
@@ -200,10 +201,11 @@ class RawInputClient():
             nsamp = endsample - i
             endtime = starttime + (nsamp - 1) * timeoffset
             trace_send = trace.slice(starttime, endtime)
-            self._send(trace_send.data, starttime, samplerate)
+            buf = self._get_data(trace_send.data, starttime, samplerate)
+            self._send(buf)
             starttime += nsamp * timeoffset
 
-    def _send(self, samples, time, rate, forceout=False):
+    def _send(self, buf):
         """ Send a block of data to the Edge/CWB combination.
 
         PARAMETERS
@@ -222,10 +224,6 @@ class RawInputClient():
         ------
         TimeseriesFactoryException - if the socket will not open
         """
-        if forceout:
-            buf = self._get_forceout(time, rate)
-        else:
-            buf = self._get_data(samples, time, rate)
 
         # Try and send the packet, if the socket doesn't exist open it.
         try:
