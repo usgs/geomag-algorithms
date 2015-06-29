@@ -39,9 +39,12 @@ def get_merged_gaps(gaps, channels):
     for channel in channels:
         gap_stream.extend(gaps[channel])
 
+    if len(gap_stream) == 0:
+        return []
+
     sorted_gaps = sorted(gap_stream, key=lambda starttime: starttime[1])
     merged_gaps = []
-    new_gap = None
+
     gap = sorted_gaps[0]
     for i in range(1,len(sorted_gaps)):
         nxtgap = sorted_gaps[i]
@@ -54,3 +57,22 @@ def get_merged_gaps(gaps, channels):
     merged_gaps.append(gap)
 
     return merged_gaps
+
+def is_new_data(input_gaps, output_gaps):
+    for output_gap in output_gaps:
+        for input_gap in input_gaps:
+            if (output_gap[0] >= input_gap[0] and
+                    output_gap[0] <= input_gap[1] and
+                    output_gap[1] <= input_gap[1]):
+                return False
+    return True
+
+def get_seconds_of_interval(interval):
+    if interval == 'second':
+        return 1
+    if interval == 'minute':
+        return 60
+    if interval == 'hourly':
+        return 3600
+    if interval == 'daily':
+        return 86400
