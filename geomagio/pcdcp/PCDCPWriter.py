@@ -2,6 +2,7 @@
 from cStringIO import StringIO
 from geomagio import ChannelConverter
 import numpy
+from obspy.core import Stream
 import PCDCPParser
 from datetime import datetime
 
@@ -71,18 +72,19 @@ class PCDCPWriter(object):
         """
         buf = []
 
+        # create new stream
+        timeseriesLocal = Stream()
         # Use a copy of the trace so that we don't modify the original.
-        timeseriesLocal = timeseries.copy()
+        for trace in timeseries:
+            traceLocal = trace.copy()
+            if traceLocal.stats.channel == 'D':
+                traceLocal.data = \
+                    ChannelConverter.get_minutes_from_radians(traceLocal.data)
 
-        if timeseriesLocal.select(channel='D'):
-            d = timeseriesLocal.select(channel='D')
-            d[0].data = ChannelConverter.get_minutes_from_radians(d[0].data)
+            traceLocal.data = \
+                numpy.round(numpy.multiply(traceLocal.data, 100)).astype(int)
 
-        # TODO - is this doing anything?
-        i = 0
-        for trace in timeseriesLocal:
-            timeseriesLocal[i].trace = numpy.round(numpy.multiply(trace, 100))
-            i += 1
+            timeseriesLocal.append(traceLocal)
 
         traces = [timeseriesLocal.select(channel=c)[0] for c in channels]
         starttime = float(traces[0].stats.starttime)
@@ -116,8 +118,7 @@ class PCDCPWriter(object):
 
         return '{0:0>4d} {2: >8d} {3: >8d} {4: >8d} {5: >8d}\n'.format(
                 totalMinutes, int(time.microsecond / 1000),
-                *[self.empty_value if numpy.isnan(val) else int(round(
-                            val * 100))
+                *[self.empty_value if numpy.isnan(val) else val
                         for val in values])
 
     @classmethod
