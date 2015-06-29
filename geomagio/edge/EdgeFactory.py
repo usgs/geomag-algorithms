@@ -79,7 +79,6 @@ class EdgeFactory(TimeseriesFactory):
         self.port = port
         self.cwbhost = cwbhost or ''
         self.cwbport = cwbport
-        self.ric = None
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -159,7 +158,7 @@ class EdgeFactory(TimeseriesFactory):
         type = type or self.type or stats.data_type
         interval = interval or self.interval or stats.data_interval
 
-        if (starttime == None or endtime == None):
+        if (starttime is None or endtime is None):
             starttime, endtime = self._get_stream_start_end_times(timeseries)
 
         for channel in channels:
@@ -168,8 +167,6 @@ class EdgeFactory(TimeseriesFactory):
                     'Missing channel "%s" for output' % channel)
 
         for channel in channels:
-            self._convert_stream_to_masked(timeseries=timeseries,
-                    channel=channel)
             self._put_channel(timeseries, observatory, channel, type,
                     interval, starttime, endtime)
 
@@ -206,33 +203,43 @@ class EdgeFactory(TimeseriesFactory):
                         numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
                 trace.stats.endttime = endtime
 
-    def _convert_trace_to_decimal(self, stream):
-        """convert geomag edge traces stored as ints, to decimal by dividing
-           by 1000.00
+    def _convert_timeseries_to_decimal(self, stream):
+        """convert geomag edge timeseries data stored as ints, to decimal by
+            dividing by 1000.00
         Parameters
         ----------
         stream : obspy.core.stream
             a stream retrieved from a geomag edge representing one channel.
+        Notes
+        -----
+        This routine changes the values in the timeseries. The user should
+            make a copy before calling if they don't want that side effect.
         """
         for trace in stream:
             trace.data = numpy.divide(trace.data, 1000.00)
 
-    def _convert_trace_to_int(self, trace):
+    def _convert_trace_to_int(self, trace_in):
         """convert geomag edge traces stored as decimal, to ints by multiplying
            by 1000
 
         Parameters
         ----------
-        stream : obspy.core.stream
-            a stream retrieved from a geomag edge representing one channel.
-
+        trace : obspy.core.trace
+            a trace retrieved from a geomag edge representing one channel.
+        Returns
+        -------
+        obspy.core.trace
+            a trace converted to ints
         Notes
         -----
         this doesn't work on ndarray with nan's in it.
         the trace must be a masked array.
         """
+        trace = trace_in.copy()
         trace.data = numpy.multiply(trace.data, 1000.00)
         trace.data = trace.data.astype(int)
+
+        return trace
 
     def _convert_stream_to_masked(self, timeseries, channel):
         """convert geomag edge traces in a timeseries stream to a MaskedArray
@@ -243,9 +250,15 @@ class EdgeFactory(TimeseriesFactory):
             a stream retrieved from a geomag edge representing one channel.
         channel: string
             the channel to be masked.
+        Returns
+        -------
+        obspy.core.stream
+            a stream with all traces converted to masked arrays.
         """
-        for trace in timeseries.select(channel=channel):
+        stream = timeseries.copy()
+        for trace in stream.select(channel=channel):
             trace.data = numpy.ma.masked_invalid(trace.data)
+        return stream
 
     def _create_missing_channel(self, starttime, endtime, observatory,
                 channel, type, interval, network, station, location):
@@ -285,11 +298,11 @@ class EdgeFactory(TimeseriesFactory):
         if interval == 'second':
             stats.sampling_rate = 1.
         elif interval == 'minute':
-            stats.sampling_rate = 1 / 60.
+            stats.sampling_rate = 1. / 60.
         elif interval == 'hourly':
-            stats.sampling_rate = 1 / 3600
+            stats.sampling_rate = 1. / 3600.
         elif interval == 'daily':
-            stats.sampling_rate = 1 / 86400
+            stats.sampling_rate = 1. / 86400.
         length = int((endtime - starttime) * stats.sampling_rate)
         stats.npts = length + 1
 
@@ -530,7 +543,7 @@ class EdgeFactory(TimeseriesFactory):
 
         Notes: the original timeseries object is changed.
         """
-        self._convert_trace_to_decimal(timeseries)
+        self._convert_timeseries_to_decimal(timeseries)
         for trace in timeseries:
             if isinstance(trace.data, numpy.ma.MaskedArray):
                 trace.data.set_fill_value(numpy.nan)
@@ -583,19 +596,22 @@ class EdgeFactory(TimeseriesFactory):
             host = self.host
             port = self.port
 
-        self.ric = RawInputClient(self.tag, host, port, station,
+        ric = RawInputClient(self.tag, host, port, station,
                 edge_channel, location, network)
 
-        for trace in timeseries.select(channel=channel).split():
+        stream = self._convert_stream_to_masked(timeseries=timeseries,
+                channel=channel)
+
+        for trace in stream.select(channel=channel).split():
             trace_send = trace.copy()
             trace_send.trim(starttime, endtime)
             if channel == 'D':
                 trace_send.data = ChannelConverter.get_minutes_from_radians(
                     trace_send.data)
-            self._convert_trace_to_int(trace_send)
-            self.ric.send_trace(interval, trace_send)
-        self.ric.forceout()
-        self.ric.close()
+            trace_send = self._convert_trace_to_int(trace_send)
+            ric.send_trace(interval, trace_send)
+        ric.forceout()
+        ric.close()
 
     def _set_metadata(self, stream, observatory, channel, type, interval):
         """set metadata for a given stream/channel
