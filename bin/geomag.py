@@ -130,11 +130,12 @@ def main():
         outputfactory = edge.EdgeFactory(
                 host=args.output_edge[0],
                 port=int(args.output_edge[1]),
+                write_port=int(args.output_edge[2]),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
                 locationCode=locationcode,
-                tag=args.output_edge[2])
+                tag=args.output_edge[3])
     else:
             print >> sys.stderr, "Missing required output directive"
 
@@ -147,12 +148,16 @@ def main():
         algorithm = XYZAlgorithm(informat=args.xyz[0],
                 outformat=args.xyz[1])
     else:
+        # TODO get smarter on inchannels/outchannels since input doesn't always
+        # need to use the --inchannels argument, but might (as in iaga2002),
+        # get it from the file.
         algorithm = Algorithm(inchannels=args.inchannels,
                 outchannels=args.outchannels)
 
     # TODO check for unused arguments.
 
-    controller = Controller(inputfactory, outputfactory, algorithm, update)
+    controller = Controller(inputfactory, outputfactory, algorithm, update,
+            args.interval, args.update_realtime)
 
     controller.run(UTCDateTime(args.starttime), UTCDateTime(args.endtime))
 
@@ -190,6 +195,9 @@ def parse_args():
             choices=['minute', 'second'])
     parser.add_argument('--update',
             action='store_true', default=None,
+            help='Used to update data')
+    parser.add_argument('--update_realtime',
+            action='store_true', default=False,
             help='Used to update realtime data')
 
     # Input group
@@ -232,9 +240,9 @@ def parse_args():
             help='Write to stdout.')
     output_group.add_argument('--output-pcdcp-url',
             help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
-    output_group.add_argument('--output-edge', nargs=3,
-            metavar=('HOST', 'PORT', 'TAG'),
-            help='Requires Host IP #, Port # and ID TAG')
+    output_group.add_argument('--output-edge', nargs=4,
+            metavar=('HOST', 'READ_PORT', 'WRITE_PORT', 'TAG'),
+            help='Requires Host IP #, Read Port #, Write Port # and ID TAG ')
 
     # Algorithms group
     algorithm_group = parser.add_mutually_exclusive_group()
