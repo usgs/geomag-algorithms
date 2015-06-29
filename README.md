@@ -6,18 +6,18 @@ Geomag algorithms includes tools to fetch, process, and output geomag data.
 [Documentation](./docs/README.md)
 
 
+<a name="install"></a>
 Install
 -------
 
-We recommend using [virtual environments][]. Make sure you are in your
-`geomag-algorithms` project directory.
+We recommend using [virtual environments][].
 
 
 1. Install `python` (2.7.X)
 
     - On OS X, we recommend using Homebrew ( http://brew.sh/ )
-    - On Windows, go to the [Windows details](readme_dependency_install.md)
-    first
+    - On Windows, go to the Windows heading in the
+      [Install details](readme_dependency_install.md) first
 
 2. Install numpy, obspy requires this be installed separately.
 
@@ -35,6 +35,7 @@ We recommend using [virtual environments][]. Make sure you are in your
 [virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
 
+<a name="develop"></a>
 Developing
 ----------
 
@@ -57,6 +58,7 @@ Developing
         grunt
 
 
+<a name="standards"></a>
 Coding Standards
 ----------------
 
