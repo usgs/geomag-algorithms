@@ -81,8 +81,10 @@ class PCDCPWriter(object):
                 traceLocal.data = \
                     ChannelConverter.get_minutes_from_radians(traceLocal.data)
 
-            traceLocal.data = \
-                numpy.round(numpy.multiply(traceLocal.data, 100)).astype(int)
+            # TODO - we should look into multiplying the trace all at once
+            # like this, but this gives an error on Windows at the moment.
+            # traceLocal.data = \
+            #     numpy.round(numpy.multiply(traceLocal.data, 100)).astype(int)
 
             timeseriesLocal.append(traceLocal)
 
@@ -118,7 +120,8 @@ class PCDCPWriter(object):
 
         return '{0:0>4d} {2: >8d} {3: >8d} {4: >8d} {5: >8d}\n'.format(
                 totalMinutes, int(time.microsecond / 1000),
-                *[self.empty_value if numpy.isnan(val) else val
+                *[self.empty_value if numpy.isnan(val) else int(round(
+                    val * 100))
                         for val in values])
 
     @classmethod
