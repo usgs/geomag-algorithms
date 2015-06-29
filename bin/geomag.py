@@ -228,7 +228,7 @@ def parse_args():
             metavar=('HOST', 'PORT'),
             help='Requires Host IP # and Port #')
     output_group.add_argument('--output-edge', nargs=3,
-            metavar=('HOST', 'PORT','TAG'),
+            metavar=('HOST', 'PORT', 'TAG'),
             help='Requires Host IP #, Port # and ID TAG ')
 
     # Algorithms group
