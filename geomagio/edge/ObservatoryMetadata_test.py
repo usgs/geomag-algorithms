@@ -59,7 +59,7 @@ def test_set_metadata():
     stats.data_type = 'quasi-definitive'
     observatorymetadata.set_metadata(stats, 'BOU', 'MVH',
             'quasi-definitive', 'second')
-    assert_equals(stats['declination_base'], 7406)
+    assert_equals(stats['declination_base'], 5527)
 
     # Test custom metadata
     stats = obspy.core.Stats()
