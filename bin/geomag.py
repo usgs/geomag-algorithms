@@ -224,9 +224,6 @@ def parse_args():
             help='Write to stdout.')
     output_group.add_argument('--output-pcdcp-url',
             help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
-    output_group.add_argument('--output-edge', nargs=2,
-            metavar=('HOST', 'PORT'),
-            help='Requires Host IP # and Port #')
     output_group.add_argument('--output-edge', nargs=3,
             metavar=('HOST', 'PORT', 'TAG'),
             help='Requires Host IP #, Port # and ID TAG')
