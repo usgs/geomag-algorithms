@@ -99,7 +99,10 @@ class IAGA2002Parser(object):
             key = 'sensor_orientation'
         elif key_upper == 'DIGITAL SAMPLING':
             key = 'sensor_sampling_rate'
-            value = 1 / float(value.replace('second', '').strip())
+            if value.find('second') != -1:
+                value = 1 / float(value.replace('second', '').strip())
+            elif value.find('Hz') != -1:
+                value = float(value.replace('Hz', '').strip())
         elif key_upper == 'DATA INTERVAL TYPE':
             key = 'data_interval_type'
         elif key_upper == 'DATA TYPE':
