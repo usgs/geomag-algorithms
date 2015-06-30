@@ -3,7 +3,7 @@ Readme dependencies
 <a name="windows"></a>
 ### Windows ###
 
-## Install ##
+#### Install ####
 1. You will need a terminal tool for Windows. We used [Git Bash][] to test these
    steps, but [Cygwin][] or another unix-like editor should work fine too.
 
@@ -23,7 +23,7 @@ Readme dependencies
 1. Head back over to the main [install](README.md#install) and complete the
    instructions there.
 
-## Develop ##
+#### Develop ####
 
 These instructions only need to be completed if you plan on developing new
 code for this project.
@@ -76,6 +76,9 @@ code for this project.
 
 1. Close and re-open your terminal so that your new PATH is loaded.
    Make sure to navigate back to your `geomag-algorithms` project directory.
+
+1. Head back over to the main [install](README.md#install) and complete the
+   instructions there.
 
 [Homebrew]: http://brew.sh/
 
