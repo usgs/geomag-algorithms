@@ -9,28 +9,24 @@ Geomag algorithms includes tools to fetch, process, and output geomag data.
 Install
 -------
 
-We recommend using [virtual environments][]
+We recommend using [virtual environments][].
 
+__Windows__: begin with the Windows dependencies in the
+[Dependency install](readme_dependency_install.md#windows).
 
-1. Install `python` (2.7.X)
+__Mac/Linux__: begin with required dependencies in the
+[Dependency install](readme_dependency_install.md#mac).
 
-    - On OS X, we recommend using Homebrew ( http://brew.sh/ )
-
-2. Install numpy, obspy requires this be installed separately.
-
-        pip install numpy
-
-3. Install geomagio
+1. Install geomagio
 
         pip install git+https://github.com/usgs/geomag-algorithms.git
 
-4. Use geomagio
+1. Use geomagio
 
-    - Use the xyz main script, `xyz.py -h`.
-    - In python scripts, `import geomagio` or `import geomagio.iaga2002`.
+    - Use the main script, `geomag.py -h`.
+    - In python scripts, `import geomagio`.
 
 [virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
-
 
 Developing
 ----------
