@@ -1,8 +1,13 @@
-Readme dependencies
+Readme install dependencies
+
+## Install ##
+
+We recommend using [virtual environments][].
+
+[virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
 ### Windows ###
 
-#### Install ####
 1. You will need a terminal tool for Windows. We used [Git Bash][] to test these
    steps, but [Cygwin][] or another unix-like editor should work fine too.
 
@@ -22,25 +27,8 @@ Readme dependencies
 1. Head back over to the main [install](README.md#install) and complete the
    instructions there.
 
-#### Develop ####
-
-These instructions only need to be completed if you plan on developing new
-code for this project.
-
-1. Install the newest release of [Node][] for Windows, using the Windows
-   Installer (.msi).
-  - Use all of the defaults.
-
-1. Close and re-open your terminal so that your new PATH is loaded.
-   Make sure to navigate back to your `geomag-algorithms` project directory.
-
-1. Install `obspy` from the terminal.
-
-        easy_install obspy
-
 [Git Bash]: http://git-scm.com/download/win
 [Cygwin]: http://cygwin.com/install.html
-[Node]: http://nodejs.org/download/
 [Anaconda]: http://continuum.io/downloads
 
 ---
@@ -79,23 +67,3 @@ code for this project.
    instructions there.
 
 [Homebrew]: http://brew.sh/
-
----
-### Add an SSH Key to GitHub ###
-
-This only needs to be completed if you plan on developing and pushing new code
-to this project.
-
-  1. `ssh-keygen -t rsa -b 2048` (in terminal)
-  2. Press **Enter** to accept the default save location.
-  3. Enter a passphrase that you will remember.
-  4. `cat ~/.ssh/id_rsa.pub`
-     Copy the text block that is displayed.
-     This is your SSH key.
-     If you're on Window and can't copy the text from the terminal, go
-     to `C:\Users\[your username here]\.ssh` and open the `id_rsa.pub` file
-     with notepad.
-  5. In GitHub, click **Edit Your Profile**.
-  6. Select **SSH Keys** on the left.
-  7. Click **Add SSH key**. Give it a meaningful title.
-  8. Copy your SSH Key into the Key, and click **Add key**.

@@ -3,19 +3,14 @@ Geomag Algorithms
 
 Geomag algorithms includes tools to fetch, process, and output geomag data.
 
-[Documentation](./docs/README.md)
-
-
-Install
+[First Time Install](readme_dependency_install.md)
 -------
 
-We recommend using [virtual environments][].
+[Development Dependencies](readme_develop_install.md)
+-------
 
-__Windows__: begin with the Windows dependencies in the
-[Dependency install](readme_dependency_install.md#windows).
-
-__Mac/Linux__: begin with required dependencies in the
-[Dependency install](readme_dependency_install.md#mac).
+Usage
+-------
 
 1. Install geomagio
 
@@ -26,28 +21,13 @@ __Mac/Linux__: begin with required dependencies in the
     - Use the main script, `geomag.py -h`.
     - In python scripts, `import geomagio`.
 
-[virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
+Supported Algorithms
+-------
+[XYZ Algorithm](./XYZ.md)
+------
 
-Developing
-----------
-
-1. Use npm to install `grunt-cli`
-
-        npm install -g grunt-cli
-
-2. Install `numpy`, `scipy`, `obspy`, and `flake8`
-
-3. Clone this project (or fork and clone your fork)
-
-        git clone https://github.com/usgs/geomag-algorithms.git
-
-4. From root directory of project, install npm dependencies
-
-        npm install
-
-5. Run grunt to run unit tests, and watch for changes to python files
-
-        grunt
+[Documentation](./docs/README.md)
+-------
 
 
 Coding Standards
@@ -63,4 +43,3 @@ This project adheres to PEP8 standards in most cases:
     - line continuations should use two indentations (8 spaces).
     - do not use visual indents.
 
-[Dependency install details for Windows and Mac](readme_dependency_install.md)
