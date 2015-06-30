@@ -8,7 +8,8 @@ setup(
     packages=[
         'geomagio',
         'geomagio.iaga2002',
-        'geomagio.edge'
+        'geomagio.edge',
+        'geomagio.pcdcp'
     ],
     install_requires=[
         'numpy',
