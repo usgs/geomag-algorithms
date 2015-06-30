@@ -16,13 +16,6 @@ Readme dependencies
   - We recommend using "Just Me" for the install to avoid potential admin
   issues.
 
-1. Close and re-open your terminal so that your new PATH is loaded.
-   Make sure to navigate back to your `geomag-algorithms` project directory.
-
-1. Install `obspy` from the terminal.
-
-        easy_install obspy
-
 1. Run `python` to verify that Anaconda's version of Python is being used.
    If it isn't, update your PATH so that Conda's HOME is before any other
    versions of Python.
@@ -32,9 +25,19 @@ Readme dependencies
 
 ## Develop ##
 
+These instructions only need to be completed if you plan on developing new
+code for this project.
+
 1. Install the newest release of [Node][] for Windows, using the Windows
    Installer (.msi).
   - Use all of the defaults.
+
+1. Close and re-open your terminal so that your new PATH is loaded.
+   Make sure to navigate back to your `geomag-algorithms` project directory.
+
+1. Install `obspy` from the terminal.
+
+        easy_install obspy
 
 [Git Bash]: http://git-scm.com/download/win
 [Cygwin]: http://cygwin.com/install.html
@@ -44,6 +47,14 @@ Readme dependencies
 ---
 <a name="mac"></a>
 ### Mac ###
+
+1. Install `python` (2.7.X)
+
+        On OS X, we recommend using Homebrew ( http://brew.sh/ )
+
+1. Install numpy, obspy requires this be installed separately.
+
+        pip install numpy
 
 1. Install `node`, `git` and `python` (2.7.X).
    On OS X, we recommend using [Homebrew][]

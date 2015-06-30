@@ -12,23 +12,17 @@ Install
 
 We recommend using [virtual environments][].
 
-On Windows, go to the Windows heading in the
-[Install details](readme_dependency_install.md) first.
+On Windows, begin with the Windows dependencies in the
+[Dependency install](readme_dependency_install.md#windows) first.
 
-1. Install `python` (2.7.X)
+For Mac/Linux, required dependencies and instructions are listed in the
+[Dependency install](readme_dependency_install.md#mac) as well.
 
-    - On OS X, we recommend using Homebrew ( http://brew.sh/ )
-
-
-2. Install numpy, obspy requires this be installed separately.
-
-        pip install numpy
-
-3. Install geomagio
+1. Install geomagio
 
         pip install git+https://github.com/usgs/geomag-algorithms.git
 
-4. Use geomagio
+1. Use geomagio
 
     - Use the main script, `geomag.py -h`.
     - In python scripts, `import geomagio`.
