@@ -16,11 +16,12 @@ specific dependency information.
     - Use the main script, `geomag.py -h`.
     - In python scripts, `import geomagio`.
 
-### [Usage](readme_usage.md)
-More detailed usage instructions and examples.
+Check the [Usage](readme_usage.md) page for more detailed usage instructions
+and examples.
 
 [virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
+---
 ### Mac ###
 
 1. Install `python` (2.7.X)
