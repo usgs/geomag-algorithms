@@ -45,5 +45,12 @@ geomag.py --type variation --inchannels H E Z F --interval minute
 --outchannels H E Z F
 ```
 
+### Algorithms ###
+
+There are flags to specify certain algorithms should be run against the data.
+
+#### XYZ ####
+[XYZ Usage](./docs/XYZ_usage.md)
+
 Extensive explanation of all input and output methods
 [IO Methods](readme_io.md)
