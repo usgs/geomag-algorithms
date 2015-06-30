@@ -6,17 +6,16 @@ Geomag algorithms includes tools to fetch, process, and output geomag data.
 [Documentation](./docs/README.md)
 
 
-<a name="install"></a>
 Install
 -------
 
 We recommend using [virtual environments][].
 
 __Windows__: begin with the Windows dependencies in the
-[Dependency install](readme_dependency_install.md#windows).
+[Dependency install](readme_dependency_install.md#Windows).
 
 __Mac/Linux__: begin with required dependencies in the
-[Dependency install](readme_dependency_install.md#mac).
+[Dependency install](readme_dependency_install.md#Mac).
 
 1. Install geomagio
 
@@ -29,8 +28,6 @@ __Mac/Linux__: begin with required dependencies in the
 
 [virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
-
-<a name="develop"></a>
 Developing
 ----------
 
@@ -53,7 +50,6 @@ Developing
         grunt
 
 
-<a name="standards"></a>
 Coding Standards
 ----------------
 
