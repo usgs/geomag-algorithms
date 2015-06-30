@@ -12,10 +12,10 @@ Install
 We recommend using [virtual environments][].
 
 __Windows__: begin with the Windows dependencies in the
-[Dependency install](readme_dependency_install.md#Windows).
+[Dependency install](readme_dependency_install.md#windows).
 
 __Mac/Linux__: begin with required dependencies in the
-[Dependency install](readme_dependency_install.md#Mac).
+[Dependency install](readme_dependency_install.md#mac).
 
 1. Install geomagio
 

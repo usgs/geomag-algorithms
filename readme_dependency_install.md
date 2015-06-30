@@ -19,7 +19,7 @@ Readme dependencies
    If it isn't, update your PATH so that Conda's HOME is before any other
    versions of Python.
 
-1. Head back over to the main [install](README.md#Install) and complete the
+1. Head back over to the main [install](README.md#install) and complete the
    instructions there.
 
 #### Develop ####
@@ -75,7 +75,7 @@ code for this project.
 1. Close and re-open your terminal so that your new PATH is loaded.
    Make sure to navigate back to your `geomag-algorithms` project directory.
 
-1. Head back over to the main [install](README.md#Install) and complete the
+1. Head back over to the main [install](README.md#install) and complete the
    instructions there.
 
 [Homebrew]: http://brew.sh/
