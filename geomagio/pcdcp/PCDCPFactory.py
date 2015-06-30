@@ -1,12 +1,13 @@
 """Factory that loads PCDCP Files."""
 
-import urllib2
 import obspy.core
 import os
-from geomagio import TimeseriesFactory, TimeseriesFactoryException
+import urllib2
+from geomagio import ChannelConverter, \
+        TimeseriesFactory, \
+        TimeseriesFactoryException
 from PCDCPParser import PCDCPParser
 from PCDCPWriter import PCDCPWriter
-from geomagio import ChannelConverter
 
 
 # pattern for pcdcp file names

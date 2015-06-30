@@ -14,10 +14,10 @@ except:
 import geomagio.iaga2002 as iaga2002
 import geomagio.edge as edge
 import geomagio.pcdcp as pcdcp
-from geomagio.Algorithm import Algorithm
+from geomagio import Algorithm, \
+        Controller
 from geomagio.XYZAlgorithm import XYZAlgorithm
-from geomagio.Controller import Controller
-from obspy.core.utcdatetime import UTCDateTime
+from obspy.core import UTCDateTime
 
 
 def main():
@@ -229,7 +229,7 @@ def parse_args():
             help='Requires Host IP # and Port #')
     output_group.add_argument('--output-edge', nargs=3,
             metavar=('HOST', 'PORT', 'TAG'),
-            help='Requires Host IP #, Port # and ID TAG ')
+            help='Requires Host IP #, Port # and ID TAG')
 
     # Algorithms group
     algorithm_group = parser.add_mutually_exclusive_group()

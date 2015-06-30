@@ -1,10 +1,10 @@
 
-from cStringIO import StringIO
-from geomagio import ChannelConverter
 import numpy
-from obspy.core import Stream
 import PCDCPParser
+from cStringIO import StringIO
 from datetime import datetime
+from geomagio import ChannelConverter
+from obspy.core import Stream
 
 
 class PCDCPWriter(object):

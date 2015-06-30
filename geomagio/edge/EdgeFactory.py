@@ -9,16 +9,17 @@ to take advantage of it's newer realtime abilities.
 Edge is the USGS earthquake hazard centers replacement for earthworm.
 """
 
-import obspy.core
-from obspy.core.utcdatetime import UTCDateTime
 import numpy
-from RawInputClient import RawInputClient
-from geomagio import TimeseriesFactory, TimeseriesFactoryException
-from geomagio import ChannelConverter
-from obspy import earthworm
-from ObservatoryMetadata import ObservatoryMetadata
-from datetime import datetime
 import numpy.ma
+import obspy.core
+from datetime import datetime
+from obspy import earthworm
+from obspy.core import UTCDateTime
+from geomagio import ChannelConverter, \
+        TimeseriesFactory, \
+        TimeseriesFactoryException
+from ObservatoryMetadata import ObservatoryMetadata
+from RawInputClient import RawInputClient
 
 
 class EdgeFactory(TimeseriesFactory):

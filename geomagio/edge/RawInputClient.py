@@ -1,21 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-Input Client for Edge/CWB/QueryMom.
 
-:copyright:
-    USGS
-:license:
-    GNU General Public License (GPLv2)
-    (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
-"""
-
-from obspy.core.utcdatetime import UTCDateTime
+import socket  # noqa
+import struct
+import sys
 from datetime import datetime
 from geomagio import TimeseriesFactoryException
-import struct
-import socket  # noqa
-import sys
+from obspy.core import UTCDateTime
 from time import sleep
+
 
 """
 MAXINPUTSIZE: Edge uses a short for the data count, so the max input size
