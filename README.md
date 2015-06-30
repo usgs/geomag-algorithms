@@ -12,12 +12,13 @@ Install
 
 We recommend using [virtual environments][].
 
+On Windows, go to the Windows heading in the
+[Install details](readme_dependency_install.md) first.
 
 1. Install `python` (2.7.X)
 
     - On OS X, we recommend using Homebrew ( http://brew.sh/ )
-    - On Windows, go to the Windows heading in the
-      [Install details](readme_dependency_install.md) first
+
 
 2. Install numpy, obspy requires this be installed separately.
 

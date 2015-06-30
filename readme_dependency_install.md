@@ -3,17 +3,14 @@ Readme dependencies
 <a name="windows"></a>
 ### Windows ###
 
+## Install ##
 1. You will need a terminal tool for Windows. We used [Git Bash][] to test these
    steps, but [Cygwin][] or another unix-like editor should work fine too.
 
   - Choosing PATH environment: We recommend the __last option__ here to include
      Unix tools, but if you don't understand what that entails then use the
      _second option_ which still adds Git to your system PATH.
-  - Besides that, keep all of the defaults.
-
-1. Install the newest release of [Node][] for Windows, using the Windows
-   Installer (.msi).
-  - Use all of the defaults.
+  - Besides that, all of the defaults should be sufficient.
 
 1. Install [Anaconda][], which includes `numpy`, `scipy` and `flake8`.
   - We recommend using "Just Me" for the install to avoid potential admin
@@ -32,6 +29,12 @@ Readme dependencies
 
 1. Head back over to the main [install](README.md#install) and complete the
    instructions there.
+
+## Develop ##
+
+1. Install the newest release of [Node][] for Windows, using the Windows
+   Installer (.msi).
+  - Use all of the defaults.
 
 [Git Bash]: http://git-scm.com/download/win
 [Cygwin]: http://cygwin.com/install.html
