@@ -33,30 +33,32 @@ Developing
 
 1. Install the newest release of [Node][] for Windows, using the Windows
    Installer (.msi).
-  - Use all of the defaults.
+  - All of the defaults should be sufficient.
 
 1. Close and re-open your terminal so that your new PATH is loaded.
-   Make sure to navigate back to your `geomag-algorithms` project directory.
-
-1. Install `obspy` from the terminal.
-
-        easy_install obspy
 
 [Node]: http://nodejs.org/download/
 
 ---
 ### Add an SSH Key to GitHub ###
 
-  1. `ssh-keygen -t rsa -b 2048` (in terminal)
-  2. Press **Enter** to accept the default save location.
-  3. Enter a passphrase that you will remember.
-  4. `cat ~/.ssh/id_rsa.pub`
-     Copy the text block that is displayed.
-     This is your SSH key.
-     If you're on Window and can't copy the text from the terminal, go
-     to `C:\Users\[your username here]\.ssh` and open the `id_rsa.pub` file
-     with notepad.
-  5. In GitHub, click **Edit Your Profile**.
-  6. Select **SSH Keys** on the left.
-  7. Click **Add SSH key**. Give it a meaningful title.
-  8. Copy your SSH Key into the Key, and click **Add key**.
+1. `ssh-keygen -t rsa -b 2048` (in terminal)
+
+2. Press **Enter** to accept the default save location.
+
+3. Enter a passphrase that you will remember.
+
+4. `cat ~/.ssh/id_rsa.pub`
+   Copy the text block that is displayed.
+   This is your SSH key.
+   If you're on Window and can't copy the text from the terminal, go
+   to `C:\Users\[your username here]\.ssh` and open the `id_rsa.pub` file
+   with notepad.
+
+5. In GitHub, click **Edit Your Profile**.
+
+6. Select **SSH Keys** on the left.
+
+7. Click **Add SSH key**. Give it a meaningful title.
+
+8. Copy your SSH Key into the Key, and click **Add key**.
