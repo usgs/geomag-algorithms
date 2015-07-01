@@ -31,7 +31,11 @@ There are 3 reference frames in this library.
 To convert HEZF data in pcdcp files to XYZF for Tucson observatory for all of
 March 2013 output to iaga2002 files:
 
-      geomag.py --xyz obs geo --observatory TUC --starttime 2013-03-01T00:00:00Z --endtime 2013-03-31T23:59:00Z --input-pcdcp-url file://data-pcdcp/./%(OBS)s%(year)s%(julian)s.%(i)s --output-iaga-url file://data-iaga/./$(obs)s%(Y)s%(j)s.%(i)s --type variation --interval minute
+      geomag.py --xyz obs geo --observatory TUC \
+      --starttime 2013-03-01T00:00:00Z --endtime 2013-03-31T23:59:00Z \
+      --input-pcdcp-url file://data-pcdcp/./%(OBS)s%(year)s%(julian)s.%(i)s \
+      --output-iaga-url file://data-iaga/./$(obs)s%(Y)s%(j)s.%(i)s \
+      --type variation --interval minute
 
 
 ---

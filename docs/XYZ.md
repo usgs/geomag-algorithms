@@ -19,8 +19,10 @@ commercial entities. Inverse transformations are also provided.
 Historically, the most common coordinate system used to specify measured
 geomagnetic fields has been HDZ, where:
 
-- `H` is the magnitude of the geomagnetic field vector tangential to the Earth's surface;
-- `D` is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector;
+- `H` is the magnitude of the geomagnetic field vector tangential to the
+  Earth's surface;
+- `D` is the declination, or clockwise angle from the vector pointing to the
+  geographic north pole to the H vector;
 - `Z` is the downward component of the geomagnetic field.
 
 > Note: this library internally refers to the `HDZ` coordinate system as "mag",
@@ -88,9 +90,9 @@ One thing that is not labeled in this figure is the angle d (see [Eq. 4](#eq4)),
 which is the difference between declination D, and a declination
 baseline (D0, or DECBAS).
 
-The equations [Eq. 4](#eq4), [Eq. 5](#eq5), [Eq. 6](#eq6) describe how to convert the
-horizontal components of a USGS magnetometer's raw data element into more
-standard H and D components.
+The equations [Eq. 4](#eq4), [Eq. 5](#eq5), [Eq. 6](#eq6) describe how to
+convert the horizontal components of a USGS magnetometer's raw data element
+into more standard H and D components.
 
 - <a name="eq4"></a>Equation 4: `d = arctan(e/h)`
 - <a name="eq5"></a>Equation 5: `D = D0 + d`
@@ -104,7 +106,8 @@ To inverse transform from `XY` to `HD`:
 ...and from `HD` to `he`:
 
 - <a name="eq9"></a>Equation  9: `d = D - D0`
-- <a name="eq10"></a>Equation 10: `h = sqrt(H*H / (1 + tan(d)*tan(d))) = H cos(d)`
+- <a name="eq10"></a>Equation 10:
+  `h = sqrt(H*H / (1 + tan(d)*tan(d))) = H cos(d)`
 - <a name="eq11"></a>Equation 11: `e = h * tan(d)`
 
 It is worth noting that there is potential for mathematically undefined results
