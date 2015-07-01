@@ -29,6 +29,7 @@ Begin Developing
 
         grunt
 
+
 ---
 ### Windows ###
 
@@ -39,6 +40,7 @@ Begin Developing
 1. Close and re-open your terminal so that your new PATH is loaded.
 
 [Node]: http://nodejs.org/download/
+
 
 ---
 ### Add an SSH Key to GitHub ###

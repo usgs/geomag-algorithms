@@ -170,29 +170,3 @@ before checking data flags. This is not an issue if data flags are NaN
 (not-a-number values), but more typical for Geomag data, these are values like
 99999, which can lead to seemingly valid, but erroneous values at times when the
 raw data were known to be bad.
-
-> Note: this library internally represents data gaps as NaN, and factories convert
-> to this where possible.
-
-
-## Library Notes
-
-This library references the 3 reference frames as `geo` for
-geographic/cartesian, `obs` for observatory and `mag` for magnetic/cylindrical:
-
-- `geo` is XYZ
-- `obs` is heZ
-- `mag` is HDZ
-
-> Note: within this library all channels are uppercase.
-> We use context (ie obs vs. mag vs geo), to differentiate between h,H; e,E; and d,D.
-> This mirrors the various data formats, (ie IAGA2002, etc).
-
-The underlying library provides calculations for both the basic conversions,
-such as get_get_y_from_mag, which is based off of Y = H sin(D), and higher
-level conversions, such as get_geo_from_mag. (Which converts HD to XY).
-These are provided by `geomagio.ChannelConverter`.
-
-Upper libraries only provide higher level conversions, ie get_geo_from_mag.
-This is the level most users should be accessing.
-These are provided by `geomagio.StreamConverter`.

@@ -9,16 +9,17 @@ specific dependency information.
 
 1. Install __geomagio__
 
-        pip install git+https://github.com/usgs/geomag-algorithms.git
+      pip install git+https://github.com/usgs/geomag-algorithms.git
 
 1. Use __geomagio__
 
-    - Use the main script, `geomag.py -h`
-    - In python scripts, `import geomagio`
+  - Use the main script, `geomag.py -h`
+  - In python scripts, `import geomagio`
 
 The [Usage](readme_usage.md) page has more detailed instructions and examples.
 
 [virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
+
 
 ---
 ### Mac ###
