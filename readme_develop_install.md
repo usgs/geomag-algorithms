@@ -43,6 +43,20 @@ Begin Developing
 
 
 ---
+### Coding Standards ###
+
+This project adheres to PEP8 standards in most cases:
+    https://www.python.org/dev/peps/pep-0008
+
+### PEP8 Exceptions ###
+
+- Hanging/Visual indents (E126, E127, E128, E131)
+
+    - line continuations should use two indentations (8 spaces).
+    - do not use visual indents.
+
+
+---
 ### Add an SSH Key to GitHub ###
 
 1. `ssh-keygen -t rsa -b 2048` (in terminal)
@@ -65,3 +79,4 @@ Begin Developing
 7. Click **Add SSH key**. Give it a meaningful title.
 
 8. Copy your SSH Key into the Key, and click **Add key**.
+

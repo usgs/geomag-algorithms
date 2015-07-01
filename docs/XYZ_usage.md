@@ -13,7 +13,7 @@ There are 3 reference frames in this library.
 
  - 'geo':  ['X', 'Y', 'Z', 'F']
 
-#### Magnetic of cylindrical ####
+#### Magnetic or cylindrical ####
 
  - `mag` is HDZ
 
@@ -42,7 +42,7 @@ March 2013 output to iaga2002 files:
 > and d,D. This mirrors the various data formats, (ie IAGA2002, etc).
 
 The underlying library provides calculations for both the basic conversions,
-such as get_get_y_from_mag, which is based off of Y = H sin(D), and higher
+such as get_geo_y_from_mag, which is based off of Y = H sin(D), and higher
 level conversions, such as get_geo_from_mag. (Which converts HD to XY).
 These are provided by `geomagio.ChannelConverter`.
 
