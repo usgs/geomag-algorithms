@@ -54,4 +54,11 @@ class Algorithm(object):
         return self._outchannels
 
     def get_input_interval(self, start, end):
+        """Get Input Interval
+
+        Returns
+        -------
+        tuple
+            start/end time pair of the input interval
+        """
         return (start, end)
