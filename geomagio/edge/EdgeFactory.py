@@ -604,6 +604,10 @@ class EdgeFactory(TimeseriesFactory):
         stream = self._convert_stream_to_masked(timeseries=timeseries,
                 channel=channel)
 
+        # Make certain there's actually data
+        if not numpy.ma.any(stream.select(channel=channel)[0].data):
+            return
+
         for trace in stream.select(channel=channel).split():
             trace_send = trace.copy()
             trace_send.trim(starttime, endtime)
