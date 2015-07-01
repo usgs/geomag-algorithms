@@ -33,8 +33,8 @@ Begin Developing
 ---
 ### Windows ###
 
-1. Install the newest release of [Node][] for Windows, using the Windows
-   Installer (.msi).
+1. Install the newest release of [Node (http://nodejs.org/download/)][] for
+   Windows, using the Windows Installer (.msi).
   - All of the defaults should be sufficient.
 
 1. Close and re-open your terminal so that your new PATH is loaded.
