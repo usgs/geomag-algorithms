@@ -53,5 +53,5 @@ class Algorithm(object):
         """
         return self._outchannels
 
-    def get_data_time_extent(self, outstart, outend):
-        return (outstart, outend)
+    def get_input_interval(self, start, end):
+        return (start, end)
