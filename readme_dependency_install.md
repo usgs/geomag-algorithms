@@ -9,7 +9,7 @@ specific dependency information.
 
 1. Install __geomagio__
 
-      pip install git+https://github.com/usgs/geomag-algorithms.git
+        pip install git+https://github.com/usgs/geomag-algorithms.git
 
 1. Use __geomagio__
 
