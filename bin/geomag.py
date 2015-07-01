@@ -159,7 +159,19 @@ def main():
     controller = Controller(inputfactory, outputfactory, algorithm, update,
             args.interval, args.update_realtime)
 
-    controller.run(UTCDateTime(args.starttime), UTCDateTime(args.endtime))
+    if args.starttime is not None:
+        starttime = UTCDateTime(args.starttime)
+    else:
+        starttime = None
+    if args.endtime is not None:
+        endtime = UTCDateTime(args.endtime)
+    else:
+        endtime = None
+
+    if args.update:
+        controller.run_as_update(starttime, endtime)
+    else:
+        controller.run(starttime, endtime)
 
 
 def parse_args():
@@ -174,9 +186,9 @@ def parse_args():
         description='Use @ to read commands from a file.',
         fromfile_prefix_chars='@',)
 
-    parser.add_argument('--starttime', default=UTCDateTime(),
+    parser.add_argument('--starttime', default=None,
             help='UTC date YYYY-MM-DD HH:MM:SS')
-    parser.add_argument('--endtime', default=UTCDateTime(),
+    parser.add_argument('--endtime', default=None,
             help='UTC date YYYY-MM-DD HH:MM:SS')
 
     parser.add_argument('--observatory',
