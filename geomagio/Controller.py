@@ -1,8 +1,6 @@
 """Controller class for geomag algorithms"""
 
 import TimeseriesUtilities as TUtils
-import numpy
-import obspy
 
 
 class Controller(object):

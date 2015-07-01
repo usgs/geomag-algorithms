@@ -1,7 +1,5 @@
 """Abstract Timeseries Factory Interface."""
-import numpy.ma as ma
-import obspy
-import numpy
+
 
 class TimeseriesFactory(object):
     """Base class for timeseries factories.
