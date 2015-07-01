@@ -7,17 +7,16 @@ We recommend using [virtual environments][].
 Check out the [Mac](#mac) and [Windows](#windows) details below for more
 specific dependency information.
 
-1. Install geomagio
+1. Install __geomagio__
 
         pip install git+https://github.com/usgs/geomag-algorithms.git
 
-1. Use geomagio
+1. Use __geomagio__
 
-    - Use the main script, `geomag.py -h`.
-    - In python scripts, `import geomagio`.
+    - Use the main script, `geomag.py -h`
+    - In python scripts, `import geomagio`
 
-Check the [Usage](readme_usage.md) page for more detailed usage instructions
-and examples.
+The [Usage](readme_usage.md) page has more detailed instructions and examples.
 
 [virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
@@ -58,8 +57,8 @@ and examples.
 ---
 ### Windows ###
 
-1. You will need a terminal tool for Windows. We used [Git Bash][] to test these
-   steps, but [Cygwin][] or another unix-like editor should work fine too.
+1. You will need a terminal tool for Windows. [Git Bash][] was used to test
+   these steps, but [Cygwin][] or another unix-like editor should work too.
 
   - Choosing PATH environment: We recommend the __last option__ here to include
      Unix tools, but if you don't understand what that entails then use the
@@ -67,7 +66,7 @@ and examples.
   - Besides that, all of the defaults should be sufficient.
 
 1. Install [Anaconda][], which includes `numpy`, `scipy` and `flake8`.
-  - We recommend using "Just Me" for the install to avoid potential admin
+  - We recommend using _"Just Me"_ for the install to avoid potential admin
   issues.
 
 1. Run `python` to verify that Anaconda's version of Python is being used.

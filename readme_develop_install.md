@@ -7,14 +7,15 @@ code for this project.
 
 If developing on windows, see the [Windows](#windows) section below.
 
-Developing
-----------
+Begin Developing
+----------------
 
 1. Use npm to install `grunt-cli`
 
         npm install -g grunt-cli
 
-2. Install `numpy`, `scipy`, `obspy`, and `flake8`
+2. Install `numpy`, `scipy`, `obspy`, and `flake8` if they aren't already
+   installed.
 
 3. Clone this project (or fork and clone your fork)
 

@@ -4,29 +4,26 @@ Geomag Algorithms
 Geomag algorithms includes tools to fetch, process, and output geomag data.
 
 ### [Install](readme_dependency_install.md) ###
-First time install walks through dependencies and other considerations.
-The project requires Python.
+First time install. Walk through dependencies and other considerations.
+The project is primarily Python 2.7.
 
 ### [Develop](readme_develop_install.md) ###
-Development dependencies are discussed here.
-Uses Grunt and Node.
+Development dependencies discussed here. Project is built with Grunt and Node.
 
 ### [Usage](readme_usage.md) ###
-Details and examples for proper usage.
+Details and examples for proper usage. This will help you get started quickly.
 
 Basic usage:
-    - Use the main script, `geomag.py -h`.
-    - In python scripts, `import geomagio`.
+
+    - Use the main script, `geomag.py -h`
+    - In python scripts, `import geomagio`
 
 Supported Algorithms
 --------------------
 
 ### [XYZ Algorithm](./docs/XYZ_usage.md) ###
 
-
-[Documentation](./docs/README.md)
--------
-
+---
 
 Coding Standards
 ----------------
