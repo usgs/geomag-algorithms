@@ -19,8 +19,10 @@ commercial entities. Inverse transformations are also provided.
 Historically, the most common coordinate system used to specify measured
 geomagnetic fields has been HDZ, where:
 
-- `H` is the magnitude of the geomagnetic field vector tangential to the Earth's surface;
-- `D` is the declination, or clockwise angle from the vector pointing to the geographic north pole to the H vector;
+- `H` is the magnitude of the geomagnetic field vector tangential to the
+  Earth's surface;
+- `D` is the declination, or clockwise angle from the vector pointing to the
+  geographic north pole to the H vector;
 - `Z` is the downward component of the geomagnetic field.
 
 > Note: this library internally refers to the `HDZ` coordinate system as "mag",
@@ -88,9 +90,9 @@ One thing that is not labeled in this figure is the angle d (see [Eq. 4](#eq4)),
 which is the difference between declination D, and a declination
 baseline (D0, or DECBAS).
 
-The equations [Eq. 4](#eq4), [Eq. 5](#eq5), [Eq. 6](#eq6) describe how to convert the
-horizontal components of a USGS magnetometer's raw data element into more
-standard H and D components.
+The equations [Eq. 4](#eq4), [Eq. 5](#eq5), [Eq. 6](#eq6) describe how to
+convert the horizontal components of a USGS magnetometer's raw data element
+into more standard H and D components.
 
 - <a name="eq4"></a>Equation 4: `d = arctan(e/h)`
 - <a name="eq5"></a>Equation 5: `D = D0 + d`
@@ -104,7 +106,8 @@ To inverse transform from `XY` to `HD`:
 ...and from `HD` to `he`:
 
 - <a name="eq9"></a>Equation  9: `d = D - D0`
-- <a name="eq10"></a>Equation 10: `h = sqrt(H*H / (1 + tan(d)*tan(d))) = H cos(d)`
+- <a name="eq10"></a>Equation 10:
+  `h = sqrt(H*H / (1 + tan(d)*tan(d))) = H cos(d)`
 - <a name="eq11"></a>Equation 11: `e = h * tan(d)`
 
 It is worth noting that there is potential for mathematically undefined results
@@ -170,29 +173,3 @@ before checking data flags. This is not an issue if data flags are NaN
 (not-a-number values), but more typical for Geomag data, these are values like
 99999, which can lead to seemingly valid, but erroneous values at times when the
 raw data were known to be bad.
-
-> Note: this library internally represents data gaps as NaN, and factories convert
-> to this where possible.
-
-
-## Library Notes
-
-This library references the 3 reference frames as `geo` for
-geographic/cartesian, `obs` for observatory and `mag` for magnetic/cylindrical:
-
-- `geo` is XYZ
-- `obs` is heZ
-- `mag` is HDZ
-
-> Note: within this library all channels are uppercase.
-> We use context (ie obs vs. mag vs geo), to differentiate between h,H; e,E; and d,D.
-> This mirrors the various data formats, (ie IAGA2002, etc).
-
-The underlying library provides calculations for both the basic conversions,
-such as get_get_y_from_mag, which is based off of Y = H sin(D), and higher
-level conversions, such as get_geo_from_mag. (Which converts HD to XY).
-These are provided by `geomagio.ChannelConverter`.
-
-Upper libraries only provide higher level conversions, ie get_geo_from_mag.
-This is the level most users should be accessing.
-These are provided by `geomagio.StreamConverter`.

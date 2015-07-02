@@ -3,64 +3,42 @@ Geomag Algorithms
 
 Geomag algorithms includes tools to fetch, process, and output geomag data.
 
-[Documentation](./docs/README.md)
+## Supported Formats ##
+
+### [Edge](readme_io.md#edge) ###
+
+Use an Edge server for data input.
+
+### [IAGA](readme_io.md#iaga2002)###
+
+Use IAGA2002 formatted files for input and/or output.
+
+### [PCDCP](readme_io.md#) ###
+
+Use PCDCP formatted files for input and/or output.
 
 
-Install
--------
+---
+## Supported Algorithms ##
 
-We recommend using [virtual environments][].
-
-__Windows__: begin with the Windows dependencies in the
-[Dependency install](readme_dependency_install.md#windows).
-
-__Mac/Linux__: begin with required dependencies in the
-[Dependency install](readme_dependency_install.md#mac).
-
-1. Install geomagio
-
-        pip install git+https://github.com/usgs/geomag-algorithms.git
-
-1. Use geomagio
-
-    - Use the main script, `geomag.py -h`.
-    - In python scripts, `import geomagio`.
-
-[virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
-
-Developing
-----------
-
-1. Use npm to install `grunt-cli`
-
-        npm install -g grunt-cli
-
-2. Install `numpy`, `scipy`, `obspy`, and `flake8`
-
-3. Clone this project (or fork and clone your fork)
-
-        git clone https://github.com/usgs/geomag-algorithms.git
-
-4. From root directory of project, install npm dependencies
-
-        npm install
-
-5. Run grunt to run unit tests, and watch for changes to python files
-
-        grunt
+### [XYZ](./docs/XYZ_usage.md) ###
+Rotate data between coordinate systems. From HEZ or HDZ to XYZ and back.
 
 
-Coding Standards
-----------------
+---
+## Getting Started ##
 
-This project adheres to PEP8 standards in most cases:
-    https://www.python.org/dev/peps/pep-0008
+### [Install](readme_dependency_install.md) ###
+First time install. Walk through dependencies and other considerations.
 
-### PEP8 Exceptions
+### [Use](readme_usage.md) ###
+Details and examples for proper usage. Get started quickly.
 
-- Hanging/Visual indents (E126, E127, E128, E131)
+Basic usage:
 
-    - line continuations should use two indentations (8 spaces).
-    - do not use visual indents.
+  - Use the main script, `geomag.py -h`
+  - In python scripts, `import geomagio`
 
-[Dependency install details for Windows and Mac](readme_dependency_install.md)
+### [Develop](readme_develop_install.md) ###
+Development dependencies discussed here. Project is built with Grunt and Node
+and is written primarily in Python 2.7.
