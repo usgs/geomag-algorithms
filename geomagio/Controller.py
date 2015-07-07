@@ -1,6 +1,7 @@
 """Controller class for geomag algorithms"""
 
 import TimeseriesUtilities as TUtils
+import TimeseriesFactoryException
 
 
 class Controller(object):
@@ -38,12 +39,8 @@ class Controller(object):
         self._inputFactory = inputFactory
         self._algorithm = algorithm
         self._outputFactory = outputFactory
-        self._update = update
-        self._interval = interval
-        self._update_realtime = update_realtime
-        self._interval_in_seconds = TUtils.get_seconds_of_interval(interval)
 
-    def run(self, starttime, endtime):
+    def run(self, starttime, endtime, options):
         """run controller
         Parameters
         ----------
@@ -62,11 +59,14 @@ class Controller(object):
         processed = self._algorithm.process(timeseries)
         output_channels = self._algorithm.get_output_channels()
 
+        output_channels = self.get_output_channels(output_channels,
+                options.outchannels)
+
         self._outputFactory.put_timeseries(timeseries=processed,
                 starttime=starttime, endtime=endtime,
                 channels=output_channels)
 
-    def run_as_update(self, starttime, endtime):
+    def run_as_update(self, starttime, endtime, options):
         """Updates data.
         Parameters
         ----------
@@ -89,6 +89,9 @@ class Controller(object):
         input_channels = self._algorithm.get_input_channels()
         output_channels = self._algorithm.get_output_channels()
 
+        output_channels = self.get_output_channels(output_channels,
+                options.outchannels)
+
         timeseries_source = self._inputFactory.get_timeseries(starttime,
                 endtime, channels=input_channels)
         timeseries_target = self._outputFactory.get_timeseries(starttime,
@@ -104,13 +107,23 @@ class Controller(object):
                 target_gaps, output_channels)
         del timeseries_source
         del timeseries_target
-        if (self._update_realtime and
-                (not len(source_gaps) or
+        if ((not len(source_gaps) or
                 len(source_gaps) and source_gaps[0][0] != starttime) and
                 len(target_gaps) and target_gaps[0][0] == starttime):
             self.run_as_update((starttime - (endtime - starttime)),
-                (starttime - self._interval_in_seconds))
+                (starttime - TUtils.get_seconds_of_interval(options.interval)),
+                options)
         for target_gap in target_gaps:
             if not TUtils.gap_is_new_data(source_gaps, target_gap):
                 continue
-            self.run(target_gap[0], target_gap[1])
+            self.run(target_gap[0], target_gap[1], options)
+
+    def get_output_channels(self, algorithm_channels, commandline_channels):
+        if commandline_channels is not None:
+            for channel in commandline_channels:
+                if channel not in algorithm_channels:
+                    raise TimeseriesFactoryException(
+                        'Output "%s" Channel not in Algorithm'
+                            % channel)
+            return commandline_channels
+        return algorithm_channels
