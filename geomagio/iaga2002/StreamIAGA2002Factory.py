@@ -30,6 +30,8 @@ class StreamIAGA2002Factory(IAGA2002Factory):
         Notes: Calls IAGA2002Factory.parse_string in place of
             IAGA2002Factory.get_timeseries.
         """
+
+        self._stream.seek(0)
         return IAGA2002Factory.parse_string(self, self._stream.read())
 
     def put_timeseries(self, timeseries, starttime=None, endtime=None,

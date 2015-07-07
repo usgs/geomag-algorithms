@@ -65,8 +65,8 @@ class EdgeFactory(TimeseriesFactory):
         for reading.
     """
 
-    def __init__(self, host=None, port=None, observatory=None,
-            channels=None, type=None, interval=None,
+    def __init__(self, host=None, port=None, write_port=None,
+            observatory=None, channels=None, type=None, interval=None,
             observatoryMetadata=None, locationCode=None,
             cwbhost=None, cwbport=0, tag='GeomagAlg'):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
@@ -78,6 +78,7 @@ class EdgeFactory(TimeseriesFactory):
         self.interval = interval
         self.host = host
         self.port = port
+        self.write_port = write_port
         self.cwbhost = cwbhost or ''
         self.cwbport = cwbport
 
@@ -595,13 +596,17 @@ class EdgeFactory(TimeseriesFactory):
             port = self.cwbport
         else:
             host = self.host
-            port = self.port
+            port = self.write_port
 
         ric = RawInputClient(self.tag, host, port, station,
                 edge_channel, location, network)
 
         stream = self._convert_stream_to_masked(timeseries=timeseries,
                 channel=channel)
+
+        # Make certain there's actually data
+        if not numpy.ma.any(stream.select(channel=channel)[0].data):
+            return
 
         for trace in stream.select(channel=channel).split():
             trace_send = trace.copy()
