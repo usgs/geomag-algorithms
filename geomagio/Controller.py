@@ -15,27 +15,19 @@ class Controller(object):
         the factory that will output the timeseries data
     algorithm: Algorithm
         the algorithm(s) that will procees the timeseries data
-    update: boolean
-        indicates that data is to be updated.
-    interval: string
-        the data interval {daily, hourly, minute, second}
-    update_realtime: boolean
-        indicates
 
     Notes
     -----
-    Has 2(3) basic modes.
+    Has 2 basic modes.
     Run simply sends all the data in a stream to edge. If a startime/endtime is
         provided, it will send the data from the stream that is within that
         time span.
     Update will update any data that has changed between the source, and
-        the target during a given timeframe. If the update_realtime flag
-        is set, it will attempt to recursively backup so it can update all
-        missing data.
+        the target during a given timeframe. It will also attempt to
+        recursively backup so it can update all missing data.
     """
 
-    def __init__(self, inputFactory, outputFactory, algorithm, update=False,
-            interval='minute', update_realtime=False):
+    def __init__(self, inputFactory, outputFactory, algorithm):
         self._inputFactory = inputFactory
         self._algorithm = algorithm
         self._outputFactory = outputFactory
@@ -48,6 +40,9 @@ class Controller(object):
             time of first sample. None if starttime should come from dataset
         endtime: obspy.core.UTCDateTime
             endtime of last sampel.  None if endtime should come from dataset
+        options: dictionary
+            The dictionary of all the command line arguments. Could in theory
+            contain other options passed in by the controller.
         """
         input_channels = self._algorithm.get_input_channels()
         algorithm_start, algorithm_end = self._algorithm.get_input_interval(
@@ -74,17 +69,20 @@ class Controller(object):
             time of first sample. None if starttime should come from dataset
         endtime: obspy.core.UTCDateTime
             endtime of last sampel.  None if endtime should come from dataset
+        options: dictionary
+            The dictionary of all the command line arguments. Could in theory
+            contain other options passed in by the controller.
 
         Notes
         -----
         Finds gaps in the target data, and if there's new data in the input
             source, calls run with the start/end time of a given gap to fill
             in.
-        If the update_realtime flag is set, it checks the start of the target
-            data, and if it's missing, and there's new data available, it backs
-            up the starttime/endtime, and recursively calls itself, to check
-            the previous period, to see if new data is available there as well.
-            Calls run for each new period, oldest to newest.
+        It checks the start of the target data, and if it's missing, and
+            there's new data available, it backs up the starttime/endtime,
+            and recursively calls itself, to check the previous period, to see
+            if new data is available there as well. Calls run for each new
+            period, oldest to newest.
         """
         input_channels = self._algorithm.get_input_channels()
         output_channels = self._algorithm._get_output_channels()
