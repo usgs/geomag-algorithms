@@ -378,6 +378,44 @@ def get_obs_h_from_mag(h, d, d0=0):
     return numpy.multiply(h, numpy.cos(obs_d))
 
 
+def get_deltaf(fv, fs):
+    """gets the deltaf value given the scalar F and computed F values.
+
+    Parameters
+    ----------
+    fv: array_like
+        the F vector computed from the observatory instruments
+    fs: array_like
+        the measured F value
+    """
+    return numpy.subtract(fv, fs)
+
+
+def get_computed_f_using_squares(x, y, z):
+    """gets the computed f value
+
+    Parameters
+    ----------
+    x: array_like
+        the x component from the observatory
+    y: array_like
+        the y component from the observatory
+    z: array_like
+        the z component from the observatory
+    Notes
+    -----
+    This works for geographic coordinates, or observatory coordinates.
+        ie x, y, z or h, e, z
+        We're using variables x,y,z to represent generic cartisian coordinates.
+    """
+    x2 = numpy.square(x)
+    y2 = numpy.square(y)
+    z2 = numpy.square(z)
+    fv = numpy.add(x2, y2)
+    fv = numpy.add(fv, z2)
+    return numpy.sqrt(fv)
+
+
 def get_radians_from_minutes(m):
     """gets the radian value given the decimal value
     Parameters
