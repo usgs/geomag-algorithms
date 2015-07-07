@@ -52,7 +52,7 @@ class Controller(object):
             algorithm_end, channels=input_channels)
 
         processed = self._algorithm.process(timeseries)
-        output_channels = self._algorithm._get_output_channels()
+        output_channels = self._algorithm.get_output_channels()
 
         output_channels = self._get_output_channels(output_channels,
                 options.outchannels)
