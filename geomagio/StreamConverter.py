@@ -54,6 +54,52 @@ def get_geo_from_obs(obs):
     return get_geo_from_mag(get_mag_from_obs(obs))
 
 
+def get_deltaf_from_geo(geo):
+    """Get deltaf given geographic coordinate values
+
+    Parameters
+    ----------
+    obs: obspy.core.Stream
+        stream containing the observatory components H, D or E, Z, and F.
+
+    Returns
+    -------
+    obspy.core.Stream
+        stream object containing delta f values
+    """
+    x = geo.select(channel='X')[0]
+    y = geo.select(channel='Y')[0]
+    z = geo.select(channel='Z')[0]
+    fs = geo.select(channel='F')[0]
+    fv = ChannelConverter.get_computed_f_using_squares(x, y, z)
+    G = ChannelConverter.get_deltaf(fv, fs)
+    return obspy.core.Stream((
+            __get_trace('G', x.stats, G), ))
+
+
+def get_deltaf_from_obs(obs):
+    """Get deltaf given observatory coordinate values
+
+    Parameters
+    ----------
+    obs: obspy.core.Stream
+        stream containing the observatory components H, D or E, Z, and F.
+
+    Returns
+    -------
+    obspy.core.Stream
+        stream object containing delta f values
+    """
+    h = obs.select(channel='H')[0]
+    z = obs.select(channel='Z')[0]
+    fs = obs.select(channel='F')[0]
+    e = __get_obs_e_from_obs(obs)
+    fv = ChannelConverter.get_computed_f_using_squares(h, e, z)
+    G = ChannelConverter.get_deltaf(fv, fs)
+    return obspy.core.Stream((
+            __get_trace('G', h.stats, G), ))
+
+
 def get_mag_from_geo(geo):
     """Convert a stream to magnetic coordinate system.
 
@@ -166,7 +212,7 @@ def get_obs_from_obs(obs, include_e=False, include_d=False):
     Parameters
     ----------
     stream: obspy.core.Stream
-        stream containing the observatory components H, D of E, Z, and F.
+        stream containing the observatory components H, D or E, Z, and F.
     include_e: boolean
         whether to include the e component
     include_d: boolean
