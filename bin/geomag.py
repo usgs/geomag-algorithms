@@ -17,6 +17,7 @@ import geomagio.pcdcp as pcdcp
 from geomagio import Algorithm, \
         Controller
 from geomagio.XYZAlgorithm import XYZAlgorithm
+from geomagio.DeltaFAlgorithm import DeltaFAlgorithm
 from obspy.core import UTCDateTime
 
 
@@ -142,6 +143,8 @@ def main():
     if args.xyz is not None:
         algorithm = XYZAlgorithm(informat=args.xyz[0],
                 outformat=args.xyz[1])
+    elif args.deltaf is not None:
+        algorithm = DeltaFAlgorithm(informat=args.deltaf)
     else:
         # TODO get smarter on inchannels/outchannels since input doesn't always
         # need to use the --inchannels argument, but might (as in iaga2002),
@@ -277,6 +280,9 @@ def parse_args():
             choices=['geo', 'mag', 'obs', 'obsd'],
             help='Enter the geomagnetic orientation(s) you want to read from' +
                     ' and to respectfully.')
+    algorithm_group.add_argument('--deltaf',
+            choices=['geo', 'obs', 'obsd'],
+            help='Enter the geomagnetic orientation you want to read from')
 
     return parser.parse_args()
 
