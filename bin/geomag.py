@@ -36,10 +36,10 @@ def main():
     args = parse_args()
 
     # Input Factory
-    if args.input_edge is not None:
+    if args.HOST is not None:
         inputfactory = edge.EdgeFactory(
-                host=args.input_edge[0],
-                port=int(args.input_edge[1]),
+                host=args.HOST,
+                port=int(args.PORT),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
@@ -125,24 +125,19 @@ def main():
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
-    elif args.output_edge is not None:
+    elif args.OUTPUT_HOST is not None:
         locationcode = args.outlocationcode or args.locationcode or None
         outputfactory = edge.EdgeFactory(
-                host=args.output_edge[0],
-                port=int(args.output_edge[1]),
-                write_port=int(args.output_edge[2]),
+                host=args.OUTPUT_HOST,
+                port=int(args.READ_PORT),
+                write_port=int(args.WRITE_PORT),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
                 locationCode=locationcode,
-                tag=args.output_edge[3])
+                tag=args.TAG)
     else:
             print >> sys.stderr, "Missing required output directive"
-
-    if args.update is not None:
-        update = True
-    else:
-        update = False
 
     if args.xyz is not None:
         algorithm = XYZAlgorithm(informat=args.xyz[0],
@@ -156,8 +151,7 @@ def main():
 
     # TODO check for unused arguments.
 
-    controller = Controller(inputfactory, outputfactory, algorithm, update,
-            args.interval, args.update_realtime)
+    controller = Controller(inputfactory, outputfactory, algorithm)
 
     if args.starttime is not None:
         starttime = UTCDateTime(args.starttime)
@@ -169,9 +163,9 @@ def main():
         endtime = None
 
     if args.update:
-        controller.run_as_update(starttime, endtime)
+        controller.run_as_update(starttime, endtime, args)
     else:
-        controller.run(starttime, endtime)
+        controller.run(starttime, endtime, args)
 
 
 def parse_args():
@@ -186,52 +180,82 @@ def parse_args():
         description='Use @ to read commands from a file.',
         fromfile_prefix_chars='@',)
 
-    parser.add_argument('--starttime', default=None,
+    parser.add_argument('--starttime',
+            type=UTCDateTime,
+            default=None,
             help='UTC date YYYY-MM-DD HH:MM:SS')
-    parser.add_argument('--endtime', default=None,
+    parser.add_argument('--endtime',
+            type=UTCDateTime,
+            default=None,
             help='UTC date YYYY-MM-DD HH:MM:SS')
 
     parser.add_argument('--observatory',
             help='Observatory code ie BOU, CMO, etc')
-    parser.add_argument('--inchannels', nargs='*',
+    parser.add_argument('--inchannels',
+            nargs='*',
             help='Channels H, E, Z, etc')
-    parser.add_argument('--outchannels', nargs='*',
+    parser.add_argument('--outchannels',
+            nargs='*',
+            default=None,
             help='Channels H, E, Z, etc')
-    parser.add_argument('--type', default='variation',
+    parser.add_argument('--type',
+            default='variation',
             choices=['variation', 'quasi-definitive', 'definitive'])
     parser.add_argument('--locationcode',
             choices=['R0', 'R1', 'RM', 'Q0', 'D0', 'C0'])
     parser.add_argument('--outlocationcode',
             choices=['R0', 'R1', 'RM', 'Q0', 'D0', 'C0'])
-    parser.add_argument('--interval', default='minute',
+    parser.add_argument('--interval',
+            default='minute',
             choices=['minute', 'second'])
     parser.add_argument('--update',
-            action='store_true', default=None,
+            action='store_true',
+            default=False,
             help='Used to update data')
-    parser.add_argument('--update_realtime',
-            action='store_true', default=False,
-            help='Used to update realtime data')
+    parser.add_argument('--input-edge-port',
+            dest='PORT',
+            default=2060,
+            help='Input port # for edge input, defaults to 2060')
+    parser.add_argument('--output-edge-port',
+            dest='WRITE_PORT',
+            default=7981,
+            help='Edge port for writing realtime data, defaults to 7981')
+    parser.add_argument('--output-edge-cwb-port',
+            dest='WRITE_PORT',
+            default='7981',
+            help='Edge port for writing older data. Not used by geomag.')
+    parser.add_argument('--output-edge-read-port',
+            dest='READ_PORT',
+            default=2060,
+            help='Edge port for reading output data, defaults to 2060')
+    parser.add_argument('--output-edge-tag',
+            dest='TAG',
+            default='GEOMAG',
+            help='ID Tag for edge connections, defaults to GEOMAG')
 
     # Input group
     input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument('--input-edge', nargs=2,
-            metavar=('HOST', 'PORT'),
-            help='Requires Host IP # and Port #.')
+    input_group.add_argument('--input-edge',
+            dest='HOST',
+            help='Host IP #, see --input-edge-port for optional args')
     input_group.add_argument('--input-iaga-file',
             help='Reads from the specified file.')
     input_group.add_argument('--input-iaga-magweb',
-            action='store_true', default=False,
+            action='store_true',
+            default=False,
             help='Indicates iaga2002 files will be read from \
             http://magweb.cr.usgs.gov/data/magnetometer/')
     input_group.add_argument('--input-iaga-stdin',
-            action='store_true', default=False,
+            action='store_true',
+            default=False,
             help='Pass in an iaga file using redirection from stdin.')
     input_group.add_argument('--input-iaga-url',
             help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
     input_group.add_argument('--input-pcdcp-file',
             help='Reads from the specified file.')
     input_group.add_argument('--input-pcdcp-stdin',
-            action='store_true', default=False,
+            action='store_true',
+            default=False,
             help='Pass in an pcdcp file using redirection from stdin.')
     input_group.add_argument('--input-pcdcp-url',
             help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
@@ -252,13 +276,14 @@ def parse_args():
             help='Write to stdout.')
     output_group.add_argument('--output-pcdcp-url',
             help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
-    output_group.add_argument('--output-edge', nargs=4,
-            metavar=('HOST', 'READ_PORT', 'WRITE_PORT', 'TAG'),
-            help='Requires Host IP #, Read Port #, Write Port # and ID TAG ')
+    output_group.add_argument('--output-edge',
+            dest='OUTPUT_HOST',
+            help='Edge IP #. See --output-edge-* for other optional arguments')
 
     # Algorithms group
     algorithm_group = parser.add_mutually_exclusive_group()
-    algorithm_group.add_argument('--xyz', nargs=2,
+    algorithm_group.add_argument('--xyz',
+            nargs=2,
             choices=['geo', 'mag', 'obs', 'obsd'],
             help='Enter the geomagnetic orientation(s) you want to read from' +
                     ' and to respectfully.')
