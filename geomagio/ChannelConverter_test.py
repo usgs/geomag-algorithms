@@ -45,6 +45,21 @@ class ChannelConverterTest:
         length to be cos(angle) and the opposite length to be sin(angle)
     """
 
+    def test_get_computed_f_using_sqaures(self):
+        """geomag.ChannelConverterTest.test_get_computed_f_using_sqaures
+
+        Computed f is the combination of the 3 vector components from
+            either the geographic coordinate system (X,Y,Z), or the observatory
+            coordinate system (h,e,z).
+        """
+        h = 2
+        e = 2
+        z = 2
+        fv = channel.get_computed_f_using_squares(h, e, z)
+        fs = math.sqrt(12)
+        assert_almost_equal(fv, fs, 8, 'Expect fv to almost equal sqrt(12)',
+                True)
+
     def test_get_geo_from_obs(self):
         """geomag.ChannelConverterTest.test_get_geo_from_obs()
 
