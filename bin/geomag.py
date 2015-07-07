@@ -39,7 +39,7 @@ def main():
     if args.HOST is not None:
         inputfactory = edge.EdgeFactory(
                 host=args.HOST,
-                port=int(args.PORT),
+                port=args.PORT,
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
@@ -129,8 +129,8 @@ def main():
         locationcode = args.outlocationcode or args.locationcode or None
         outputfactory = edge.EdgeFactory(
                 host=args.OUTPUT_HOST,
-                port=int(args.READ_PORT),
-                write_port=int(args.WRITE_PORT),
+                port=args.READ_PORT,
+                write_port=args.WRITE_PORT,
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
@@ -153,19 +153,10 @@ def main():
 
     controller = Controller(inputfactory, outputfactory, algorithm)
 
-    if args.starttime is not None:
-        starttime = UTCDateTime(args.starttime)
-    else:
-        starttime = None
-    if args.endtime is not None:
-        endtime = UTCDateTime(args.endtime)
-    else:
-        endtime = None
-
     if args.update:
-        controller.run_as_update(starttime, endtime, args)
+        controller.run_as_update(args)
     else:
-        controller.run(starttime, endtime, args)
+        controller.run(args)
 
 
 def parse_args():
@@ -213,18 +204,22 @@ def parse_args():
             default=False,
             help='Used to update data')
     parser.add_argument('--input-edge-port',
+            type=int,
             dest='PORT',
             default=2060,
             help='Input port # for edge input, defaults to 2060')
     parser.add_argument('--output-edge-port',
+            type=int,
             dest='WRITE_PORT',
             default=7981,
             help='Edge port for writing realtime data, defaults to 7981')
     parser.add_argument('--output-edge-cwb-port',
+            type=int,
             dest='WRITE_PORT',
             default='7981',
             help='Edge port for writing older data. Not used by geomag.')
     parser.add_argument('--output-edge-read-port',
+            type=int,
             dest='READ_PORT',
             default=2060,
             help='Edge port for reading output data, defaults to 2060')
