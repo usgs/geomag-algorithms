@@ -3,6 +3,36 @@
 
 # default metadata for the 14 USGS observatories.
 DEFAULT_METADATA = {
+    'BDT': {
+        'metadata': {
+            'station_name': 'Boulder Test',
+            'agency_name': 'United States Geological Survey (USGS)',
+            'geodetic_latitude': '40.137',
+            'geodetic_longitude': '254.764',
+            'elevation': '1682',
+            'sensor_orientation': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'declination_base': 5527,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
+        }
+    },
     'BOU': {
         'metadata': {
             'station_name': 'Boulder',
@@ -240,6 +270,36 @@ DEFAULT_METADATA = {
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
             'declination_base': 6920,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
+        }
+    },
+    'NEW': {
+        'metadata': {
+            'station_name': 'Newport',
+            'agency_name': 'United States Geological Survey (USGS)',
+            'geodetic_latitude': '48.265',
+            'geodetic_longitude': '242.878',
+            'elevation': '770',
+            'sensor_orientation': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'declination_base': 12133,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
