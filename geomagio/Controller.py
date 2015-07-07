@@ -57,9 +57,9 @@ class Controller(object):
             algorithm_end, channels=input_channels)
 
         processed = self._algorithm.process(timeseries)
-        output_channels = self._algorithm.get_output_channels()
+        output_channels = self._algorithm._get_output_channels()
 
-        output_channels = self.get_output_channels(output_channels,
+        output_channels = self._get_output_channels(output_channels,
                 options.outchannels)
 
         self._outputFactory.put_timeseries(timeseries=processed,
@@ -87,9 +87,9 @@ class Controller(object):
             Calls run for each new period, oldest to newest.
         """
         input_channels = self._algorithm.get_input_channels()
-        output_channels = self._algorithm.get_output_channels()
+        output_channels = self._algorithm._get_output_channels()
 
-        output_channels = self.get_output_channels(output_channels,
+        output_channels = self._get_output_channels(output_channels,
                 options.outchannels)
 
         timeseries_source = self._inputFactory.get_timeseries(starttime,
@@ -118,7 +118,20 @@ class Controller(object):
                 continue
             self.run(target_gap[0], target_gap[1], options)
 
-    def get_output_channels(self, algorithm_channels, commandline_channels):
+    def _get_output_channels(self, algorithm_channels, commandline_channels):
+        """get output channels
+
+        Parameters
+        ----------
+        algorithm_channels: array_like
+            list of channels required by the algorithm
+        commandline_channels: array_like
+            list of channels requested by the user
+        Notes
+        -----
+        We want to return the channels requested by the user, but we require
+            that they be in the list of channels for the algorithm.
+        """
         if commandline_channels is not None:
             for channel in commandline_channels:
                 if channel not in algorithm_channels:
