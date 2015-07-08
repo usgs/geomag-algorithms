@@ -36,10 +36,10 @@ def main():
     args = parse_args()
 
     # Input Factory
-    if args.EDGE_HOST is not None:
+    if args.input_edge is not None:
         inputfactory = edge.EdgeFactory(
-                host=args.EDGE_HOST,
-                port=args.EDGE_PORT,
+                host=args.input_edge,
+                port=args.input_edge_port,
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
@@ -125,12 +125,12 @@ def main():
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
-    elif args.EDGE_OUTPUT_HOST is not None:
+    elif args.output_edge is not None:
         locationcode = args.outlocationcode or args.locationcode or None
         outputfactory = edge.EdgeFactory(
-                host=args.EDGE_OUTPUT_HOST,
-                port=args.EDGE_OUTPUT_READ_PORT,
-                write_port=args.EDGE_WRITE_PORT,
+                host=args.output_edge,
+                port=args.output_edge_read_port,
+                write_port=args.edge_write_port,
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
@@ -205,22 +205,20 @@ def parse_args():
             help='Used to update data')
     parser.add_argument('--input-edge-port',
             type=int,
-            dest='EDGE_PORT',
             default=2060,
             help='Input port # for edge input, defaults to 2060')
     parser.add_argument('--output-edge-port',
             type=int,
-            dest='EDGE_WRITE_PORT',
+            dest='edge_write_port',
             default=7981,
             help='Edge port for writing realtime data, defaults to 7981')
     parser.add_argument('--output-edge-cwb-port',
             type=int,
-            dest='EDGE_WRITE_PORT',
+            dest='edge_write_port',
             default='7981',
             help='Edge port for writing older data. Not used by geomag.')
     parser.add_argument('--output-edge-read-port',
             type=int,
-            dest='EDGE_OUTPUT_READ_PORT',
             default=2060,
             help='Edge port for reading output data, defaults to 2060')
     parser.add_argument('--output-edge-tag',
@@ -231,7 +229,6 @@ def parse_args():
     # Input group
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument('--input-edge',
-            dest='EDGE_HOST',
             help='Host IP #, see --input-edge-port for optional args')
     input_group.add_argument('--input-iaga-file',
             help='Reads from the specified file.')
@@ -272,7 +269,6 @@ def parse_args():
     output_group.add_argument('--output-pcdcp-url',
             help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
     output_group.add_argument('--output-edge',
-            dest='EDGE_OUTPUT_HOST',
             help='Edge IP #. See --output-edge-* for other optional arguments')
 
     # Algorithms group
