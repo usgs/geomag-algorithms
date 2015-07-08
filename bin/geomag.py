@@ -135,7 +135,7 @@ def main():
                 type=args.type,
                 interval=args.interval,
                 locationCode=locationcode,
-                tag=args.EDGE_TAG)
+                tag=args.output_edge_tag)
     else:
             print >> sys.stderr, "Missing required output directive"
 
@@ -222,7 +222,6 @@ def parse_args():
             default=2060,
             help='Edge port for reading output data, defaults to 2060')
     parser.add_argument('--output-edge-tag',
-            dest='EDGE_TAG',
             default='GEOMAG',
             help='ID Tag for edge connections, defaults to GEOMAG')
 
