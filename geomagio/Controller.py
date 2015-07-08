@@ -92,21 +92,23 @@ class Controller(object):
                 endtime=options.endtime,
                 channels=output_channels)
         # find gaps in output, so they can be updated
-        output_gaps = TimeseriesUtility.get_stream_gaps(output_timeseries)
-        for gap in output_gaps:
-            start, end = algorithm.get_input_interval(
-                    start=gap[0],
-                    end=gap[1])
+        output_gaps = TimeseriesUtility.get_merged_gaps(
+                TimeseriesUtility.get_stream_gaps(output_timeseries))
+        for output_gap in output_gaps:
+            input_start, input_end = algorithm.get_input_interval(
+                    start=output_gap[0],
+                    end=output_gap[1])
             input_timeseries = self._inputFactory.get_timeseries(
-                    starttime=start,
-                    endtime=end,
+                    starttime=input_start,
+                    endtime=input_end,
                     channels=input_channels)
-            input_gaps = TimeseriesUtility.get_stream_gaps(input_timeseries)
+            input_gaps = TimeseriesUtility.get_merged_gaps(
+                    TimeseriesUtility.get_stream_gaps(input_timeseries))
             if len(input_gaps) > 0:
                 # TODO: are certain gaps acceptable?
                 continue
             # check for fillable gap at start
-            if gap[0] == options.starttime:
+            if output_gap[0] == options.starttime:
                 # found fillable gap at start, recurse to previous interval
                 interval = options.endtime - options.starttime
                 self.run_as_update({
@@ -117,8 +119,8 @@ class Controller(object):
             # fill gap
             self.run({
                 'outchannels': options.outchannels,
-                'starttime': gap[0],
-                'endtime': gap[1]
+                'starttime': output_gap[0],
+                'endtime': output_gap[1]
             })
 
     def _get_output_channels(self, algorithm_channels, commandline_channels):
