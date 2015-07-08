@@ -18,6 +18,7 @@ __all__ = [
     'AlgorithmException',
     'ChannelConverter',
     'Controller',
+    'DeltaFAlgorithm',
     'StreamConverter',
     'TimeseriesFactory',
     'TimeseriesFactoryException',

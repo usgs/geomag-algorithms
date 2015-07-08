@@ -342,6 +342,8 @@ class EdgeFactory(TimeseriesFactory):
             edge_channel = edge_interval_code + 'VH'
         elif channel == 'Z':
             edge_channel = edge_interval_code + 'VZ'
+        elif channel == 'G':
+            edge_channel = edge_interval_code + 'SG'
         else:
             raise TimeseriesFactoryException(
                 'Unexpected channel code "%s"' % channel)
