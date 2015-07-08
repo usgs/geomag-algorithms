@@ -2,6 +2,7 @@
 
 import TimeseriesUtility
 import TimeseriesFactoryException
+from Util import ObjectView
 
 
 class Controller(object):
@@ -91,6 +92,7 @@ class Controller(object):
                 starttime=options.starttime,
                 endtime=options.endtime,
                 channels=output_channels)
+        delta = output_timeseries[0].stats.delta
         # find gaps in output, so they can be updated
         output_gaps = TimeseriesUtility.get_merged_gaps(
                 TimeseriesUtility.get_stream_gaps(output_timeseries))
@@ -102,26 +104,26 @@ class Controller(object):
                     starttime=input_start,
                     endtime=input_end,
                     channels=input_channels)
-            input_gaps = TimeseriesUtility.get_merged_gaps(
-                    TimeseriesUtility.get_stream_gaps(input_timeseries))
-            if len(input_gaps) > 0:
-                # TODO: are certain gaps acceptable?
+            if not algorithm.can_produce_data(
+                    starttime=output_gap[0],
+                    endtime=output_gap[1],
+                    stream=input_timeseries):
                 continue
             # check for fillable gap at start
             if output_gap[0] == options.starttime:
                 # found fillable gap at start, recurse to previous interval
                 interval = options.endtime - options.starttime
-                self.run_as_update({
+                self.run_as_update(ObjectView({
                     'outchannels': options.outchannels,
-                    'starttime': options.starttime - interval,
-                    'endtime': options.starttime
-                })
+                    'starttime': options.starttime - interval - delta,
+                    'endtime': options.starttime - delta
+                }))
             # fill gap
-            self.run({
+            self.run(ObjectView({
                 'outchannels': options.outchannels,
                 'starttime': output_gap[0],
                 'endtime': output_gap[1]
-            })
+            }))
 
     def _get_output_channels(self, algorithm_channels, commandline_channels):
         """get output channels
