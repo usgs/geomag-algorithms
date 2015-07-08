@@ -1,5 +1,4 @@
-"""Algorithm that converts from one geomagnetic coordinate system to a
-    related coordinate system.
+"""Algorithm that creates a deltaf
 
 """
 
@@ -9,7 +8,6 @@ import StreamConverter as StreamConverter
 
 # List of channels by geomagnetic observatory orientation.
 # geo represents a geographic north/south orientation
-# mag represents the (calculated)instantaneous mangnetic north orientation
 # obs represents the sensor orientation aligned close to the mag orientation
 # obsd is the same as obs,  but with D(declination) instead of E (e/w vector)
 CHANNELS = {
@@ -35,7 +33,7 @@ class DeltaFAlgorithm(Algorithm):
         self.informat = informat
 
     def check_stream(self, timeseries):
-        """checks an stream to make certain all the required channels
+        """checks a stream to make certain all the required channels
             exist.
 
         Parameters
