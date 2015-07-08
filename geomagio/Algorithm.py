@@ -56,9 +56,14 @@ class Algorithm(object):
     def get_input_interval(self, start, end):
         """Get Input Interval
 
+        start : UTCDateTime
+            start time of requested output
+        end : UTCDateTime
+            end time of requested output
+
         Returns
         -------
-        tuple
-            start/end time pair of the input interval
+        tuple : (input_start, input_end)
+            start and end of required input to generate requested output.
         """
         return (start, end)
