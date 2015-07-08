@@ -1,5 +1,7 @@
 """Algorithm Interface."""
 
+import TimeseriesUtility
+
 
 class Algorithm(object):
     """Base class for geomag algorithms
@@ -67,3 +69,25 @@ class Algorithm(object):
             start and end of required input to generate requested output.
         """
         return (start, end)
+
+    def can_produce_data(self, starttime, endtime, stream):
+        """Can Product data
+
+        Parameters
+        ----------
+        starttime: UTCDateTime
+            start time of requested output
+        end : UTCDateTime
+            end time of requested output
+        stream: obspy.core.Stream
+            The input stream we want to make certain has data for the algorithm
+        """
+        input_gaps = TimeseriesUtility.get_merged_gaps(
+                TimeseriesUtility.get_stream_gaps(stream))
+        for input_gap in input_gaps:
+            # Check for gaps that include the entire range
+            if (starttime >= input_gap[0] and
+                    starttime <= input_gap[1] and
+                    endtime < input_gap[2]):
+                return False
+        return True
