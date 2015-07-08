@@ -10,6 +10,7 @@ from Controller import Controller
 from TimeseriesFactory import TimeseriesFactory
 from TimeseriesFactoryException import TimeseriesFactoryException
 import TimeseriesUtility
+import Util
 from XYZAlgorithm import XYZAlgorithm
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     'TimeseriesFactory',
     'TimeseriesFactoryException',
     'TimeseriesUtility',
+    'Util',
     'XYZAlgorithm'
 ]
