@@ -292,6 +292,16 @@ def main(args):
 
     # TODO check for unused arguments.
 
+    if (args.realtime):
+        now = UTCDateTime()
+        args.endtime = UTCDateTime(now.year, now.month, now.day,
+                now.hour, now.minute)
+        if args.interval == 'minute':
+            args.starttime = args.endtime - 3600
+        else:
+            args.starttime = args.endtime - 600
+        print args.starttime, args.endtime
+
     controller = Controller(inputfactory, outputfactory, algorithm)
 
     if args.update:
@@ -369,6 +379,11 @@ def parse_args(args):
     parser.add_argument('--output-edge-tag',
             default='GEOMAG',
             help='ID Tag for edge connections, defaults to GEOMAG')
+    parser.add_argument('--realtime',
+            action='store_true',
+            default=False,
+            help='Flag to run the last hour if interval is minute' +
+                    'or the last 10 minutes if interval is seconds')
 
     # Input group
     input_group = parser.add_mutually_exclusive_group(required=True)
