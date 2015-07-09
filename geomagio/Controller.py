@@ -382,8 +382,8 @@ def parse_args(args):
     parser.add_argument('--realtime',
             action='store_true',
             default=False,
-            help='Flag to run the last hour if interval is minute' +
-                    'or the last 10 minutes if interval is seconds')
+            help='Flag to run last hour if interval is minute, ' +
+                    'or last 10 minutes if interval is seconds')
 
     # Input group
     input_group = parser.add_mutually_exclusive_group(required=True)
