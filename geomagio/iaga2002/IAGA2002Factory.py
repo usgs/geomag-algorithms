@@ -1,12 +1,13 @@
 """Factory that loads IAGA2002 Files."""
 
-import urllib2
 import obspy.core
 import os
-from geomagio import TimeseriesFactory, TimeseriesFactoryException
+import urllib2
+from .. import ChannelConverter
+from ..TimeseriesFactory import TimeseriesFactory
+from ..TimeseriesFactoryException import TimeseriesFactoryException
 from IAGA2002Parser import IAGA2002Parser
 from IAGA2002Writer import IAGA2002Writer
-from geomagio import ChannelConverter
 
 
 # pattern for iaga 2002 file names
