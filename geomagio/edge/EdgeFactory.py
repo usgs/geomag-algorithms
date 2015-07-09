@@ -15,9 +15,9 @@ import obspy.core
 from datetime import datetime
 from obspy import earthworm
 from obspy.core import UTCDateTime
-from geomagio import ChannelConverter, \
-        TimeseriesFactory, \
-        TimeseriesFactoryException
+from .. import ChannelConverter
+from ..TimeseriesFactory import TimeseriesFactory
+from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ObservatoryMetadata import ObservatoryMetadata
 from RawInputClient import RawInputClient
 

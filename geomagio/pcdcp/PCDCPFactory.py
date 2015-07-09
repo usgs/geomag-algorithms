@@ -3,9 +3,9 @@
 import obspy.core
 import os
 import urllib2
-from geomagio import ChannelConverter, \
-        TimeseriesFactory, \
-        TimeseriesFactoryException
+from .. import ChannelConverter
+from ..TimeseriesFactory import TimeseriesFactory
+from ..TimeseriesFactoryException import TimeseriesFactoryException
 from PCDCPParser import PCDCPParser
 from PCDCPWriter import PCDCPWriter
 

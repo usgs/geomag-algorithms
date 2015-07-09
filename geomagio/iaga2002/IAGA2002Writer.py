@@ -1,10 +1,11 @@
 
 from cStringIO import StringIO
-from geomagio import TimeseriesFactoryException, ChannelConverter
-import numpy
-import IAGA2002Parser
-import textwrap
 from datetime import datetime
+import numpy
+import textwrap
+from .. import ChannelConverter
+from ..TimeseriesFactoryException import TimeseriesFactoryException
+import IAGA2002Parser
 
 
 class IAGA2002Writer(object):

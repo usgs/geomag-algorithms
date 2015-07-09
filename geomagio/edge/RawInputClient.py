@@ -3,7 +3,7 @@ import socket  # noqa
 import struct
 import sys
 from datetime import datetime
-from geomagio import TimeseriesFactoryException
+from ..TimeseriesFactoryException import TimeseriesFactoryException
 from obspy.core import UTCDateTime
 from time import sleep
 
