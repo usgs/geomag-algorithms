@@ -1,15 +1,14 @@
 #! /usr/bin/env python
 
-
 from os import path
-
+import sys
 # ensure geomag is on the path before importing
 try:
     import geomagio  # noqa (ignores this line for lint purposes.)
 except:
-    import sys
     script_dir = path.dirname(path.abspath(__file__))
     sys.path.append(path.normpath(path.join(script_dir, '..')))
+
 
 import geomagio.iaga2002 as iaga2002
 from obspy.core.utcdatetime import UTCDateTime
