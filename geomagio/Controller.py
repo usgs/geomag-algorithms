@@ -230,7 +230,7 @@ def main(args):
     # Output Factory
     if args.output_iaga_file is not None:
         outputfactory = iaga2002.StreamIAGA2002Factory(
-                stream=open(args.output_iaga_file, 'w'),
+                stream=open(args.output_iaga_file, 'wb'),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
@@ -248,7 +248,7 @@ def main(args):
                 interval=args.interval)
     elif args.output_pcdcp_file is not None:
         outputfactory = pcdcp.StreamPCDCPFactory(
-                stream=open(args.output_pcdcp_file, 'w'),
+                stream=open(args.output_pcdcp_file, 'wb'),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
