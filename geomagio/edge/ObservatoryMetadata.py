@@ -439,6 +439,381 @@ DEFAULT_METADATA = {
                 'data_interval_type': 'Average 1-Second'
             }
         }
+    },
+    'BLC': {
+        'metadata': {
+            'station_name': 'Bake Lake',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '64.300',
+            'geodetic_longitude': '264.000',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'BRD': {
+        'metadata': {
+            'station_name': 'Brandon',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '49.600',
+            'geodetic_longitude': '262.900',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'CBB': {
+        'metadata': {
+            'station_name': 'Cambridge Bay',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '69.200',
+            'geodetic_longitude': '255.000',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'EUA': {
+        'metadata': {
+            'station_name': 'Eureka',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '55.300',
+            'geodetic_longitude': '282.300',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'FCC': {
+        'metadata': {
+            'station_name': 'Fort Churchill',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '58.800',
+            'geodetic_longitude': '265.900',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'HAD': {
+        'metadata': {
+            'station_name': 'Hartland',
+            'agency_name': 'British Geological Survey (BGS)',
+            'geodetic_latitude': '51.000',
+            'geodetic_longitude': '355.500',
+            'elevation': '0',
+            'sensor_orientation': 'HDZF',
+            'reported': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'HER': {
+        'metadata': {
+            'station_name': 'Hermanus',
+            'agency_name': 'National Research Foundation',
+            'geodetic_latitude': '-34.400',
+            'geodetic_longitude': '19.200',
+            'elevation': '0',
+            'sensor_orientation': 'HDZF',
+            'reported': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'IQA': {
+        'metadata': {
+            'station_name': 'Iqaluit',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '63.800',
+            'geodetic_longitude': '291.500',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'MEA': {
+        'metadata': {
+            'station_name': 'Meanook',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '54.600',
+            'geodetic_longitude': '246.700',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'OTT': {
+        'metadata': {
+            'station_name': 'Ottowa',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '45.400',
+            'geodetic_longitude': '284.500',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'RES': {
+        'metadata': {
+            'station_name': 'Resolute Bay',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '74.700',
+            'geodetic_longitude': '265.100',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'SNK': {
+        'metadata': {
+            'station_name': 'Sanikiluaq',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '62.400',
+            'geodetic_longitude': '245.500',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'STJ': {
+        'metadata': {
+            'station_name': 'Saint John\'s',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '47.600',
+            'geodetic_longitude': '307.300',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'VIC': {
+        'metadata': {
+            'station_name': 'Victoria',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '48.600',
+            'geodetic_longitude': '236.600',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
+    'YKC': {
+        'metadata': {
+            'station_name': 'Yellow Knife',
+            'agency_name': 'Geological Survey of Canada (GSC)',
+            'geodetic_latitude': '62.400',
+            'geodetic_longitude': '245.500',
+            'elevation': '0',
+            'sensor_orientation': 'XYZF',
+            'reported': 'XYZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
     }
 }
 
