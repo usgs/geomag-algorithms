@@ -52,6 +52,9 @@ class EdgeFactory(TimeseriesFactory):
     tag: str
         A tag used by edge to log and associate a socket with a given data
         source
+    forceout: bool
+        Tells edge to forceout a packet to miniseed.  Generally used when
+        the user knows no more data is coming.
 
     See Also
     --------
@@ -68,7 +71,7 @@ class EdgeFactory(TimeseriesFactory):
     def __init__(self, host=None, port=None, write_port=None,
             observatory=None, channels=None, type=None, interval=None,
             observatoryMetadata=None, locationCode=None,
-            cwbhost=None, cwbport=0, tag='GeomagAlg'):
+            cwbhost=None, cwbport=0, tag='GeomagAlg', forceout=False):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
         self.client = earthworm.Client(host, port)
 
@@ -81,6 +84,7 @@ class EdgeFactory(TimeseriesFactory):
         self.write_port = write_port
         self.cwbhost = cwbhost or ''
         self.cwbport = cwbport
+        self.forceout = forceout
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -618,7 +622,8 @@ class EdgeFactory(TimeseriesFactory):
                     trace_send.data)
             trace_send = self._convert_trace_to_int(trace_send)
             ric.send_trace(interval, trace_send)
-        ric.forceout()
+        if self.forceout:
+            ric.forceout()
         ric.close()
 
     def _set_metadata(self, stream, observatory, channel, type, interval):

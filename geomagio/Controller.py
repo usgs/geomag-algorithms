@@ -274,7 +274,8 @@ def main(args):
                 type=args.type,
                 interval=args.interval,
                 locationCode=locationcode,
-                tag=args.output_edge_tag)
+                tag=args.output_edge_tag,
+                forceout=args.forceout)
     else:
             print >> sys.stderr, "Missing required output directive"
 
@@ -382,8 +383,13 @@ def parse_args(args):
     parser.add_argument('--realtime',
             action='store_true',
             default=False,
-            help='Flag to run last hour if interval is minute, ' +
-                    'or last 10 minutes if interval is seconds')
+            help='Flag to run the last hour if interval is minute, ' +
+                    'or the last 10 minutes if interval is seconds')
+    parser.add_argument('--forceout',
+            action='store_true',
+            default=False,
+            help='Flag to force data into miniseed blocks. Should only ' +
+                    'be used when certain the data is self contained.')
 
     # Input group
     input_group = parser.add_mutually_exclusive_group(required=True)
