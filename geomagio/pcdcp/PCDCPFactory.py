@@ -420,7 +420,7 @@ class PCDCPFactory(TimeseriesFactory):
                     self._get_url(observatory, day, type, interval))
 
             day_timeseries = self._get_slice(timeseries, day, interval)
-            with open(day_filename, 'w') as fh:
+            with open(day_filename, 'wb') as fh:
                 self.write_file(fh, day_timeseries, channels)
 
     def _get_file_from_url(self, url):
