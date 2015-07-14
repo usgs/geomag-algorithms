@@ -29,15 +29,14 @@ Delta F (∆F) is, conceptually, very simple:
 - <a name="eq1"></a>Equation 1: ∆F = Fv - Fs
 
 ...where Fs is the measured scalar total field, and  Fv is the estimated total
-field obtained by adding vector components in quadrature (see figure for vector
-component definitions):
+field obtained by adding vector components in quadrature:
 
 - <a name="eq2"></a>Equation 2: Fv = X<sup>2</sup> + Y<sup>2</sup> + Z<sup>2</sup> = H<sup>2</sup> + Z<sup>2</sup> = h<sup>2</sup> + e<sup>2</sup> + Z<sup>2</sup>
 
 Of course, if data are only available in hdZ (where d=(D-D0)) coordinates, as
 is common with USGS preliminary data, they should be converted into a Cartesian
 system used in (2). See the [XYZ Algorithm](XYZ.md) for a discussion on the 
-cartesian coordinate system used.
+cartesian coordinate system(s) used.
 
 ## Practical Considerations
 
