@@ -35,7 +35,7 @@ field obtained by adding vector components in quadrature:
 
 Of course, if data are only available in hdZ (where d=(D-D0)) coordinates, as
 is common with USGS preliminary data, they should be converted into a Cartesian
-system used in (2). See the [XYZ Algorithm](XYZ.md) for a discussion on the 
+system used in ( [Eq. 2](#eq2)). See the [XYZ Algorithm](XYZ.md) for a discussion on the 
 cartesian coordinate system(s) used.
 
 ## Practical Considerations
