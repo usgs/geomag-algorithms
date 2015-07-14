@@ -33,7 +33,7 @@ Delta F (∆F) is, conceptually, very simple:
 field obtained by adding vector components in quadrature (see figure for vector
 component definitions):
 
-- <a name="eq2"></a>Equation 2: 'Fv=X2+Y2+Z2=H2+Z2=h2+e2+Z2'
+- <a name="eq2"></a>Equation 2: 'Fv = X2 + Y2 + Z2 = H2 + Z2 = h2 + e2 + Z2'
 
 Of course, if data are only available in hdZ (where d=(D-D0)) coordinates, as
 is common with USGS preliminary data, they should be converted into a Cartesian
