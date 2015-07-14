@@ -3,7 +3,7 @@ Geomag Algorithms Documents Folder
 
 Documents explaining geomag-algorithms
 
-[DeltaF Algorithm](./DeltaF.md)
+[Delta F Algorithm](./DeltaF.md)
 ------
 
 Describes the theory behind the DeltaF algorithm,  as well as some implementation
