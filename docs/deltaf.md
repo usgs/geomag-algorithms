@@ -26,13 +26,13 @@ magnetic observatory operators.
 
 Delta F (∆F) is, conceptually, very simple:
 
-- <a name="eq1"></a>Equation 1: '∆F = Fv - Fs'
+- <a name="eq1"></a>Equation 1: ∆F = Fv - Fs
 
 ...where Fs is the measured scalar total field, and  Fv is the estimated total
 field obtained by adding vector components in quadrature (see figure for vector
 component definitions):
 
-- <a name="eq2"></a>Equation 2: 'Fv = X<sup>2</sup> + Y<sup>2</sup> + Z<sup>2</sup> = H<sup>2</sup> + Z<sup>2</sup> = h<sup>2</sup> + e<sup>2</sup> + Z<sup>2</sup>'
+- <a name="eq2"></a>Equation 2: Fv = X<sup>2</sup> + Y<sup>2</sup> + Z<sup>2</sup> = H<sup>2</sup> + Z<sup>2</sup> = h<sup>2</sup> + e<sup>2</sup> + Z<sup>2</sup>
 
 Of course, if data are only available in hdZ (where d=(D-D0)) coordinates, as
 is common with USGS preliminary data, they should be converted into a Cartesian
