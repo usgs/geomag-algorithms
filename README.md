@@ -21,6 +21,9 @@ Use PCDCP formatted files for input and/or output.
 ---
 ## Supported Algorithms ##
 
+### [DeltaF](./docs/DeltaF_usage.md) ###
+Calculate DeltaF from geographic, or observatory coordinates.
+
 ### [XYZ](./docs/XYZ_usage.md) ###
 Rotate data between coordinate systems. From HEZ or HDZ to XYZ and back.
 
