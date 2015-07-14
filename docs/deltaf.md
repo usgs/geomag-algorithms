@@ -1,4 +1,4 @@
-# Delta F Algorithm
+# DeltaF Algorithm
 Algorithm Theoretical Basis for "Geomag Delta F"
 
 E. Joshua Rigler &lt;[erigler@usgs.gov](mailto:erigler@usgs.gov)&gt;
