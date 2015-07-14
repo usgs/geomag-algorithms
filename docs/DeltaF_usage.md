@@ -3,19 +3,7 @@
 `geomag.py --deltaf {geo, obs, obsd}`
 
 ### Reference Frames ###
-
-There are 2 reference frames in this library.
-
-#### Geographic or cartesian ####
-
- - `geo` is XYZ
-
  - 'geo':  ['X', 'Y', 'Z', 'F']
-
-#### Observatory ####
-
- - `obs` is heZ
-
  - 'obs':  ['H', 'E', 'Z', 'F']
  - 'obsd': ['H', 'D', 'Z', 'F']
 
@@ -32,12 +20,9 @@ March 2013 output to edge:
 
 ### Library Notes ###
 
-> Note: Within this library all channels are uppercase.
-
-> Note: this library internally represents data gaps as NaN, and factories
-> convert to this where possible.
+Please see the Library Notes for [XYZ Usage](./XYZ_usage.md)
 
 ---
-### [Algorithm Theoretical Basis for "Geomag Delta F"](DeltaF.md) ###
+### [DeltaF Algorithm](DeltaF.md) ###
 Describes the theory behind the Delta F algorithm, as well as some
 implementation issues and solutions.
