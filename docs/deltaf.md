@@ -39,6 +39,8 @@ Of course, if data are only available in hdZ (where d=(D-D0)) coordinates, as
 is common with USGS preliminary data, they should be converted into a Cartesian
 system used in (2).
 
+![Magnetic Field Vectors in three coordinate systems](images/figure.png)
+
 ## Practical Considerations
 
 ### Magnetic Intensity Units
