@@ -17,11 +17,10 @@ Magnetic vector measurements are typically made with fluxgate sensors capable
 of capturing rapid variations along three orthogonal axes simultaneously.
 However, the same technology that allows fast and accurate measurements of
 magnetic field variation is generally more prone to erroneous measurements
-than slower, more stable total-field sensors. The difference between the
-estimated total field obtained by adding magnetic vector components in
-quadrature, and the measured total field, provides a useful time-dependent
-diagnostic for magnetic observatory operators and automated software tools. We
-call this value “Delta F”.
+than slower, more stable total-field sensors. "Delta F" is the difference
+between the estimated total field, obtained from vector components, and the
+measured total field. Delta F provides a useful time-dependent diagnostic for
+magnetic observatory operators.
 
 ## Math and Theory
 
@@ -33,22 +32,14 @@ Delta F (∆F) is, conceptually, very simple:
 field obtained by adding vector components in quadrature (see figure for vector
 component definitions):
 
-- <a name="eq2"></a>Equation 2: 'Fv = X2 + Y2 + Z2 = H2 + Z2 = h2 + e2 + Z2'
+- <a name="eq2"></a>Equation 2: 'Fv = X<sup>2</sup> + Y<sup>2</sup> + Z<sup>2</sup> = H<sup>2</sup> + Z<sup>2</sup> = h<sup>2</sup> + e<sup>2</sup> + Z<sup>2</sup>'
 
 Of course, if data are only available in hdZ (where d=(D-D0)) coordinates, as
 is common with USGS preliminary data, they should be converted into a Cartesian
-system used in (2).
-
-![Magnetic Field Vectors in three coordinate systems](images/figure.png)
+system used in (2). See ![XYZ Algorithm](XYZ.md) for a discussion on the 
+cartesian coordinate system used.
 
 ## Practical Considerations
-
-### Magnetic Intensity Units
-
-It is understood that all raw data inputs are provided in units of nanoTesla
-(nT). Of course this is not required for the equations to be valid, but it is
-incumbent on the programmer to make sure all input data units are the same,
-and that output units are defined accurately.
 
 ### Non-synchronous Observations
 
@@ -62,7 +53,7 @@ seconds”. That said, this standard clearly allows scalar measurements to be
 made less frequently than vector measurements. If this is indeed the case,
 Delta F should correspond to the scalar measurement time steps, however is not
 clearly stated in any found references which vector measurement should be used
-to calculate Delta F.
+to calculate Delta F.  The library requires all inputs use the same sampling rate.
 
 ### Missing Observations
 
@@ -73,14 +64,14 @@ set Delta F equal to -Fs.
 
 ## References
 
-IAGA WG V-DAT (2011), Addition to the IAGA2002 Data Exchange Format: Quasi
+- IAGA WG V-DAT (2011), Addition to the IAGA2002 Data Exchange Format: Quasi
   Definitive (q) data type and valid geomagnetic element (G), IAGA WG V-DAT
   business meeting held during the IUGG-2011 Assembly in Mebourne, Austrailia,
   04 July 2011.
-St-Louis, B. (Ed.) (2012), INTERMAGNET Technical Reference Manual, Version 4.6,
+- St-Louis, B. (Ed.) (2012), INTERMAGNET Technical Reference Manual, Version 4.6,
   obtained
   from: http://www.intermagnet.org/publication-software/technicalsoft-eng.php
-Turbitt, C.; Matzka, J.; Rasson, J.; St-Louis, B.; and Stewart, D. (2013), An
+- Turbitt, C.; Matzka, J.; Rasson, J.; St-Louis, B.; and Stewart, D. (2013), An
   instrument performance and data quality standard for intermagnet one-second
   data exchange, IN: XVth IAGA Workshop on Geomagnetic Observatory Instruments
   and Data Processing, Cadiz, Spain, 4-14 June, 2012, p 186-188.
