@@ -32,6 +32,17 @@ Output will be send directly to the command line.
 `--output-iaga-url`
 Use a file pattern to write to multiple IAGA2002 files.
 
+#### IMFV283 ####
+
+`--input-imfv283-file FILENAME`
+Specify the name of the file to read from.
+
+`--input-imfv283-stdin`
+Use redirection on the command line to send your data in.
+
+`--input-imfv283-url`
+Use a file pattern to read IMFV283 file.
+
 #### PCDCP ####
 
 `--input-pcdcp-file FILENAME`
