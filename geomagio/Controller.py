@@ -12,6 +12,7 @@ from Util import ObjectView
 import edge
 import iaga2002
 import pcdcp
+import imfv283
 
 from DeltaFAlgorithm import DeltaFAlgorithm
 from XYZAlgorithm import XYZAlgorithm
@@ -206,6 +207,18 @@ def main(args):
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
+    elif args.input_imfv283_file is not None:
+        inputfactory = imfv283.StreamIMFV283Factory(
+                stream=open(args.input_imfv283_file, 'r'),
+                observatory=args.observatory)
+    elif args.input_imfv283_stdin is not None:
+        inputfactory = imfv283.StreamIMFV283Factory(
+                stream=sys.stdin,
+                observatory=args.observatory)
+    elif args.input_imfv283_url is not None:
+        inputfactory = imfv283.IMFV283Factory(
+                urlTemplate=args.input_imfv283_url,
+                observatory=args.observatory)
     elif args.input_pcdcp_file is not None:
         inputfactory = pcdcp.StreamPCDCPFactory(
                 stream=open(args.input_pcdcp_file, 'r'),
@@ -408,6 +421,12 @@ def parse_args(args):
             help='Pass in an iaga file using redirection from stdin.')
     input_group.add_argument('--input-iaga-url',
             help='Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
+    input_group.add_argument('--input-imfv283-file',
+            help='Reads from the specified file.')
+    input_group.add_argument('--input-imfv283-stdin',
+            help='Pass in a file using redirection from stdin')
+    input_group.add_argument('--input-imfv283-url',
+            help='Example file://./')
     input_group.add_argument('--input-pcdcp-file',
             help='Reads from the specified file.')
     input_group.add_argument('--input-pcdcp-stdin',
