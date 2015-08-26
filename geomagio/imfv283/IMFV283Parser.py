@@ -6,12 +6,12 @@ import obspy
 from obspy.core import UTCDateTime
 
 import imfv283_codes
-from ..edge import ObservatoryMetadata
+from ..ObservatoryMetadata import ObservatoryMetadata
 
 # values that represent missing data points in IAGA2002
-IMFV_DEAD = 65535
+DEAD_VALUE = 65535
 
-HDR_SIZE = 37
+HEADER_SIZE = 37
 MSG_SIZE_100B = 190
 MSG_SIZE_300B = 191
 BIAS = 8192
@@ -23,8 +23,8 @@ SHIFT = 1048576
 CHANNELS = {
     0: ['X', 'Y', 'Z', 'F'],
     1: ['H', 'E', 'Z', 'F'],
-    2: ['', 'D', 'I', 'F'],
-    3: []
+    2: ['1', 'D', 'I', 'F'],
+    3: ['1', '2', '3', '4']
 }
 
 
@@ -75,7 +75,7 @@ class IMFV283Parser(object):
         lines = data.splitlines()
         for line in lines:
             # if line isn't at least 37 characters, there's no need to proceed.
-            if len(line) <= HDR_SIZE:
+            if len(line) <= HEADER_SIZE:
                 sys.stderr.write('Bad Header length\n')
                 continue
 
@@ -96,25 +96,6 @@ class IMFV283Parser(object):
             data = self._get_data(goes_header, goes_data)
             self._post_process(data, msg_header, goes_header)
 
-    def _findPlatformInObservatories(self, key):
-        """Find the observatory using the platform key.
-
-        Parameters
-        ----------
-        key : str
-            The 8 digit key
-        Returns
-        -------
-            str
-                The 3 digit observatory code.
-
-        """
-        observatories = imfv283_codes.OBSERVATORIES
-        for obs in observatories:
-            if observatories[obs]['platform'] == key:
-                return obs
-        return None
-
     def _get_data(self, header, data):
         """get data from data packet
 
@@ -134,8 +115,6 @@ class IMFV283Parser(object):
         for channel in channels:
             parse_data[channel] = []
 
-        scale = header['scale']
-        offset = header['offset']
         bytecount = 30
         for cnt in xrange(0, 12):
             # get data in 2 byte pairs as integers.
@@ -148,14 +127,14 @@ class IMFV283Parser(object):
             # take 2 byte int, scale and offset it then shift it to the
             # correct value 10th nanotesla, and convert it to a nanotesla
             # float.
-            if d1 != IMFV_DEAD:
-                d1 = (d1 * scale[0] + offset[0] * BIAS - SHIFT) / 10.0
-            if d2 != IMFV_DEAD:
-                d2 = (d2 * scale[1] + offset[1] * BIAS - SHIFT) / 10.0
-            if d3 != IMFV_DEAD:
-                d3 = (d3 * scale[2] + offset[2] * BIAS - SHIFT) / 10.0
-            if d4 != IMFV_DEAD:
-                d4 = (d4 * scale[3] + offset[3] * BIAS - SHIFT) / 10.0
+            if d1 == DEAD_VALUE:
+                d1 = numpy.nan
+            if d2 == DEAD_VALUE:
+                d2 = numpy.nan
+            if d3 == DEAD_VALUE:
+                d3 = numpy.nan
+            if d4 == DEAD_VALUE:
+                d4 = numpy.nan
 
             parse_data[channels[0]].append(d1)
             parse_data[channels[1]].append(d2)
@@ -182,8 +161,8 @@ class IMFV283Parser(object):
         flag we skip it by adding to the data offset.
         """
         if data_len == MSG_SIZE_300B:
-            return HDR_SIZE + 1
-        return HDR_SIZE
+            return HEADER_SIZE + 1
+        return HEADER_SIZE
 
     def _get_startime(self, msg_header, goes_header):
         """Get Starttime by combining headers.
@@ -285,8 +264,7 @@ class IMFV283Parser(object):
         header = {}
 
         header['daps_platform'] = msg[0:8]
-        header['obs'] = self._findPlatformInObservatories(
-                header['daps_platform'])
+        header['obs'] = imfv283_codes.PLATFORMS[header['daps_platform']]
         # if it's not in the observatory dictionary, we ignore it.
         if header['obs'] is None:
             return header
@@ -314,7 +292,10 @@ class IMFV283Parser(object):
             sys.stderr.write('data over twice as old as the message')
             return
 
-        for channel in CHANNELS[goes_header['orient']]:
+        scale = goes_header['scale']
+        offset = goes_header['offset']
+        orientation = goes_header['orient']
+        for channel, loc in zip(CHANNELS[orientation], xrange(0, 4)):
             stats = obspy.core.Stats()
             stats.sampling_rate = 0.0166666666667
             stats.channel = channel
@@ -324,7 +305,11 @@ class IMFV283Parser(object):
             self.observatoryMetadata.set_metadata(stats, msg_header['obs'],
                     channel, 'variation', 'minute')
             numpy_data = numpy.array(data[channel], dtype=numpy.float64)
-            numpy_data[numpy_data == IMFV_DEAD] = numpy.nan
+            numpy_data[numpy_data == DEAD_VALUE] = numpy.nan
+            numpy_data = numpy.multiply(numpy_data, scale[loc])
+            numpy_data = numpy.add(numpy_data, offset[loc] * BIAS - SHIFT)
+            numpy_data = numpy.divide(numpy_data, 10.0)
+
             trace = obspy.core.Trace(numpy_data, stats)
             self.stream += trace
 
@@ -353,21 +338,18 @@ class IMFV283Parser(object):
             byte2 = ord(msg[offset + ness_byte + 1])
             byte1 = ord(msg[offset + ness_byte])
 
-            # mask the three ness bytes to get the 2 byte information.
-            goes_block[goes_byte] = (byte3 & 0x3F) + \
-                    ((byte2 & 0x3) * 0x40)
-            goes_block[goes_byte + 1] = ((byte2 / 0x4) & 0xF) + \
-                    ((byte1 & 0xF) * 0x10)
+            goes_value1 = (byte3 & 0x3F) + ((byte2 & 0x3) * 0x40)
+            goes_value2 = ((byte2 / 0x4) & 0xF) + ((byte1 & 0xF) * 0x10)
 
             # swap the bytes depending on domsat information.
-            if domsat['swap_hdr'] and cnt <= 11:
-                byte_value = goes_block[goes_byte + 1]
-                goes_block[goes_byte + 1] = goes_block[goes_byte]
-                goes_block[goes_byte] = byte_value
-            if domsat['swap_data'] and cnt > 11:
-                byte_value = goes_block[goes_byte + 1]
-                goes_block[goes_byte + 1] = goes_block[goes_byte]
-                goes_block[goes_byte] = byte_value
+            if domsat['swap_hdr'] and cnt <= 11 or \
+                    domsat['swap_data'] and cnt > 11:
+                goes_block[goes_byte] = goes_value2
+                goes_block[goes_byte + 1] = goes_value1
+            else:
+                goes_block[goes_byte] = goes_value1
+                goes_block[goes_byte + 1] = goes_value2
+
             ness_byte += 3
             goes_byte += 2
 
