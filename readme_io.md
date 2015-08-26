@@ -20,7 +20,7 @@ Data will be pulled from geomag.usgs.gov/data/magnetometer if it exists.
 `--input-iaga-stdin`
 Use redirection on the command line to send your data in.
 
-`--input-iaga-url`
+`--input-iaga-url URL`
 Use a file pattern to read from multiple IAGA2002 files.
 
 `--output-iaga-file FILENAME`
@@ -29,7 +29,7 @@ Specify the name of the file to write to.
 `--output-iaga-stdout`
 Output will be send directly to the command line.
 
-`--output-iaga-url`
+`--output-iaga-url URL`
 Use a file pattern to write to multiple IAGA2002 files.
 
 #### IMFV283 ####
@@ -40,7 +40,7 @@ Specify the name of the file to read from.
 `--input-imfv283-stdin`
 Use redirection on the command line to send your data in.
 
-`--input-imfv283-url`
+`--input-imfv283-url URL`
 Use a file pattern to read IMFV283 file.
 
 #### PCDCP ####
@@ -51,7 +51,7 @@ Specify the name of the file to read from.
 `--input-pcdcp-stdin`
 Use redirection on the command line to send your data in.
 
-`--input-pcdcp-url`
+`--input-pcdcp-url URL`
 Use a file pattern to read from multiple PCDCP files.
 
 `--output-pcdcp-file FILENAME`
