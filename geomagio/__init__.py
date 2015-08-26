@@ -11,6 +11,7 @@ from TimeseriesFactory import TimeseriesFactory
 from TimeseriesFactoryException import TimeseriesFactoryException
 import TimeseriesUtility
 import Util
+import Url
 from XYZAlgorithm import XYZAlgorithm
 
 __all__ = [
@@ -24,5 +25,6 @@ __all__ = [
     'TimeseriesFactoryException',
     'TimeseriesUtility',
     'Util',
+    'Url',
     'XYZAlgorithm'
 ]
