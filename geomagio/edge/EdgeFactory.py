@@ -18,7 +18,7 @@ from obspy.core import UTCDateTime
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
-from ObservatoryMetadata import ObservatoryMetadata
+from ..ObservatoryMetadata import ObservatoryMetadata
 from RawInputClient import RawInputClient
 
 
