@@ -172,3 +172,7 @@ OBSERVATORIES = {
         'swap_data': False
     }
 }
+
+PLATFORMS = {}
+for obs in OBSERVATORIES:
+    PLATFORMS[OBSERVATORIES[obs]['platform']] = (obs)
