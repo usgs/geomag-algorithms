@@ -5,8 +5,9 @@ import numpy
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
-from ..Url import URL
+from ..Util import read_url
 from IMFV283Parser import IMFV283Parser
+from ..ObservatoryMetadata import ObservatoryMetadata
 
 
 class IMFV283Factory(TimeseriesFactory):
@@ -24,9 +25,10 @@ class IMFV283Factory(TimeseriesFactory):
     """
 
     def __init__(self, urlTemplate, observatory=None, channels=None, type=None,
-            interval=None):
-        TimeseriesFactory.__init__(self, observatory, channels, type, interval)
-        self.urlTemplate = urlTemplate
+            interval=None, observatoryMetadata=None):
+        TimeseriesFactory.__init__(self, observatory, channels, type,
+                interval, urlTemplate)
+        self.observatoryMetadata = observatoryMetadata or ObservatoryMetadata()
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type='variation', interval='minute'):
@@ -61,16 +63,16 @@ class IMFV283Factory(TimeseriesFactory):
         type = type or self.type
         interval = interval or self.interval
         timeseries = obspy.core.Stream()
-        url = URL(self.urlTemplate)
-        url_id = url.get_url(observatory, obspy.core.UTCDateTime(),
+        url_id = self._get_url(observatory, obspy.core.UTCDateTime(),
                 type, interval)
 
-        imfV283File = url.read_url(url_id)
+        imfV283File = read_url(url_id)
         timeseries += self.parse_string(imfV283File)
         # merge channel traces for multiple days
         timeseries.merge()
         # trim to requested start/end time
         timeseries.trim(starttime, endtime)
+        self._post_process(timeseries)
         if observatory is not None:
             timeseries = timeseries.select(station=observatory)
         return timeseries.select(station=observatory)
@@ -105,15 +107,8 @@ class IMFV283Factory(TimeseriesFactory):
 
         return stream
 
-    def write_file(self, fh, timeseries, channels):
-        """writes timeseries data to the given file object.
-
-        Parameters
-        ----------
-        fh: file object
-        timeseries : obspy.core.Stream
-            stream containing traces to store.
-        channels : array_like
-            list of channels to store
-        """
-        raise TimeseriesFactoryException('IAF write_file not implemented.')
+    def _post_process(self, timeseries):
+        for trace in timeseries:
+            stats = trace.stats
+            self.observatoryMetadata.set_metadata(stats, stats.station,
+                    stats.channel, 'variation', 'minute')
