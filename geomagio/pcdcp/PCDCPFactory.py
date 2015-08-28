@@ -4,7 +4,7 @@ import obspy.core
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
-from ..Url import URL
+from ..Util import read_url
 from PCDCPParser import PCDCPParser
 from PCDCPWriter import PCDCPWriter
 
@@ -37,8 +37,8 @@ class PCDCPFactory(TimeseriesFactory):
 
     def __init__(self, urlTemplate, observatory=None, channels=None, type=None,
             interval=None):
-        TimeseriesFactory.__init__(self, observatory, channels, type, interval)
-        self.urlTemplate = urlTemplate
+        TimeseriesFactory.__init__(self, observatory, channels, type,
+                interval, urlTemplate)
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -74,10 +74,9 @@ class PCDCPFactory(TimeseriesFactory):
         interval = interval or self.interval
         days = self._get_days(starttime, endtime)
         timeseries = obspy.core.Stream()
-        url = URL(self.urlTemplate)
         for day in days:
-            url_id = url.get_url(observatory, day, type, interval)
-            pcdcpFile = url.read_url(url_id)
+            url_id = self._get_url(observatory, day, type, interval)
+            pcdcpFile = read_url(url_id)
             timeseries += self.parse_string(pcdcpFile)
 
         # merge channel traces for multiple days
@@ -216,6 +215,7 @@ class PCDCPFactory(TimeseriesFactory):
             data interval, optional.
             uses default if unspecified.
         """
+        print self.urlTemplate
         if not self.urlTemplate.startswith('file://'):
             raise TimeseriesFactoryException('Only file urls are supported')
 
@@ -227,10 +227,9 @@ class PCDCPFactory(TimeseriesFactory):
         starttime = starttime or stats.starttime
         endtime = endtime or stats.endtime
         days = self._get_days(starttime, endtime)
-        url = URL(self.urlTemplate)
         for day in days:
-            day_filename = url.get_file_from_url(
-                    url.get_url(observatory, day, type, interval))
+            day_filename = self._get_file_from_url(
+                    self._get_url(observatory, day, type, interval))
 
             day_timeseries = self._get_slice(timeseries, day, interval)
             with open(day_filename, 'wb') as fh:
