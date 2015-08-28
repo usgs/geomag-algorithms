@@ -56,11 +56,8 @@ class IMFV283Parser(object):
     We can change this to get smarter, but right now, there's no need to.
     """
 
-    def __init__(self, observatoryMetadata=None):
+    def __init__(self):
         """Create a new IMFV283 parser."""
-        # dictionary of data (channel : numpy.array<float64>)
-        self.observatoryMetadata = observatoryMetadata or ObservatoryMetadata()
-        # temporary storage for data being parsed
         self._parsedata = None
         self.stream = obspy.core.Stream()
 
@@ -123,18 +120,6 @@ class IMFV283Parser(object):
             d3 = 0x100 * data[bytecount + 4] + data[bytecount + 5]
             d4 = 0x100 * data[bytecount + 6] + data[bytecount + 7]
             bytecount += 8
-
-            # take 2 byte int, scale and offset it then shift it to the
-            # correct value 10th nanotesla, and convert it to a nanotesla
-            # float.
-            if d1 == DEAD_VALUE:
-                d1 = numpy.nan
-            if d2 == DEAD_VALUE:
-                d2 = numpy.nan
-            if d3 == DEAD_VALUE:
-                d3 = numpy.nan
-            if d4 == DEAD_VALUE:
-                d4 = numpy.nan
 
             parse_data[channels[0]].append(d1)
             parse_data[channels[1]].append(d2)
@@ -297,15 +282,17 @@ class IMFV283Parser(object):
         orientation = goes_header['orient']
         for channel, loc in zip(CHANNELS[orientation], xrange(0, 4)):
             stats = obspy.core.Stats()
-            stats.sampling_rate = 0.0166666666667
             stats.channel = channel
+            stats.sampling_rate = 0.0166666666667
             stats.starttime = goes_time
             stats.npts = 12
             stats.station = msg_header['obs']
-            self.observatoryMetadata.set_metadata(stats, msg_header['obs'],
-                    channel, 'variation', 'minute')
+
             numpy_data = numpy.array(data[channel], dtype=numpy.float64)
             numpy_data[numpy_data == DEAD_VALUE] = numpy.nan
+            # Data values need to be scaled, offset and shifted into the
+            # correct 10th nanotesla value.
+            # For our convenience we convert to nanotesla values.
             numpy_data = numpy.multiply(numpy_data, scale[loc])
             numpy_data = numpy.add(numpy_data, offset[loc] * BIAS - SHIFT)
             numpy_data = numpy.divide(numpy_data, 10.0)
@@ -330,7 +317,10 @@ class IMFV283Parser(object):
         ness_byte = 0
         goes_byte = 0
 
-        offset = self._get_data_offset(data_len)
+        if data_len == MSG_SIZE_300B:
+            offset = HEADER_SIZE + 1
+        else:
+            offset = HEADER_SIZE
 
         for cnt in xrange(0, 63):
             # Convert 3 byte "pair" into ordinal values for manipulation.
