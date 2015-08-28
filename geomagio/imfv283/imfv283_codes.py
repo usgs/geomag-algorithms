@@ -175,4 +175,4 @@ OBSERVATORIES = {
 
 PLATFORMS = {}
 for obs in OBSERVATORIES:
-    PLATFORMS[OBSERVATORIES[obs]['platform']] = (obs)
+    PLATFORMS[OBSERVATORIES[obs]['platform']] = obs
