@@ -1,4 +1,4 @@
-
+import urllib2
 
 class ObjectView(object):
     """
@@ -17,3 +17,33 @@ class ObjectView(object):
         Override string representation to output wrapped dictionary.
         """
         return str(self.__dict__)
+
+
+def read_url(url):
+    """Open and read url contents.
+
+    Parameters
+    ----------
+    url : str
+        A urllib2 compatible url, such as http:// or file://.
+
+    Returns
+    -------
+    str
+        contents returned by url.
+
+    Raises
+    ------
+    urllib2.URLError
+        if any occurs
+    """
+    response = urllib2.urlopen(url)
+    content = None
+    try:
+        content = response.read()
+    except urllib2.URLError, e:
+        print e.reason
+        raise
+    finally:
+        response.close()
+    return content
