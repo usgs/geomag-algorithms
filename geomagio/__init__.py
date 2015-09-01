@@ -12,7 +12,6 @@ from TimeseriesFactory import TimeseriesFactory
 from TimeseriesFactoryException import TimeseriesFactoryException
 import TimeseriesUtility
 import Util
-import Url
 from XYZAlgorithm import XYZAlgorithm
 
 __all__ = [
