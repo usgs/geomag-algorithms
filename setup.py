@@ -8,6 +8,7 @@ setup(
     packages=[
         'geomagio',
         'geomagio.iaga2002',
+				'geomagio.imvf283',
         'geomagio.edge',
         'geomagio.pcdcp'
     ],
