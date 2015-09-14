@@ -4,7 +4,6 @@ import obspy.core
 import numpy
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
-from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..Util import read_url
 from IMFV283Parser import IMFV283Parser
 from ..ObservatoryMetadata import ObservatoryMetadata

@@ -6,7 +6,6 @@ import obspy
 from obspy.core import UTCDateTime
 
 import imfv283_codes
-from ..ObservatoryMetadata import ObservatoryMetadata
 
 # values that represent missing data points in IAGA2002
 DEAD_VALUE = 65535

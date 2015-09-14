@@ -1,5 +1,6 @@
 import urllib2
 
+
 class ObjectView(object):
     """
     Wrap a dictionary so its properties can be accessed as an object.
