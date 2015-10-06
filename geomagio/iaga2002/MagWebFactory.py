@@ -19,3 +19,6 @@ class MagWebFactory(IAGA2002Factory):
         IAGA2002Factory.__init__(self, MAGWEB_URL_TEMPLATE,
             observatory=observatory, channels=channels, type=type,
             interval=interval)
+
+
+MagWebFactory.MAGWEB_URL_TEMPLATE = MAGWEB_URL_TEMPLATE

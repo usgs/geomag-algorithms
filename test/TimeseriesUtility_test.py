@@ -2,12 +2,12 @@
 from nose.tools import assert_equals
 from StreamConverter_test import __create_trace
 import numpy
-import TimeseriesUtility
+from geomagio import TimeseriesUtility
 from obspy.core import Stream, UTCDateTime
 
 
 def test_get_stream_gaps():
-    """geomag.TimeseriesUtility_test.test_get_stream_gaps
+    """TimeseriesUtility_test.test_get_stream_gaps()
 
     confirms that gaps are found in a stream
     """
@@ -36,7 +36,7 @@ def test_get_stream_gaps():
 
 
 def test_get_trace_gaps():
-    """geomag.TimeseriesUtility_test.test_get_trace_gaps
+    """TimeseriesUtility_test.test_get_trace_gaps()
 
     confirm that gaps are found in a trace
     """
@@ -54,7 +54,7 @@ def test_get_trace_gaps():
 
 
 def test_get_merged_gaps():
-    """geomag.TimeseriesUtility_test.test_get_merged_gaps
+    """TimeseriesUtility_test.test_get_merged_gaps()
 
     confirm that gaps are merged
     """

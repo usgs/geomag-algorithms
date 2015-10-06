@@ -1,7 +1,7 @@
 """Tests for the PCDCP Parser class."""
 
 from nose.tools import assert_equals
-from PCDCPParser import PCDCPParser
+from geomagio.pcdcp import PCDCPParser
 
 
 PCDCP_EXAMPLE = \
@@ -20,7 +20,7 @@ BOU  2015  001  01-Jan-15  HEZF  0.01nT  File Version 2.00
 
 
 def test__parse_header():
-    """geomagio.pcdcp.PCDCPParser_test.test_parse_header()
+    """pcdcp_test.PCDCPParser_test.test_parse_header()
 
     Call the _parse_header method with a header.
     Verify the header name and value are split at the correct column.

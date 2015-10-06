@@ -1,12 +1,12 @@
 """Tests for IAGA2002Factory."""
 
-from IAGA2002Factory import IAGA2002Factory
+from geomagio.iaga2002 import IAGA2002Factory
 from obspy.core.utcdatetime import UTCDateTime
 from nose.tools import assert_equals
 
 
 def test__get_days():
-    """geomagio.iaga2002.IAGA2002Factory_test.test__get_days()
+    """iaga2002_test.IAGA2002Factory_test.test__get_days()
 
     Call the _get_days method with starttime and endtime separated by more
     than one day.

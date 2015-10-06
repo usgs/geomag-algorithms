@@ -1,6 +1,6 @@
 """Tests for PCDCPFactory."""
 
-from PCDCPFactory import PCDCPFactory
+from geomagio.pcdcp import PCDCPFactory
 from obspy.core.utcdatetime import UTCDateTime
 from obspy.core.stream import Stream
 from nose.tools import assert_equals
@@ -15,7 +15,7 @@ pcdcpString = \
 
 
 def test_parse_string():
-    """geomagio.pcdcp.PCDCPFactory_test.test_parse_string()
+    """pcdcp_test.PCDCPFactory_test.test_parse_string()
 
     Send a PCDCP file string in to parse_string to make sure a well formed
     stream is created with proper values.

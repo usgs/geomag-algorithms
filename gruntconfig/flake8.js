@@ -1,11 +1,22 @@
 'use strict';
 
 module.exports = {
-  options: {
-    ignore: ['E122', 'E126', 'E127', 'E128', 'E131']
+  src: {
+    options: {
+      ignore: ['E122', 'E126', 'E127', 'E128', 'E131']
+    },
+    src: [
+      'bin/*.py',
+      'geomagio/**/*.py'
+    ]
   },
-  src: [
-    'geomagio/**/*.py',
-    'bin/*.py'
-  ]
+
+  test: {
+    options: {
+      ignore: ['E122', 'E126', 'E127', 'E128', 'E131']
+    },
+    src: [
+      'test/**/*.py'
+    ]
+  }
 };

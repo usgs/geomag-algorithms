@@ -2,12 +2,12 @@
 from obspy.core.stream import Stream
 from nose.tools import assert_equals
 from nose.tools import assert_is
-from XYZAlgorithm import XYZAlgorithm
+from geomagio import XYZAlgorithm
 from StreamConverter_test import __create_trace
 
 
 def test_xyzalgorithm_process():
-    """geomag.XYZAlgorithmtest.test_algorithm_process()
+    """XYZAlgorithm_test.test_xyzalgorithm_process()
 
     confirms that a converted stream contains the correct outputchannels.
     """
@@ -22,7 +22,7 @@ def test_xyzalgorithm_process():
 
 
 def test_xyzalgorithm_channels():
-    """geomag.XYZAlgorithmtest.test_algorithm_process()
+    """XYZAlgorithm_test.test_xyzalgorithm_channels()
 
     confirms that the input/output channels are correct for the given
     informat/outformat during instantiation.

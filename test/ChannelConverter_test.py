@@ -2,7 +2,7 @@
 
 import numpy
 import math
-import ChannelConverter as channel
+import geomagio.ChannelConverter as channel
 
 assert_almost_equal = numpy.testing.assert_almost_equal
 cos = math.cos
@@ -46,7 +46,7 @@ class ChannelConverterTest:
     """
 
     def test_get_computed_f_using_sqaures(self):
-        """geomag.ChannelConverterTest.test_get_computed_f_using_sqaures
+        """ChannelConverter_test.test_get_computed_f_using_sqaures
 
         Computed f is the combination of the 3 vector components from
             either the geographic coordinate system (X,Y,Z), or the observatory
@@ -61,7 +61,7 @@ class ChannelConverterTest:
                 True)
 
     def test_get_geo_from_obs(self):
-        """geomag.ChannelConverterTest.test_get_geo_from_obs()
+        """ChannelConverter_test.test_get_geo_from_obs()
 
         The observatory component ``h`` and ``e`` combined with the declination
         basline angle ``d0`` converts to the geographic north component
@@ -114,7 +114,7 @@ class ChannelConverterTest:
                 'Expect Y to equal sin(60).', True)
 
     def test_get_geo_from_mag(self):
-        """geomag.ChannelConverterTest.test_get_geo_from_mag()
+        """ChannelConverter_test.test_get_geo_from_mag()
 
         ``X``, ``Y`` are the north component, and east component of the
         vector ``H`` which is an angle ``D`` from north.
@@ -131,7 +131,7 @@ class ChannelConverterTest:
                 'Expect Y to be sin(30).', True)
 
     def test_get_geo_x_from_mag(self):
-        """geomag.ChannelConverterTest.test_get_geo_x_from_mag()
+        """ChannelConverter_test.test_get_geo_x_from_mag()
 
         ``X`` is the north component of the vector ``H``, which is an angle
         ``D`` from north.
@@ -152,7 +152,7 @@ class ChannelConverterTest:
                 'Expect X to equal cos(30).', True)
 
     def test_get_geo_y_from_mag(self):
-        """geomag.ChannelConverterTest.test_get_geo_y_from_mag()
+        """ChannelConverter_test.test_get_geo_y_from_mag()
 
         ``Y`` is the north component of the vector ``H``, which is an angle
         ``D`` from north.
@@ -174,7 +174,7 @@ class ChannelConverterTest:
                 'Expect Y to be 2sin(30).', True)
 
     def test_get_mag_from_obs(self):
-        """geomag.ChannelConverterTest.test_get_geo_y_from_obs()
+        """ChannelConverter_test.test_get_geo_y_from_obs()
 
         ``h``, ``e`` are the primary and secondary axis of the ``H``
         vector in the horizontal plane of the magnetic field.  ``d0``
@@ -193,7 +193,7 @@ class ChannelConverterTest:
         assert_almost_equal(D, 45 * D2R, 8, 'Expect D to be 45.', True)
 
     def test_get_mag_from_geo(self):
-        """geomag.ChannelConverterTest.test_get_geo_y_from_obs()
+        """ChannelConverter_test.test_get_geo_y_from_obs()
 
         ``X`` and ``Y are the north and east components of the ``H`` total
         magnetic field horizontal vector.  ``D`` is the angle from north of
@@ -209,7 +209,7 @@ class ChannelConverterTest:
         assert_almost_equal(D, 30 * D2R, 8, 'Expect D to be 30.', True)
 
     def test_get_mag_d_from_obs(self):
-        """geomag.ChannelConverterTest.test_get_mag_d_from_obs()
+        """ChannelConverter_test.test_get_mag_d_from_obs()
 
         The observatory components ``h`` and ``e`` form an angle (d) with
         the horizontal magnetic vector. Adding d to the observatory
@@ -263,7 +263,7 @@ class ChannelConverterTest:
                 'Expect D to equal -60 degrees', True)
 
     def test_get_mag_d_from_geo(self):
-        """geomag.ChannelConverterTest.test_get_mag_d_from_geo()
+        """ChannelConverter_test.test_get_mag_d_from_geo()
 
         Angle ``D`` from north of the horizontal vector can be calculated
         using the arctan of the ``X`` and ``Y`` components.
@@ -290,7 +290,7 @@ class ChannelConverterTest:
                 'Expect D to equal -30 degrees', True)
 
     def test_get_mag_h_from_obs(self):
-        """geomag.ChannelConverterTest.test_get_mag_h_from_obs()
+        """ChannelConverter_test.test_get_mag_h_from_obs()
 
         ``h`` and ``e`` are the primary and secondary components of the ``H``
         vector.
@@ -303,7 +303,7 @@ class ChannelConverterTest:
         assert_almost_equal(H, 5, 8, 'Expect H to be 5.', True)
 
     def test_get_mag_h_from_geo(self):
-        """geomag.ChannelConverterTest.test_get_mag_d_from_geo()
+        """ChannelConverter_test.test_get_mag_d_from_geo()
 
         ``X`` and ``Y`` are the north and east components of the horizontal
         magnetic field vector ``H``
@@ -316,7 +316,7 @@ class ChannelConverterTest:
         assert_almost_equal(H, 5, 8, 'Expect H to be 5.', True)
 
     def test_get_obs_from_geo(self):
-        """geomag.io.channelTest.test_get_obs_from_geo()
+        """ChannelConverter_test.test_get_obs_from_geo()
 
         The geographic north and east components ``X`` and ``Y`` of the
         magnetic field vector H, combined with the declination baseline angle
@@ -368,7 +368,7 @@ class ChannelConverterTest:
         assert_almost_equal(d, 30 * D2R, 8, 'Expect d to be 30 degrees.', True)
 
     def test_get_obs_from_mag(self):
-        """geomag.ChannelConverterTest.test_get_obs_from_mag()
+        """ChannelConverter_test.test_get_obs_from_mag()
 
         Call the get_obs_from_mag function, using trig identities too
         test correctness, including d0. Which should test most of the d0
@@ -384,7 +384,7 @@ class ChannelConverterTest:
                 'Expect e to be -cos(45).', True)
 
     def test_get_obs_d_from_obs(self):
-        """geomag.ChannelConverterTest.test_get_obs_d_from_obs()
+        """ChannelConverter_test.test_get_obs_d_from_obs()
 
         ``d`` is the angle formed by the observatory components ``h`` and
         ``e`` the primary and secondary axis of the horizontal magnetic
@@ -405,7 +405,7 @@ class ChannelConverterTest:
                 'Expect d to be 30 degrees.', True)
 
     def test_get_obs_d_from_mag_d(self):
-        """geomag.ChannelConverterTest.test_get_obs_d_from_mag()
+        """ChannelConverter_test.test_get_obs_d_from_mag()
 
         The observatory declination angle ``d`` is the difference between
         the magnetic north declination ``D`` and the observatory baseline
@@ -438,7 +438,7 @@ class ChannelConverterTest:
         assert_almost_equal(d, 60 * D2R, 8, 'Expect d to be 60 degrees.', True)
 
     def test_get_obs_e_from_mag(self):
-        """geomag.ChannelConverterTest.test_get_obs_e_from_mag()
+        """ChannelConverter_test.test_get_obs_e_from_mag()
 
         ``e`` is the secondary axis or 'east' component of the observatory
         reference frame. Using the difference between the magnetic declination
@@ -469,7 +469,7 @@ class ChannelConverterTest:
                 'Expect e to be sin(30)', True)
 
     def test_get_obs_e_from_obs(self):
-        """geomag.ChannelConverterTest.test_get_obs_e_from_obs()
+        """ChannelConverter_test.test_get_obs_e_from_obs()
 
         ``e`` is the seconday (east) component of the observatory vector ``h``.
         ``e`` is calculated using ``h`` * tan(``d``) where ``d`` is the
@@ -485,7 +485,7 @@ class ChannelConverterTest:
                 'Expect e to be 2 * tan(30).', True)
 
     def test_get_obs_h_from_mag(self):
-        """geomag.ChannelConverterTest.test_get_obs_h_from_mag()
+        """ChannelConverter_test.test_get_obs_h_from_mag()
 
         The observatories horizontal magnetic vector ``h`` is caculated from
         the magnetic north vector ``H`` and the observatory declination angle
@@ -509,7 +509,7 @@ class ChannelConverterTest:
                 'Expect h to be cos(15)', True)
 
     def test_geo_to_obs_to_geo(self):
-        """geomag.ChannelConverterTest.test_geo_to_obs_to_geo()
+        """ChannelConverter_test.test_geo_to_obs_to_geo()
 
         Call get_geo_from_obs using values from Boulder, then call
             get_obs_from_geo using the X,Y values returned from
@@ -526,7 +526,7 @@ class ChannelConverterTest:
         assert_almost_equal(e, -74.16, 8, 'Expect e to = -74.16', True)
 
     def test_get_radians_from_minutes(self):
-        """geomag.ChannelConverterTest.test_get_radian_from_decimal()
+        """ChannelConverter_test.test_get_radian_from_decimal()
 
         Call get_radian_from_decimal using 45 degrees, expect r to be pi/4
         """
@@ -536,7 +536,7 @@ class ChannelConverterTest:
                 'Expect radians to be pi/4', True)
 
     def test_get_minutes_from_radians(self):
-        """geomag.ChannelConverterTest.test_get_decimal_from_radian()
+        """ChannelConverter_test.test_get_decimal_from_radian()
 
         Call get_decimal_from_radian using pi/4, expect d to be 45
         """

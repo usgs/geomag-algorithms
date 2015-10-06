@@ -1,12 +1,10 @@
 #! /usr/bin/env python
-from geomagio.TimeseriesFactory import TimeseriesFactory
-from geomagio.Algorithm import Algorithm
-from geomagio.Controller import Controller
+from geomagio import Algorithm, Controller, TimeseriesFactory
 from nose.tools import assert_is_instance
 
 
 def test_controller():
-    """geomagio.Controllertest.test_controller()
+    """Controller_test.test_controller()
 
   instantiate the controller, make certain the factories and algorithms
   are set

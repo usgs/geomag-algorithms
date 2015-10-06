@@ -4,7 +4,8 @@ module.exports = {
   main: {
     options: {
       match: '[Tt]est',
-      verbose: true
+      verbose: true,
+      include: 'test/*/*.py'
     }
   }
 };

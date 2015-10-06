@@ -2,11 +2,11 @@
 from obspy.core.stream import Stream
 from nose.tools import assert_equals
 from nose.tools import assert_is_instance
-from Algorithm import Algorithm
+from geomagio import Algorithm
 
 
 def test_algorithm_process():
-    """geomag.Algorithmtest.test_algorithm_process()
+    """Algorithm_test.test_algorithm_process()
 
     confirms that algorithm.process returns an obspy.core.stream object
     """
@@ -17,7 +17,7 @@ def test_algorithm_process():
 
 
 def test_algorithm_channels():
-    """geomag.Algorithmtest.test_algorithm_channels()
+    """Algorithm_test.test_algorithm_channels()
 
     confirms that algorithm.get_input_channels returns the correct channels
     confirms that algorithm.get_output_channels returns the correct channels

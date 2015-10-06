@@ -11,8 +11,7 @@ For more info on the components see the Notes in ChannelConverterTest.py.
 """
 import obspy.core
 import numpy
-import StreamConverter
-import ChannelConverter
+from geomagio import ChannelConverter, StreamConverter
 
 assert_almost_equal = numpy.testing.assert_almost_equal
 
@@ -25,7 +24,7 @@ STARTTIME = obspy.core.UTCDateTime('2014-11-01')
 
 
 def test_get_geo_from_mag():
-    """geomag.StreamConverter_test.test_get_geo_from_mag()
+    """StreamConverter_test.test_get_geo_from_mag()
 
     The magnetic north stream containing the traces ''h'', ''d'', ''z'', and
     ''f'' converts to the geographics stream containing the traces ''x'',
@@ -51,7 +50,7 @@ def test_get_geo_from_mag():
 
 
 def test_get_geo_from_obs():
-    """geomag.StreamConverter_test.test_get_geo_from_obs()
+    """StreamConverter_test.test_get_geo_from_obs()
 
     The observatory stream containing the observatory traces
     ''h'', ''d'' or ''e'', ''z'', and ''f'' converts to the geographic
@@ -92,7 +91,7 @@ def test_get_geo_from_obs():
 
 
 def test_get_mag_from_geo():
-    """geomag.StreamConverter_test.test_get_mag_from_geo()
+    """StreamConverter_test.test_get_mag_from_geo()
 
     The geographic stream containing the traces ''x'', ''y'', ''z'', and
         ''f'' converts to the magnetic stream containing the traces
@@ -118,7 +117,7 @@ def test_get_mag_from_geo():
 
 
 def test_get_mag_from_obs():
-    """geomag.StreamConverter_test.test_get_mag_from_obs()
+    """StreamConverter_test.test_get_mag_from_obs()
 
     The observatory stream containing the traces ''h'', ''e'' or ''d'',
         ''z'' and ''f''
@@ -143,7 +142,7 @@ def test_get_mag_from_obs():
 
 
 def test_get_obs_from_geo():
-    """geomag.StreamConverter_test.test_get_obs_from_geo()
+    """StreamConverter_test.test_get_obs_from_geo()
 
     The geographic stream containing the traces ''x'', ''y'', ''z'', and
     ''f'' converts to the observatory stream containing the traces
@@ -173,7 +172,7 @@ def test_get_obs_from_geo():
 
 
 def test_get_obs_from_mag():
-    """geomag.StreamConverter_test.test_get_obs_from_mag()
+    """StreamConverter_test.test_get_obs_from_mag()
 
     The magnetic stream containing the traces ''h'', ''d'', ''z'', and ''f''
         converts to the observatory stream containing the traces
@@ -203,7 +202,7 @@ def test_get_obs_from_mag():
 
 
 def test_get_obs_from_obs():
-    """geomag.StreamConverter_test.test_get_obs_from_obs()
+    """StreamConverter_test.test_get_obs_from_obs()
 
     The observatory stream can contain either ''d'' or ''e'' depending
     on it's source. get_obs_from_obs will return either or both as part
@@ -239,7 +238,8 @@ def test_get_obs_from_obs():
 
 
 def test_verification_data():
-    """
+    """StreamConverter_test.test_verification_data()
+
     This is a verification test of data done with different
     converters,  to see if the same result is returned.
     Since the small angle approximation was used in the other
