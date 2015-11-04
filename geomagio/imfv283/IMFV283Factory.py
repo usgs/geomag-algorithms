@@ -7,6 +7,7 @@ from ..TimeseriesFactory import TimeseriesFactory
 from ..Util import read_url
 from IMFV283Parser import IMFV283Parser
 from ..ObservatoryMetadata import ObservatoryMetadata
+import subprocess
 
 
 class IMFV283Factory(TimeseriesFactory):
@@ -19,7 +20,7 @@ class IMFV283Factory(TimeseriesFactory):
     Notes
     -----
     The urlTemplate is probably overkill for IMFV283, but I've left it in place
-    in case some has a different methodology, that more closely models the
+    in case someone has a different methodology, that more closely models the
     url/file reading.
     """
 
@@ -103,7 +104,6 @@ class IMFV283Factory(TimeseriesFactory):
             for trace in stream.select(channel='D'):
                 trace.data = ChannelConverter.get_radians_from_minutes(
                     trace.data)
-
         return stream
 
     def _post_process(self, timeseries):
