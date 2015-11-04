@@ -67,6 +67,8 @@ class Controller(object):
                 starttime=start,
                 endtime=end,
                 channels=input_channels)
+        if timeseries.count() == 0:
+            return
         # process
         processed = algorithm.process(timeseries)
         # output
@@ -211,6 +213,14 @@ def main(args):
         inputfactory = imfv283.StreamIMFV283Factory(
                 stream=open(args.input_imfv283_file, 'r'),
                 observatory=args.observatory)
+    elif args.input_imfv283_goes is not None:
+        inputfactory = imfv283.GOESIMFV283Factory(
+                directory=args.input_goes_directory,
+                getdcpmessages=args.input_goes_getdcpmessages,
+                observatory=args.observatory,
+                server=args.input_goes_server,
+                user=args.input_goes_user,
+                )
     elif args.input_imfv283_stdin is not None:
         inputfactory = imfv283.StreamIMFV283Factory(
                 stream=sys.stdin,
@@ -403,6 +413,19 @@ def parse_args(args):
             default=False,
             help='Flag to run the last hour if interval is minute, ' +
                     'or the last 10 minutes if interval is seconds')
+    parser.add_argument('--input-goes-directory',
+            default='',
+            help='Directory for support files for goes input of imfv283 data')
+    parser.add_argument('--input-goes-getdcpmessages',
+            default='',
+            help='Location of getDcpMessages.')
+    parser.add_argument('--input-goes-server',
+            nargs='*',
+            default='lrgseddn1.cr.usgs.gov',
+            help='The server name(s) to retrieve the GOES data from')
+    parser.add_argument('--input-goes-user',
+            default='GEOMAG',
+            help='The user name to use to retrieve data from GOES')
 
     # Input group
     input_group = parser.add_mutually_exclusive_group(required=True)
@@ -427,6 +450,10 @@ def parse_args(args):
             help='Pass in a file using redirection from stdin')
     input_group.add_argument('--input-imfv283-url',
             help='Example file://./')
+    input_group.add_argument('--input-imfv283-goes',
+            action='store_true',
+            default=False,
+            help='Retrieves data directly from a goes server to read')
     input_group.add_argument('--input-pcdcp-file',
             help='Reads from the specified file.')
     input_group.add_argument('--input-pcdcp-stdin',
