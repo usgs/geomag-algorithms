@@ -89,7 +89,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         Notes
         -----
         See page 37-38
-            http://lighthouse.tamucc.edu/dnrpub/Sutron/XPert/Software/ilex%20Software/DCS%20Tool%20Users%20Guide_4-4.pdf
+            ftp://hazards.cr.usgs.gov/web/geomag-algorithms/DCS Tools Users Guide_4-4.pdf
         getDcpMessages options.
         -h host             A hostname.
         -u user             The user name that must be known to the DDS server
@@ -132,7 +132,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         The Criteria file tells the GOES server what data we want and how
             to return it.
         See Page 30-34:
-            http://lighthouse.tamucc.edu/dnrpub/Sutron/XPert/Software/ilex%20Software/DCS%20Tool%20Users%20Guide_4-4.pdf
+            ftp://hazards.cr.usgs.gov/web/geomag-algorithms/DCS Tools Users Guide_4-4.pdf
 
         Sets the criteria filename to the observatory code with a .sc extension
             First 3 lines are comments.
