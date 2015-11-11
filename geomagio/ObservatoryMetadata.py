@@ -440,6 +440,32 @@ DEFAULT_METADATA = {
             }
         }
     },
+    'USGS': {
+        'metadata': {
+            'station_name': 'USGS',
+            'agency_name': 'United States Geological Survey (USGS)',
+            'geodetic_latitude': '40.137',
+            'geodetic_longitude': '254.764',
+            'elevation': '1682',
+            'sensor_orientation': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'declination_base': 0,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': '1-minute calculated ',
+                'filter_comments': []
+            },
+            'hour': {
+                'data_interval_type': '1 hour calculated'
+            }
+        }
+    },
     'BLC': {
         'metadata': {
             'station_name': 'Bake Lake',
