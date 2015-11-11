@@ -6,6 +6,7 @@ import textwrap
 from .. import ChannelConverter
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 import IAGA2002Parser
+import obspy
 
 
 class IAGA2002Writer(object):
@@ -28,10 +29,31 @@ class IAGA2002Writer(object):
             channels to be written from timeseries object
         """
         stats = timeseries[0].stats
+        if len(channels) != 4:
+            self._pad_to_four_channels(timeseries, channels)
         out.write(self._format_headers(stats, channels))
         out.write(self._format_comments(stats))
         out.write(self._format_channels(channels, stats.station))
         out.write(self._format_data(timeseries, channels))
+
+    def _create_empty_trace(self, trace, channel):
+        """
+        Utility to create a trace containing the given numpy array.
+
+        Parameters
+        ----------
+        stream: obspy.core.stream
+
+        Returns
+        -------
+        obspy.core.Trace
+            Trace a duplicated empty channel.
+        """
+        stats = obspy.core.Stats(trace.stats)
+        stats.channel = channel
+        count = len(trace.data)
+        numpy_data = numpy.full((count), numpy.nan)
+        return obspy.core.Trace(numpy_data, stats)
 
     def _format_headers(self, stats, channels):
         """format headers for IAGA2002 file
@@ -160,19 +182,20 @@ class IAGA2002Writer(object):
         str
             Channel header line as a string (including newline)
         """
-        if len(iaga_code) != 3:
+        iaga_code_len = len(iaga_code)
+        if iaga_code_len != 3 and iaga_code_len != 4:
             raise TimeseriesFactoryException(
                     'iaga_code "{}" is not 3 characters'.format(iaga_code))
         if len(channels) != 4:
             raise TimeseriesFactoryException(
                     'more than 4 channels {}'.format(channels))
-        buf = ['DATE       TIME         DOY']
+        buf = ['DATE       TIME         DOY  ']
         for channel in channels:
-            if len(channel) != 1:
+            if len(channel) != 1 and len(channel) != 3:
                 raise TimeseriesFactoryException(
                         'channel "{}" is not 1 character'.format(channel))
-            buf.append('     %s%s ' % (iaga_code, channel))
-        buf.append('  |\n')
+            buf.append('   %7s' % (iaga_code + channel) )
+        buf.append('|\n')
         return ''.join(buf)
 
     def _format_data(self, timeseries, channels):
@@ -222,6 +245,12 @@ class IAGA2002Writer(object):
                 tt, int(time.microsecond / 1000),
                 *[self.empty_value if numpy.isnan(val) else val
                         for val in values])
+
+    def _pad_to_four_channels(self, timeseries, channels):
+        for x in range(len(channels), 4):
+            channel = ' - '
+            channels.append(channel)
+            timeseries += self._create_empty_trace(timeseries[0], channel)
 
     @classmethod
     def format(self, timeseries, channels):
