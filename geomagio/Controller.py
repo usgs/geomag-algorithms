@@ -367,7 +367,7 @@ def parse_args(args):
             choices=['R0', 'R1', 'RM', 'Q0', 'D0', 'C0'])
     parser.add_argument('--interval',
             default='minute',
-            choices=['minute', 'second'])
+            choices=['hourly', 'minute', 'second'])
     parser.add_argument('--update',
             action='store_true',
             default=False,
