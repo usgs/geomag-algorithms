@@ -77,7 +77,6 @@ class IMFV283Parser(object):
 
             try:
                 msg_header = self._parse_msg_header(line)
-                print msg_header
 
                 data_len = msg_header['data_len']
                 # check message size indicates data exists
@@ -91,14 +90,11 @@ class IMFV283Parser(object):
                         data_len)
 
                 goes_header = self._parse_goes_header(goes_data)
-                print goes_header
                 data = self._get_data(goes_header, goes_data)
                 self._post_process(data, msg_header, goes_header)
-            except KeyError as e:
-                print "Incorrect data line"
-                print e
-                print line
-
+            except (KeyError, IndexError, ValueError) as e:
+                sys.stderr.write("Incorrect data line ")
+                sys.stderr.write(line)
 
     def _get_data(self, header, data):
         """get data from data packet
