@@ -166,6 +166,9 @@ class IAGA2002Parser(object):
         self.parse_comments()
         self.times = self._parsedata[0]
         for channel, data in zip(self.channels, self._parsedata[1:]):
+            #ignore empty channels
+            if data.count(data[0]) == len(data):
+                continue
             data = numpy.array(data, dtype=numpy.float64)
             # filter empty values
             data[data == EIGHTS] = numpy.nan
