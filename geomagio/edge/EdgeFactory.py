@@ -359,8 +359,7 @@ class EdgeFactory(TimeseriesFactory):
         elif channel == 'HGD':
             edge_channel = 'HGD'
         else:
-            raise TimeseriesFactoryException(
-                'Unexpected channel code "%s"' % channel)
+            edge_channel = channel
         return edge_channel
 
     def _get_edge_location(self, observatory, channel, type, interval):
