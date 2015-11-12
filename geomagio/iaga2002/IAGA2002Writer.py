@@ -5,6 +5,7 @@ import numpy
 import textwrap
 from .. import ChannelConverter
 from ..TimeseriesFactoryException import TimeseriesFactoryException
+from ..Util import create_empty_trace
 import IAGA2002Parser
 import obspy
 
@@ -36,24 +37,6 @@ class IAGA2002Writer(object):
         out.write(self._format_channels(channels, stats.station))
         out.write(self._format_data(timeseries, channels))
 
-    def _create_empty_trace(self, trace, channel):
-        """
-        Utility to create a trace containing the given numpy array.
-
-        Parameters
-        ----------
-        stream: obspy.core.stream
-
-        Returns
-        -------
-        obspy.core.Trace
-            Trace a duplicated empty channel.
-        """
-        stats = obspy.core.Stats(trace.stats)
-        stats.channel = channel
-        count = len(trace.data)
-        numpy_data = numpy.full((count), numpy.nan)
-        return obspy.core.Trace(numpy_data, stats)
 
     def _format_headers(self, stats, channels):
         """format headers for IAGA2002 file
@@ -191,7 +174,8 @@ class IAGA2002Writer(object):
                     'more than 4 channels {}'.format(channels))
         buf = ['DATE       TIME         DOY  ']
         for channel in channels:
-            if len(channel) != 1 and len(channel) != 3:
+            channel_len = len(channel)
+            if channel_len < 1 or channel_len > 3:
                 raise TimeseriesFactoryException(
                         'channel "{}" is not 1 character'.format(channel))
             buf.append('   %7s' % (iaga_code + channel) )
@@ -248,9 +232,9 @@ class IAGA2002Writer(object):
 
     def _pad_to_four_channels(self, timeseries, channels):
         for x in range(len(channels), 4):
-            channel = ' - '
+            channel = 'NUL'
             channels.append(channel)
-            timeseries += self._create_empty_trace(timeseries[0], channel)
+            timeseries += create_empty_trace(timeseries[0], channel)
 
     @classmethod
     def format(self, timeseries, channels):
