@@ -75,22 +75,30 @@ class IMFV283Parser(object):
                 sys.stderr.write('Bad Header length\n')
                 continue
 
-            msg_header = self._parse_msg_header(line)
+            try:
+                msg_header = self._parse_msg_header(line)
+                print msg_header
 
-            data_len = msg_header['data_len']
-            # check message size indicates data exists
-            if data_len < MSG_SIZE_100B or data_len > MSG_SIZE_300B:
-                sys.stderr.write('Incorrect data Length \n')
-                continue
+                data_len = msg_header['data_len']
+                # check message size indicates data exists
+                if data_len < MSG_SIZE_100B or data_len > MSG_SIZE_300B:
+                    sys.stderr.write('Incorrect data Length \n')
+                    continue
 
-            goes_data = self._process_ness_block(
-                    line,
-                    imfv283_codes.OBSERVATORIES[msg_header['obs']],
-                    data_len)
+                goes_data = self._process_ness_block(
+                        line,
+                        imfv283_codes.OBSERVATORIES[msg_header['obs']],
+                        data_len)
 
-            goes_header = self._parse_goes_header(goes_data)
-            data = self._get_data(goes_header, goes_data)
-            self._post_process(data, msg_header, goes_header)
+                goes_header = self._parse_goes_header(goes_data)
+                print goes_header
+                data = self._get_data(goes_header, goes_data)
+                self._post_process(data, msg_header, goes_header)
+            except KeyError as e:
+                print "Incorrect data line"
+                print e
+                print line
+
 
     def _get_data(self, header, data):
         """get data from data packet
