@@ -50,6 +50,18 @@ data to a group of _iaga2002_ formatted files in a "data-iaga" directory:
       --output-iaga-url file://data-iaga/./$(obs)s%(Y)s%(j)s.%(i)s \
       --outchannels H E Z F
 
+To retrieve all _Dst 4 minute_, and _Dst3 minute_ data from _USGS_ for the
+entire day of _Oct 1st 2015_ from _edge server cwbpub.cr.usgs.gov_ output
+_Dst 4 minute_, and _Dst 3 minute_ data to an _iaga2002_ formatted file:
+
+      geomag.py --type variation --inchannels MGD MSD --interval minute \
+      --observatory USGS \
+      --starttime 2015-10-01T00:00:00Z \
+      --endtime 2015-10-01T23:59:00Z \
+      --input-edge cwbpub.cr.usgs.gov \
+      --output-iaga-stdout \
+      --outchannels MGD MSD
+
 
 ---
 ### Algorithms ###
