@@ -1,4 +1,6 @@
 import urllib2
+import numpy
+import obspy
 
 
 class ObjectView(object):
@@ -48,3 +50,23 @@ def read_url(url):
     finally:
         response.close()
     return content
+
+
+def create_empty_trace(trace, channel):
+    """
+    Utility to create a trace containing the given numpy array.
+
+    Parameters
+    ----------
+    stream: obspy.core.stream
+
+    Returns
+    -------
+    obspy.core.Trace
+        Trace a duplicated empty channel.
+    """
+    stats = obspy.core.Stats(trace.stats)
+    stats.channel = channel
+    count = len(trace.data)
+    numpy_data = numpy.full((count), numpy.nan)
+    return obspy.core.Trace(numpy_data, stats)
