@@ -458,11 +458,11 @@ DEFAULT_METADATA = {
         },
         'interval_specific': {
             'minute': {
-                'data_interval_type': '1-minute calculated ',
+                'data_interval_type': '1-minute calculated',
                 'filter_comments': []
             },
             'hourly': {
-                'data_interval_type': '1 hour calculated'
+                'data_interval_type': '1-hour calculated'
             }
         }
     },
