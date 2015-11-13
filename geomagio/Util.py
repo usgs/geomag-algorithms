@@ -1,6 +1,6 @@
 import urllib2
-import numpy
-import obspy
+from numpy import full, nan
+from obspy.core import Stats, Trace
 
 
 class ObjectView(object):
@@ -65,8 +65,8 @@ def create_empty_trace(trace, channel):
     obspy.core.Trace
         Trace a duplicated empty channel.
     """
-    stats = obspy.core.Stats(trace.stats)
+    stats = Stats(trace.stats)
     stats.channel = channel
     count = len(trace.data)
-    numpy_data = numpy.full((count), numpy.nan)
-    return obspy.core.Trace(numpy_data, stats)
+    numpy_data = full((count), nan)
+    return Trace(numpy_data, stats)
