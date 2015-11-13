@@ -168,9 +168,9 @@ class IAGA2002Parser(object):
         for channel, data in zip(self.channels, self._parsedata[1:]):
             #ignore empty channels
             data = numpy.array(data, dtype=numpy.float64)
-            # filter empty values
             data[data == EIGHTS] = numpy.nan
             data[data == NINES] = numpy.nan
+            # filter empty values
             if data.count(numpy.nan) == len(data):
                 continue
             self.data[channel] = data
