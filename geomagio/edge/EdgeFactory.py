@@ -34,7 +34,9 @@ class EdgeFactory(TimeseriesFactory):
     observatory: str
         the observatory code for the desired observatory.
     channels: array
-        an array of channels {H, D, E, F, Z}
+        an array of channels {H, D, E, F, Z, MGD, MSD, HGD}
+        any channel name will get passed through.  H, D, E, F, Z
+        will be converted according to interval and type.
     type: str
         the data type {variation, quasi-definitive, definitive}
     interval: str
@@ -323,7 +325,8 @@ class EdgeFactory(TimeseriesFactory):
         observatory : str
             observatory code
         channel : str
-            single character channel {H, E, D, Z, F}
+            single character channel {H, E, D, Z, F, X, Y, G} or
+            any appropriate edge channel, ie MSD, MGD, HGD.
         type : str
             data type {definitive, quasi-definitive, variation}
         interval : str
@@ -332,7 +335,7 @@ class EdgeFactory(TimeseriesFactory):
         Returns
         -------
         edge_channel
-            {MVH, MVE, MVD, etc}
+            {MVH, MVE, MVD, MGD etc}
         """
         edge_interval_code = self._get_interval_code(interval)
         edge_channel = None
