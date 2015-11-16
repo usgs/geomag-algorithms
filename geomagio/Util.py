@@ -1,5 +1,5 @@
 import urllib2
-from numpy import full, nan
+import numpy
 from obspy.core import Stats, Trace
 
 
@@ -54,19 +54,22 @@ def read_url(url):
 
 def create_empty_trace(trace, channel):
     """
-    Utility to create a trace containing the given numpy array.
+    Utility to create an empty trace, similar to another trace.
 
     Parameters
     ----------
-    stream: obspy.core.stream
+    trace: obspy.core.Trace
+        Trace that is source of most metadata, including array length.
+    channel: String
+        Channel name for created Trace.
 
     Returns
     -------
     obspy.core.Trace
-        Trace a duplicated empty channel.
+        a Trace object, filled with numpy.nan.
     """
     stats = Stats(trace.stats)
     stats.channel = channel
     count = len(trace.data)
-    numpy_data = full((count), nan)
+    numpy_data = numpy.full((count), numpy.nan)
     return Trace(numpy_data, stats)
