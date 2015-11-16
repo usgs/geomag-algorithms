@@ -9,6 +9,8 @@ to take advantage of it's newer realtime abilities.
 Edge is the USGS earthquake hazard centers replacement for earthworm.
 """
 
+import sys
+import StringIO
 import numpy
 import numpy.ma
 import obspy.core
@@ -127,12 +129,25 @@ class EdgeFactory(TimeseriesFactory):
             raise TimeseriesFactoryException(
                 'Starttime before endtime "%s" "%s"' % (starttime, endtime))
 
-        timeseries = obspy.core.Stream()
-        for channel in channels:
-            data = self._get_timeseries(starttime, endtime, observatory,
-                    channel, type, interval)
-            timeseries += data
-
+        # need this until https://github.com/obspy/obspy/pull/1179
+        # replace stdout
+        original_stdout = sys.stdout
+        temp_stdout = StringIO.StringIO()
+        try:
+            sys.stdout = temp_stdout
+            # get the timeseries
+            timeseries = obspy.core.Stream()
+            for channel in channels:
+                data = self._get_timeseries(starttime, endtime, observatory,
+                        channel, type, interval)
+                timeseries += data
+        # restore stdout
+        finally:
+            output = temp_stdout.getvalue()
+            if output != '':
+                sys.stderr.write(output)
+            temp_stdout.close()
+            sys.stdout = original_stdout
         self._post_process(timeseries, starttime, endtime, channels)
 
         return timeseries
