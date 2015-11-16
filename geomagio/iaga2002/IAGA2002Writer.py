@@ -7,7 +7,6 @@ from .. import ChannelConverter
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..Util import create_empty_trace
 import IAGA2002Parser
-import obspy
 
 
 class IAGA2002Writer(object):
@@ -38,7 +37,6 @@ class IAGA2002Writer(object):
         out.write(self._format_comments(stats))
         out.write(self._format_channels(channels, stats.station))
         out.write(self._format_data(timeseries, channels))
-
 
     def _format_headers(self, stats, channels):
         """format headers for IAGA2002 file
@@ -180,7 +178,7 @@ class IAGA2002Writer(object):
             if channel_len < 1 or channel_len > 3:
                 raise TimeseriesFactoryException(
                         'channel "{}" is not 1 character'.format(channel))
-            buf.append('   %7s' % (iaga_code + channel) )
+            buf.append('   {:<7s}'.format(iaga_code + channel))
         buf.append('|\n')
         return ''.join(buf)
 
