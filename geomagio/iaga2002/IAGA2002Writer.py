@@ -14,8 +14,10 @@ class IAGA2002Writer(object):
     """IAGA2002 writer.
     """
 
-    def __init__(self, empty_value=IAGA2002Parser.NINES):
+    def __init__(self, empty_value=IAGA2002Parser.NINES,
+            empty_channel=IAGA2002Parser.EMPTY_CHANNEL):
         self.empty_value = empty_value
+        self.empty_channel = empty_channel
 
     def write(self, out, timeseries, channels):
         """write timeseries to iaga file
@@ -232,7 +234,7 @@ class IAGA2002Writer(object):
 
     def _pad_to_four_channels(self, timeseries, channels):
         for x in range(len(channels), 4):
-            channel = 'NUL'
+            channel = self.empty_channel
             channels.append(channel)
             timeseries += create_empty_trace(timeseries[0], channel)
 

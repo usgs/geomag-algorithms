@@ -8,6 +8,9 @@ from datetime import datetime
 EIGHTS = numpy.float64('88888.88')
 NINES = numpy.float64('99999.99')
 
+# placeholder channel name used when less than 4 channels are being written.
+EMPTY_CHANNEL = 'NUL'
+
 
 class IAGA2002Parser(object):
     """IAGA2002 parser.
@@ -166,13 +169,12 @@ class IAGA2002Parser(object):
         self.parse_comments()
         self.times = self._parsedata[0]
         for channel, data in zip(self.channels, self._parsedata[1:]):
-            #ignore empty channels
+            # ignore "empty" channels
+            if channel == EMPTY_CHANNEL:
+                continue
             data = numpy.array(data, dtype=numpy.float64)
             data[data == EIGHTS] = numpy.nan
             data[data == NINES] = numpy.nan
-            # filter empty values
-            if data.count(numpy.nan) == len(data):
-                continue
             self.data[channel] = data
         self._parsedata = None
 
