@@ -34,9 +34,9 @@ class EdgeFactory(TimeseriesFactory):
     observatory: str
         the observatory code for the desired observatory.
     channels: array
-        an array of channels {H, D, E, F, Z, MGD, MSD, HGD}
-        any channel name will get passed through.  H, D, E, F, Z
-        will be converted according to interval and type.
+        an array of channels {H, D, E, F, Z, MGD, MSD, HGD}.
+        Known since channel names are mapped based on interval and type,
+        others are passed through, see #_get_edge_channel().
     type: str
         the data type {variation, quasi-definitive, definitive}
     interval: str
@@ -355,12 +355,6 @@ class EdgeFactory(TimeseriesFactory):
             edge_channel = edge_interval_code + 'VX'
         elif channel == 'Y':
             edge_channel = edge_interval_code + 'VY'
-        elif channel == 'MSD':
-            edge_channel = 'MSD'
-        elif channel == 'MGD':
-            edge_channel = 'MGD'
-        elif channel == 'HGD':
-            edge_channel = 'HGD'
         else:
             edge_channel = channel
         return edge_channel
