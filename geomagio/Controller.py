@@ -414,7 +414,7 @@ def parse_args(args):
             help='Flag to run the last hour if interval is minute, ' +
                     'or the last 10 minutes if interval is seconds')
     parser.add_argument('--input-goes-directory',
-            default='',
+            default='.',
             help='Directory for support files for goes input of imfv283 data')
     parser.add_argument('--input-goes-getdcpmessages',
             default='',
