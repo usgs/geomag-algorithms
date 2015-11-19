@@ -103,6 +103,8 @@ class GOESIMFV283Factory(IMFV283Factory):
             Messages from getDcpMessages
         """
 
+
+        self._fill_criteria_file(starttime, endtime)
         output = subprocess.check_output(
                 [self.getdcpmessages,
                 '-h ' + self.server,
