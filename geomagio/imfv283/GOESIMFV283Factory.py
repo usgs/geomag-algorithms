@@ -3,7 +3,7 @@
 from IMFV283Factory import IMFV283Factory
 from datetime import datetime
 import subprocess
-import obspy.core
+from obspy.core import Stream
 
 
 class GOESIMFV283Factory(IMFV283Factory):
@@ -22,7 +22,6 @@ class GOESIMFV283Factory(IMFV283Factory):
     user: String
         The goes user.
 
-
     Notes
     -----
     GOESIMFV283Factory gets it's data by calling the getDcpMessages program
@@ -39,7 +38,7 @@ class GOESIMFV283Factory(IMFV283Factory):
     Timeseriesfactory
     """
     def __init__(self, observatory=None, channels=None,
-            type=None, interval='Minute',  directory=None,
+            type=None, interval='minute',  directory=None,
             getdcpmessages=None, server=None, user=None):
         IMFV283Factory.__init__(self, None, observatory, channels,
             type, interval)
@@ -47,9 +46,8 @@ class GOESIMFV283Factory(IMFV283Factory):
         self.getdcpmessages = getdcpmessages
         self.server = server
         self.user = user
-        self.datetime = datetime.today()
-        self._set_log_filename()
-        self._set_criteria_filename()
+        self.log_file_name = self.observatory + '.log'
+        self.criteria_file_name = self.observatory + '.sc'
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -62,9 +60,9 @@ class GOESIMFV283Factory(IMFV283Factory):
         channels = channels or self.channels
         type = type or self.type
         interval = interval or self.interval
-        timeseries = obspy.core.Stream()
+        timeseries = Stream()
         output = self._retrieve_goes_messages(starttime, endtime, observatory)
-        timeseries  += IMFV283Factory.parse_string(self, output)
+        timeseries  += self.parse_string(output)
                 # merge channel traces for multiple days
         timeseries.merge()
         # trim to requested start/end time
@@ -104,27 +102,18 @@ class GOESIMFV283Factory(IMFV283Factory):
         String
             Messages from getDcpMessages
         """
-        self._fill_criteria_file(starttime, endtime)
-        args = '-h ' + self.server + ' -u ' + self.user + \
-                ' -f ' + self.directory + '/' + self.criteria_file_name + \
-                ' -l ' + self.directory + '/' + self.log_file_name + \
-                ' -t 60 -n'
-        getDcpMessage = self.getdcpmessages + '/getDcpMessages'
-        output = subprocess.check_output([getDcpMessage, args])
+
+        output = subprocess.check_output(
+                [self.getdcpmessages,
+                '-h ' + self.server,
+                '-u ' + self.user,
+                '-f ' + self.directory + '/' + self.criteria_file_name,
+                '-l ' + self.directory + '/' + self.log_file_name,
+                '-t 60',
+                '-n'])
         return output
 
-    def _set_log_filename(self):
-        """Set Log Filename
-
-        Notes
-        -----
-        Sets the filename for getDcpMessages to the Observatory code with a
-            .log extension.
-        """
-        self.log_file_name = self.observatory + \
-                '.log'
-
-    def _set_criteria_filename(self):
+    def _fill_criteria_file(self, starttime, endtime):
         """Set Criteria Filename
 
         Notes
@@ -145,9 +134,6 @@ class GOESIMFV283Factory(IMFV283Factory):
             ASCENDING_TIME: Do Not sort messages into ascending time.
             RT_SETTLE_DELAY: Do wait to prevent duplicate messages.
         """
-        self.criteria_file_name = self.observatory + '.sc'
-
-    def _fill_criteria_file(self, starttime, endtime):
         start = starttime - 1800
         end = endtime + 1800
 
