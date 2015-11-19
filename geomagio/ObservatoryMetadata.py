@@ -202,7 +202,7 @@ DEFAULT_METADATA = {
     },
     'DHT': {
         'metadata': {
-            'station_name': 'Deadhorse',
+            'station_name': 'Deadhorse Test',
             'agency_name': 'United States Geological Survey (USGS)',
             'geodetic_latitude': '70.356',
             'geodetic_longitude': '211.207',
