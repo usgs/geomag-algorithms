@@ -7,7 +7,6 @@ from ..TimeseriesFactory import TimeseriesFactory
 from ..Util import read_url
 from IMFV283Parser import IMFV283Parser
 from ..ObservatoryMetadata import ObservatoryMetadata
-import subprocess
 
 
 class IMFV283Factory(TimeseriesFactory):
