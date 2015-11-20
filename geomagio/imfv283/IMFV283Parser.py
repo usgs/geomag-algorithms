@@ -92,7 +92,7 @@ class IMFV283Parser(object):
                 goes_header = self._parse_goes_header(goes_data)
                 data = self._get_data(goes_header, goes_data)
                 self._post_process(data, msg_header, goes_header)
-            except (KeyError, IndexError, ValueError) as e:
+            except (KeyError, IndexError, ValueError):
                 sys.stderr.write("Incorrect data line ")
                 sys.stderr.write(line)
 
