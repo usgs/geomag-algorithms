@@ -33,8 +33,8 @@ class IAGA2002Factory(TimeseriesFactory):
     IAGA2002Parser
     """
 
-    def __init__(self, urlTemplate, observatory=None, channels=None, type=None,
-            interval=None):
+    def __init__(self, urlTemplate=None, observatory=None, channels=None,
+            type=None, interval=None):
         TimeseriesFactory.__init__(self, observatory, channels, type,
                 interval, urlTemplate)
 

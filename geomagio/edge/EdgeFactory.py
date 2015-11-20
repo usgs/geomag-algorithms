@@ -72,7 +72,7 @@ class EdgeFactory(TimeseriesFactory):
         for reading.
     """
 
-    def __init__(self, host=None, port=None, write_port=None,
+    def __init__(self, host='cwbpub.cr.usgs.gov', port=2060, write_port=None,
             observatory=None, channels=None, type=None, interval=None,
             observatoryMetadata=None, locationCode=None,
             cwbhost=None, cwbport=0, tag='GeomagAlg', forceout=False):
