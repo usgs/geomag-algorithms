@@ -219,8 +219,7 @@ def main(args):
                 getdcpmessages=args.input_goes_getdcpmessages,
                 observatory=args.observatory,
                 server=args.input_goes_server,
-                user=args.input_goes_user,
-                )
+                user=args.input_goes_user)
     elif args.input_imfv283_stdin is not None:
         inputfactory = imfv283.StreamIMFV283Factory(
                 stream=sys.stdin,
@@ -421,7 +420,6 @@ def parse_args(args):
             help='Location of getDcpMessages.')
     parser.add_argument('--input-goes-server',
             nargs='*',
-            default='lrgseddn1.cr.usgs.gov',
             help='The server name(s) to retrieve the GOES data from')
     parser.add_argument('--input-goes-user',
             default='GEOMAG',
