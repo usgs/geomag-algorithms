@@ -11,7 +11,7 @@ from IMFV283Parser import IMFV283Parser
 
 
 __all__ = [
-    'GOESIMFV283Factory'
+    'GOESIMFV283Factory',
     'IMFV283Factory',
     'StreamIMFV283Factory',
     'IMFV283Parser'
