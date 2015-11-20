@@ -1,6 +1,5 @@
-Readme install dependencies
-
-## Install ##
+Installation
+============
 
 We recommend using
 [virtual environments (http://docs.python-guide.org/en/latest/dev/virtualenvs/)][].
@@ -17,7 +16,8 @@ specific dependency information.
   - Use the main script, `geomag.py -h`
   - In python scripts, `import geomagio`
 
-The [Usage](readme_usage.md) page has more detailed instructions and examples.
+The [Command Line Usage](./usage.md) and [Python API](./api.md)
+pages have more instructions and examples.
 
 [virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
@@ -45,7 +45,7 @@ The [Usage](readme_usage.md) page has more detailed instructions and examples.
 
 1. Update paths as needed in your `~/.bash_profile`:
 
-        export PATH=$PATH:/usr/local/bin`
+        export PATH=$PATH:/usr/local/bin
         # npm installed binaries
         export PATH=$PATH:/usr/local/share/npm/bin
         # gem installed binaries

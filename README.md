@@ -3,42 +3,13 @@ Geomag Algorithms
 
 Geomag algorithms includes tools to fetch, process, and output geomag data.
 
-## Supported Formats ##
 
-### [Edge](readme_io.md#edge) ###
+## Getting Started
 
-Use an Edge server for data input.
-
-### [IAGA](readme_io.md#iaga2002)###
-
-Use IAGA2002 formatted files for input and/or output.
-
-### [IMFV283](readme_io.IMFV283#) ###
-
-Use IMFV283 formatted files for input and/or output.
-
-### [PCDCP](readme_io.md#) ###
-
-Use PCDCP formatted files for input and/or output.
-
-
----
-## Supported Algorithms ##
-
-### [DeltaF](./docs/DeltaF_usage.md) ###
-Calculate DeltaF from geographic, or observatory coordinates.
-
-### [XYZ](./docs/XYZ_usage.md) ###
-Rotate data between coordinate systems. From HEZ or HDZ to XYZ and back.
-
-
----
-## Getting Started ##
-
-### [Install](readme_dependency_install.md) ###
+### [Install](./docs/install.md)
 First time install. Walk through dependencies and other considerations.
 
-### [Use](readme_usage.md) ###
+### [Command Line Usage](./docs/usage.md)
 Details and examples for proper usage. Get started quickly.
 
 Basic usage:
@@ -46,6 +17,23 @@ Basic usage:
   - Use the main script, `geomag.py -h`
   - In python scripts, `import geomagio`
 
-### [Develop](readme_develop_install.md) ###
+### [Python API](./docs/api.md)
+API Overview and examples for using the geomag-algorithms project in python.
+
+### [Develop](./docs/develop_install.md)
 Development dependencies discussed here. Project is built with Grunt and Node
 and is written primarily in Python 2.7.
+
+
+## Supported Formats
+
+- [Edge](./docs/io.md#Edge)
+- [IAGA2002](./docs/io.md#IAGA2002)
+- [IMFV283 (Input only)](./docs/io.md#IMFV283)
+- [PCDCP](./docs/io.md#PCDCP)
+
+
+## Supported Algorithms
+
+- [DeltaF](./docs/algorithms/DeltaF_usage.md)
+- [XYZ](./docs/algorithms/XYZ_usage.md)
