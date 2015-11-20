@@ -1,32 +1,31 @@
+XYZ Algorithm Usage
+===================
 
-# XYZ Usage #
+The XYZ Algorithm rotates between `geographic`, `observatory`, and `magnetic`,
+channel orientations.  Read more about the [XYZ Algorithm](./XYZ.md).
+
 
 `geomag.py --xyz {geo, mag, obs, obsd} {geo, mag, obs, obsd}`
 
-### Reference Frames ###
+### Reference Frames
 
 There are 3 reference frames in this library.
 
-#### Geographic or cartesian ####
+#### Geographic or cartesian
 
- - `geo` is XYZ
+ - `geo` is `[X, Y, Z, F]`
 
- - 'geo':  ['X', 'Y', 'Z', 'F']
+#### Magnetic or cylindrical
 
-#### Magnetic or cylindrical ####
+ - `mag` is `[H, D, Z, F]`
 
- - `mag` is HDZ
+#### Observatory
 
- - 'mag':  ['H', 'D', 'Z', 'F']
+ - `obs` is `[H, E, Z, F]`
+ - `obsd` is `[H, D, Z, F]`
 
-#### Observatory ####
 
- - `obs` is heZ
-
- - 'obs':  ['H', 'E', 'Z', 'F']
- - 'obsd': ['H', 'D', 'Z', 'F']
-
-### Example ###
+### Example
 
 To convert HEZF data in pcdcp files to XYZF for Tucson observatory for all of
 March 2013 output to iaga2002 files:
@@ -38,8 +37,7 @@ March 2013 output to iaga2002 files:
       --type variation --interval minute
 
 
----
-### Library Notes ###
+### Library Notes
 
 > Note: Within this library all channels are uppercase.
 > We use context (ie obs vs. mag vs geo), to differentiate between h,H; e,E;
@@ -57,7 +55,7 @@ These are provided by `geomagio.StreamConverter`.
 > Note: this library internally represents data gaps as NaN, and factories
 > convert to this where possible.
 
----
+
 ### [Algorithm Theoretical Basis for "Geomag XYZ"](XYZ.md) ###
 Describes the theory behind the XYZ algorithm, as well as some implementation
 issues and solutions.

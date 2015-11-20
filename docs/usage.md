@@ -1,6 +1,4 @@
-Readme usage details
-
-## Usage ##
+## Command Line Usage
 
 You can install the project if you haven't already with
 
@@ -72,8 +70,8 @@ There are flags to specify certain algorithms should be run against the data.
 
 `--xyz {geo, mag, obs, obsd} {geo, mag, obs, obsd}`
 
-#### [XYZ Usage](./docs/XYZ_usage.md) ####
+#### [XYZ Usage](./algorithms/XYZ_usage.md) ####
 Rotate data from HEZ or HDZ to XYZ and back.
 
 Extensive explanation of all input and output methods:
-[IO Methods](readme_io.md)
+[IO Methods](./io.md)

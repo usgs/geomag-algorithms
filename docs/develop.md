@@ -1,6 +1,5 @@
-Readme development dependencies
-
-## Develop ##
+Development Dependencies
+========================
 
 These instructions only need to be completed if you plan on developing new
 code for this project.
@@ -30,8 +29,7 @@ Begin Developing
         grunt
 
 
----
-### Windows ###
+### Windows
 
 1. Install the newest release of [Node (http://nodejs.org/download/)][] for
    Windows, using the Windows Installer (.msi).
@@ -42,13 +40,12 @@ Begin Developing
 [Node]: http://nodejs.org/download/
 
 
----
-### Coding Standards ###
+### Coding Standards
 
 This project adheres to PEP8 standards in most cases:
     https://www.python.org/dev/peps/pep-0008
 
-### PEP8 Exceptions ###
+#### PEP8 Exceptions
 
 - Hanging/Visual indents (E126, E127, E128, E131)
 
@@ -56,10 +53,9 @@ This project adheres to PEP8 standards in most cases:
     - do not use visual indents.
 
 
----
-### Add an SSH Key to GitHub ###
+### Add an SSH Key to GitHub
 
-1. `ssh-keygen -t rsa -b 2048` (in terminal)
+1. `ssh-keygen -t rsa -b 4096` (in terminal)
 
 2. Press **Enter** to accept the default save location.
 
@@ -79,4 +75,3 @@ This project adheres to PEP8 standards in most cases:
 7. Click **Add SSH key**. Give it a meaningful title.
 
 8. Copy your SSH Key into the Key, and click **Add key**.
-

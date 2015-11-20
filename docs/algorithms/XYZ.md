@@ -1,5 +1,6 @@
+XYZ Algorithm
+=============
 
-# XYZ Algorithm
 Algorithm Theoretical Basis for "Geomag XYZ"
 
 E. Joshua Rigler &lt;[erigler@usgs.gov](mailto:erigler@usgs.gov)&gt;
@@ -78,7 +79,7 @@ reference frame, "e" is the secondary axis in this reference frame, and "Z" is
 the tertiary axis, which remains common for all reference frames discussed in
 this document.
 
-![Magnetic Field Vectors in three coordinate systems](images/figure.png)
+![Magnetic Field Vectors in three coordinate systems](../images/figure.png)
 
 The figure above illustrates how the same full magnetic field vector **F**, can
 be represented in heZ, HDZ, and XYZ coordinates. Red objects are specific to

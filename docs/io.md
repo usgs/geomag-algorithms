@@ -1,15 +1,12 @@
-Readme input output details
+IO Formats
+==========
 
-## IO Formats ##
-There are currently 2 supported file formats for input and output in addition
-to Edge server input.
-
-#### EDGE ####
+#### EDGE
 
 `--input-edge HOST PORT`
 Specify an IP address or host name where your Edge lives along with a port.
 
-#### Iaga2002 ####
+#### Iaga2002
 
 `--input-iaga-file FILENAME`
 Specify the name of the file to read from.
@@ -32,7 +29,7 @@ Output will be send directly to the command line.
 `--output-iaga-url URL`
 Use a file pattern to write to multiple IAGA2002 files.
 
-#### IMFV283 ####
+#### IMFV283
 
 `--input-imfv283-file FILENAME`
 Specify the name of the file to read from.
@@ -46,7 +43,7 @@ Use a file pattern to read IMFV283 file.
 `--input-imfv283-goes`
 Reads IMFV283 data from an internet goes server.
 
-#### PCDCP ####
+#### PCDCP
 
 `--input-pcdcp-file FILENAME`
 Specify the name of the file to read from.
@@ -67,15 +64,15 @@ Output will be send directly to the command line.
 Use a file pattern to write to multiple PCDCP files.
 
 
-## IO Methods ##
+## IO Methods
 Several methods exist for retrieving and storing data.
 
-#### Edge Server ####
+#### Edge Server
 
 `--input-edge HOST PORT`
 Specify an IP address or host name where your Edge lives along with a port.
 
-#### Single File ####
+#### Single File
 
 `--input-iaga-file FILENAME`
 `--input-imfv283-file FILENAME`
@@ -84,7 +81,7 @@ Specify an IP address or host name where your Edge lives along with a port.
 `--output-pcdcp-file FILENAME`
 Specify a single file name for the data to be read from or written to.
 
-#### Multiple Files ####
+#### Multiple Files
 
 `--input-iaga-url`
 `--input-imfv283-url`
@@ -115,7 +112,7 @@ Typical PCDCP files are stored as `file://./%(OBS)s%(Y)s%(j)s.%(i)s`
 
 Example: BOU2013092.min
 
-#### Std In and Std Out ####
+#### Std In and Std Out
 
 `--input-iaga-stdin`
 `--input-imfv283-stdin`
