@@ -1,7 +1,6 @@
 """Factory to load IMFV283 files from an input StreamIMFV283Factory."""
 
 from IMFV283Factory import IMFV283Factory
-from datetime import datetime
 import subprocess
 from obspy.core import Stream
 
@@ -13,12 +12,14 @@ class GOESIMFV283Factory(IMFV283Factory):
     Parameters
     ----------
     directory: String
-        The directory that support files go in. Primarily criteria files,
-        and log files.
+        The directory where support files will be stored. Primarily criteria
+        files, and log files. These files are produced by the Factory, and
+        getdcpmessages.
     getdcpmessages: String
-        The directory where the getDcpMessages executable will be found
-    server: array of strings
-        An array of strings, to be used in order of which goes server to go to
+        The path and filename to be executed. ie ./opendcs/bin/getDcpMessages
+    server: string array
+        An array of server names to retrive data from. Currently only using
+        first server.
     user: String
         The goes user.
 
@@ -38,7 +39,7 @@ class GOESIMFV283Factory(IMFV283Factory):
     Timeseriesfactory
     """
     def __init__(self, observatory=None, channels=None,
-            type=None, interval='minute',  directory=None,
+            type=None, interval='minute', directory=None,
             getdcpmessages=None, server=None, user=None):
         IMFV283Factory.__init__(self, None, observatory, channels,
             type, interval)
@@ -58,12 +59,10 @@ class GOESIMFV283Factory(IMFV283Factory):
         """
         observatory = observatory or self.observatory
         channels = channels or self.channels
-        type = type or self.type
-        interval = interval or self.interval
         timeseries = Stream()
         output = self._retrieve_goes_messages(starttime, endtime, observatory)
-        timeseries  += self.parse_string(output)
-                # merge channel traces for multiple days
+        timeseries += self.parse_string(output)
+        # merge channel traces for multiple days
         timeseries.merge()
         # trim to requested start/end time
         timeseries.trim(starttime, endtime)
@@ -87,7 +86,8 @@ class GOESIMFV283Factory(IMFV283Factory):
         Notes
         -----
         See page 37-38
-            ftp://hazards.cr.usgs.gov/web/geomag-algorithms/DCS Tools Users Guide_4-4.pdf
+            ftp://hazards.cr.usgs.gov/web/geomag-algorithms/
+                    DCS Tools Users Guide_4-4.pdf
         getDcpMessages options.
         -h host             A hostname.
         -u user             The user name that must be known to the DDS server
@@ -102,12 +102,10 @@ class GOESIMFV283Factory(IMFV283Factory):
         String
             Messages from getDcpMessages
         """
-
-
         self._fill_criteria_file(starttime, endtime)
         output = subprocess.check_output(
                 [self.getdcpmessages,
-                '-h ' + self.server,
+                '-h ' + self.server[0],
                 '-u ' + self.user,
                 '-f ' + self.directory + '/' + self.criteria_file_name,
                 '-l ' + self.directory + '/' + self.log_file_name,
@@ -123,7 +121,8 @@ class GOESIMFV283Factory(IMFV283Factory):
         The Criteria file tells the GOES server what data we want and how
             to return it.
         See Page 30-34:
-            ftp://hazards.cr.usgs.gov/web/geomag-algorithms/DCS Tools Users Guide_4-4.pdf
+            ftp://hazards.cr.usgs.gov/web/geomag-algorithms/
+                    DCS Tools Users Guide_4-4.pdf
 
         Sets the criteria filename to the observatory code with a .sc extension
             First 3 lines are comments.
@@ -143,12 +142,11 @@ class GOESIMFV283Factory(IMFV283Factory):
         buf = []
         buf.append('#\n# LRGS Search Criteria\n#\n')
         buf.append('DAPS_SINCE: ')
-        buf.append(starttime.datetime.strftime('%y/%j %H:%M:%S\n'))
+        buf.append(start.datetime.strftime('%y/%j %H:%M:%S\n'))
         buf.append('DAPS_UNTIL: ')
         buf.append(end.datetime.strftime('%y/%j %H:%M:%S\n'))
-        buf.append('NETWORK_LIST: ./opendcs/netlist/' + \
-                self.observatory.lower() + \
-                '.nl\n')
+        buf.append('NETWORK_LIST: ./opendcs/netlist/' +
+                self.observatory.lower() + '.nl\n')
         buf.append('DAPS_STATUS: N\n')
         buf.append('RETRANSMITTED: N\n')
         buf.append('ASCENDING_TIME: false\n')
