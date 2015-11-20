@@ -43,6 +43,9 @@ Use redirection on the command line to send your data in.
 `--input-imfv283-url URL`
 Use a file pattern to read IMFV283 file.
 
+`--input-imfv283-goes`
+Reads IMFV283 data from an internet goes server.
+
 #### PCDCP ####
 
 `--input-pcdcp-file FILENAME`
@@ -75,6 +78,7 @@ Specify an IP address or host name where your Edge lives along with a port.
 #### Single File ####
 
 `--input-iaga-file FILENAME`
+`--input-imfv283-file FILENAME`
 `--input-pcdcp-file FILENAME`
 `--output-iaga-file FILENAME`
 `--output-pcdcp-file FILENAME`
@@ -83,6 +87,7 @@ Specify a single file name for the data to be read from or written to.
 #### Multiple Files ####
 
 `--input-iaga-url`
+`--input-imfv283-url`
 `--input-pcdcp-url`
 `--output-iaga-url`
 `--output-pcdcp-url`
@@ -113,6 +118,7 @@ Example: BOU2013092.min
 #### Std In and Std Out ####
 
 `--input-iaga-stdin`
+`--input-imfv283-stdin`
 `--input-pcdcp-stdin`
 `--output-iaga-stdout`
 `--output-pcdcp-stdout`
