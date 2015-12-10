@@ -46,9 +46,11 @@ class GOESIMFV283Factory(IMFV283Factory):
         self.directory = directory
         self.getdcpmessages = getdcpmessages
         self.server = server
+        self.maxserver = len(self.server)
         self.user = user
         self.log_file_name = self.observatory + '.log'
         self.criteria_file_name = self.observatory + '.sc'
+        self.javaerror = 'java.io.IOException: Socket closed'
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -66,6 +68,11 @@ class GOESIMFV283Factory(IMFV283Factory):
         timeseries.merge()
         # trim to requested start/end time
         timeseries.trim(starttime, endtime)
+        # output the number of points we read for logging
+        if len(timeseries):
+            print "Read %s points from %s" % \
+                (timeseries[0].stats.npts, observatory)
+
         self._post_process(timeseries)
         if observatory is not None:
             timeseries = timeseries.select(station=observatory)
@@ -103,14 +110,26 @@ class GOESIMFV283Factory(IMFV283Factory):
             Messages from getDcpMessages
         """
         self._fill_criteria_file(starttime, endtime)
-        output = subprocess.check_output(
-                [self.getdcpmessages,
-                '-h ' + self.server[0],
-                '-u ' + self.user,
-                '-f ' + self.directory + '/' + self.criteria_file_name,
-                '-l ' + self.directory + '/' + self.log_file_name,
-                '-t 60',
-                '-n'])
+        currentserver = 0
+
+        while (currentserver < self.maxserver):
+            print self.server[currentserver]
+            proc = subprocess.Popen(
+                    [self.getdcpmessages,
+                    '-h ' + self.server[currentserver],
+                    '-u ' + self.user,
+                    '-f ' + self.directory + '/' + self.criteria_file_name,
+                    '-t 60',
+                    '-n'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (output, error) = proc.communicate()
+            print error
+            if error.find(self.javaerror) >= 0:
+                print 'Error: could not connect to %s' % \
+                        self.server[currentserver]
+                currentserver += 1
+                continue
+            break
+
         return output
 
     def _fill_criteria_file(self, starttime, endtime):
