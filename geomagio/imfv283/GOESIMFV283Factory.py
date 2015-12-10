@@ -164,8 +164,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         buf.append(start.datetime.strftime('%y/%j %H:%M:%S\n'))
         buf.append('DAPS_UNTIL: ')
         buf.append(end.datetime.strftime('%y/%j %H:%M:%S\n'))
-        buf.append('NETWORK_LIST: ./opendcs/netlist/' +
-                self.observatory.lower() + '.nl\n')
+        buf.append('NETWORK_LIST: ' + self.observatory.lower() + '.nl\n')
         buf.append('DAPS_STATUS: N\n')
         buf.append('RETRANSMITTED: N\n')
         buf.append('ASCENDING_TIME: false\n')
