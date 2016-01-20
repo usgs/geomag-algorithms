@@ -2,7 +2,7 @@
 from obspy.core.stream import Stream
 from nose.tools import assert_equals
 from nose.tools import assert_is_instance
-from geomagio import Algorithm
+from geomagio.algorithm import Algorithm
 
 
 def test_algorithm_process():

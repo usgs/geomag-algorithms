@@ -2,8 +2,8 @@
 from obspy.core.stream import Stream
 from nose.tools import assert_equals
 from nose.tools import assert_is
-from geomagio import XYZAlgorithm
-from StreamConverter_test import __create_trace
+from geomagio.algorithm import XYZAlgorithm
+from ..StreamConverter_test import __create_trace
 
 
 def test_xyzalgorithm_process():

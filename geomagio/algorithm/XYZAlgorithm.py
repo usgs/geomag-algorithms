@@ -5,7 +5,7 @@
 
 from Algorithm import Algorithm
 from AlgorithmException import AlgorithmException
-import StreamConverter as StreamConverter
+from .. import StreamConverter
 
 # List of channels by geomagnetic observatory orientation.
 # geo represents a geographic north/south orientation
@@ -33,11 +33,11 @@ class XYZAlgorithm(Algorithm):
         be converting to.
     """
 
-    def __init__(self, informat=None, outformat=None):
+    def __init__(self, informat='obs', outformat='geo'):
         Algorithm.__init__(self, inchannels=CHANNELS[informat],
                 outchannels=CHANNELS[outformat])
-        self.informat = informat
-        self.outformat = outformat
+        self._informat = informat
+        self._outformat = outformat
 
     def check_stream(self, timeseries):
         """checks an stream to make certain all the required channels
@@ -69,36 +69,69 @@ class XYZAlgorithm(Algorithm):
         """
         self.check_stream(timeseries)
         out_stream = None
-        if self.outformat == 'geo':
-            if self.informat == 'geo':
+        informat = self._informat
+        outformat = self._outformat
+        if outformat == 'geo':
+            if informat == 'geo':
                 out_stream = timeseries
-            elif self.informat == 'mag':
+            elif informat == 'mag':
                 out_stream = StreamConverter.get_geo_from_mag(timeseries)
-            elif self.informat == 'obs' or self.informat == 'obsd':
+            elif informat == 'obs' or informat == 'obsd':
                 out_stream = StreamConverter.get_geo_from_obs(timeseries)
-        elif self.outformat == 'mag':
-            if self.informat == 'geo':
+        elif outformat == 'mag':
+            if informat == 'geo':
                 out_stream = StreamConverter.get_mag_from_geo(timeseries)
-            elif self.informat == 'mag':
+            elif informat == 'mag':
                 out_stream = timeseries
-            elif self.informat == 'obs' or self.informat == 'obsd':
+            elif informat == 'obs' or informat == 'obsd':
                 out_stream = StreamConverter.get_mag_from_obs(timeseries)
-        elif self.outformat == 'obs':
-            if self.informat == 'geo':
+        elif outformat == 'obs':
+            if informat == 'geo':
                 out_stream = StreamConverter.get_obs_from_geo(timeseries)
-            elif self.informat == 'mag':
+            elif informat == 'mag':
                 out_stream = StreamConverter.get_obs_from_mag(timeseries)
-            elif self.informat == 'obs' or self.informat == 'obsd':
+            elif informat == 'obs' or informat == 'obsd':
                 out_stream = StreamConverter.get_obs_from_obs(timeseries,
                         include_e=True)
-        elif self.outformat == 'obsd':
-            if self.informat == 'geo':
+        elif outformat == 'obsd':
+            if informat == 'geo':
                 out_stream = StreamConverter.get_obs_from_geo(timeseries,
                         include_d=True)
-            elif self.informat == 'mag':
+            elif informat == 'mag':
                 out_stream = StreamConverter.get_obs_from_mag(timeseries,
                         include_d=True)
-            elif self.informat == 'obs' or self.informat == 'obsd':
+            elif informat == 'obs' or informat == 'obsd':
                 out_stream = StreamConverter.get_obs_from_obs(timeseries,
                         include_d=True)
         return out_stream
+
+    @classmethod
+    def add_arguments(cls, parser):
+        """Add command line arguments to argparse parser.
+
+        Parameters
+        ----------
+        parser: ArgumentParser
+            command line argument parser
+        """
+        parser.add_argument('--xyz-from',
+                choices=['geo', 'mag', 'obs', 'obsd'],
+                default='obs',
+                help='Geomagnetic orientation to read from')
+        parser.add_argument('--xyz-to',
+                choices=['geo', 'mag', 'obs', 'obsd'],
+                default='geo',
+                help='Geomagnetic orientation to convert to')
+
+    def configure(self, arguments):
+        """Configure algorithm using comand line arguments.
+
+        Parameters
+        ----------
+        arguments: Namespace
+            parsed command line arguments
+        """
+        self._informat = arguments.xyz_from
+        self._outformat = arguments.xyz_to
+        self._inchannels = CHANNELS[self._informat]
+        self._outchannels = CHANNELS[self._outformat]

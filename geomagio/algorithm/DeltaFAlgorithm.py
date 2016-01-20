@@ -4,7 +4,7 @@
 
 from Algorithm import Algorithm
 from AlgorithmException import AlgorithmException
-import StreamConverter as StreamConverter
+from .. import StreamConverter
 
 # List of channels by geomagnetic observatory orientation.
 # geo represents a geographic north/south orientation
@@ -27,10 +27,10 @@ class DeltaFAlgorithm(Algorithm):
         will be converting from.
     """
 
-    def __init__(self, informat=None):
+    def __init__(self, informat='obs'):
         Algorithm.__init__(self, inchannels=CHANNELS[informat],
                 outchannels=['G'])
-        self.informat = informat
+        self._informat = informat
 
     def check_stream(self, timeseries):
         """checks a stream to make certain all the required channels
@@ -61,10 +61,35 @@ class DeltaFAlgorithm(Algorithm):
         """
         self.check_stream(timeseries)
         out_stream = None
-
-        if self.informat == 'geo':
+        informat = self._informat
+        if informat == 'geo':
             out_stream = StreamConverter.get_deltaf_from_geo(timeseries)
-        elif self.informat == 'obs' or self.informat == 'obsd':
+        elif informat == 'obs' or informat == 'obsd':
             out_stream = StreamConverter.get_deltaf_from_obs(timeseries)
 
         return out_stream
+
+    @classmethod
+    def add_arguments(cls, parser):
+        """Add command line arguments to argparse parser.
+
+        Parameters
+        ----------
+        parser: ArgumentParser
+            command line argument parser
+        """
+        parser.add_argument('--deltaf-from',
+                choices=['geo', 'obs', 'obsd'],
+                default='obs',
+                help='Geomagnetic orientation to read from')
+
+    def configure(self, arguments):
+        """Configure algorithm using comand line arguments.
+
+        Parameters
+        ----------
+        arguments: Namespace
+            parsed command line arguments
+        """
+        self._informat = arguments.deltaf_from
+        self._inchannels = CHANNELS[self._informat]
