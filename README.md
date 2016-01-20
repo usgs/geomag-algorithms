@@ -36,4 +36,5 @@ and is written primarily in Python 2.7.
 ## Supported Algorithms
 
 - [DeltaF](./docs/algorithms/DeltaF_usage.md)
+- [SQDist](./docs/algorithms/SQDist_usage.md)
 - [XYZ](./docs/algorithms/XYZ_usage.md)
