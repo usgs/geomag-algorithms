@@ -44,11 +44,11 @@ Exception base class is `geomagio.TimeseriesFactoryException`.
 
 ## Algorithms
 
-Base class is `geomagio.Algorithm`
-Exception base class is `geomagio.AlgorithmException`
+Base class is `geomagio.algorithm.Algorithm`
+Exception base class is `geomagio.algorithm.AlgorithmException`
 
-- Delta F `geomagio.DeltaFAlgorithm`
-- XYZ `geomagio.XYZAlgorithm`
+- Delta F `geomagio.algorithm.DeltaFAlgorithm`
+- XYZ `geomagio.algorithm.XYZAlgorithm`
 
 
 ## Example
@@ -60,7 +60,7 @@ The following example:
 - Plots the data using matplotlib
 
 ```python
-from geomagio import XYZAlgorithm
+from geomagio.algorithm import XYZAlgorithm
 from geomagio.edge import EdgeFactory
 from obspy.core import UTCDateTime
 

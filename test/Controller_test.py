@@ -1,5 +1,6 @@
 #! /usr/bin/env python
-from geomagio import Algorithm, Controller, TimeseriesFactory
+from geomagio import Controller, TimeseriesFactory
+from geomagio.algorithm import Algorithm
 from nose.tools import assert_is_instance
 
 

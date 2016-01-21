@@ -7,6 +7,7 @@ setup(
     url='https://github.com/usgs/geomag-algorithms',
     packages=[
         'geomagio',
+        'geomagio.algorithm',
         'geomagio.iaga2002',
         'geomagio.imfv283',
         'geomagio.edge',

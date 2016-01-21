@@ -6,7 +6,7 @@ and a scalar total-field measurement made by independent sensors.  Read more
 about the [DeltaF Algorithm](./DeltaF.md).
 
 
-`geomag.py --deltaf {geo, obs, obsd}`
+`geomag.py --algorithm deltaf [--deltaf-from {geo, obs, obsd}]`
 
 
 ### Reference Frames
@@ -21,7 +21,7 @@ about the [DeltaF Algorithm](./DeltaF.md).
 To compute DeltaF from  HEZF data for Tucson observatory:
 ```
 geomag.py \
-    --deltaf obs \
+    --algorithm deltaf \
     --observatory TUC \
     --type variation \
     --interval minute \

@@ -4,7 +4,7 @@
 import argparse
 import sys
 from obspy.core import UTCDateTime
-from Algorithm import Algorithm
+from algorithm import algorithms
 import TimeseriesUtility
 from TimeseriesFactoryException import TimeseriesFactoryException
 from Util import ObjectView
@@ -13,9 +13,6 @@ import edge
 import iaga2002
 import pcdcp
 import imfv283
-
-from DeltaFAlgorithm import DeltaFAlgorithm
-from XYZAlgorithm import XYZAlgorithm
 
 
 class Controller(object):
@@ -301,17 +298,8 @@ def main(args):
     else:
             print >> sys.stderr, "Missing required output directive"
 
-    if args.xyz is not None:
-        algorithm = XYZAlgorithm(informat=args.xyz[0],
-                outformat=args.xyz[1])
-    elif args.deltaf is not None:
-        algorithm = DeltaFAlgorithm(informat=args.deltaf)
-    else:
-        # TODO get smarter on inchannels/outchannels since input doesn't always
-        # need to use the --inchannels argument, but might (as in iaga2002),
-        # get it from the file.
-        algorithm = Algorithm(inchannels=args.inchannels,
-                outchannels=args.outchannels or args.inchannels)
+    algorithm = algorithms[args.algorithm]()
+    algorithm.configure(args)
 
     # TODO check for unused arguments.
 
@@ -481,14 +469,11 @@ def parse_args(args):
             help='Edge IP #. See --output-edge-* for other optional arguments')
 
     # Algorithms group
-    algorithm_group = parser.add_mutually_exclusive_group()
-    algorithm_group.add_argument('--xyz',
-            nargs=2,
-            choices=['geo', 'mag', 'obs', 'obsd'],
-            help='Enter the geomagnetic orientation(s) you want to read from' +
-                    ' and to respectfully.')
-    algorithm_group.add_argument('--deltaf',
-            choices=['geo', 'obs', 'obsd'],
-            help='Enter the geomagnetic orientation you want to read from')
+    parser.add_argument('--algorithm',
+            choices=[k for k in algorithms],
+            default='default')
+
+    for k in algorithms:
+        algorithms[k].add_arguments(parser)
 
     return parser.parse_args(args)

@@ -68,10 +68,12 @@ There are flags to specify certain algorithms should be run against the data.
 
 #### XYZ ####
 
-`--xyz {geo, mag, obs, obsd} {geo, mag, obs, obsd}`
+`--algorithm xyz`
+`--xyz-from {geo, mag, obs, obsd}` (default is `obs`)
+`--xyz-to {geo, mag, obs, obsd}` (default is `geo`)
 
 #### [XYZ Usage](./algorithms/XYZ_usage.md) ####
-Rotate data from HEZ or HDZ to XYZ and back.
+Rotate data from HEZ (obs) or HDZ (mag) to XYZ (geo) and back.
 
 Extensive explanation of all input and output methods:
 [IO Methods](./io.md)

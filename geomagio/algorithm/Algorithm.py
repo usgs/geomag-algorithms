@@ -1,6 +1,6 @@
 """Algorithm Interface."""
 
-import TimeseriesUtility
+from .. import TimeseriesUtility
 
 
 class Algorithm(object):
@@ -91,3 +91,25 @@ class Algorithm(object):
                     endtime < input_gap[2]):
                 return False
         return True
+
+    @classmethod
+    def add_arguments(cls, parser):
+        """Add command line arguments to argparse parser.
+
+        Parameters
+        ----------
+        parser: ArgumentParser
+            command line argument parser
+        """
+        pass
+
+    def configure(self, arguments):
+        """Configure algorithm using comand line arguments.
+
+        Parameters
+        ----------
+        arguments: Namespace
+            parsed command line arguments
+        """
+        self._inchannels = arguments.inchannels
+        self._outchannels = arguments.outchannels or arguments.inchannels
