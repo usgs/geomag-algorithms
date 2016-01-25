@@ -217,7 +217,8 @@ class Controller(object):
                     stream=input_timeseries):
                 continue
             # check for fillable gap at start
-            if output_gap[0] == options.starttime:
+            if options.update_count < options.update_max_iterations and \
+                    output_gap[0] == options.starttime:
                 # found fillable gap at start, recurse to previous interval
                 interval = options.endtime - options.starttime
                 options.starttime = options.starttime - interval - delta
@@ -384,6 +385,7 @@ def main(args):
     controller = Controller(inputfactory, outputfactory, algorithm)
 
     if args.update:
+        args.update_count = 0
         controller.run_as_update(args)
     else:
         controller.run(args)
@@ -451,6 +453,10 @@ def parse_args(args):
             action='store_true',
             default=False,
             help='Used to update data')
+    parser.add_argument('--update-max-iterations',
+            type=int,
+            help='Maximum iterations update will attempt.'
+            )
     parser.add_argument('--input-edge-port',
             type=int,
             default=2060,
