@@ -9,6 +9,7 @@
        configuration parameters.
 """
 
+from AlgorithmException import AlgorithmException
 import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
 
@@ -131,7 +132,7 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
     else:
         l = l0
         if not np.isscalar(l0):
-            raise Exception, "l0 must be a scalar"
+            raise AlgorithmException("l0 must be a scalar")
 
     if b0 is None:
         b = (np.nanmean(yobs[m:2 * m]) - np.nanmean(yobs[0:m])) / m
@@ -139,14 +140,14 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
     else:
         b = b0
         if not np.isscalar(b0):
-            raise Exception, "b0 must be a scalar"
+            raise AlgorithmException("b0 must be a scalar")
 
     if yhat0 is None:
         yhat = [np.nan for i in range(hstep)]
     else:
         yhat = list(yhat0)
         if len(yhat) != hstep:
-            raise Exception, "yhat0 must have length %d" % hstep
+            raise AlgorithmException("yhat0 must have length %d" % hstep)
 
     if s0 is None:
         s = [yobs[i] - l for i in range(m)]
@@ -154,7 +155,7 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
     else:
         s = list(s0)
         if len(s) != m:
-            raise Exception, "s0 must have length %d " % m
+            raise AlgorithmException("s0 must have length %d " % m)
 
     if sigma0 is None:
         # NOTE: maybe default should be vector of zeros???
@@ -162,7 +163,8 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
     else:
         sigma = list(sigma0)
         if len(sigma) != (hstep + 1):
-            raise Exception, "sigma0 must have length %d" % (hstep + 1)
+            raise AlgorithmException(
+                "sigma0 must have length %d" % (hstep + 1))
 
     #
     # Optimal parameter estimation if requested
