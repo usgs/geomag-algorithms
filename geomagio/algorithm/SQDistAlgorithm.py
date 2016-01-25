@@ -14,84 +14,69 @@ import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
 
 
-def RMSE(params, *args):
-    """Wrapper function passed to scipy.optimize.fmin_l_bfgs_b in
-      order to find optimal Holt-Winters prediction coefficients.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-    """
-    # extract parameters to fit
-    alpha, beta, gamma = params
-
-    # extract arguments
-    yobs = args[0]
-    method = args[1]
-    m = args[2]
-    s0 = args[3]
-    l0 = args[4]
-    b0 = args[5]
-    hstep = args[6]
-    zthresh = args[7]
-
-    if method == "additive":
-        # call Holt-Winters with additive seasonality
-        yhat, _, _, _, _, _, _, _ = additive(yobs, m, alpha=alpha, beta=beta,
-            gamma=gamma, l0=l0, b0=b0, s0=s0, zthresh=zthresh, hstep=hstep)
-
-    else:
-        print 'Method must be additive or ...'
-        raise Exception
-
-    # calculate root-mean-squared-error of predictions
-    rmse = np.sqrt(np.nanmean([(m - n) ** 2 for m, n in zip(yobs, yhat)]))
-
-    return rmse
-
-
 def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
              yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
              zthresh=6, fc=0, hstep=0):
     """Primary function for Holt-Winters smoothing/forecasting with
       damped linear trend and additive seasonal component.
 
+    The adaptive standard deviation (sigma), multiplied by zthresh to
+    determine which observations should be smoothed or ignored, is always
+    updated using the latest error if a valid observation is available. This
+    way, if what seemed a spike in real-time was actually a more permanent
+    baseline shift, the algorithm will adjust to the new baseline once sigma
+    grows enough to accommodate the errors.
+
+    The standard deviation also updates when no obserations are present, but
+    does so according to Hyndman et al (2005) prediction intervals. The result
+    is a sigma that grows over gaps, and for forecasts beyond yobs[-1].
+
     Parameters
     ----------
-    yobs         : input series to be smoothed/forecast
-    m            : number of "seasons"
-
-    KEYWORDS:
-    alpha        : the level smoothing parameter (0<=alpha<=1)
-                  (if None, alpha will be estimated; default)
-    beta         : the slope smoothing parameter (0<=beta<=1)
-                  (if None, beta will be estimated; default)
-    gamma        : the seasonal adjustment smoothing parameter (0<=gamma<=1)
-                  (if None, gamma will be estimated; default)
-    phi          : the dampening factor for slope (0<=phi<=1)
-                  (if None, phi will be estimated; default is 1)
-    yhat0        : initial yhats for hstep>0 (len(yhat0) == hstep)
-                  (if None, yhat0 will be set to NaNs)
-    s0           : initial set of seasonal adjustments
-                  (if None, default is [yobs[i] - a[0] for i in range(m)])
-    l0           : initial level (i.e., l(t-hstep))
-                  (if None, default is mean(yobs[0:m]))
-    b0           : initial slope (i.e., b(t-hstep))
-                  (if None, default is (mean(yobs[m:2*m]) - mean(yobs[0:m]))/m)
-    sigma0       : initial standard-deviation estimate (len(sigma0) == hstep+1)
-                  (if None, default is [sqrt(var(yobs))] * (hstep+1) )
-    zthresh      : z-score threshold to determine whether yhat is updated by
-                  smoothing observations, or by simulation alone; if exceeded,
-                  only sigma is updated to reflect latest observation
-                  (default is 6)
-    fc           : the number of steps beyond the end of yobs (the available
-                  observations) to forecast
-                  (default is 0)
-    hstep        : the number of steps ahead to predict yhat[i]
-                  which forces an hstep prediction at each time step
-                  (default is 0)
+    alpha:
+        the level smoothing parameter (0<=alpha<=1)
+        (if None, alpha will be estimated; default)
+    b0:
+        initial slope (i.e., b(t-hstep))
+        (if None, default is (mean(yobs[m:2*m]) - mean(yobs[0:m]))/m )
+    beta:
+        the slope smoothing parameter (0<=beta<=1)
+        (if None, beta will be estimated; default)
+    fc:
+        the number of steps beyond the end of yobs (the available
+        observations) to forecast
+        (default is 0)
+    gamma:
+        the seasonal adjustment smoothing parameter (0<=gamma<=1)
+        (if None, gamma will be estimated; default)
+    hstep:
+        the number of steps ahead to predict yhat[i]
+        which forces an hstep prediction at each time step
+        (default is 0)
+    l0:
+        initial level (i.e., l(t-hstep))
+        (if None, default is mean(yobs[0:m]))
+    m:
+        number of "seasons"
+    phi:
+        the dampening factor for slope (0<=phi<=1)
+        (if None, phi will be estimated; default is 1)
+    s0:
+        initial set of seasonal adjustments
+        (if None, default is [yobs[i] - a[0] for i in range(m)])
+    sigma0:
+        initial standard-deviation estimate (len(sigma0) == hstep+1)
+        (if None, default is [sqrt(var(yobs))] * (hstep+1) )
+    yhat0:
+        initial yhats for hstep>0 (len(yhat0) == hstep)
+        (if None, yhat0 will be set to NaNs)
+    yobs:
+        input series to be smoothed/forecast
+    zthresh:
+        z-score threshold to determine whether yhat is updated by
+        smoothing observations, or by simulation alone; if exceeded,
+        only sigma is updated to reflect latest observation
+        (default is 6)
 
     Returns
     -------
@@ -110,19 +95,6 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
     phi       : optimized phi (if input phi is None)
     rmse      : root mean squared error metric from optimization
              (only if alpha or beta or gamma were optimized)
-
-    NOTES:
-    * The adaptive standard deviation (sigma), multiplied by zthresh to
-     determine
-     which observations should be smoothed or ignored, is always updated using
-     the latest error if a valid observation is available. This way, if what
-     seemed a spike in real-time was actually a more permanent baseline shift,
-     the algorithm will adjust to the new baseline once sigma grows enough to
-     accommodate the errors.
-
-    * The standard deviation also updates when no obserations are present, but
-     does so according to Hyndman et al (2005) prediction intervals. The result
-     is a sigma that grows over gaps, and for forecasts beyond yobs[-1].
 
     """
 
@@ -343,6 +315,42 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
                 b,
                 sigma[len(yobs) + fc:])
 
+def rmse(params, *args):
+    """Wrapper function passed to scipy.optimize.fmin_l_bfgs_b in
+      order to find optimal Holt-Winters prediction coefficients.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    """
+    # extract parameters to fit
+    alpha, beta, gamma = params
+
+    # extract arguments
+    yobs = args[0]
+    method = args[1]
+    m = args[2]
+    s0 = args[3]
+    l0 = args[4]
+    b0 = args[5]
+    hstep = args[6]
+    zthresh = args[7]
+
+    if method == "additive":
+        # call Holt-Winters with additive seasonality
+        yhat, _, _, _, _, _, _, _ = additive(yobs, m, alpha=alpha, beta=beta,
+            gamma=gamma, l0=l0, b0=b0, s0=s0, zthresh=zthresh, hstep=hstep)
+
+    else:
+        print 'Method must be additive or ...'
+        raise Exception
+
+    # calculate root-mean-squared-error of predictions
+    rmse = np.sqrt(np.nanmean([(m - n) ** 2 for m, n in zip(yobs, yhat)]))
+
+    return rmse
 
 if __name__ == '__main__':
     pass
