@@ -8,6 +8,16 @@ E. Joshua Rigler &lt;[erigler@usgs.gov](mailto:erigler@usgs.gov)&gt;
 
 ## Summary
 
+Mathematical underpinnings and general algorithm considerations are presented
+for estimating Solar Quiet (SQ), Secular Variation (SV) and Magnetic
+Disturbance (DIST) data streams. SV describes the geomagnetic trend line
+at a given moment, and is usually assumed to be a measure of the Earth’s
+internal field. SQ is used to describe daily variations that result from the
+Earth’s rotation beneath geospace electric currents that are mostly fixed
+with respect to the sun. Finally, the value often of most interest in
+space weather applications is DIST, or the remainder of the signal when SV
+and SQ are removed. This is typically assumed to represent Earth’s magnetic
+response to aperiodic solar storms.
 
 
 ## Background and Motivation
@@ -16,6 +26,18 @@ E. Joshua Rigler &lt;[erigler@usgs.gov](mailto:erigler@usgs.gov)&gt;
 
 ## Math and Theory
 
+Exponential smoothing of time series has been employed in countless research,
+engineering, economic, sociological, political and other applications. While
+its utility has been empirically demonstrated time and again over the last
+half century or more, it has only been in the last couple decades that it has
+normalized in form, stood up to rigorous mathematical scrutiny, and been tied
+directly to well-known statistical time series models. A major contributor to
+this recent maturation of this subdiscipline of applied mathematics is R. J.
+Hyndman. We largely follow notation used in his free Online textbook
+(http://www.otexts.org/fpp), and related literature, to provide a very brief
+overview of exponential smoothing that culminates in an algorithm that can be
+used to decompose a time series into a trend, a repeating “seasonal” pattern,
+and a residual.
 
 
 ## References
@@ -44,6 +66,10 @@ E. Joshua Rigler &lt;[erigler@usgs.gov](mailto:erigler@usgs.gov)&gt;
    intervals for exponential smoothing using two new classes of state space
    models](http://onlinelibrary.wiley.com/doi/10.1002/for.938/abstract), J.
    Forecast., 24(1), 17-37.
+
+ - Hyndman, Rob J., and George Athana­sopou­los. "Forecasting: Principles and
+   Practice." Forecasting: Principles and Practice. OTexts: Online,
+   Open-Access Textbooks, May 2012. Web. <https://www.otexts.org/fpp>.
 
  - Hyndman, R. J., and G. Athanasopoulos (2013), [Forecasting: principles and
    practice](https://www.otexts.org/fpp), OTexts.
