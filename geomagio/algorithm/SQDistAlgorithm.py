@@ -185,9 +185,9 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
         initial_values = np.array(initial_values)
         method = 'additive'
 
-        parameters = fmin_l_bfgs_b(RMSE, x0 = initial_values,
-                             args = (yobs, method, m, s, l, b, hstep, zthresh),
-                             bounds = boundaries, approx_grad = True)
+        parameters = fmin_l_bfgs_b(RMSE, x0=initial_values,
+                             args=(yobs, method, m, s, l, b, hstep, zthresh),
+                             bounds=boundaries, approx_grad=True)
         alpha, beta, gamma = parameters[0]
         rmse = parameters[1]
 
@@ -207,9 +207,9 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
     sumc2_H = 1
     phiHminus1 = 0
     for h in range(1, hstep):
-        phiHminus1 = phiHminus1 + phi**(h - 1)
+        phiHminus1 = phiHminus1 + phi ** (h - 1)
         sumc2_H = sumc2_H + (alpha * (1 + phiHminus1 * beta) +
-                           gamma * (1 if (h % m == 0) else 0))**2
+                           gamma * (1 if (h % m == 0) else 0)) ** 2
     phiJminus1 = phiHminus1
     sumc2 = sumc2_H
     jstep = hstep
@@ -254,9 +254,9 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
                 # when forecasting, grow sigma=sqrt(var) like a prediction
                 # interval; sumc2 and jstep will be reset with the next
                 # valid observation
-                phiJminus1 = phiJminus1 + phi**jstep
+                phiJminus1 = phiJminus1 + phi ** jstep
                 sumc2 = sumc2 + (alpha * (1 + phiJminus1 * beta) +
-                                 gamma * (1 if (jstep % m == 0) else 0))**2
+                                 gamma * (1 if (jstep % m == 0) else 0)) ** 2
                 jstep = jstep + 1
 
             else:
@@ -315,7 +315,8 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
                 b,
                 sigma[len(yobs) + fc:])
 
-def rmse(params, *args):
+
+def RMSE(params, *args):
     """Wrapper function passed to scipy.optimize.fmin_l_bfgs_b in
       order to find optimal Holt-Winters prediction coefficients.
 
@@ -348,7 +349,7 @@ def rmse(params, *args):
         raise Exception
 
     # calculate root-mean-squared-error of predictions
-    rmse = np.sqrt(np.nanmean([(m - n) ** 2 for m, n in zip(yobs, yhat)]))
+    rmse = np.sqrt(np.nanmean([(x - y) ** 2 for x, y in zip(yobs, yhat)]))
 
     return rmse
 
