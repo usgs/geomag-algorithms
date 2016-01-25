@@ -1,58 +1,29 @@
-"""
-This module implements Holt-Winters exponential smoothing. In short, it predicts
-an offset-from-zero plus a "seasonal" correction given observations up to time
-t-1. Each observation's influence on the current prediction decreases exponen-
-tially with time according to user-supplied runtime configuration parameters.
+"""Algorithm that produces Solar Quiet (SQ), Secular Variation (SV) and
+   Magnetic Disturbance (DIST).
 
-The following functions are described in more detail by their own docstrings:
-
-RMSE           - wrapper function passed to scipy.optimize.fmin_l_bfgs_b in
-                 order to find optimal Holt-Winters prediction coefficients;
-                 in all likelihood, this will not be used, but rather the
-                 coefficients will be specified manually to match a desired
-                 average age of informative observation
-additive       - primary function for Holt-Winters smoothing/forecasting with
-                 additive seasonal elements
-
-NOTE: This all-but-completely replaces original code shamelessly stolen from a
-      Github Gist by Andre Queiroz. The only component remaining that resembles
-      Queiroz's original code is RMSE(), and his use of SciPy's fmin_l_bfgs_b()
-      function. The remainder is an original implementation of the techniques
-      described in the various references.
-
-REFERENCES:
-Archibald, B.C., and A.B. Koehler (2003), Normalization of seasonal factors
-   in Winters' methods, Int. J. of Forecasting, 19(1), 143-148.
-Bodenham, D., and N. Adams (2013), Technical Report: Continuous changepoint
-   monitoring of data streams using adaptive estimation, ...
-   (Submitted to Elsevier; also a longer thesis is available from Imperial College London)
-Byrd, R. H., P. Lu, and J. Nocedal (1995), A limited memory algorithm for bound
-   constrained optimization, SIAM J. Scientific and Stat. Computing, 16(5), 1190-1208.
-Gardner, E.S. (2006), Exonential smoothing: The state of the art -- Part II,
-   Int. J. of Forecasting, 22(4), 637-666.
-Hyndman, R.J., A.B. Koehler, J.K. Ord, and R.D. Snyder (2005), Prediction
-   intervals for exponential smoothing using two new classes of state space
-   models, J. Forecast., 24(1), 17-37.
-Hyndman, R.J., and G. Athanasopoulos (2013), Forecasting: principles and
-   practice, OTexts (https://www.otexts.org/fpp).
-
+   Algorithm for producing SQ, SV and DIST.
+       This module implements Holt-Winters exponential smoothing. It predicts
+       an offset-from-zero plus a "seasonal" correction given observations
+       up to time t-1. Each observation's influence on the current prediction
+       decreases exponentially with time according to user-supplied runtime
+       configuration parameters.
 """
 
-# import NumPy
 import numpy as np
-
-# import datetime
 import datetime as dt
-
-# import fmin_l_bfgs_b from scipy.optimize
 from scipy.optimize import fmin_l_bfgs_b
 
 
 def RMSE(params, *args):
-   """
-   (Brief docstring for RMSE needed here)
-   """
+   """Wrapper function passed to scipy.optimize.fmin_l_bfgs_b in
+      order to find optimal Holt-Winters prediction coefficients.
 
+   Parameters
+   ----------
+
+   Returns
+   -------
+   """
    # extract parameters to fit
    alpha, beta, gamma = params
 
@@ -66,11 +37,10 @@ def RMSE(params, *args):
    hstep = args[6]
    zthresh = args[7]
 
-
    if method == "additive":
       # call Holt-Winters with additive seasonality
-      yhat, _, _, _, _, _, _, _ = additive(yobs, m, alpha=alpha, beta=beta, gamma=gamma,
-                                    l0=l0, b0=b0, s0=s0, zthresh=zthresh, hstep=hstep)
+      yhat, _, _, _, _, _, _, _ = additive(yobs, m, alpha=alpha, beta=beta,
+                 gamma=gamma, l0=l0, b0=b0, s0=s0, zthresh=zthresh, hstep=hstep)
 
    else:
       print 'Method must be additive or ...'
@@ -81,16 +51,14 @@ def RMSE(params, *args):
 
    return rmse
 
-
-
 def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
              yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
              zthresh=6, fc=0, hstep=0):
-   """
-   Perform Holt-Winters exponential smoothing/forecasting with a damped linear
-   trend and additive seasonal component.
+   """Primary function for Holt-Winters smoothing/forecasting with
+      damped linear trend and additive seasonal component.
 
-   INPUTS:
+   Parameters
+   ----------
    yobs         : input series to be smoothed/forecast
    m            : number of "seasons"
 
@@ -117,36 +85,32 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
                   smoothing observations, or by simulation alone; if exceeded,
                   only sigma is updated to reflect latest observation
                   (default is 6)
-   fc           : the number of steps beyond the end of yobs to forecast
+   fc           : the number of steps beyond the end of yobs (the available
+                  observations) to forecast
                   (default is 0)
    hstep        : the number of steps ahead to predict yhat[i]
+                  which forces an hstep prediction at each time step
                   (default is 0)
 
+   Returns
+   -------
+   yhat      : series of smoothed/forecast values (aligned with yobs(t))
+   shat      : series of seasonal adjustments (aligned with yobs(t))
+   sigmahat  : series of time-varying standard deviations (aligned with yobs(t))
+   yhat0next : use as yhat0 when function called again with new observations
+   s0next    : use as s0 when function called again with new observations
+   l0next    : use as l0 when function called again with new observations
+   b0next    : use as b0 when function called again with new observations
+   sigma0next: use as sigma0 when function called again with new observations
 
-   OUTPUTS:
-   yhat         : series of smoothed/forecast values (aligned with yobs(t))
-   shat         : series of seasonal adjustments (aligned with yobs(t))
-   sigmahat     : series of time-varying standard deviations (aligned with yobs(t))
-   yhat0next    : use as yhat0 when function called again with new observations
-   s0next       : use as s0 when function called again with new observations
-   l0next       : use as l0 when function called again with new observations
-   b0next       : use as b0 when function called again with new observations
-   sigma0next   : use as sigma0 when function called again with new observations
-
-   alpha        : optimized alpha (if input alpha is None)
-   beta         : optimized beta (if input beta is None)
-   gamma        : optimized gamma (if input gamma is None)
-   phi          : optimized phi (if input phi is None)
-   rmse         : root mean squared error metric from optimization
-                  (only if alpha or beta or gamma were optimized)
-
+   alpha     : optimized alpha (if input alpha is None)
+   beta      : optimized beta (if input beta is None)
+   gamma     : optimized gamma (if input gamma is None)
+   phi       : optimized phi (if input phi is None)
+   rmse      : root mean squared error metric from optimization
+             (only if alpha or beta or gamma were optimized)
 
    NOTES:
-   * To clarify, h-step predictions are distinct from forecast horizon fc. The
-     parameter hstep forces an h-step prediction at each time step, while the
-     parameter fc forces the program to simulate fc steps beyond the end of
-     available observations in yobs (using h-step predictions, of course).
-
    * The adaptive standard deviation (sigma), multiplied by zthresh to determine
      which observations should be smoothed or ignored, is always updated using
      the latest error if a valid observation is available. This way, if what
@@ -199,8 +163,6 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
       if len(sigma)!=(hstep+1):
          raise Exception, "sigma0 must have length %d"%(hstep+1)
 
-
-
    #
    # Optimal parameter estimation if requested
    # FIXME: this should probably be extracted to a separate module function.
@@ -251,14 +213,12 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
       method = 'additive'
 
       parameters = fmin_l_bfgs_b(RMSE, x0 = initial_values,
-                                 args = (yobs, method, m, s, l, b, hstep, zthresh),
-                                 bounds = boundaries, approx_grad = True)
+                             args = (yobs, method, m, s, l, b, hstep, zthresh),
+                             bounds = boundaries, approx_grad = True)
       alpha, beta, gamma = parameters[0]
       rmse = parameters[1]
 
-
    # endif (alpha == None or beta == None or gamma == None)
-
 
 
    #
@@ -289,14 +249,6 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
    jstep = hstep
 
 
-
-   ## NOTE: this was part of a misguided attempt to smooth s...it didn't work;
-   ##       see additional note(s) below. -EJR 6/2015
-   #ss = int(ssmooth/2. * m)
-   #ssIdx = np.arange(-ss, ss+1) + hstep
-   #ssIdx = np.mod(ssIdx, m)
-
-
    # convert to, and pre-allocate numpy arrays
    # FIXME: this should just be done when checking inputs above
    yobs = np.array(yobs)
@@ -304,8 +256,6 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
    yhat = np.concatenate((yhat, np.zeros(yobs.size+fc)))
    r = np.concatenate((r, np.zeros(yobs.size+fc)))
    s = np.concatenate((s, np.zeros(yobs.size+fc)))
-
-
 
 
    # smooth/simulate/forecast yobs
@@ -318,11 +268,8 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
       sigma[i+hstep+1] = np.sqrt(sigma2 * sumc2 )
 
 
-
       # predict h steps ahead
       yhat[i+hstep] = l + phiHminus1*b + s[i + hstep%m]
-
-
 
 
       ## NOTE: this was a misguided attempt to smooth s that led to oscillatory
@@ -366,7 +313,8 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
             jstep = jstep + 1
 
          else:
-            # still update sigma using et when et > zthresh*sigma (and is not NaN)
+            # still update sigma using et when et > zthresh*sigma
+            # (and is not NaN)
             # NOTE: Bodenham-et-Adams-2013 may have a more robust method
             sigma[i+1] = alpha*np.abs(et) + (1-alpha)*sigma[i]
 
@@ -424,7 +372,6 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
               yhat[len(yobs)+fc:], s[len(yobs)+fc:], l, b, sigma[len(yobs)+fc:])
 
 
-
 if __name__ == '__main__':
    """
    This might be expanded to call HoltWinters.py as a script. More likely,
@@ -432,8 +379,4 @@ if __name__ == '__main__':
    will have it's own command-line functionality.
    """
 
-
    print 'HELLO'
-
-
-      
