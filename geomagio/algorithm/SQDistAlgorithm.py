@@ -171,15 +171,14 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
     #
 
     retParams = False
-    if (alpha == None or beta == None or gamma == None or phi == None):
-
+    if (alpha is None or beta is None or gamma is None or phi is None):
         # estimate parameters
         retParams = True
 
         if fc > 0:
             print "WARNING: non-zero fc is not used in estimation mode"
 
-        if alpha != None:
+        if alpha is not None:
             # allows us to fix alpha
             boundaries = [(alpha, alpha)]
             initial_values = [alpha]
@@ -187,7 +186,7 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
             boundaries = [(0, 1)]
             initial_values = [0.3]  # FIXME: should add alpha0 option
 
-        if beta != None:
+        if beta is not None:
             # allows us to fix beta
             boundaries.append((beta, beta))
             initial_values.append(beta)
@@ -195,7 +194,7 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
             boundaries.append((0, 1))
             initial_values.append(0.1)  # FIXME: should add beta0 option
 
-        if gamma != None:
+        if gamma is not None:
             # allows us to fix gamma
             boundaries.append((gamma, gamma))
             initial_values.append(gamma)
@@ -203,7 +202,7 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
             boundaries.append((0, 1))
             initial_values.append(0.1)  # FIXME: should add gamma0 option
 
-        if phi != None:
+        if phi is not None:
             # allows us to fix phi
             boundaries.append((phi, phi))
             initial_values.append(phi)
