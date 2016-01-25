@@ -471,7 +471,7 @@ def parse_args(args):
     # Algorithms group
     parser.add_argument('--algorithm',
             choices=[k for k in algorithms],
-            default='default')
+            default='identity')
 
     for k in algorithms:
         algorithms[k].add_arguments(parser)
