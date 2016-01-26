@@ -15,19 +15,22 @@
 from Algorithm import Algorithm
 from AlgorithmException import AlgorithmException
 import numpy as np
+from obspy.core import Stream
 from scipy.optimize import fmin_l_bfgs_b
 
 
 class SqDistAlgorithm(Algorithm):
     """Solar Quiet, Secular Variation, and Disturbance algorithm"""
 
-    def __init__(self, alpha=None, beta=None, gamma=None, phi=1,
+    def __init__(self, alpha=None, beta=None, gamma=None, phi=1, m=1,
                  yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
                  zthresh=6, fc=0, hstep=0):
+        Algorithm.__init__(self, inchannels=None, outchannels=None)
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
         self.phi = phi
+        self.m = m
         self.yhat0 = yhat0
         self.s0 = s0
         self.l0 = l0
@@ -37,8 +40,82 @@ class SqDistAlgorithm(Algorithm):
         self.fc = fc
         self.hstep = hstep
 
-    def process(self, yobs, m):
-        pass
+    def process(self, stream):
+        """Run algorithm for a stream.
+
+        Processes each trace in the stream using process_one.
+
+        Parameters
+        ----------
+        stream : obspy.core.Stream
+            stream of data to process
+
+        Returns
+        -------
+        out : obspy.core.Stream
+            stream containing 3 traces per original trace.
+        """
+        out = Stream()
+        for trace in stream.traces:
+            out += self.process_one(trace)
+        return out
+
+    def process_one(self, trace):
+        """Run algorithm for one trace.
+
+        Processes data and updates state.
+        NOTE: state currently assumes repeated calls to process_one are
+        for sequential chunks of data.
+
+        Parameters
+        ----------
+        trace : obspy.core.Trace
+            chunk of data to process
+
+        Returns
+        -------
+        out : obspy.core.Stream
+            stream containing 3 traces using channel names based on
+            trace.stats.channel:
+                channel_Dist
+                channel_SQ
+                channel_SV
+        """
+        out = Stream()
+        # process
+        yhat, shat, sigmahat, yhat0, s0, l0, b0, sigma0 = self.additive(
+                yobs=trace.data,
+                m=self.m,
+                alpha=self.alpha,
+                beta=self.beta,
+                gamma=self.gamma,
+                phi=self.phi,
+                yhat0=self.yhat0,
+                s0=self.s0,
+                l0=self.l0,
+                b0=self.b0,
+                sigma0=self.sigma0,
+                zthresh=self.zthresh,
+                fc=self.fc,
+                hstep=self.hstep)
+        # update state
+        self.yhat0 = yhat0
+        self.s0 = s0
+        self.l0 = l0
+        self.b0 = b0
+        self.sigma0 = sigma0
+        # create updated traces
+        channel = trace.stats.channel
+        raw = trace.data
+        yhat = np.array(yhat)
+        shat = np.array(shat)
+        dist = np.subtract(raw, yhat)
+        sq = shat
+        sv = np.subtract(yhat, shat)
+        out += self.create_trace(channel + '_Dist', trace.stats, dist)
+        out += self.create_trace(channel + '_SQ', trace.stats, sq)
+        out += self.create_trace(channel + '_SV', trace.stats, sv)
+        return out
 
     @classmethod
     def additive(cls, yobs, m, alpha, beta, gamma, phi=1,
@@ -118,14 +195,6 @@ class SqDistAlgorithm(Algorithm):
             use as b0 when function called again with new observations
         sigma0next : float
             use as sigma0 when function called again with new observations
-        alpha : float
-            optimized alpha (if input alpha is None)
-        beta : float
-            optimized beta (if input beta is None)
-        gamma : float
-            optimized gamma (if input gamma is None)
-        phi : float
-            optimized phi (if input phi is None)
         """
 
         if alpha is None:
@@ -281,10 +350,7 @@ class SqDistAlgorithm(Algorithm):
                 s[len(yobs) + fc:],
                 l,
                 b,
-                sigma[len(yobs) + fc:],
-                alpha,
-                beta,
-                gamma)
+                sigma[len(yobs) + fc:])
 
     @classmethod
     def estimate_parameters(cls, yobs, m, alpha=None, beta=None, gamma=None,
@@ -378,7 +444,7 @@ class SqDistAlgorithm(Algorithm):
             # extract parameters to fit
             alpha, beta, gamma = params
             # call Holt-Winters with additive seasonality
-            yhat, _, _, _, _, _, _, _, _, _, _ = cls.additive(
+            yhat, _, _, _, _, _, _, _ = cls.additive(
                     yobs, m,
                     alpha=alpha, beta=beta, gamma=gamma, l0=l0, b0=b0, s0=s0,
                     zthresh=zthresh, hstep=hstep)
