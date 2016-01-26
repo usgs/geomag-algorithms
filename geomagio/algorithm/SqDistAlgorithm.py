@@ -41,7 +41,7 @@ class SqDistAlgorithm(Algorithm):
         pass
 
     @classmethod
-    def additive(yobs, m, alpha, beta, gamma, phi=1,
+    def additive(cls, yobs, m, alpha, beta, gamma, phi=1,
                  yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
                  zthresh=6, fc=0, hstep=0):
         """Primary function for Holt-Winters smoothing/forecasting with
@@ -287,8 +287,8 @@ class SqDistAlgorithm(Algorithm):
                 gamma)
 
     @classmethod
-    def estimate_parameters(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
-            yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
+    def estimate_parameters(cls, yobs, m, alpha=None, beta=None, gamma=None,
+            phi=1, yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
             zthresh=6, fc=0, hstep=0,
             alpha0=0.3, beta0=0.1, gamma0=0.1):
         """Estimate alpha, beta, and gamma parameters based on observed data.
@@ -378,7 +378,7 @@ class SqDistAlgorithm(Algorithm):
             # extract parameters to fit
             alpha, beta, gamma = params
             # call Holt-Winters with additive seasonality
-            yhat, _, _, _, _, _, _, _, _, _, _ = SqDistAlgorithm.additive(
+            yhat, _, _, _, _, _, _, _, _, _, _ = cls.additive(
                     yobs, m,
                     alpha=alpha, beta=beta, gamma=gamma, l0=l0, b0=b0, s0=s0,
                     zthresh=zthresh, hstep=hstep)
