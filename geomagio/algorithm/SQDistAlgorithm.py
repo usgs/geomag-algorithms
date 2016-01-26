@@ -1,12 +1,15 @@
 """Algorithm that produces Solar Quiet (SQ), Secular Variation (SV) and
-   Magnetic Disturbance (DIST).
+    Magnetic Disturbance (DIST).
 
-   Algorithm for producing SQ, SV and DIST.
-       This module implements Holt-Winters exponential smoothing. It predicts
-       an offset-from-zero plus a "seasonal" correction given observations
-       up to time t-1. Each observation's influence on the current prediction
-       decreases exponentially with time according to user-supplied runtime
-       configuration parameters.
+    Algorithm for producing SQ, SV and DIST.
+    This module implements Holt-Winters exponential smoothing. It predicts
+    an offset-from-zero plus a "seasonal" correction given observations
+    up to time t-1. Each observation's influence on the current prediction
+    decreases exponentially with time according to user-supplied runtime
+    configuration parameters.
+
+    Use of fmin_l_bfgs_b to estimate parameters inspired by Andre Queiroz:
+        https://gist.github.com/andrequeiroz/5888967
 """
 
 from AlgorithmException import AlgorithmException
@@ -14,7 +17,7 @@ import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
 
 
-def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
+def additive(yobs, m, alpha, beta, gamma, phi=1,
              yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
              zthresh=6, fc=0, hstep=0):
     """Primary function for Holt-Winters smoothing/forecasting with
@@ -33,50 +36,44 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
 
     Parameters
     ----------
-    alpha:
-        the level smoothing parameter (0<=alpha<=1)
-        (if None, alpha will be estimated; default)
-    b0:
-        initial slope (i.e., b(t-hstep))
-        (if None, default is (mean(yobs[m:2*m]) - mean(yobs[0:m]))/m )
-    beta:
-        the slope smoothing parameter (0<=beta<=1)
-        (if None, beta will be estimated; default)
-    fc:
-        the number of steps beyond the end of yobs (the available
-        observations) to forecast
-        (default is 0)
-    gamma:
-        the seasonal adjustment smoothing parameter (0<=gamma<=1)
-        (if None, gamma will be estimated; default)
-    hstep:
-        the number of steps ahead to predict yhat[i]
-        which forces an hstep prediction at each time step
-        (default is 0)
-    l0:
-        initial level (i.e., l(t-hstep))
-        (if None, default is mean(yobs[0:m]))
-    m:
+    yobs : array_like
+        input series to be smoothed/forecast
+    m : int
         number of "seasons"
-    phi:
+    alpha : float
+        the level smoothing parameter (0<=alpha<=1).
+    beta : float
+        the slope smoothing parameter (0<=beta<=1).
+    gamma : float
+        the seasonal adjustment smoothing parameter (0<=gamma<=1).
+    phi : float
         the dampening factor for slope (0<=phi<=1)
         (if None, phi will be estimated; default is 1)
-    s0:
-        initial set of seasonal adjustments
-        (if None, default is [yobs[i] - a[0] for i in range(m)])
-    sigma0:
-        initial standard-deviation estimate (len(sigma0) == hstep+1)
-        (if None, default is [sqrt(var(yobs))] * (hstep+1) )
-    yhat0:
+    yhat0 : array_like
         initial yhats for hstep>0 (len(yhat0) == hstep)
         (if None, yhat0 will be set to NaNs)
-    yobs:
-        input series to be smoothed/forecast
-    zthresh:
+    s0 : array_like
+        initial set of seasonal adjustments
+        (if None, default is [yobs[i] - a[0] for i in range(m)])
+    l0 : float
+        initial level (i.e., l(t-hstep))
+        (if None, default is mean(yobs[0:m]))
+    b0 : float
+        initial slope (i.e., b(t-hstep))
+        (if None, default is (mean(yobs[m:2*m]) - mean(yobs[0:m]))/m )
+    sigma0 : float
+        initial standard-deviation estimate (len(sigma0) == hstep+1)
+        (if None, default is [sqrt(var(yobs))] * (hstep+1) )
+    zthresh : int
         z-score threshold to determine whether yhat is updated by
         smoothing observations, or by simulation alone; if exceeded,
         only sigma is updated to reflect latest observation
-        (default is 6)
+    fc : int
+        the number of steps beyond the end of yobs (the available
+        observations) to forecast
+    hstep : int
+        the number of steps ahead to predict yhat[i]
+        which forces an hstep prediction at each time step
 
     Returns
     -------
@@ -93,10 +90,16 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
     beta      : optimized beta (if input beta is None)
     gamma     : optimized gamma (if input gamma is None)
     phi       : optimized phi (if input phi is None)
-    rmse      : root mean squared error metric from optimization
-             (only if alpha or beta or gamma were optimized)
-
     """
+
+    if alpha is None:
+        raise AlgorithmException('alpha is required')
+    if beta is None:
+        raise AlgorithmException('beta is required')
+    if gamma is None:
+        raise AlgorithmException('gamma is required')
+    if phi is None:
+        raise AlgorithmException('phi is required')
 
     # set some default values
     if l0 is None:
@@ -136,62 +139,6 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
         if len(sigma) != (hstep + 1):
             raise AlgorithmException(
                 "sigma0 must have length %d" % (hstep + 1))
-
-    #
-    # Optimal parameter estimation if requested
-    # FIXME: this should probably be extracted to a separate module function.
-    #
-
-    retParams = False
-    if (alpha is None or beta is None or gamma is None or phi is None):
-        # estimate parameters
-        retParams = True
-
-        if fc > 0:
-            print "WARNING: non-zero fc is not used in estimation mode"
-
-        if alpha is not None:
-            # allows us to fix alpha
-            boundaries = [(alpha, alpha)]
-            initial_values = [alpha]
-        else:
-            boundaries = [(0, 1)]
-            initial_values = [0.3]  # FIXME: should add alpha0 option
-
-        if beta is not None:
-            # allows us to fix beta
-            boundaries.append((beta, beta))
-            initial_values.append(beta)
-        else:
-            boundaries.append((0, 1))
-            initial_values.append(0.1)  # FIXME: should add beta0 option
-
-        if gamma is not None:
-            # allows us to fix gamma
-            boundaries.append((gamma, gamma))
-            initial_values.append(gamma)
-        else:
-            boundaries.append((0, 1))
-            initial_values.append(0.1)  # FIXME: should add gamma0 option
-
-        if phi is not None:
-            # allows us to fix phi
-            boundaries.append((phi, phi))
-            initial_values.append(phi)
-        else:
-            boundaries.append((0, 1))
-            initial_values.append(0.9)  # FIXME: should add phi0 option
-
-        initial_values = np.array(initial_values)
-        method = 'additive'
-
-        parameters = fmin_l_bfgs_b(RMSE, x0=initial_values,
-                             args=(yobs, method, m, s, l, b, hstep, zthresh),
-                             bounds=boundaries, approx_grad=True)
-        alpha, beta, gamma = parameters[0]
-        rmse = parameters[1]
-
-    # endif (alpha == None or beta == None or gamma == None)
 
     #
     # Now begin the actual Holt-Winters algorithm
@@ -291,67 +238,119 @@ def additive(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
     l = l + r[-1]
     s = list(np.array(s) - np.hstack((r, np.tile(r[-1], m - 1))))
 
-    # return different outputs depending on retParams
-    if retParams:
-        return (yhat[:len(yobs) + fc],
-                s[:len(yobs) + fc],
-                sigma[1:len(yobs) + fc + 1],
-                yhat[len(yobs) + fc:],
-                s[len(yobs) + fc:],
-                l,
-                b,
-                sigma[len(yobs) + fc:],
-                alpha,
-                beta,
-                gamma,
-                rmse)
-    else:
-        return (yhat[:len(yobs) + fc],
-                s[:len(yobs) + fc],
-                sigma[1:len(yobs) + fc + 1],
-                yhat[len(yobs) + fc:],
-                s[len(yobs) + fc:],
-                l,
-                b,
-                sigma[len(yobs) + fc:])
+    return (yhat[:len(yobs) + fc],
+            s[:len(yobs) + fc],
+            sigma[1:len(yobs) + fc + 1],
+            yhat[len(yobs) + fc:],
+            s[len(yobs) + fc:],
+            l,
+            b,
+            sigma[len(yobs) + fc:],
+            alpha,
+            beta,
+            gamma)
 
 
-def RMSE(params, *args):
-    """Wrapper function passed to scipy.optimize.fmin_l_bfgs_b in
-      order to find optimal Holt-Winters prediction coefficients.
+def estimate_parameters(yobs, m, alpha=None, beta=None, gamma=None, phi=1,
+        yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
+        zthresh=6, fc=0, hstep=0,
+        alpha0=0.3, beta0=0.1, gamma0=0.1):
+    """Estimate alpha, beta, and gamma parameters based on observed data.
 
     Parameters
     ----------
+    yobs : array_like
+        input series to be smoothed/forecast
+    m : int
+        number of "seasons"
+    alpha : float
+        the level smoothing parameter (0<=alpha<=1).
+    beta : float
+        the slope smoothing parameter (0<=beta<=1).
+    gamma : float
+        the seasonal adjustment smoothing parameter (0<=gamma<=1).
+    phi : float
+        the dampening factor for slope (0<=phi<=1)
+        (if None, phi will be estimated; default is 1)
+    yhat0 : array_like
+        initial yhats for hstep>0 (len(yhat0) == hstep)
+        (if None, yhat0 will be set to NaNs)
+    s0 : array_like
+        initial set of seasonal adjustments
+        (if None, default is [yobs[i] - a[0] for i in range(m)])
+    l0 : float
+        initial level (i.e., l(t-hstep))
+        (if None, default is mean(yobs[0:m]))
+    b0 : float
+        initial slope (i.e., b(t-hstep))
+        (if None, default is (mean(yobs[m:2*m]) - mean(yobs[0:m]))/m )
+    sigma0 : float
+        initial standard-deviation estimate (len(sigma0) == hstep+1)
+        (if None, default is [sqrt(var(yobs))] * (hstep+1) )
+    zthresh : int
+        z-score threshold to determine whether yhat is updated by
+        smoothing observations, or by simulation alone; if exceeded,
+        only sigma is updated to reflect latest observation
+    fc : int
+        the number of steps beyond the end of yobs (the available
+        observations) to forecast
+    hstep : int
+        the number of steps ahead to predict yhat[i]
+        which forces an hstep prediction at each time step
+    alpha0 : float
+        initial value for alpha.
+        used only when alpha is None.
+    beta0 : float
+        initial value for beta.
+        used only when beta is None.
+    gamma0 : float
+        initial value for gamma.
+        used only when gamma is None.
 
     Returns
     -------
+    alpha : float
+        optimized parameter alpha (if alpha was None).
+    beta : float
+        optimized parameter beta (if beta was None).
+    gamma : float
+        optimized gamma, if gamma was None.
+    rmse : float
+        root-mean-squared-error for data using optimized parameters.
     """
-    # extract parameters to fit
-    alpha, beta, gamma = params
+    # if alpha/beta/gamma is specified, restrict bounds to "fix" parameter.
+    boundaries = [
+        (alpha, alpha) if alpha is not None else (0, 1),
+        (beta, beta) if beta is not None else (0, 1),
+        (gamma, gamma) if gamma is not None else (0, 1)
+    ]
+    initial_values = np.array([
+        alpha if alpha is not None else alpha0,
+        beta if beta is not None else beta0,
+        gamma if gamma is not None else gamma0
+    ])
 
-    # extract arguments
-    yobs = args[0]
-    method = args[1]
-    m = args[2]
-    s0 = args[3]
-    l0 = args[4]
-    b0 = args[5]
-    hstep = args[6]
-    zthresh = args[7]
+    def func(params, *args):
+        """Function that computes root-mean-squared-error based on current
+        alpha, beta, and gamma parameters; as provided by fmin_l_bfgs_b.
 
-    if method == "additive":
+        Parameters
+        ----------
+        params: list-like
+            list containing alpha, beta, and gamma parameters to test
+        """
+        # extract parameters to fit
+        alpha, beta, gamma = params
         # call Holt-Winters with additive seasonality
-        yhat, _, _, _, _, _, _, _ = additive(yobs, m, alpha=alpha, beta=beta,
-            gamma=gamma, l0=l0, b0=b0, s0=s0, zthresh=zthresh, hstep=hstep)
+        yhat, _, _, _, _, _, _, _, _, _, _ = additive(yobs, m,
+                alpha=alpha, beta=beta, gamma=gamma, l0=l0, b0=b0, s0=s0,
+                zthresh=zthresh, hstep=hstep)
+        # compute root-mean-squared-error of predictions
+        error = np.sqrt(np.nanmean(np.square(np.subtract(yobs, yhat))))
+        return error
 
-    else:
-        print 'Method must be additive or ...'
-        raise Exception
-
-    # calculate root-mean-squared-error of predictions
-    rmse = np.sqrt(np.nanmean([(x - y) ** 2 for x, y in zip(yobs, yhat)]))
-
-    return rmse
-
-if __name__ == '__main__':
-    pass
+    parameters = fmin_l_bfgs_b(func, x0=initial_values, args=(),
+            bounds=boundaries, approx_grad=True)
+    alpha, beta, gamma = parameters[0]
+    rmse = parameters[1]
+    return (alpha, beta, gamma, rmse)
