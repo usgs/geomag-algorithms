@@ -20,24 +20,11 @@ and SQ are removed. This is typically assumed to represent Earth’s magnetic
 response to aperiodic solar storms.
 
 
-## Background and Motivation
+## Example
 
-
-
-## Math and Theory
-
-Exponential smoothing of time series has been employed in countless research,
-engineering, economic, sociological, political and other applications. While
-its utility has been empirically demonstrated time and again over the last
-half century or more, it has only been in the last couple decades that it has
-normalized in form, stood up to rigorous mathematical scrutiny, and been tied
-directly to well-known statistical time series models. A major contributor to
-this recent maturation of this subdiscipline of applied mathematics is R. J.
-Hyndman. We largely follow notation used in his free Online textbook
-(http://www.otexts.org/fpp), and related literature, to provide a very brief
-overview of exponential smoothing that culminates in an algorithm that can be
-used to decompose a time series into a trend, a repeating “seasonal” pattern,
-and a residual.
+Usage and expected output for this algorithm is shown in this
+[Solar Quiet and Disturbance (Holt Winters)](SQDist.ipynb) IPython Notebook
+example.
 
 
 ## References
