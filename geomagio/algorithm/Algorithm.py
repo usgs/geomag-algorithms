@@ -1,6 +1,7 @@
 """Algorithm Interface."""
 
 from .. import TimeseriesUtility
+import obspy.core
 
 
 class Algorithm(object):
@@ -113,3 +114,25 @@ class Algorithm(object):
         """
         self._inchannels = arguments.inchannels
         self._outchannels = arguments.outchannels or arguments.inchannels
+
+    @classmethod
+    def create_trace(cls, channel, stats, data):
+        """Utility to create a new trace object.
+
+        Parameters
+        ----------
+        channel : str
+            channel name.
+        stats : obspy.core.Stats
+            channel metadata to clone.
+        data : numpy.array
+            channel data.
+
+        Returns
+        -------
+        obspy.core.Trace
+            trace containing data and metadata.
+        """
+        stats = obspy.core.Stats(stats)
+        stats.channel = channel
+        return obspy.core.Trace(data, stats)

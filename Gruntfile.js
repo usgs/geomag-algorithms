@@ -11,6 +11,7 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('default', [
+    'clean',
     'flake8',
     'jshint',
     'test',
