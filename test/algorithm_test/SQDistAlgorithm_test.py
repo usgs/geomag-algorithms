@@ -9,6 +9,9 @@ assert_array_less = np.testing.assert_array_less
 
 def test_sqdistalgorithm_additive1():
     """SqDistAlgorithm_test.test_sqdistalgorithm_additive1()
+
+       Uses a simple 12 point data series to compare additive inputs with
+       corresponding outputs.
     """
     # configure to test zero-step predictions of 4 "season" cycles
     m = 4
@@ -122,6 +125,7 @@ def test_sqdistalgorithm_additive1():
 
 def test_sqdistalgorithm_additive2():
     """SqDistAlgorithm_test.test_sqdistalgorithm_additive2()
+
        Uses synthetic data time series over 300 days to test additive method
        outputs.
     """
