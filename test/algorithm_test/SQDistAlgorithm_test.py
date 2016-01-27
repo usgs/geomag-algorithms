@@ -262,3 +262,25 @@ def test_sqdistalgorithm_additive2():
         'Additive output should have a min of -3.417...')
     assert_almost_equal(np.mean(synHat200to250), 20.09191068952186, 8,
         'Additive output should have average of 20.0919...')
+
+    # create 5th set of 50 "days", 250-300
+    t250to300 = np.arange(25001, 30001)
+    np.random.seed(123456789)
+    syn250to300 = 20 + ((10.0 * np.sin(t250to300 * (2 * np.pi) / 100.0)) *
+        (1 * np.cos(t250to300 * (2 * np.pi) / 5000.0)) +
+        20 * np.sin(t250to300 * (2 * np.pi) / 5000.0)) + \
+        5 * np.random.randn(5000)
+
+    # run the additive method on the 5th set of 50 "days"
+    (synHat250to300, sHat250to300, sigma250to300,
+        syn300, s300, l300, b300, sigma300) = sq.additive(
+        syn250to300, m, alpha, beta, gamma, phi,
+        yhat0=syn250, l0=l250, b0=b250, s0=s250, sigma0=sigma250)
+
+    # Check max, min and average
+    assert_almost_equal(np.amax(synHat250to300), 49.3099797861343534, 8,
+        'Additive output should have a max of 49.309...')
+    assert_almost_equal(np.amin(synHat250to300), -8.7531069723345301, 8,
+        'Additive output should have a min of -8.783...')
+    assert_almost_equal(np.mean(synHat250to300), 20.006498585824623, 8,
+        'Additive output should have average of 20.006...')
