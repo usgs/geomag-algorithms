@@ -3,7 +3,7 @@ from cStringIO import StringIO
 from datetime import datetime
 import numpy
 import textwrap
-from .. import ChannelConverter
+from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..Util import create_empty_trace
 import IAGA2002Parser
@@ -30,6 +30,11 @@ class IAGA2002Writer(object):
         channels: array_like
             channels to be written from timeseries object
         """
+        for channel in channels:
+            if timeseries.select(channel=channel).count() == 0:
+                raise TimeseriesFactoryException(
+                    'Missing channel "%s" for output, available channels %s' %
+                    (channel, str(TimeseriesUtility.get_channels(timeseries))))
         stats = timeseries[0].stats
         if len(channels) != 4:
             self._pad_to_four_channels(timeseries, channels)
