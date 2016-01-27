@@ -29,13 +29,13 @@ def test_sqdistalgorithm_additive():
 
     # run additive method on first 50 "days"
     (synHat000to050, sHat000to050, sigma000to050,
-        syn050, s050, l050, b050, sigma050,
-        alpha, beta, gamma) = sq.additive(
+        syn050, s050, l050, b050, sigma050) = sq.additive(
         syn000to050, m, alpha, beta, gamma, phi,
         yhat0=None, s0=s0, l0=l0, b0=b0, sigma0=sigma0)
 
     # The output should track the input exactly on this simple series
-    assert_equals(synHat000to050.all(), syn000to050.all())
+    assert_equals(synHat000to050.all(), syn000to050.all(),
+        'Output of additive should match simple sinusoid exactly')
 
     # create 2nd set of 50 "days" (shifted up from 1st 50 "days")
     t050to100 = np.arange(5001, 10001)
@@ -43,13 +43,13 @@ def test_sqdistalgorithm_additive():
 
     # run additive method on next 50 "days"
     (synHat050to100, sHat050to100, sigma050to100,
-        syn100, s100, l100, b100, sigma100,
-        alpha, beta, gamma) = sq.additive(
+        syn100, s100, l100, b100, sigma100) = sq.additive(
         syn050to100, m, alpha, beta, gamma, phi,
         yhat0=syn050, s0=s050, l0=l050, b0=b050, sigma0=sigma050)
 
     # the initial part of the computed series is catching up to the synthetic
-    assert_array_less(synHat050to100[:555], syn050to100[:555])
+    assert_array_less(synHat050to100[:555], syn050to100[:555],
+        'Output of additive should begin below synthetic data')
     # short section where the series' swap places
     assert_array_less(syn050to100[555:576], synHat050to100[555:576])
     # they swap back
@@ -57,12 +57,18 @@ def test_sqdistalgorithm_additive():
     # swap again
     assert_array_less(syn050to100[655:689], synHat050to100[655:689])
     # after the initial lag and swaps, the series' get closer and closer
-    assert_allclose(syn050to100[475:], synHat050to100[475:], rtol=1e-1)
-    assert_allclose(syn050to100[955:], synHat050to100[955:], rtol=1e-2)
-    assert_allclose(syn050to100[1500:], synHat050to100[1500:], rtol=1e-3)
-    assert_allclose(syn050to100[2100:], synHat050to100[2100:], rtol=1e-4)
-    assert_allclose(syn050to100[2700:], synHat050to100[2700:], rtol=1e-5)
-    assert_allclose(syn050to100[3300:], synHat050to100[3300:], rtol=1e-6)
+    assert_allclose(syn050to100[475:], synHat050to100[475:], rtol=1e-1,
+        err_msg='Additive output should trend toward synthetic data, 1e-1')
+    assert_allclose(syn050to100[955:], synHat050to100[955:], rtol=1e-2,
+        err_msg='Additive output should trend toward synthetic data, 1e-2')
+    assert_allclose(syn050to100[1500:], synHat050to100[1500:], rtol=1e-3,
+        err_msg='Additive output should trend toward synthetic data, 1e-3')
+    assert_allclose(syn050to100[2100:], synHat050to100[2100:], rtol=1e-4,
+        err_msg='Additive output should trend toward synthetic data, 1e-4')
+    assert_allclose(syn050to100[2700:], synHat050to100[2700:], rtol=1e-5,
+        err_msg='Additive output should trend toward synthetic data, 1e-5')
+    assert_allclose(syn050to100[3300:], synHat050to100[3300:], rtol=1e-6,
+        err_msg='Additive output should track synthetic data, 1e-6: 50-100')
 
     # create 3rd set of 50 "days"
     t100to150 = np.arange(10001, 15001)
@@ -71,13 +77,10 @@ def test_sqdistalgorithm_additive():
 
     # run the additive method on the 3rd set of 50 "days"
     (synHat100to150, sHat100to150, sigma100to150,
-        syn150, s150, l150, b150, sigma150,
-        alpha, beta, gamma) = sq.additive(
+        syn150, s150, l150, b150, sigma150) = sq.additive(
         syn100to150, m, alpha, beta, gamma, phi,
         yhat0=syn100, l0=l100, b0=b100, s0=s100, sigma0=sigma100)
 
     # A couple of sections run pretty close together here
-    assert_allclose(syn100to150[800:1900], synHat100to150[800:1900],
-        rtol=1e-1)
-    # assert_allclose(syn100to150[1200:1300], synHat100to150[1200:1300],
-    #    rtol=1e-2)
+    assert_allclose(syn100to150[800:1900], synHat100to150[800:1900], rtol=1e-1,
+        err_msg='Additive output should track synthetic data: 100-150')
