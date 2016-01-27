@@ -152,6 +152,14 @@ def test_sqdistalgorithm_additive2():
     assert_equals(synHat000to050.all(), syn000to050.all(),
         'Output of additive should match simple sinusoid exactly')
 
+    # Check max, min and average
+    assert_almost_equal(np.amax(synHat000to050), 10, 8,
+        'Additive output should have a max of 10.0')
+    assert_almost_equal(np.amin(synHat000to050), -10, 8,
+        'Additive output should have a min of -10.0')
+    assert_almost_equal(np.mean(synHat000to050), 0, 8,
+        'Additive output should have average of 0')
+
     # create 2nd set of 50 "days" (shifted up from 1st 50 "days")
     t050to100 = np.arange(5001, 10001)
     syn050to100 = 20 + 10.0 * np.sin(t050to100 * (2 * np.pi) / 100.0)
@@ -161,6 +169,14 @@ def test_sqdistalgorithm_additive2():
         syn100, s100, l100, b100, sigma100) = sq.additive(
         syn050to100, m, alpha, beta, gamma, phi,
         yhat0=syn050, s0=s050, l0=l050, b0=b050, sigma0=sigma050)
+
+    # Check max, min and average
+    assert_almost_equal(np.amax(synHat050to100), 30, 6,
+        'Additive output should have a max of 30.0')
+    assert_almost_equal(np.amin(synHat050to100), -8.81753802428088, 8,
+        'Additive output should have a min of -8.81753...')
+    assert_almost_equal(np.mean(synHat050to100), 19.17899833054862, 8,
+        'Additive output should have average of 19.17899...')
 
     # the initial part of the computed series is catching up to the synthetic
     assert_array_less(synHat050to100[:555], syn050to100[:555],
@@ -196,6 +212,14 @@ def test_sqdistalgorithm_additive2():
         syn100to150, m, alpha, beta, gamma, phi,
         yhat0=syn100, l0=l100, b0=b100, s0=s100, sigma0=sigma100)
 
+    # Check max, min and average
+    assert_almost_equal(np.amax(synHat100to150), 49.758884882080558, 8,
+        'Additive output should have a max of 49.75888...')
+    assert_almost_equal(np.amin(synHat100to150), -9.7579516919427647, 8,
+        'Additive output should have a min of -9.7579...')
+    assert_almost_equal(np.mean(synHat100to150), 20.059589538984323, 8,
+        'Additive output should have average of 20.0595...')
+
     # A couple of sections run pretty close together here
     assert_allclose(syn100to150[800:1900], synHat100to150[800:1900], rtol=1e-1,
-        err_msg='Additive output should track synthetic data: 100-150')
+        err_msg='Additive output should track synthetic data: day 100-150')
