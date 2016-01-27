@@ -307,9 +307,9 @@ class SqDistAlgorithm(Algorithm):
                     # interval; sumc2 and jstep will be reset with the next
                     # valid observation
                     phiJminus1 = phiJminus1 + phi ** jstep
+                    jstep = jstep + 1
                     sumc2 = sumc2 + (alpha * (1 + phiJminus1 * beta) +
                             gamma * (1 if (jstep % m == 0) else 0)) ** 2
-                    jstep = jstep + 1
 
                 else:
                     # still update sigma using et when et > zthresh * sigma
