@@ -38,14 +38,13 @@ def test_sqdistalgorithm_additive1():
         s0=s0, l0=l0, b0=b0, sigma0=sigma0, hstep=hstep)
 
     assert_almost_equal(yhat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1],
-        err_msg='***1***')
+        err_msg='yhat1 should almost equal simple time series')
     assert_almost_equal(shat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1],
-        err_msg='***2***')
+        err_msg='shat1 should almost equal simple time series')
     assert_almost_equal(sighat1, [0.70710678, 0.70955777, 0.71200031,
-                                  0.71443451, 0.71686044, 0.71927819,
-                                  0.72168784, 0.72408947, 0.72648316,
-                                  0.72886899, 0.73124703, 0.73361737],
-                                  err_msg='***3***')
+        0.71443451, 0.71686044, 0.71927819, 0.72168784, 0.72408947, 0.72648316,
+        0.72886899, 0.73124703, 0.73361737],
+        err_msg='sighat1 should almost equal simple time series')
 
     # predict three cycles ahead given l0 and s0, no inputs,
     # and assume PI only grows with seasonal adjustments
@@ -55,14 +54,13 @@ def test_sqdistalgorithm_additive1():
         s0=s0, l0=0, b0=0, sigma0=sigma0, hstep=hstep)
 
     assert_almost_equal(yhat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1],
-        err_msg='***4***')
+        err_msg='yhat1 should almost equal simple time series, 2nd run')
     assert_almost_equal(shat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1],
-        err_msg='***5***')
+        err_msg='shat1 should almost equal simple time series, 2nd run')
     assert_almost_equal(sighat1, [0.70710678, 0.70710678, 0.70710678,
-                                  0.70710678, 0.74535599, 0.74535599,
-                                  0.74535599, 0.74535599, 0.78173596,
-                                  0.78173596, 0.78173596, 0.78173596],
-                                  err_msg='***6***')
+        0.70710678, 0.74535599, 0.74535599, 0.74535599, 0.74535599, 0.78173596,
+        0.78173596, 0.78173596, 0.78173596],
+        err_msg='sighat1 should almost equal simple time series, 2nd run')
 
     # smooth three cycles' worth of zero-value input observations,
     # assuming only the trendline varies
@@ -73,17 +71,15 @@ def test_sqdistalgorithm_additive1():
 
     # check output
     assert_almost_equal(yhat1, [0, 1, -0.08333333, -1.07638889, 0.01331019,
-                                1.01220100, -0.07214908, -1.06613666,
-                                0.02270806, 1.02081573, -0.06425225,
-                                -1.0588979], 8,
-                                err_msg='***8***')
+        1.01220100, -0.07214908, -1.06613666, 0.02270806, 1.02081573,
+        -0.06425225, -1.0588979], 8,
+        err_msg='yhat1 should almost equal simple time series, 3rd run')
     assert_almost_equal(shat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1], 8,
-        err_msg='***9***')
+        err_msg='shat1 should almost equal simple time series, 3rd run')
     assert_almost_equal(sighat1, [0.64818122, 0.67749945, 0.62798561,
-                                  0.66535255, 0.61101568, 0.64444779,
-                                  0.59675623, 0.63587127, 0.58477433,
-                                  0.62111112, 0.57470621, 0.61505552], 8,
-                                  err_msg='***10***')
+        0.66535255, 0.61101568, 0.64444779, 0.59675623, 0.63587127, 0.58477433,
+        0.62111112, 0.57470621, 0.61505552], 8,
+        err_msg='sighat1 should almost equal simple time series, 3rd run')
 
     # smooth three cycles' worth of zero-value input observations,
     # assuming only the seasonal adjustments vary
@@ -94,17 +90,15 @@ def test_sqdistalgorithm_additive1():
 
     # check output
     assert_almost_equal(yhat1, [0, 1, 0, -1, 0, 0.66666667, 0, -0.66666667,
-                                0, 0.44444444, 0, -0.44444444], 8,
-                                err_msg='***11***')
+        0, 0.44444444, 0, -0.44444444], 8,
+        err_msg='yhat1 should almost equal simple time series, 4th run')
     assert_almost_equal(shat1, [0, 1, 0.08333333, -0.91666667, 0, 0.66666667,
-                                0.05555556, -0.61111111, 0, 0.44444444,
-                                0.03703704, -0.40740741], 8,
-                                err_msg='***12***')
+        0.05555556, -0.61111111, 0, 0.44444444, 0.03703704, -0.40740741], 8,
+        err_msg='shat1 should almost equal simple time series, 4th run')
     assert_almost_equal(sighat1, [0.70710678, 0.70710678, 0.70710678,
-                                  0.70710678, 0.70710678, 0.70710678,
-                                  0.70710678, 0.70710678, 0.70710678,
-                                  0.70710678, 0.70710678, 0.70710678], 8,
-                                  err_msg='***13***')
+        0.70710678, 0.70710678, 0.70710678, 0.70710678, 0.70710678, 0.70710678,
+        0.70710678, 0.70710678, 0.70710678], 8,
+        err_msg='sighat1 should almost equal simple time series, 4th run')
 
     # smooth three cycles' worth of sinusoid input observations,
     # assuming only the seasonal adjustments vary, starting at zero
@@ -115,17 +109,15 @@ def test_sqdistalgorithm_additive1():
 
     # check output
     assert_almost_equal(yhat1, [0, 0, 0, 0, 0, 0.33333333, 0, -0.33333333,
-                                0, 0.55555556, 0, -0.55555556], 8,
-                                err_msg='***14***')
-    assert_almost_equal(shat1, [0, 0, -0.08333333, -0.08333333,
-                                0, 0.33333333, -0.05555556, -0.38888889,
-                                0, 0.55555555, -0.03703704, -0.59259259], 8,
-                                err_msg='***15***')
+        0, 0.55555556, 0, -0.55555556], 8,
+        err_msg='yhat1 should almost equal simple time series, 5th run')
+    assert_almost_equal(shat1, [0, 0, -0.08333333, -0.08333333, 0, 0.33333333,
+        -0.05555556, -0.38888889, 0, 0.55555555, -0.03703704, -0.59259259], 8,
+        err_msg='shat1 should almost equal simple time series, 5th run')
     assert_almost_equal(sighat1, [0.70710678, 0.70710678, 0.70710678,
-                                  0.70710678, 0.70710678, 0.70710678,
-                                  0.70710678, 0.70710678, 0.70710678,
-                                  0.70710678, 0.70710678, 0.70710678], 8,
-                                  err_msg='***16***')
+        0.70710678, 0.70710678, 0.70710678, 0.70710678, 0.70710678, 0.70710678,
+        0.70710678, 0.70710678, 0.70710678], 8,
+        err_msg='sighat1 should almost equal simple time series, 5th run')
 
 
 def test_sqdistalgorithm_additive2():
