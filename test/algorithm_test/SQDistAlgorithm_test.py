@@ -6,6 +6,7 @@ assert_allclose = np.testing.assert_allclose
 assert_almost_equal = np.testing.assert_almost_equal
 assert_array_less = np.testing.assert_array_less
 
+
 def test_sqdistalgorithm_additive1():
     """SqDistAlgorithm_test.test_sqdistalgorithm_additive1()
     """
@@ -33,15 +34,18 @@ def test_sqdistalgorithm_additive1():
     # and assume PI only grows with trendline adjustments
     yobs1 = np.zeros(12) * np.nan
     yhat1, shat1, sighat1, _, _, _, _, _ = sq.additive(
-        yobs1, m, alpha=alpha, beta=0, gamma=0,
-        s0=s0, l0=0, b0=0, sigma0=sigma0, hstep=hstep)
+        yobs1, m, alpha=alpha, beta=beta, gamma=0,
+        s0=s0, l0=l0, b0=b0, sigma0=sigma0, hstep=hstep)
 
-    assert_almost_equal(yhat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1])
-    assert_almost_equal(shat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1])
+    assert_almost_equal(yhat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1],
+        err_msg='***1***')
+    assert_almost_equal(shat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1],
+        err_msg='***2***')
     assert_almost_equal(sighat1, [0.70710678, 0.70955777, 0.71200031,
                                   0.71443451, 0.71686044, 0.71927819,
                                   0.72168784, 0.72408947, 0.72648316,
-                                  0.72886899, 0.73124703, 0.73361737])
+                                  0.72886899, 0.73124703, 0.73361737],
+                                  err_msg='***3***')
 
     # predict three cycles ahead given l0 and s0, no inputs,
     # and assume PI only grows with seasonal adjustments
@@ -50,12 +54,15 @@ def test_sqdistalgorithm_additive1():
         yobs1, m, alpha=0, beta=0, gamma=gamma,
         s0=s0, l0=0, b0=0, sigma0=sigma0, hstep=hstep)
 
-    assert_almost_equal(yhat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1])
-    assert_almost_equal(shat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1])
+    assert_almost_equal(yhat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1],
+        err_msg='***4***')
+    assert_almost_equal(shat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1],
+        err_msg='***5***')
     assert_almost_equal(sighat1, [0.70710678, 0.70710678, 0.70710678,
                                   0.70710678, 0.74535599, 0.74535599,
                                   0.74535599, 0.74535599, 0.78173596,
-                                  0.78173596, 0.78173596, 0.78173596])
+                                  0.78173596, 0.78173596, 0.78173596],
+                                  err_msg='***6***')
 
     # smooth three cycles' worth of zero-value input observations,
     # assuming only the trendline varies
@@ -65,18 +72,18 @@ def test_sqdistalgorithm_additive1():
         s0=s0, l0=0, b0=0, sigma0=sigma0, hstep=hstep)
 
     # check output
-    assert_almost_equal(yhat1, [         0,          1,-0.08333333,-1.07638889,
-                                0.01331019, 1.01220100,-0.07214908,-1.06613666,
-                                0.02270806, 1.02081573,-0.06425225,-1.0588979],
-                                8)
-    assert_almost_equal(shat1, [         0,          1,          0,        -1,
-                                         0,          1,          0,        -1,
-                                         0,          1,          0,        -1],
-                                8)
+    assert_almost_equal(yhat1, [0, 1, -0.08333333, -1.07638889, 0.01331019,
+                                1.01220100, -0.07214908, -1.06613666,
+                                0.02270806, 1.02081573, -0.06425225,
+                                -1.0588979], 8,
+                                err_msg='***8***')
+    assert_almost_equal(shat1, [0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1], 8,
+        err_msg='***9***')
     assert_almost_equal(sighat1, [0.64818122, 0.67749945, 0.62798561,
                                   0.66535255, 0.61101568, 0.64444779,
                                   0.59675623, 0.63587127, 0.58477433,
-                                  0.62111112, 0.57470621, 0.61505552], 8)
+                                  0.62111112, 0.57470621, 0.61505552], 8,
+                                  err_msg='***10***')
 
     # smooth three cycles' worth of zero-value input observations,
     # assuming only the seasonal adjustments vary
@@ -86,39 +93,40 @@ def test_sqdistalgorithm_additive1():
         s0=s0, l0=0, b0=0, sigma0=sigma0, hstep=hstep)
 
     # check output
-    assert_almost_equal(yhat1, [         0,          1,          0,         -1,
-                                         0, 0.66666667,          0,-0.66666667,
-                                         0, 0.44444444,          0,-0.44444444],
-                                8)
-    assert_almost_equal(shat1, [         0,          1, 0.08333333,-0.91666667,
-                                         0, 0.66666667, 0.05555556,-0.61111111,
-                                         0, 0.44444444, 0.03703704,-0.40740741],
-                                8)
+    assert_almost_equal(yhat1, [0, 1, 0, -1, 0, 0.66666667, 0, -0.66666667,
+                                0, 0.44444444, 0, -0.44444444], 8,
+                                err_msg='***11***')
+    assert_almost_equal(shat1, [0, 1, 0.08333333, -0.91666667, 0, 0.66666667,
+                                0.05555556, -0.61111111, 0, 0.44444444,
+                                0.03703704, -0.40740741], 8,
+                                err_msg='***12***')
     assert_almost_equal(sighat1, [0.70710678, 0.70710678, 0.70710678,
                                   0.70710678, 0.70710678, 0.70710678,
                                   0.70710678, 0.70710678, 0.70710678,
-                                  0.70710678, 0.70710678, 0.70710678], 8)
+                                  0.70710678, 0.70710678, 0.70710678], 8,
+                                  err_msg='***13***')
 
     # smooth three cycles' worth of sinusoid input observations,
     # assuming only the seasonal adjustments vary, starting at zero
     yobs1 = np.concatenate((s0, s0, s0))
     yhat1, shat1, sighat1, _, _, _, _, _ = sq.additive(
         yobs1, m, alpha=0, beta=0, gamma=gamma,
-        s0=s0*0, l0=0, b0=0, sigma0=sigma0, hstep=hstep)
+        s0=s0 * 0, l0=0, b0=0, sigma0=sigma0, hstep=hstep)
 
     # check output
-    assert_almost_equal(yhat1, [         0,          0,          0,          0,
-                                         0, 0.33333333,          0,-0.33333333,
-                                         0, 0.55555556,          0,-0.55555556],
-                                8)
-    assert_almost_equal(shat1, [         0,          0,-0.08333333,-0.08333333,
-                                         0, 0.33333333,-0.05555556,-0.38888889,
-                                         0, 0.55555555,-0.03703704,-0.59259259],
-                                8)
+    assert_almost_equal(yhat1, [0, 0, 0, 0, 0, 0.33333333, 0, -0.33333333,
+                                0, 0.55555556, 0, -0.55555556], 8,
+                                err_msg='***14***')
+    assert_almost_equal(shat1, [0, 0, -0.08333333, -0.08333333,
+                                0, 0.33333333, -0.05555556, -0.38888889,
+                                0, 0.55555555, -0.03703704, -0.59259259], 8,
+                                err_msg='***15***')
     assert_almost_equal(sighat1, [0.70710678, 0.70710678, 0.70710678,
                                   0.70710678, 0.70710678, 0.70710678,
                                   0.70710678, 0.70710678, 0.70710678,
-                                  0.70710678, 0.70710678, 0.70710678], 8)
+                                  0.70710678, 0.70710678, 0.70710678], 8,
+                                  err_msg='***16***')
+
 
 def test_sqdistalgorithm_additive2():
     """SqDistAlgorithm_test.test_sqdistalgorithm_additive2()
