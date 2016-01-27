@@ -35,7 +35,7 @@ robust method to predict evolving periodic signals.
 ## Example
 
 Usage and expected output for this algorithm is shown in this
-[Solar Quiet and Disturbance (Holt Winters)](SQDist.ipynb) IPython Notebook
+[Solar Quiet and Disturbance (Holt Winters)](SqDist.ipynb) IPython Notebook
 example.
 
 
