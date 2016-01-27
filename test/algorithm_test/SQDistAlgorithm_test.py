@@ -138,7 +138,7 @@ def test_sqdistalgorithm_additive2():
     s0 = None     # this uses default initial "seasonal" correction
     sigma0 = [0]  # this is NOT the default initial standard deviation
 
-    # create first 50 "days" at 100 samples per synthetic "day"
+    # create first 50 "days" at 100 samples per synthetic "day", 0-50
     t000to050 = np.arange(5001)
     syn000to050 = 10.0 * np.sin(t000to050 * (2 * np.pi) / 100.0)
 
@@ -160,7 +160,7 @@ def test_sqdistalgorithm_additive2():
     assert_almost_equal(np.mean(synHat000to050), 0, 8,
         'Additive output should have average of 0')
 
-    # create 2nd set of 50 "days" (shifted up from 1st 50 "days")
+    # create 2nd set of 50 "days", 50-100
     t050to100 = np.arange(5001, 10001)
     syn050to100 = 20 + 10.0 * np.sin(t050to100 * (2 * np.pi) / 100.0)
 
@@ -201,7 +201,7 @@ def test_sqdistalgorithm_additive2():
     assert_allclose(syn050to100[3300:], synHat050to100[3300:], rtol=1e-6,
         err_msg='Additive output should track synthetic data, 1e-6: 50-100')
 
-    # create 3rd set of 50 "days"
+    # create 3rd set of 50 "days", 100-150
     t100to150 = np.arange(10001, 15001)
     syn100to150 = 20 + 10.0 * np.sin(t100to150 * (2 * np.pi) / 100.) + \
                   20 * np.sin(t100to150 * (2 * np.pi) / 5000.0)
@@ -223,3 +223,42 @@ def test_sqdistalgorithm_additive2():
     # A couple of sections run pretty close together here
     assert_allclose(syn100to150[800:1900], synHat100to150[800:1900], rtol=1e-1,
         err_msg='Additive output should track synthetic data: day 100-150')
+
+    # create 4th set of 50 "days", 150-200
+    t150to200 = np.arange(15001, 20001)
+    syn150to200 = 20 + (10.0 * np.sin(t150to200 * (2 * np.pi) / 100.0)) * \
+                  (1 * np.cos(t150to200 * (2 * np.pi) / 5000.0))
+
+    # run the additive method on the 4th set of 50 "days"
+    (synHat150to200, sHat150to200, sigma150to200,
+        syn200, s200, l200, b200, sigma200) = sq.additive(
+        syn150to200, m, alpha, beta, gamma, phi,
+        yhat0=syn150, l0=l150, b0=b150, s0=s150, sigma0=sigma150)
+
+    # Check max, min and average
+    assert_almost_equal(np.amax(synHat150to200), 29.573654766341747, 8,
+        'Additive output should have a max of 29.5736...')
+    assert_almost_equal(np.amin(synHat150to200), 7.9430807703401669, 8,
+        'Additive output should have a min of 7.943...')
+    assert_almost_equal(np.mean(synHat150to200), 19.911560325896119, 8,
+        'Additive output should have average of 19.911...')
+
+    # create 5th set of 50 "days", 200-250
+    t200to250 = np.arange(20001, 25001)
+    syn200to250 = 20 + ((10.0 * np.sin(t200to250 * (2 * np.pi) / 100.0)) *
+        (1 * np.cos(t200to250 * (2 * np.pi) / 5000.0)) +
+        20 * np.sin(t200to250 * (2 * np.pi) / 5000.0))
+
+    # run the additive method on the 5th set of 50 "days"
+    (synHat200to250, sHat200to250, sigma200to250,
+        syn250, s250, l250, b250, sigma250) = sq.additive(
+        syn200to250, m, alpha, beta, gamma, phi,
+        yhat0=syn200, l0=l200, b0=b200, s0=s200, sigma0=sigma200)
+
+    # Check max, min and average
+    assert_almost_equal(np.amax(synHat200to250), 43.417782188651529, 8,
+        'Additive output should have a max of 43.417...')
+    assert_almost_equal(np.amin(synHat200to250), -3.4170071669726791, 8,
+        'Additive output should have a min of -3.417...')
+    assert_almost_equal(np.mean(synHat200to250), 20.09191068952186, 8,
+        'Additive output should have average of 20.0919...')
