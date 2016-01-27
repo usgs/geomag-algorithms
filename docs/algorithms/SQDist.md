@@ -22,13 +22,14 @@ response to aperiodic solar storms.
 
 ## Background and Motivation
 
-The magnetic field measured at a given point on Earth’s surface is often assumed to be static. However, this localized geomagnetic field actually varies over a range of time scales: Earth’s internal dynamo evolves slowly over years to millennia; Earth’s magnetosphere-ionosphere dynamo can drive periodic magnetic “tides”; finally, the Earth’s magnetosphere-ionosphere system responds to episodic variations in solar energetic output to produce non-periodic variations in the geomagnetic field with time scales from minutes to days. All these signals are superimposed to produce the geomagnetic field measured at any given time.
-
-Geomagnetic time series are often decomposed into three constituents that correspond roughly to the variations just described. We call these secular variation (SV), solar quiet (SQ) variation, and disturbance (DIST). SV is relatively easy to separate from the other two given its much longer time scales. SQ and DIST have comparable time scales, and so cannot be so easily separated. However, since SQ is periodic, a repeating pattern can be fit to available data. What remains when SV and SQ are removed from the total geomagnetic signal is, by definition, DIST.
-
-Historically, SV has been modeled as a low-order polynomial. After removing SV (i.e., detrending), a set of Fourier terms were fit to the data to model SQ. The problem with such an approach is that it assumes knowledge of future observations, and is not directly useful for real time operations. It is of course possible to fit such models to all, or a subset of, the data available to date, then extrapolate into the future, and this was the approach used in first-generation Dst and AE indices produced by the USGS. However, practical experience and hindsight indicated that 1) this approach was computationally expensive due to the need to fit Fourier terms to long intervals of observations, and 2) this approach was extremely sensitive to anomalies common in real time data streams like gaps, spikes, and step offsets.
-
-Fortunately, there is in fact a very mature field of applied mathematics dedicated to adaptive, causal time series analysis to which we can look for better and more robust methods to predict evolving periodic signals. Perhaps the simplest form of adaptive time series analysis is something commonly referred to as exponential smoothing. This README describes the mathematics underlying a particular form of exponential smoothing, and its real time application to USGS geomagnetic data to decompose it into an adaptive trend line that tracks SV, a repeating daily variation that tracks modulated SQ, and a remaining disturbance that can be used to help identify magnetic storms and substorms in real time.
+The magnetic field measured at a given point on Earth’s surface is often
+assumed to be static. However, this localized geomagnetic field actually
+varies over time. Historically, SV has been modeled as a low-order polynomial.
+After removing SV (i.e., detrending), a set of Fourier terms were fit to the
+data to model SQ. The problem with such an approach is that it assumes
+knowledge of future observations, and is not directly useful for real time
+operations. As such, an exponential smoothing algorithm was chosen as a more
+robust method to predict evolving periodic signals.
 
 
 ## Example
