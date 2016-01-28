@@ -25,10 +25,10 @@ examples. They include
 
 ### Examples ###
 
-To retrieve all _raw_ (variation) _H_, _E_, _Z_ and _F_ _minute_ data from
-_Boulder Observatory_ for the entire day of _July 1st 2014_ from an _iaga2002_
-formatted file and output _H_, _E_, _Z_ and _F_ data to a _PCDCP_ formatted
-file:
+To retrieve all raw (**_variation_**) **_H_**, **_E_**, **_Z_** and **_F_**
+**_minute_** data from Boulder Observatory (**_BOU_**) for the entire day of
+**_July 1st 2014_** from an **_iaga2002_** formatted file and output
+**_H_**, **_E_**, **_Z_** and **_F_** data to a **_pcdcp_** formatted file:
 
       geomag.py --type variation --inchannels H E Z F --interval minute \
       --observatory BOU \
@@ -38,10 +38,11 @@ file:
       --outchannels H E Z F \
       --output-pcdcp-file BOU2014182.min
 
-To retrieve all _raw_ (variation) _H_, _E_, _Z_ and _F_ _minute_ data from
-_Tucson Observatory_ for the entire month of _March 2013_ from _pcdcp_
-formatted files in a "data-pcdcp" directory and output _H_, _E_, _Z_ and _F_
-data to a group of _iaga2002_ formatted files in a "data-iaga" directory:
+To retrieve all raw (**_variation_**) **_H_**, **_E_**, **_Z_** and **_F_**
+**_minute_** data from Tucson Observatory (**_TUC_**) for the entire month of
+**_March 2013_** from a group of **_pcdcp_** formatted files in a "data-pcdcp"
+directory and output **_H_**, **_E_**, **_Z_** and **_F_** data to a group of
+**_iaga2002_** formatted files in a "data-iaga" directory:
 
       geomag.py --type variation --inchannels H E Z F --interval minute \
       --observatory TUC \
@@ -51,9 +52,10 @@ data to a group of _iaga2002_ formatted files in a "data-iaga" directory:
       --output-iaga-url file://data-iaga/./$(obs)s%(Y)s%(j)s.%(i)s \
       --outchannels H E Z F
 
-To retrieve all _Dst 4 minute_, and _Dst3 minute_ data from _USGS_ for the
-entire day of _Oct 1st 2015_ from _edge server cwbpub.cr.usgs.gov_ output
-_Dst 4 minute_, and _Dst 3 minute_ data to an _iaga2002_ formatted file:
+To retrieve all **_Dst 4 minute_**, and **_Dst 3 minute_** data from **_USGS_**
+for the entire day of **_Oct 1st 2015_** from an **_edge server_** (at
+cwbpub.cr.usgs.gov) and output **_Dst 4 minute_**, and **_Dst 3 minute_**
+data to an **_iaga2002_** formatted file:
 
       geomag.py --type variation --inchannels MGD MSD --interval minute \
       --observatory USGS \
@@ -72,11 +74,16 @@ There are flags to specify certain algorithms should be run against the data.
 #### XYZ ####
 
 `--algorithm xyz`
+
 `--xyz-from {geo, mag, obs, obsd}` (default is `obs`)
+
 `--xyz-to {geo, mag, obs, obsd}` (default is `geo`)
 
 #### [XYZ Usage](./algorithms/XYZ_usage.md) ####
+
 Rotate data from HEZ (obs) or HDZ (mag) to XYZ (geo) and back.
+
+Document: [/algorithms/XYZ_usage.md](./algorithms/XYZ_usage.md)
 
 Extensive explanation of all input and output methods:
 [IO Methods](./io.md)
