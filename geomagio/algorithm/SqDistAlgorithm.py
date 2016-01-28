@@ -457,3 +457,36 @@ class SqDistAlgorithm(Algorithm):
         alpha, beta, gamma = parameters[0]
         rmse = parameters[1]
         return (alpha, beta, gamma, rmse)
+
+
+    @classmethod
+    def add_arguments(cls, parser):
+        """Add command line arguments to argparse parser.
+
+        Parameters
+        ----------
+        parser: ArgumentParser
+            command line argument parser
+        """
+        parser.add_argument('--sqdist-alpha',
+                type=float,
+                help='SqDist alpha parameter')
+        parser.add_argument('--sqdist-beta',
+                type=float,
+                help='SqDist alpha parameter')
+        parser.add_argument('--sqdist-gamma',
+                type=float,
+                help='SqDist alpha parameter')
+
+    def configure(self, arguments):
+        """Configure algorithm using comand line arguments.
+
+        Parameters
+        ----------
+        arguments: Namespace
+            parsed command line arguments
+        """
+        Algorithm.configure(self, arguments)
+        self.alpha = arguments.sqdist_alpha
+        self.beta = arguments.sqdist_beta
+        self.gamma = arguments.sqdist_gamma
