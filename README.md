@@ -20,7 +20,7 @@ Basic usage:
 ### [Python API](./docs/api.md)
 API Overview and examples for using the geomag-algorithms project in python.
 
-### [Develop](./docs/develop_install.md)
+### [Develop](./docs/develop.md)
 Development dependencies discussed here. Project is built with Grunt and Node
 and is written primarily in Python 2.7.
 
