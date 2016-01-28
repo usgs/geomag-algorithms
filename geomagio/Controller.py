@@ -159,6 +159,7 @@ class Controller(object):
                     timeseries=timeseries,
                     renames=options.rename_input_channel)
         processed = algorithm.process(timeseries)
+        processed.trim(starttime=options.starttime, endtime=options.endtime)
         if options.rename_output_channel:
             processed = self._rename_channels(
                     timeseries=processed,
