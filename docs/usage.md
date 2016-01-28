@@ -10,15 +10,18 @@ input parameters.
 Some of the key parameters that should be specified are listed here along with
 examples. They include
 
- - __start time__           - YYYY-MM-DDTHH:MM:SSZ
- - __end time__             - YYYY-MM-DDTHH:MM:SSZ
- - __observatory code__     - 3-letter observatory code
- - __data input source__    - {--input-edge, --input-iaga-file, ...}
- - __data output source__   - {--output-pcdcp-url, --output-iaga-file, ...}
- - __input data channels__  - {[CHANNEL [CHANNEL ...]]}
- - __output data channels__ - {[CHANNEL [CHANNEL ...]]}
- - __data type__            - {variation, quasi-definitive, definitive}
- - __interval__             - {minute, second, hour, day}
+| Parameter                  | Format                                       |
+| -------------------------- | -------------------------------------------- |
+| __start time__             | YYYY-MM-DDTHH:MM:SSZ                         |
+| __end time__               | YYYY-MM-DDTHH:MM:SSZ                         |
+| __observatory code__       | 3-letter observatory code                    |
+| __data input source__      | {--input-edge, --input-iaga-file, ...}       |
+| __data output source__     | {--output-pcdcp-url, --output-iaga-file, ...}|
+| __input data channels__    | {[CHANNEL [CHANNEL ...]]}                    |
+| __output data channels__   | {[CHANNEL [CHANNEL ...]]}                    |
+| __data type__              | {variation, quasi-definitive, definitive}    |
+| __interval__               | {minute, second, hour, day}                  |
+
 
 ### Examples ###
 
