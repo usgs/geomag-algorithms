@@ -110,3 +110,22 @@ def get_merged_gaps(gaps):
     if merged_gap is not None:
         merged_gaps.append(merged_gap)
     return merged_gaps
+
+
+def get_channels(stream):
+    """Get a list of channels in a stream.
+
+    Parameters
+    ----------
+    stream : obspy.core.Stream
+
+    Returns
+    -------
+    channels : array_like
+    """
+    channels = {}
+    for trace in stream:
+        channel = trace.stats.channel
+        if channel:
+            channels[channel] = True
+    return [ch for ch in channels]

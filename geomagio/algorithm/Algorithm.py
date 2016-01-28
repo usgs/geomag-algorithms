@@ -56,18 +56,24 @@ class Algorithm(object):
         """
         return self._outchannels
 
-    def get_input_interval(self, start, end):
+    def get_input_interval(self, start, end, observatory=None, channels=None):
         """Get Input Interval
 
         start : UTCDateTime
-            start time of requested output
+            start time of requested output.
         end : UTCDateTime
-            end time of requested output
+            end time of requested output.
+        observatory : string
+            observatory code.
+        channels : string
+            input channels.
 
         Returns
         -------
-        tuple : (input_start, input_end)
-            start and end of required input to generate requested output.
+        input_start : UTCDateTime
+            start of input required to generate requested output
+        input_end : UTCDateTime
+            end of input required to generate requested output.
         """
         return (start, end)
 

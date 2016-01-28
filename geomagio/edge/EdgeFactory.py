@@ -17,7 +17,7 @@ import obspy.core
 from datetime import datetime
 from obspy import earthworm
 from obspy.core import UTCDateTime
-from .. import ChannelConverter
+from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..ObservatoryMetadata import ObservatoryMetadata
@@ -183,12 +183,11 @@ class EdgeFactory(TimeseriesFactory):
 
         if (starttime is None or endtime is None):
             starttime, endtime = self._get_stream_start_end_times(timeseries)
-
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 raise TimeseriesFactoryException(
-                    'Missing channel "%s" for output' % channel)
-
+                    'Missing channel "%s" for output, available channels %s' %
+                    (channel, str(TimeseriesUtility.get_channels(timeseries))))
         for channel in channels:
             self._put_channel(timeseries, observatory, channel, type,
                     interval, starttime, endtime)

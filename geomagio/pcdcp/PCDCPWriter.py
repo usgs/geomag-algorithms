@@ -3,7 +3,8 @@ import numpy
 import PCDCPParser
 from cStringIO import StringIO
 from datetime import datetime
-from geomagio import ChannelConverter
+from .. import ChannelConverter, TimeseriesUtility
+from ..TimeseriesFactoryException import TimeseriesFactoryException
 from obspy.core import Stream
 
 
@@ -26,6 +27,11 @@ class PCDCPWriter(object):
             channels : array_like
                 Channels to be written from timeseries object.
         """
+        for channel in channels:
+            if timeseries.select(channel=channel).count() == 0:
+                raise TimeseriesFactoryException(
+                    'Missing channel "%s" for output, available channels %s' %
+                    (channel, str(TimeseriesUtility.get_channels(timeseries))))
         stats = timeseries[0].stats
         out.write(self._format_header(stats))
         out.write(self._format_data(timeseries, channels))
