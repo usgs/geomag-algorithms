@@ -1,8 +1,8 @@
 Installation
 ============
 
-We recommend using
-[virtual environments (http://docs.python-guide.org/en/latest/dev/virtualenvs/)][].
+We recommend using virtual environments:
+[(http://docs.python-guide.org/en/latest/dev/virtualenvs/)](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
 
 Check out the [Mac](#mac) and [Windows](#windows) details below for more
 specific dependency information.
@@ -18,8 +18,6 @@ specific dependency information.
 
 The [Command Line Usage](./usage.md) and [Python API](./api.md)
 pages have more instructions and examples.
-
-[virtual environments]: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
 
 ---
