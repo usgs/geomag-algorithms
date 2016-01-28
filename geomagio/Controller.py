@@ -73,7 +73,7 @@ class Controller(object):
                     start=starttime,
                     end=endtime,
                     observatory=obs,
-                    channel=channels)
+                    channels=channels)
             timeseries += self._inputFactory.get_timeseries(
                     observatory=obs,
                     starttime=input_start,
