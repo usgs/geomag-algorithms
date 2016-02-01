@@ -19,7 +19,6 @@ import json
 import numpy as np
 from obspy.core import Stream, UTCDateTime
 from scipy.optimize import fmin_l_bfgs_b
-import sys
 
 
 class SqDistAlgorithm(Algorithm):
@@ -92,7 +91,7 @@ class SqDistAlgorithm(Algorithm):
             with open(self.statefile, 'r') as f:
                 data = f.read()
                 data = json.loads(data)
-        except Exception, e:
+        except Exception:
             pass
         if data is None or data == '':
             return
@@ -181,9 +180,9 @@ class SqDistAlgorithm(Algorithm):
         """
         out = Stream()
         # check state
-        if self.last_observatory != None \
-                and self.last_channel != None \
-                and self.next_starttime != None:
+        if self.last_observatory is not None \
+                and self.last_channel is not None \
+                and self.next_starttime is not None:
             # have state, verify okay to proceed
             if trace.stats.station != self.last_observatory \
                     or trace.stats.channel != self.last_channel \
@@ -574,7 +573,6 @@ class SqDistAlgorithm(Algorithm):
         rmse = parameters[1]
         return (alpha, beta, gamma, rmse)
 
-
     @classmethod
     def add_arguments(cls, parser):
         """Add command line arguments to argparse parser.
@@ -606,7 +604,7 @@ class SqDistAlgorithm(Algorithm):
                 help='Generate sqdist based on magnetic H component')
         parser.add_argument('--sqdist-statefile',
                 default=None,
-                help='File to store state between calls to algorithm');
+                help='File to store state between calls to algorithm')
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.
