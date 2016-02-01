@@ -1,35 +1,53 @@
-Solar Quiet and Disturbance Algorithm
+Geomagnetic Secular Variation, Solar Quiet, and Disturbance
 =====================================
 
-Algorithm Theoretical Basis for "Geomag Solar Quiet and Disturbance"
-
 E. Joshua Rigler &lt;[erigler@usgs.gov](mailto:erigler@usgs.gov)&gt;
-
-
-## Summary
-
-Mathematical underpinnings and general algorithm considerations are presented
-for estimating Solar Quiet (SQ), Secular Variation (SV) and Magnetic
-Disturbance (DIST) data streams. SV describes the geomagnetic trend line
-at a given moment, and is usually assumed to be a measure of the Earth’s
-internal field. SQ is used to describe daily variations that result from the
-Earth’s rotation beneath geospace electric currents that are mostly fixed
-with respect to the sun. Finally, the value often of most interest in
-space weather applications is DIST, or the remainder of the signal when SV
-and SQ are removed. This is typically assumed to represent Earth’s magnetic
-response to aperiodic solar storms.
 
 
 ## Background and Motivation
 
 The magnetic field measured at a given point on Earth’s surface is often
-assumed to be static. However, this localized geomagnetic field actually
-varies over time. Historically, SV has been modeled as a low-order polynomial.
-After removing SV (i.e., detrending), a set of Fourier terms were fit to the
-data to model SQ. The problem with such an approach is that it assumes
-knowledge of future observations, and is not directly useful for real time
-operations. As such, an exponential smoothing algorithm was chosen as a more
-robust method to predict evolving periodic signals.
+assumed to be static, but in reality it is constantly changing, and on a
+variety of time scales associated with distinct physical phenomena. These are:
+
+- Secular variation (SV) - slow variations in the geomagnetic field associated
+  with changes in Earth's interior.
+- Solar quiet variation (SQ) - shorter-term periodic variations in the
+  geomagnetic field associated with Earth's rotation beneath quasi-static
+  geospace electric currents that are phase-locked with the sun.
+- Disturbance (DIST) - shorter-term non-periodic variations in the geomagnetic
+  field, typically associated with episodic events like geomagnetic storms and
+  substorms.
+
+SV is fairly easily separated from higher frequency variations using low-order
+polynomials to *detrend* the data. SQ and DIST have similar time scales, and
+are therefore more difficult to separate. Fourier series can be fit to data to
+estimate SQ, which works well in non-real time situations. This approach
+suffers in real time situations for both practical and theoretical reasons
+that we won't discuss in detail here.
+
+
+## Exponential Smoothing
+
+Real time decomposition of geomagnetic time series into SV, SQ, and DIST should
+explicitly acknowledge and address time-causal nature of real time
+observations. To this end, we employ a form of exponential smoothing, with
+"seasonal" adjustments, that updates estimates of SV and SQ based only on past
+observations, weighting older observations less and less as time passes. In
+effect, SV and SQ adapt to changing conditions at a predictable rate that can
+be specified by the user.
+
+In addition, this approach is significantly less computationally expensive than
+traditional Fourier techniques. No Fourier transform of months-to-years-long
+data series is required, and memory requirements are comparably reduced, since
+a description of the state of the system at any given moment is only 1+m, where
+m is the number of data points in an SQ cycle, nominally 1 day.
+
+Finally, exponential smoothing is generally more robust to common issues with
+real time data series; it easily extrapolates SV and SQ across gaps in the
+data; it provides a running estimate of the variance of DIST, which can be used
+to set a threshold for spike detection; and it adjusts SV to accommodate DC
+offsets at rate specified by the user.
 
 
 ## Example
