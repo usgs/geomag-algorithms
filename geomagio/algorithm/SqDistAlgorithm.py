@@ -587,8 +587,8 @@ class SqDistAlgorithm(Algorithm):
                 help='Smoothing parameter for secular variation',
                 type=float)
         parser.add_argument('--sqdist-beta',
-                default=1.0 / 1440.0 / 30,
-                help='Smoothing parameter for slope, default 0',
+                default=0,
+                help='Smoothing parameter for slope',
                 type=float)
         parser.add_argument('--sqdist-gamma',
                 default=1.0 / 30,
