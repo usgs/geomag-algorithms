@@ -47,4 +47,5 @@ Document: [/docs/develop.md](./docs/develop.md)
 ## Supported Algorithms
 
 - [DeltaF](./docs/algorithms/DeltaF_usage.md)
+- [SqDist](./docs/algorithms/SqDist_usage.md)
 - [XYZ](./docs/algorithms/XYZ_usage.md)
