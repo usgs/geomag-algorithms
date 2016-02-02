@@ -10,12 +10,12 @@ The magnetic field measured at a given point on Earth’s surface is often
 assumed to be static, but in reality it is constantly changing, and on a
 variety of time scales associated with distinct physical phenomena. These are:
 
-- Secular variation (SV) - slow variations in the geomagnetic field associated
+- `SV` - Secular variation, slow variations in the geomagnetic field associated
   with changes in Earth's interior.
-- Solar quiet variation (SQ) - shorter-term periodic variations in the
+- `SQ` - Solar quiet variation, shorter-term periodic variations in the
   geomagnetic field associated with Earth's rotation beneath quasi-static
   geospace electric currents that are phase-locked with the sun.
-- Disturbance (DIST) - shorter-term non-periodic variations in the geomagnetic
+- `DIST` - Disturbance, shorter-term non-periodic variations in the geomagnetic
   field, typically associated with episodic events like geomagnetic storms and
   substorms.
 
