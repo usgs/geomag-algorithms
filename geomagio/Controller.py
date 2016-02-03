@@ -453,6 +453,10 @@ def parse_args(args):
             action='store_true',
             default=False,
             help='Used to update data')
+    parser.add_argument('--no-trim',
+            action='store_true',
+            default=False,
+            help='Ensures output data will not be trimmed down'),
     parser.add_argument('--input-edge-port',
             type=int,
             default=2060,
