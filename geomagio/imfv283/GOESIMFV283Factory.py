@@ -48,8 +48,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         self.getdcpmessages = getdcpmessages
         self.server = server
         self.user = user
-        self.log_file_name = self.observatory + '.log'
-        self.criteria_file_name = self.observatory + '.sc'
+        self.observatories = observatory
         self.javaerror = 'java.io.IOException: Socket closed'
 
     def get_timeseries(self, starttime, endtime, observatory=None,
@@ -59,10 +58,12 @@ class GOESIMFV283Factory(IMFV283Factory):
         Notes: Calls IMFV283Factory.parse_string in place of
             IMFV283Factory.get_timeseries.
         """
-        observatory = observatory or self.observatory
+        self.observatory = observatory or self.observatories
         channels = channels or self.channels
+        self.criteria_file_name = self.observatory + '.sc'
         timeseries = Stream()
-        output = self._retrieve_goes_messages(starttime, endtime, observatory)
+        output = self._retrieve_goes_messages(starttime, endtime,
+                self.observatory)
         timeseries += self.parse_string(output)
         # merge channel traces for multiple days
         timeseries.merge()
@@ -109,7 +110,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         String
             Messages from getDcpMessages
         """
-        self._fill_criteria_file(starttime, endtime)
+        self._fill_criteria_file(starttime, endtime, observatory)
 
         for server in self.server:
             print >> sys.stderr, server
@@ -131,7 +132,7 @@ class GOESIMFV283Factory(IMFV283Factory):
 
         return output
 
-    def _fill_criteria_file(self, starttime, endtime):
+    def _fill_criteria_file(self, starttime, endtime, observatory):
         """Set Criteria Filename
 
         Notes
@@ -163,7 +164,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         buf.append(start.datetime.strftime('%y/%j %H:%M:%S\n'))
         buf.append('DAPS_UNTIL: ')
         buf.append(end.datetime.strftime('%y/%j %H:%M:%S\n'))
-        buf.append('NETWORK_LIST: ' + self.observatory.lower() + '.nl\n')
+        buf.append('NETWORK_LIST: ' + observatory.lower() + '.nl\n')
         buf.append('DAPS_STATUS: N\n')
         buf.append('RETRANSMITTED: N\n')
         buf.append('ASCENDING_TIME: false\n')
