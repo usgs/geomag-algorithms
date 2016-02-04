@@ -70,7 +70,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         timeseries.trim(starttime, endtime)
         # output the number of points we read for logging
         if len(timeseries):
-            print "Read %s points from %s" % \
+            print >> sys.stderr, "Read %s points from %s" % \
                 (timeseries[0].stats.npts, observatory)
 
         self._post_process(timeseries)
