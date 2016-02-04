@@ -49,6 +49,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         self.server = server
         self.user = user
         self.observatories = observatory
+        self.observatory = observatory[0]
         self.javaerror = 'java.io.IOException: Socket closed'
 
     def get_timeseries(self, starttime, endtime, observatory=None,
@@ -58,12 +59,11 @@ class GOESIMFV283Factory(IMFV283Factory):
         Notes: Calls IMFV283Factory.parse_string in place of
             IMFV283Factory.get_timeseries.
         """
-        self.observatory = observatory or self.observatories
+        observatory = observatory or self.observatory
         channels = channels or self.channels
-        self.criteria_file_name = self.observatory + '.sc'
+        self.criteria_file_name = observatory + '.sc'
         timeseries = Stream()
-        output = self._retrieve_goes_messages(starttime, endtime,
-                self.observatory)
+        output = self._retrieve_goes_messages(starttime, endtime, observatory)
         timeseries += self.parse_string(output)
         # merge channel traces for multiple days
         timeseries.merge()
