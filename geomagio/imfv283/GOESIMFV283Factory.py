@@ -2,6 +2,7 @@
 
 from IMFV283Factory import IMFV283Factory
 import subprocess
+import sys
 from obspy.core import Stream
 
 
@@ -47,8 +48,9 @@ class GOESIMFV283Factory(IMFV283Factory):
         self.getdcpmessages = getdcpmessages
         self.server = server
         self.user = user
-        self.log_file_name = self.observatory + '.log'
-        self.criteria_file_name = self.observatory + '.sc'
+        self.observatories = observatory
+        self.observatory = observatory[0]
+        self.javaerror = 'java.io.IOException: Socket closed'
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -59,6 +61,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         """
         observatory = observatory or self.observatory
         channels = channels or self.channels
+        self.criteria_file_name = observatory + '.sc'
         timeseries = Stream()
         output = self._retrieve_goes_messages(starttime, endtime, observatory)
         timeseries += self.parse_string(output)
@@ -66,6 +69,11 @@ class GOESIMFV283Factory(IMFV283Factory):
         timeseries.merge()
         # trim to requested start/end time
         timeseries.trim(starttime, endtime)
+        # output the number of points we read for logging
+        if len(timeseries):
+            print >> sys.stderr, "Read %s points from %s" % \
+                (timeseries[0].stats.npts, observatory)
+
         self._post_process(timeseries)
         if observatory is not None:
             timeseries = timeseries.select(station=observatory)
@@ -102,18 +110,29 @@ class GOESIMFV283Factory(IMFV283Factory):
         String
             Messages from getDcpMessages
         """
-        self._fill_criteria_file(starttime, endtime)
-        output = subprocess.check_output(
-                [self.getdcpmessages,
-                '-h ' + self.server[0],
-                '-u ' + self.user,
-                '-f ' + self.directory + '/' + self.criteria_file_name,
-                '-l ' + self.directory + '/' + self.log_file_name,
-                '-t 60',
-                '-n'])
+        self._fill_criteria_file(starttime, endtime, observatory)
+
+        for server in self.server:
+            print >> sys.stderr, server
+            proc = subprocess.Popen(
+                    [self.getdcpmessages,
+                    '-h ' + server,
+                    '-u ' + self.user,
+                    '-f ' + self.directory + '/' + self.criteria_file_name,
+                    '-t 60',
+                    '-n'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (output, error) = proc.communicate()
+            print >> sys.stderr, error
+            if error.find(self.javaerror) >= 0:
+                print >> sys.stderr, \
+                        'Error: could not connect to %s' % \
+                        server
+                continue
+            break
+
         return output
 
-    def _fill_criteria_file(self, starttime, endtime):
+    def _fill_criteria_file(self, starttime, endtime, observatory):
         """Set Criteria Filename
 
         Notes
@@ -145,8 +164,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         buf.append(start.datetime.strftime('%y/%j %H:%M:%S\n'))
         buf.append('DAPS_UNTIL: ')
         buf.append(end.datetime.strftime('%y/%j %H:%M:%S\n'))
-        buf.append('NETWORK_LIST: ./opendcs/netlist/' +
-                self.observatory.lower() + '.nl\n')
+        buf.append('NETWORK_LIST: ' + observatory.lower() + '.nl\n')
         buf.append('DAPS_STATUS: N\n')
         buf.append('RETRANSMITTED: N\n')
         buf.append('ASCENDING_TIME: false\n')
