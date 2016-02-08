@@ -176,7 +176,7 @@ class EdgeFactory(TimeseriesFactory):
             representing gaps.
         """
         stats = timeseries[0].stats
-        observatory = observatory or self.observatory or stats.station
+        observatory = observatory or stats.station or self.observatory
         channels = channels or self.channels
         type = type or self.type or stats.data_type
         interval = interval or self.interval or stats.data_interval

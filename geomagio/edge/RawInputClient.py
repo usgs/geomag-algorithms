@@ -131,7 +131,7 @@ class RawInputClient():
         the correct length.  We only expect observatory to ever be of an
         incorrect length.
         """
-        return network + observatory.ljust(5) + channel + location
+        return str(network + observatory.ljust(5) + channel + location)
 
     def forceout(self):
         """ force edge to recognize data
