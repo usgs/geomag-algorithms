@@ -25,4 +25,4 @@ install:
   - source activate test-environment
   - pip install obspy
   - npm install
-script: grunt test
+script: grunt lint test
