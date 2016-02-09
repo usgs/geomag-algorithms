@@ -220,8 +220,10 @@ class Controller(object):
             if output_gap[0] == options.starttime:
                 # found fillable gap at start, recurse to previous interval
                 interval = options.endtime - options.starttime
-                options.starttime = options.starttime - interval - delta
-                options.endtime = options.starttime - delta
+                starttime = options.starttime - interval - delta
+                endtime = options.starttime - delta
+                options.starttime = starttime
+                options.endtime = endtime
                 self.run_as_update(options)
             # fill gap
             options.starttime = output_gap[0]
