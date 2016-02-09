@@ -6,14 +6,18 @@ module.exports = function (grunt) {
   config.tasks.forEach(grunt.loadNpmTasks);
   grunt.initConfig(config);
 
+  grunt.registerTask('lint', [
+    'flake8',
+    'jshint'
+  ]);
+
   grunt.registerTask('test', [
     'nose:main'
   ]);
 
   grunt.registerTask('default', [
     'clean',
-    'flake8',
-    'jshint',
+    'lint',
     'test',
     'watch'
   ]);

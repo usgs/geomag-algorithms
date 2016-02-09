@@ -1,5 +1,7 @@
 Geomag Algorithms
 =================
+[![Build Status](https://travis-ci.org/usgs/geomag-algorithms.svg?branch=master)](https://travis-ci.org/usgs/geomag-algorithms)
+
 
 Geomag algorithms includes tools to fetch, process, and output geomag data.
 

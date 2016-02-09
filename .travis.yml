@@ -1,0 +1,28 @@
+language: python
+python:
+  - 2.7
+before_install:
+  ## courtesy of http://conda.pydata.org/docs/travis.html
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update --yes conda
+  - conda info -a
+  ## back to other dependencies
+  - nvm install stable
+  - nvm use stable
+  - npm install -g grunt-cli
+  - npm --version
+  - node --version
+install:
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy nose flake8
+  - source activate test-environment
+  - pip install obspy
+  - npm install
+script: grunt lint test
