@@ -159,7 +159,10 @@ class Controller(object):
                     timeseries=timeseries,
                     renames=options.rename_input_channel)
         processed = algorithm.process(timeseries)
-        processed.trim(starttime=options.starttime, endtime=options.endtime)
+        # trim if --no-trim is not set
+        if not options.no_trim:
+            processed.trim(starttime=options.starttime,
+                    endtime=options.endtime)
         if options.rename_output_channel:
             processed = self._rename_channels(
                     timeseries=processed,
@@ -453,6 +456,10 @@ def parse_args(args):
             action='store_true',
             default=False,
             help='Used to update data')
+    parser.add_argument('--no-trim',
+            action='store_true',
+            default=False,
+            help='Ensures output data will not be trimmed down'),
     parser.add_argument('--input-edge-port',
             type=int,
             default=2060,
