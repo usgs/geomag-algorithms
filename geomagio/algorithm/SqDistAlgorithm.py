@@ -330,8 +330,7 @@ class SqDistAlgorithm(Algorithm):
                 raise AlgorithmException("l0 must be a scalar")
 
         if b0 is None:
-            b = (np.nanmean(yobs[m:2 * m]) - np.nanmean(yobs[0:m])) / m
-            b = 0 if np.isnan(b) else b  # replace NaN with 0
+            b = 0
         else:
             b = b0
             if not np.isscalar(b0):
@@ -345,8 +344,7 @@ class SqDistAlgorithm(Algorithm):
                 raise AlgorithmException("yhat0 must have length %d" % hstep)
 
         if s0 is None:
-            s = [yobs[i] - l for i in range(m)]
-            s = [i if ~np.isnan(i) else 0 for i in s]  # replace NaNs with 0s
+            s = [0 for i in range(m)]
         else:
             s = list(s0)
             if len(s) != m:
