@@ -161,7 +161,7 @@ class Controller(object):
         processed = algorithm.process(timeseries)
         # trim if --no-trim is not set
         if not options.no_trim:
-            processed.no_trim(starttime=options.starttime,
+            processed.trim(starttime=options.starttime,
                     endtime=options.endtime)
         if options.rename_output_channel:
             processed = self._rename_channels(
