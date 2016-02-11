@@ -6,6 +6,7 @@ import StreamConverter
 
 from Controller import Controller
 from ObservatoryMetadata import ObservatoryMetadata
+from PlotTimeseriesFactory import PlotTimeseriesFactory
 from TimeseriesFactory import TimeseriesFactory
 from TimeseriesFactoryException import TimeseriesFactoryException
 import TimeseriesUtility
@@ -16,6 +17,7 @@ __all__ = [
     'Controller',
     'DeltaFAlgorithm',
     'ObservatoryMetadata',
+    'PlotTimeseriesFactory',
     'StreamConverter',
     'TimeseriesFactory',
     'TimeseriesFactoryException',
