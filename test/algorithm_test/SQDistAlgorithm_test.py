@@ -146,6 +146,11 @@ def test_sqdistalgorithm_additive2():
     t000to050 = np.arange(5001)
     syn000to050 = 10.0 * np.sin(t000to050 * (2 * np.pi) / 100.0)
 
+    # these are the old "defaults" computed when l0, b0, and s0 were None
+    l0 = np.nanmean(syn000to050[0:1440])
+    b0 = (np.nanmean(syn000to050[m:2 * m]) - np.nanmean(syn000to050[0:m])) / m
+    s0 = [syn000to050[i] - l0 for i in range(m)]
+
     # run additive method on first 50 "days"
     (synHat000to050, sHat000to050, sigma000to050,
         syn050, s050, l050, b050, sigma050) = sq.additive(
