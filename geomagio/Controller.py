@@ -5,6 +5,7 @@ import argparse
 import sys
 from obspy.core import Stream, UTCDateTime
 from algorithm import algorithms
+from PlotTimeseriesFactory import PlotTimeseriesFactory
 import TimeseriesUtility
 
 import edge
@@ -368,6 +369,8 @@ def main(args):
                 locationCode=locationcode,
                 tag=args.output_edge_tag,
                 forceout=args.output_edge_forceout)
+    elif args.output_plot is not None:
+        outputfactory = PlotTimeseriesFactory()
     else:
             print >> sys.stderr, "Missing required output directive"
 
@@ -558,6 +561,10 @@ def parse_args(args):
             help='Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
     output_group.add_argument('--output-edge',
             help='Edge IP #. See --output-edge-* for other optional arguments')
+    output_group.add_argument('--output-plot',
+            action='store_true',
+            default=False,
+            help='Plot the algorithm output using matplotlib')
 
     # Algorithms group
     parser.add_argument('--algorithm',
