@@ -1,8 +1,6 @@
 """Abstract Timeseries Factory Interface."""
-import os
 from obspy.core import Stream
 from TimeseriesFactory import TimeseriesFactory
-from TimeseriesFactoryException import TimeseriesFactoryException
 
 
 class PlotTimeseriesFactory(TimeseriesFactory):
