@@ -41,6 +41,7 @@ class Controller(object):
         self._inputFactory = inputFactory
         self._algorithm = algorithm
         self._outputFactory = outputFactory
+        self._update_count = 0
 
     def _get_input_timeseries(self, observatory, channels, starttime, endtime):
         """Get timeseries from the input factory for requested options.
@@ -194,6 +195,12 @@ class Controller(object):
             if new data is available there as well. Calls run for each new
             period, oldest to newest.
         """
+        if options.update_limit != 0:
+            if self._update_count < options.update_limit:
+               self._update_count += 1
+            else:
+               return
+
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
@@ -459,6 +466,10 @@ def parse_args(args):
             action='store_true',
             default=False,
             help='Used to update data')
+    parser.add_argument('--update-limit',
+            type=int,
+            default=0,
+            help='Used to limit the number of iterations update will recurse')
     parser.add_argument('--no-trim',
             action='store_true',
             default=False,
