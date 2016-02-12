@@ -195,12 +195,12 @@ class Controller(object):
             if new data is available there as well. Calls run for each new
             period, oldest to newest.
         """
+        # If an update_limit is set, make certain we don't step past it.
         if options.update_limit != 0:
             if self._update_count < options.update_limit:
                self._update_count += 1
             else:
                return
-
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
@@ -240,6 +240,7 @@ class Controller(object):
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
             self.run(options)
+        self._update_count = 0
 
 
 def main(args):
