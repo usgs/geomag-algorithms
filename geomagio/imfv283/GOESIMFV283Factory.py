@@ -77,6 +77,10 @@ class GOESIMFV283Factory(IMFV283Factory):
         self._post_process(timeseries)
         if observatory is not None:
             timeseries = timeseries.select(station=observatory)
+
+        #DEBUG
+        print timeseries
+
         return timeseries
 
     def _retrieve_goes_messages(self, starttime, endtime, observatory):
@@ -154,7 +158,7 @@ class GOESIMFV283Factory(IMFV283Factory):
             ASCENDING_TIME: Do Not sort messages into ascending time.
             RT_SETTLE_DELAY: Do wait to prevent duplicate messages.
         """
-        start = starttime - 1800
+        start = starttime - 2200
         end = endtime + 1800
 
         criteria_file = self.directory + '/' + self.criteria_file_name
