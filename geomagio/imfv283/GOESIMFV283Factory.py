@@ -78,9 +78,6 @@ class GOESIMFV283Factory(IMFV283Factory):
         if observatory is not None:
             timeseries = timeseries.select(station=observatory)
 
-        #DEBUG
-        print timeseries
-
         return timeseries
 
     def _retrieve_goes_messages(self, starttime, endtime, observatory):
