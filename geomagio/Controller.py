@@ -176,7 +176,7 @@ class Controller(object):
                 endtime=options.endtime,
                 channels=output_channels)
 
-    def run_as_update(self, options):
+    def run_as_update(self, options, update_count=0):
         """Updates data.
         Parameters
         ----------
@@ -197,10 +197,10 @@ class Controller(object):
         """
         # If an update_limit is set, make certain we don't step past it.
         if options.update_limit != 0:
-            if self._update_count < options.update_limit:
-               self._update_count += 1
+            if update_count < options.update_limit:
+                update_count += 1
             else:
-               return
+                return
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
@@ -235,7 +235,7 @@ class Controller(object):
                 endtime = options.starttime - delta
                 options.starttime = starttime
                 options.endtime = endtime
-                self.run_as_update(options)
+                self.run_as_update(options, update_count)
             # fill gap
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
