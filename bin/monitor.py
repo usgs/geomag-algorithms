@@ -112,7 +112,8 @@ def get_table_header():
                     '</th>\n' + \
                 '<th style="border:1px solid black; padding: 2px;">' +\
                     '</th>\n' + \
-                '<th colspan=3 style="border:1px solid black; padding: 2px;">' +\
+                '<th colspan=3 ' +\
+                    'style="border:1px solid black; padding: 2px;">' +\
                     'Gap</th>\n' + \
                 '<th style="border:1px solid black; padding: 2px;">' +\
                     '</th>\n' + \
