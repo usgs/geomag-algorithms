@@ -41,7 +41,6 @@ class Controller(object):
         self._inputFactory = inputFactory
         self._algorithm = algorithm
         self._outputFactory = outputFactory
-        self._update_count = 0
 
     def _get_input_timeseries(self, observatory, channels, starttime, endtime):
         """Get timeseries from the input factory for requested options.
@@ -197,9 +196,7 @@ class Controller(object):
         """
         # If an update_limit is set, make certain we don't step past it.
         if options.update_limit != 0:
-            if update_count < options.update_limit:
-                update_count += 1
-            else:
+            if update_count >= options.update_limit:
                 return
         algorithm = self._algorithm
         input_channels = options.inchannels or \
@@ -235,7 +232,7 @@ class Controller(object):
                 endtime = options.starttime - delta
                 options.starttime = starttime
                 options.endtime = endtime
-                self.run_as_update(options, update_count)
+                self.run_as_update(options, update_count + 1)
             # fill gap
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
