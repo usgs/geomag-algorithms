@@ -16,6 +16,7 @@ from obspy.core import UTCDateTime
 import geomagio.TimeseriesUtility as TimeseriesUtility
 import geomagio.edge as edge
 
+
 def calculate_warning_threshold(warning_threshold, interval):
     """Calculate warning_threshold for the giving interval
     Parameters
@@ -31,6 +32,7 @@ def calculate_warning_threshold(warning_threshold, interval):
         warning_threshold *= 3600
     return warning_threshold
 
+
 def calculate_gap_percentage(total, trace):
     """Calculate the percentage of missing values
     Parameters
@@ -42,6 +44,7 @@ def calculate_gap_percentage(total, trace):
     """
     return (float(total) / float(trace.stats.npts)) * 100.0, trace.stats.npts
 
+
 def format_time(date):
     """Print UTCDateTime in YYYY-MM-DD HH:MM:SS format
     Parameters
@@ -49,6 +52,7 @@ def format_time(date):
     date: UTCDateTime
     """
     return date.datetime.strftime("%Y-%m-%d %H:%M:%S")
+
 
 def get_gaps(gaps):
     """Print gaps for a given channel into a html string.
@@ -65,6 +69,7 @@ def get_gaps(gaps):
         gap_string = '&nbsp;&nbsp;&nbsp;&nbsp;None<br>'
     return gap_string
 
+
 def get_gap_total(gaps, interval):
     """Get total length of time for all gaps in a channel
     Parameters
@@ -79,8 +84,9 @@ def get_gap_total(gaps, interval):
     if interval == 'minute':
         divisor = 60
     for gap in gaps:
-        total += (int(gap[2] - gap[0])/divisor)
+        total += (int(gap[2] - gap[0]) / divisor)
     return total
+
 
 def get_last_time(gaps, endtime):
     """ Return the last time that a channel has in it.
@@ -96,6 +102,7 @@ def get_last_time(gaps, endtime):
         return gaps[length][0]
     else:
         return endtime
+
 
 def get_table_header():
     return '<table style="border-collapse: collapse;">\n' + \
@@ -127,6 +134,7 @@ def get_table_header():
         '</thead>\n' + \
         '<tbody>\n'
 
+
 def has_gaps(gaps):
     """ Returns True if gaps dictionary has gaps in it.
     Parameters
@@ -138,6 +146,7 @@ def has_gaps(gaps):
         if len(gaps[channel]):
             return True
     return False
+
 
 def print_html_header(starttime, endtime, title):
     """Prints the html header, and title
@@ -165,6 +174,7 @@ def print_html_header(starttime, endtime, title):
             title + '<br>\n'\
             '%s to %s ' % \
                 (format_time(starttime), format_time(endtime))
+
 
 def print_observatories(args):
     """Print all the observatories
@@ -203,8 +213,7 @@ def print_observatories(args):
                     type=args.type,
                     channels=channels,
                     locationCode=args.locationcode,
-                    interval=interval
-                    )
+                    interval=interval)
 
             timeseries = factory.get_timeseries(
                     starttime=starttime,
@@ -217,7 +226,7 @@ def print_observatories(args):
 
             warning = ''
             warning_threshold = calculate_warning_threshold(
-                    args.warning_threshold,interval)
+                    args.warning_threshold, interval)
 
             summary_table += '<tr>'
             summary_table += '<td style="text-align:center;">'
@@ -227,7 +236,7 @@ def print_observatories(args):
                 gap = gaps[channel]
                 trace = timeseries.select(channel=channel)[0]
                 total = get_gap_total(gap, interval)
-                percentage, count = calculate_gap_percentage(total,trace)
+                percentage, count = calculate_gap_percentage(total, trace)
                 last = get_last_time(gap, endtime)
                 summary_table += '<tr>\n'
                 summary_table += '<td style="text-align:center;">%s</td>' % \
@@ -343,7 +352,6 @@ def parse_args(args):
             help='Title for the top of the report')
 
     return parser.parse_args(args)
-
 
 
 if __name__ == '__main__':
