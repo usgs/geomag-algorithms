@@ -269,7 +269,7 @@ def print_observatories(args):
             print summary_table
             print gap_details
 
-        return warning_issued
+    return warning_issued
 
 
 def main(args):
