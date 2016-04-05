@@ -263,6 +263,7 @@ def main(args):
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
+    # TODO remove magweb option
     elif args.input_iaga_magweb:
         inputfactory = iaga2002.MagWebFactory(
                 observatory=args.observatory,
@@ -284,14 +285,14 @@ def main(args):
         inputfactory = imfv283.StreamIMFV283Factory(
                 stream=open(args.input_imfv283_file, 'r'),
                 observatory=args.observatory)
-    elif args.input_imfv283_goes is not None:
+    elif args.input_imfv283_goes:
         inputfactory = imfv283.GOESIMFV283Factory(
                 directory=args.input_goes_directory,
                 getdcpmessages=args.input_goes_getdcpmessages,
                 observatory=args.observatory,
                 server=args.input_goes_server,
                 user=args.input_goes_user)
-    elif args.input_imfv283_stdin is not None:
+    elif args.input_imfv283_stdin:
         inputfactory = imfv283.StreamIMFV283Factory(
                 stream=sys.stdin,
                 observatory=args.observatory)
@@ -369,7 +370,7 @@ def main(args):
                 locationCode=locationcode,
                 tag=args.output_edge_tag,
                 forceout=args.output_edge_forceout)
-    elif args.output_plot is not None:
+    elif args.output_plot:
         outputfactory = PlotTimeseriesFactory()
     else:
             print >> sys.stderr, "Missing required output directive"
@@ -527,6 +528,8 @@ def parse_args(args):
     input_group.add_argument('--input-imfv283-file',
             help='Reads from the specified file.')
     input_group.add_argument('--input-imfv283-stdin',
+            action='store_true',
+            default=False,
             help='Pass in a file using redirection from stdin')
     input_group.add_argument('--input-imfv283-url',
             help='Example file://./')
