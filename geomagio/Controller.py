@@ -175,7 +175,7 @@ class Controller(object):
                 endtime=options.endtime,
                 channels=output_channels)
 
-    def run_as_update(self, options):
+    def run_as_update(self, options, update_count=0):
         """Updates data.
         Parameters
         ----------
@@ -194,6 +194,10 @@ class Controller(object):
             if new data is available there as well. Calls run for each new
             period, oldest to newest.
         """
+        # If an update_limit is set, make certain we don't step past it.
+        if options.update_limit != 0:
+            if update_count >= options.update_limit:
+                return
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
@@ -228,11 +232,12 @@ class Controller(object):
                 endtime = options.starttime - delta
                 options.starttime = starttime
                 options.endtime = endtime
-                self.run_as_update(options)
+                self.run_as_update(options, update_count + 1)
             # fill gap
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
             self.run(options)
+        self._update_count = 0
 
 
 def main(args):
@@ -460,6 +465,10 @@ def parse_args(args):
             action='store_true',
             default=False,
             help='Used to update data')
+    parser.add_argument('--update-limit',
+            type=int,
+            default=0,
+            help='Used to limit the number of iterations update will recurse')
     parser.add_argument('--no-trim',
             action='store_true',
             default=False,

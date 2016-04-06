@@ -200,6 +200,23 @@ DEFAULT_METADATA = {
                     ' can be found at www.intermagnet.org'
         }
     },
+    'CMT': {
+        'metadata': {
+            'station_name': 'College',
+            'agency_name': 'United States Geological Survey (USGS)',
+            'geodetic_latitude': '64.874',
+            'geodetic_longitude': '212.140',
+            'elevation': '197',
+            'sensor_orientation': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'declination_base': 16876,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        }
+    },
     'DED': {
         'metadata': {
             'station_name': 'Deadhorse',
