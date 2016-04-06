@@ -237,7 +237,6 @@ class Controller(object):
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
             self.run(options)
-        self._update_count = 0
 
 
 def main(args):
