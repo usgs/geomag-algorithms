@@ -2,15 +2,15 @@
     related geographic coordinate system, by using transformations generated
     from absolute, baseline measurements.
 """
-from .. import StreamConverter
+#from .. import StreamConverter
 from Algorithm import Algorithm
-from AlgorithmException import AlgorithmException
+#from AlgorithmException import AlgorithmException
 import json
 import numpy as np
-import scipy as sp
-import scipy.linalg as spl
-from obspy.core import Stream, UTCDateTime
-from scipy.optimize import fmin_l_bfgs_b
+#import scipy as sp
+#import scipy.linalg as spl
+from obspy.core import Stream#, UTCDateTime
+#from scipy.optimize import fmin_l_bfgs_b
 
 
 class AdjustedAlgorithm(Algorithm):
@@ -42,22 +42,22 @@ class AdjustedAlgorithm(Algorithm):
         if data is None or data == '':
             return
         self.matrix = np.eye(4)
-        self.matrix[0,0] = np.array(data['M11'], dtype=np.float32)
-        self.matrix[0,1] = np.array(data['M12'], dtype=np.float64)
-        self.matrix[0,2] = np.array(data['M13'], dtype=np.float64)
-        self.matrix[0,3] = np.array(data['M14'], dtype=np.float64)
-        self.matrix[1,0] = np.array(data['M21'], dtype=np.float64)
-        self.matrix[1,1] = np.array(data['M22'], dtype=np.float64)
-        self.matrix[1,2] = np.array(data['M23'], dtype=np.float64)
-        self.matrix[1,3] = np.array(data['M24'], dtype=np.float64)
-        self.matrix[2,0] = np.array(data['M31'], dtype=np.float64)
-        self.matrix[2,1] = np.array(data['M32'], dtype=np.float64)
-        self.matrix[2,2] = np.array(data['M33'], dtype=np.float64)
-        self.matrix[2,3] = np.array(data['M34'], dtype=np.float64)
-        self.matrix[3,0] = np.array(data['M41'], dtype=np.float64)
-        self.matrix[3,1] = np.array(data['M42'], dtype=np.float64)
-        self.matrix[3,2] = np.array(data['M43'], dtype=np.float64)
-        self.matrix[3,3] = np.array(data['M44'], dtype=np.float64)
+        self.matrix[0, 0] = np.array(data['M11'], dtype=np.float64)
+        self.matrix[0, 1] = np.array(data['M12'], dtype=np.float64)
+        self.matrix[0, 2] = np.array(data['M13'], dtype=np.float64)
+        self.matrix[0, 3] = np.array(data['M14'], dtype=np.float64)
+        self.matrix[1, 0] = np.array(data['M21'], dtype=np.float64)
+        self.matrix[1, 1] = np.array(data['M22'], dtype=np.float64)
+        self.matrix[1, 2] = np.array(data['M23'], dtype=np.float64)
+        self.matrix[1, 3] = np.array(data['M24'], dtype=np.float64)
+        self.matrix[2, 0] = np.array(data['M31'], dtype=np.float64)
+        self.matrix[2, 1] = np.array(data['M32'], dtype=np.float64)
+        self.matrix[2, 2] = np.array(data['M33'], dtype=np.float64)
+        self.matrix[2, 3] = np.array(data['M34'], dtype=np.float64)
+        self.matrix[3, 0] = np.array(data['M41'], dtype=np.float64)
+        self.matrix[3, 1] = np.array(data['M42'], dtype=np.float64)
+        self.matrix[3, 2] = np.array(data['M43'], dtype=np.float64)
+        self.matrix[3, 3] = np.array(data['M44'], dtype=np.float64)
         self.pier_correction = np.array(data['PC'], dtype=np.float64)
 
     def save_state(self):
@@ -67,23 +67,23 @@ class AdjustedAlgorithm(Algorithm):
         if self.statefile is None:
             return
         data = {
-            'M11': self.matrix[0,0],
-            'M12': self.matrix[0,1],
-            'M13': self.matrix[0,2],
-            'M14': self.matrix[0,3],
-            'M21': self.matrix[1,0],
-            'M22': self.matrix[1,1],
-            'M23': self.matrix[1,2],
-            'M24': self.matrix[1,3],
-            'M31': self.matrix[2,0],
-            'M32': self.matrix[2,1],
-            'M33': self.matrix[2,2],
-            'M34': self.matrix[2,3],
-            'M41': self.matrix[3,0],
-            'M42': self.matrix[3,1],
-            'M43': self.matrix[3,2],
-            'M44': self.matrix[3,3],
-            'PC':  self.pier_correction
+            'M11': self.matrix[0, 0],
+            'M12': self.matrix[0, 1],
+            'M13': self.matrix[0, 2],
+            'M14': self.matrix[0, 3],
+            'M21': self.matrix[1, 0],
+            'M22': self.matrix[1, 1],
+            'M23': self.matrix[1, 2],
+            'M24': self.matrix[1, 3],
+            'M31': self.matrix[2, 0],
+            'M32': self.matrix[2, 1],
+            'M33': self.matrix[2, 2],
+            'M34': self.matrix[2, 3],
+            'M41': self.matrix[3, 0],
+            'M42': self.matrix[3, 1],
+            'M43': self.matrix[3, 2],
+            'M44': self.matrix[3, 3],
+            'PC': self.pier_correction
         }
         with open(self.statefile, 'w') as f:
             f.write(json.dumps(data))
@@ -107,7 +107,7 @@ class AdjustedAlgorithm(Algorithm):
         f = stream.select(channel='F')[0]
 
         raws = np.vstack([h.data, e.data, z.data, np.ones_like(h.data)])
-        adj = np.dot(self.matrix,raws)
+        adj = np.dot(self.matrix, raws)
         fnew = f.data + self.pier_correction
 
         x = self.create_trace('X', h.stats, adj[0])
