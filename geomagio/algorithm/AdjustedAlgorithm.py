@@ -2,15 +2,15 @@
     related geographic coordinate system, by using transformations generated
     from absolute, baseline measurements.
 """
-#from .. import StreamConverter
+# from .. import StreamConverter
 from Algorithm import Algorithm
-#from AlgorithmException import AlgorithmException
+# from AlgorithmException import AlgorithmException
 import json
 import numpy as np
-#import scipy as sp
-#import scipy.linalg as spl
-from obspy.core import Stream#, UTCDateTime
-#from scipy.optimize import fmin_l_bfgs_b
+# import scipy as sp
+# import scipy.linalg as spl
+from obspy.core import Stream  # , UTCDateTime
+# from scipy.optimize import fmin_l_bfgs_b
 
 
 class AdjustedAlgorithm(Algorithm):
