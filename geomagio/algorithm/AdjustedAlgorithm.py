@@ -2,22 +2,18 @@
     related geographic coordinate system, by using transformations generated
     from absolute, baseline measurements.
 """
-# from .. import StreamConverter
 from Algorithm import Algorithm
-# from AlgorithmException import AlgorithmException
 import json
 import numpy as np
-# import scipy as sp
-# import scipy.linalg as spl
-from obspy.core import Stream  # , UTCDateTime
-# from scipy.optimize import fmin_l_bfgs_b
+from obspy.core import Stream, Stats
 
 
 class AdjustedAlgorithm(Algorithm):
     """Adjusted Data Algorithm"""
 
     def __init__(self, matrix=None, pier_correction=None, statefile=None):
-        Algorithm.__init__(self, inchannels=None, outchannels=None)
+        Algorithm.__init__(self, inchannels=('H', 'E', 'Z', 'F'),
+            outchannels=('X', 'Y', 'Z', 'F'))
         # state variables
         self.matrix = matrix
         self.pier_correction = pier_correction
@@ -41,24 +37,23 @@ class AdjustedAlgorithm(Algorithm):
             pass
         if data is None or data == '':
             return
-        self.matrix = np.eye(4)
-        self.matrix[0, 0] = np.array(data['M11'], dtype=np.float64)
-        self.matrix[0, 1] = np.array(data['M12'], dtype=np.float64)
-        self.matrix[0, 2] = np.array(data['M13'], dtype=np.float64)
-        self.matrix[0, 3] = np.array(data['M14'], dtype=np.float64)
-        self.matrix[1, 0] = np.array(data['M21'], dtype=np.float64)
-        self.matrix[1, 1] = np.array(data['M22'], dtype=np.float64)
-        self.matrix[1, 2] = np.array(data['M23'], dtype=np.float64)
-        self.matrix[1, 3] = np.array(data['M24'], dtype=np.float64)
-        self.matrix[2, 0] = np.array(data['M31'], dtype=np.float64)
-        self.matrix[2, 1] = np.array(data['M32'], dtype=np.float64)
-        self.matrix[2, 2] = np.array(data['M33'], dtype=np.float64)
-        self.matrix[2, 3] = np.array(data['M34'], dtype=np.float64)
-        self.matrix[3, 0] = np.array(data['M41'], dtype=np.float64)
-        self.matrix[3, 1] = np.array(data['M42'], dtype=np.float64)
-        self.matrix[3, 2] = np.array(data['M43'], dtype=np.float64)
-        self.matrix[3, 3] = np.array(data['M44'], dtype=np.float64)
-        self.pier_correction = np.array(data['PC'], dtype=np.float64)
+        self.matrix[0, 0] = np.float64(data['M11'])
+        self.matrix[0, 1] = np.float64(data['M12'])
+        self.matrix[0, 2] = np.float64(data['M13'])
+        self.matrix[0, 3] = np.float64(data['M14'])
+        self.matrix[1, 0] = np.float64(data['M21'])
+        self.matrix[1, 1] = np.float64(data['M22'])
+        self.matrix[1, 2] = np.float64(data['M23'])
+        self.matrix[1, 3] = np.float64(data['M24'])
+        self.matrix[2, 0] = np.float64(data['M31'])
+        self.matrix[2, 1] = np.float64(data['M32'])
+        self.matrix[2, 2] = np.float64(data['M33'])
+        self.matrix[2, 3] = np.float64(data['M34'])
+        self.matrix[3, 0] = np.float64(data['M41'])
+        self.matrix[3, 1] = np.float64(data['M42'])
+        self.matrix[3, 2] = np.float64(data['M43'])
+        self.matrix[3, 3] = np.float64(data['M44'])
+        self.pier_correction = np.float64(data['PC'])
 
     def save_state(self):
         """Save algorithm state to a file.
@@ -88,6 +83,31 @@ class AdjustedAlgorithm(Algorithm):
         with open(self.statefile, 'w') as f:
             f.write(json.dumps(data))
 
+    @classmethod
+    def create_trace(cls, channel, stats, data):
+        """Utility to create a new trace object.
+
+        Parameters
+        ----------
+        channel : str
+            channel name.
+        stats : obspy.core.Stats
+            channel metadata to clone.
+        data : numpy.array
+            channel data.
+
+        Returns
+        -------
+        obspy.core.Trace
+            trace containing data and metadata.
+        """
+        stats = Stats(stats)
+        stats.data_type = 'adjusted'
+        stats.location = 'A0'
+        Trace = super(AdjustedAlgorithm, cls).create_trace(channel, stats,
+            data)
+        return Trace
+
     def process(self, stream):
         """Run algorithm for a stream.
         Processes all traces in the stream.
@@ -100,6 +120,8 @@ class AdjustedAlgorithm(Algorithm):
         out : obspy.core.Stream
             stream containing 1 trace per original trace. (h->X, e->Y, z->Z)
         """
+
+        out = None
 
         h = stream.select(channel='H')[0]
         e = stream.select(channel='E')[0]

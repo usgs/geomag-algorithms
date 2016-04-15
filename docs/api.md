@@ -49,6 +49,7 @@ Exception base class is `geomagio.algorithm.AlgorithmException`
 
 - Delta F `geomagio.algorithm.DeltaFAlgorithm`
 - XYZ `geomagio.algorithm.XYZAlgorithm`
+- Adjusted `geomagio.algorithm.AdjustedAlgorithm`
 
 
 ## Example

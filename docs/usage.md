@@ -85,5 +85,9 @@ Rotate data from HEZ (obs) or HDZ (mag) to XYZ (geo) and back.
 
 Document: [/algorithms/XYZ_usage.md](./algorithms/XYZ_usage.md)
 
+### Adjusted ###
+
+
+
 Extensive explanation of all input and output methods:
 [IO Methods](./io.md)

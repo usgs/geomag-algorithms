@@ -9,13 +9,15 @@ from AlgorithmException import AlgorithmException
 from DeltaFAlgorithm import DeltaFAlgorithm
 from SqDistAlgorithm import SqDistAlgorithm
 from XYZAlgorithm import XYZAlgorithm
+from AdjustedAlgorithm import AdjustedAlgorithm
 
 # algorithms is used by Controller to auto generate arguments
 algorithms = {
     'identity': Algorithm,
     'deltaf': DeltaFAlgorithm,
     'sqdist': SqDistAlgorithm,
-    'xyz': XYZAlgorithm
+    'xyz': XYZAlgorithm,
+    'adjusted': AdjustedAlgorithm
 }
 
 
@@ -27,4 +29,5 @@ __all__ = [
     'DeltaFAlgorithm',
     'SqDistAlgorithm',
     'XYZAlgorithm'
+    'AdjustedAlgorithm'
 ]
