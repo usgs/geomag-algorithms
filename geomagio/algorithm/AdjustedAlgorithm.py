@@ -6,6 +6,7 @@ from Algorithm import Algorithm
 import json
 import numpy as np
 from obspy.core import Stream, Stats
+import sys
 
 
 class AdjustedAlgorithm(Algorithm):
@@ -33,6 +34,8 @@ class AdjustedAlgorithm(Algorithm):
             with open(self.statefile, 'r') as f:
                 data = f.read()
                 data = json.loads(data)
+        except IOError as err:
+            sys.stderr.write("I/O error {0}".format(err))
         except Exception:
             pass
         if data is None or data == '':
