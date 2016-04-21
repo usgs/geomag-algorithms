@@ -18,13 +18,6 @@ def test_construct():
     assert_equals(a.pier_correction, -22)
 
 
-def test_trivial():
-    """
-    """
-
-    assert_equals(3, 3)
-
-
 def test_process():
     """
     """
@@ -38,7 +31,7 @@ def test_process():
         type='variation',
         channels=('H', 'E', 'Z', 'F'),
         starttime=UTCDateTime('2016-01-01T00:00:00Z'),
-        endtime=UTCDateTime('2016-01-31T00:05:00Z'))
+        endtime=UTCDateTime('2016-01-01T00:05:00Z'))
 
     adj_bou = a.process(hezf)
 

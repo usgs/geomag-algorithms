@@ -121,7 +121,7 @@ class AdjustedAlgorithm(Algorithm):
         Returns
         -------
         out : obspy.core.Stream
-            stream containing 1 trace per original trace. (h->X, e->Y, z->Z)
+            stream containing 1 trace per original trace. (h, e, z)->(X, Y, Z)
         """
 
         out = None

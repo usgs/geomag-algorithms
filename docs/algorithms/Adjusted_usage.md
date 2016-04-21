@@ -9,8 +9,8 @@ baseline measurements.  Read more about the [Adjusted Algorithm](./Adjusted.md).
 
 ### Example
 
-This example uses a state file to produce magnetic-h-based Dist, SQ, and SV
-channels using the EDGE channel naming convention.
+This example uses a state file to produce X, Y, Z and F channels
+from raw H, E, Z and F channels using the EDGE channel naming convention.  Absolutes were used to compute a transform matrix contained in the statefile.  The pier correction is also currently contained in the statefile.
 
     bin/geomag.py \
       --input-edge cwbpub.cr.usgs.gov \
@@ -20,26 +20,8 @@ channels using the EDGE channel naming convention.
       --endtime 2016-01-04T00:00:00 \
       --algorithm adjusted \
       --adjusted-statefile=/tmp/adjbou_state_.json \
-      --outchannels MDT MSQ MSV \
+      --outchannels X Y Z F \
       --output-iaga-stdout
-
-This example processes just one channel (X).
-
-    bin/geomag.py \
-      --input-edge cwbpub.cr.usgs.gov \
-      --observatory BOU \
-      --inchannels X \
-      --starttime 2016-01-03T00:01:00 \
-      --endtime 2016-01-04T00:00:00 \
-      --algorithm sqdist \
-      --sqdist-statefile=/tmp/sqdist_x_state.json \
-      --rename-output-channel X_Dist MXT \
-      --rename-output-channel X_SQ MXQ \
-      --rename-output-channel X_SV MXV \
-      --outchannels MXT MXQ MXV \
-      --output-iaga-stdout
-
-> Note only one inchannel is specified and the --sqdist-mag option is omitted.
 
 
 ### Library Notes
