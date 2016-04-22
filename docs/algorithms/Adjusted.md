@@ -8,8 +8,7 @@ Abram Claycomb &lt;[aclaycomb@usgs.gov](mailto:aclaycomb@usgs.gov)&gt;
 
 ## Summary
 
-Mathematical underpinnings and general algorithm considerations are presented
-for converting geomagnetic observations from so-called HEZ coordinates, provided by the vector variation magnetometer (commonly referred  to as the fluxgate), into XYZ coordinates, using absolute magnetic field direction measurements collected on a theodolite, combined with total field (directionless or scalar) measurements, and pier correction measurements, or the measurement of total field difference between the absolutes pier and the vector magnetometer pier (or somewhere closer to it).
+Mathematical underpinnings and general algorithm considerations are presented for converting geomagnetic observations from so-called HEZ coordinates, provided by the vector variation magnetometer (commonly referred  to as the fluxgate), into XYZ coordinates, using absolute magnetic field direction measurements collected on a theodolite, combined with total field (directionless or scalar) measurements, and pier correction measurements, or the measurement of total field difference between the absolutes pier and the vector magnetometer pier (or somewhere closer to it).
 
 
 ## Background and Motivation
@@ -41,7 +40,11 @@ analysis and engineering applications is the XYZ system:
 -  `Y` is the magnitude of the east component of the H vector;
 -  `Z` is the downward component of the geomagnetic field
 
-> Note: leveling of theodolite and survey of pier and mark affect absolute measurements.  
+> Note: leveling of theodolite and survey of pier and mark affect absolute measurements.
+
+A possible observatory configuration is shown below:
+
+![XYZ (green) and hez (red) coordinate systems at a hypothetical observatory](../images/senspier.png)
 
 Conversion between these two coordinate systems involves relatively straight-
 forward trigonometry (see [Eq. 1](#eq1), [Eq. 2](#eq2), and [Eq. 3](#eq3)).
@@ -51,16 +54,19 @@ magnetometer necessarily takes on a fixed orientation upon installation. For
 USGS observatories, this is aligned with the average magnetic north vector and
 downward, with the final axis completes a right-handed 3-dimensional coordinate
 system (roughly eastward). This is often referred to as HEZ coordinates, but
-for the remainder of this document we will refer to it as heZ, to avoid
+for the remainder of this document we will refer to it as hez, to avoid
 confusion with more traditional definitions of H and E(==Y).
 
-> Note: this library internally refers to the `heZ` coordinate system as "obs",
-> short for observatory.
 
 The purpose of this document then is to provide a mathematical and algorithmic
-description of how one converts data measured in heZ coordinates to true HDZ,
-and finally to XYZ.
+description of how one converts data measured in hez coordinates to to sensor-aligned HDz (ordinates), measures/computes absolutes as (F+pier_correction,D,I), where I is inclination, converts to HDZ at the pier, subtracts the absolute HDZ from the ordinate HDz to arrive at baselines.  Baselines are measured once or twice a week, but the vector difference is applied currently to minutes data in quasi-definitive and definitive data processing.  
 
+The data is processed by
+adding the baselines delta H, delta D, and delta Z, to the HDz coordinates (obtained by simple trigonometry) of the vector magnetometer, to obtain north - east - down aligned HDZ at the absolutes pier, then the final HDZ are converted to XYZ by simple trigonometry.
+
+Adjusted Phase 1 maps from hez coordinates, arbitrarily oriented, to  XYZ coordinates, oriented North - East - Down (subject leveling and surveying error at the pier) with a linear, affine transformation of the form:
+
+- [X,Y,Z] = [M] * [H,E,Z]
 
 ## Math and Theory
 
@@ -75,8 +81,7 @@ However, as noted previously, the USGS aligns its magnetometers with the
 magnetic north upon installation at an observatory, meaning raw data is
 generated in heZ coordinates, where "h" is is the primary axis in a fixed
 reference frame, "e" is the secondary axis in this reference frame, and "Z" is
-the tertiary axis, which remains common for all reference frames discussed in
-this document.
+the tertiary axis, meant to be vertically down.
 
 ![Magnetic Field Vectors in three coordinate systems](../images/figure.png)
 
