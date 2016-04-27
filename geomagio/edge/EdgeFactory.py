@@ -353,6 +353,13 @@ class EdgeFactory(TimeseriesFactory):
         """
         edge_interval_code = self._get_interval_code(interval)
         edge_channel = None
+
+        # DCS 20160403 -- if form is chan.loc, return chan portion
+        # Allows specific chan/loc selection in geomag.py
+        if channel.find('.') >= 0:
+            tmplist = channel.split('.')
+            return tmplist[0].strip()
+
         if channel == 'D':
             edge_channel = edge_interval_code + 'VD'
         elif channel == 'E':
@@ -396,6 +403,13 @@ class EdgeFactory(TimeseriesFactory):
             returns an edge location code
         """
         location = None
+
+        # DCS 20160403 -- if form is chan.loc, return loc portion
+        # Allows specific chan/loc selection in geomag.py
+        if channel.find('.') >= 0:
+            tmplist = channel.split('.')
+            return tmplist[1].strip()
+
         if self.locationCode is not None:
             location = self.locationCode
         else:
