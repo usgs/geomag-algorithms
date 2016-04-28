@@ -5,7 +5,6 @@ from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..Util import read_url
-from TEMPParser import TEMPParser
 from TEMPWriter import TEMPWriter
 
 
@@ -103,22 +102,20 @@ class TEMPFactory(TimeseriesFactory):
         parser = TEMPParser()
         parser.parse(tempString)
 
-        year = parser.header['year']
-        yearday = parser.header['yearday']
+        yr = int(parser.header['year'])
+        yrday = int(parser.header['yearday'])
 
         begin = int(parser.times[0])
-        startHour = str(int(begin / 60.0))
-        startMinute = str(int(begin % 60.0))
+        startHour = int(begin / 60.0)
+        startMinute = int(begin % 60.0)
         ending = int(parser.times[-1])
-        endHour = str(int(ending / 60.0))
-        endMinute = str(int(ending % 60.0))
+        endHour = int(ending / 60.0)
+        endMinute = int(ending % 60.0)
 
-        start = year + yearday + "T" + startHour + ":" + \
-                startMinute + ":" + "00.0"
-        end = year + yearday + "T" + endHour + ":" + endMinute + ":" + "00.0"
-
-        starttime = obspy.core.UTCDateTime(start)
-        endtime = obspy.core.UTCDateTime(end)
+        starttime = obspy.core.UTCDateTime(year=yr, julday=yrday,
+                        hour=startHour, minute=startMinute)
+        endtime = obspy.core.UTCDateTime(year=yr, julday=yrday, hour=endHour,
+                        minute=endMinute)
 
         data = parser.data
         length = len(data[data.keys()[0]])

@@ -13,7 +13,7 @@ import iaga2002
 import pcdcp
 import imfv283
 
-# DCS 20160326 -- factories for new filetypes
+# factories for new filetypes
 import temperature
 import vbf
 
@@ -378,29 +378,27 @@ def main(args):
                 locationCode=locationcode,
                 tag=args.output_edge_tag,
                 forceout=args.output_edge_forceout)
-
-    # DCS 20160326 -- new factories
     elif args.output_temperature_file is not None:
         outputfactory = temperature.StreamTEMPFactory(
                 stream=open(args.output_temperature_file, 'wb'),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval)
-    # DCS 20160401 -- param list for StreamVBF includes flag for vbf vs binlog
+    # VBF includes flag for writing vbf file vs bin-change log
     elif args.output_vbf_file is not None:
         outputfactory = vbf.StreamVBFFactory(
                 stream=open(args.output_vbf_file, 'wb'),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
-                output = 'vbf')
+                output='vbf')
     elif args.output_binlog_file is not None:
         outputfactory = vbf.StreamVBFFactory(
                 stream=open(args.output_binlog_file, 'wb'),
                 observatory=args.observatory,
                 type=args.type,
                 interval=args.interval,
-                output = 'binlog')
+                output='binlog')
 
     elif args.output_plot:
         outputfactory = PlotTimeseriesFactory()
@@ -585,14 +583,12 @@ def parse_args(args):
     # Output group
     output_group = parser.add_mutually_exclusive_group(required=True)
 
-    # DCS -- options for new output factories
     output_group.add_argument('--output-temperature-file',
             help='Write to a single temperature/battery file.')
     output_group.add_argument('--output-vbf-file',
             help='Write to a single voltage-bin file.')
     output_group.add_argument('--output-binlog-file',
             help='Write to a single bin-change log file.')
-
     output_group.add_argument('--output-iaga-file',
             help='Write to a single iaga file.')
     output_group.add_argument('--output-iaga-stdout',

@@ -5,7 +5,6 @@ from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..Util import read_url
-from VBFParser import VBFParser
 from VBFWriter import VBFWriter
 
 
@@ -35,7 +34,7 @@ class VBFFactory(TimeseriesFactory):
     VBFParser
     """
 
-    # DCS -- 20160401 -- output flag added to parm list for vbf vs binlog
+    # Flag "output" used for vbf file vs bin-change log.
     def __init__(self, urlTemplate, observatory=None, channels=None, type=None,
             interval=None, output='vbf'):
         TimeseriesFactory.__init__(self, observatory, channels, type,
@@ -105,22 +104,20 @@ class VBFFactory(TimeseriesFactory):
         parser = VBFParser()
         parser.parse(vbfString)
 
-        year = parser.header['year']
-        yearday = parser.header['yearday']
+        yr = int(parser.header['year'])
+        yrday = int(parser.header['yearday'])
 
         begin = int(parser.times[0])
-        startHour = str(int(begin / 60.0))
-        startMinute = str(int(begin % 60.0))
+        startHour = int(begin / 60.0)
+        startMinute = int(begin % 60.0)
         ending = int(parser.times[-1])
-        endHour = str(int(ending / 60.0))
-        endMinute = str(int(ending % 60.0))
+        endHour = int(ending / 60.0)
+        endMinute = int(ending % 60.0)
 
-        start = year + yearday + "T" + startHour + ":" + \
-                startMinute + ":" + "00.0"
-        end = year + yearday + "T" + endHour + ":" + endMinute + ":" + "00.0"
-
-        starttime = obspy.core.UTCDateTime(start)
-        endtime = obspy.core.UTCDateTime(end)
+        starttime = obspy.core.UTCDateTime(year=yr, julday=yrday,
+                        hour=startHour, minute=startMinute)
+        endtime = obspy.core.UTCDateTime(year=yr, julday=yrday, hour=endHour,
+                        minute=endMinute)
 
         data = parser.data
         length = len(data[data.keys()[0]])
@@ -192,8 +189,6 @@ class VBFFactory(TimeseriesFactory):
             list of channels to store
         """
 
-        # DCS 20160401 -- if making a bin change log, call the _change_
-        # version of 'write'. Otherwise, call the usual 'write'
         if self.output == 'binlog':
             VBFWriter().write_change_log(fh, timeseries, channels)
         else:

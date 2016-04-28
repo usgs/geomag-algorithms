@@ -354,8 +354,8 @@ class EdgeFactory(TimeseriesFactory):
         edge_interval_code = self._get_interval_code(interval)
         edge_channel = None
 
-        # DCS 20160403 -- if form is chan.loc, return chan portion
-        # Allows specific chan/loc selection in geomag.py
+        # If form is chan.loc, return chan (left) portion.
+        # Allows specific chan/loc selection.
         if channel.find('.') >= 0:
             tmplist = channel.split('.')
             return tmplist[0].strip()
@@ -404,8 +404,8 @@ class EdgeFactory(TimeseriesFactory):
         """
         location = None
 
-        # DCS 20160403 -- if form is chan.loc, return loc portion
-        # Allows specific chan/loc selection in geomag.py
+        # If form is chan.loc, return loc (right) portion
+        # Allows specific chan/loc selection.
         if channel.find('.') >= 0:
             tmplist = channel.split('.')
             return tmplist[1].strip()

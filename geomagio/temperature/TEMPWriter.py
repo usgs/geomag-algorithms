@@ -1,9 +1,8 @@
 
 import numpy
-import TEMPParser
 from cStringIO import StringIO
 from datetime import datetime
-from .. import ChannelConverter, TimeseriesUtility
+from .. import TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from obspy.core import Stream
 
@@ -12,7 +11,7 @@ class TEMPWriter(object):
     """TEMP writer.
     """
 
-    def __init__(self, empty_value=TEMPParser.NINES_DEG):
+    def __init__(self, empty_value=numpy.int('9999')):
         self.empty_value = empty_value
 
     def write(self, out, timeseries, channels):
@@ -121,8 +120,8 @@ class TEMPWriter(object):
         tt = time.timetuple()
         totalMinutes = int(tt.tm_hour * 60 + tt.tm_min)
 
-        return '{0:0>4d} {1: >5d} {2: >5d} {3: >5d} {4: >5d} {5: >5d}\n'.format(
-                totalMinutes,
+        return '{0:0>4d} {1: >5d} {2: >5d} {3: >5d} {4: >5d}' \
+                ' {5: >5d}\n'.format(totalMinutes,
                 *[self.empty_value if numpy.isnan(val) else int(round(
                     val * 10))
                         for val in values])

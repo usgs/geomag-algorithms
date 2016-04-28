@@ -34,14 +34,13 @@ class PCDCPWriter(object):
                     (channel, str(TimeseriesUtility.get_channels(timeseries))))
         stats = timeseries[0].stats
 
-        # DCS 20160328 -- set dead val for 1-sec data
-        # won't work if input is IAGA2002: stats missing data_interval
+        # Set dead val for 1-sec data.
+        # Won't work if input is IAGA2002: stats missing data_interval
         if stats.data_interval == "second":
             self.empty_value = PCDCPParser.NINES_RAW
 
         out.write(self._format_header(stats))
 
-        # DCS 20160325 -- pass stats to _format_data
         out.write(self._format_data(timeseries, channels, stats))
 
     def _format_header(self, stats):
@@ -64,7 +63,7 @@ class PCDCPWriter(object):
         yearday = str(stats.starttime.julday).zfill(3)
         date = stats.starttime.strftime("%d-%b-%y")
 
-        # DCS 20160325 -- 1-sec vs 1-min headers
+        # Choose resolution for 1-sec vs 1-min header.
         resolution = "0.01nT"
         # won't work if input is IAGA2002: stats missing data_interval
         if stats.data_interval == "second":
@@ -73,10 +72,8 @@ class PCDCPWriter(object):
         buf.append(observatory + '  ' + year + '  ' + yearday + '  ' +
                     date + '  HEZF  ' + resolution + '  File Version 2.00\n')
 
-
         return ''.join(buf)
 
-    # DCS 20160325 -- include stats in parms list
     def _format_data(self, timeseries, channels, stats):
         """Format all data lines.
 
@@ -114,16 +111,13 @@ class PCDCPWriter(object):
         starttime = float(traces[0].stats.starttime)
         delta = traces[0].stats.delta
 
-        # DCS 20160325 -- pass stats to _format_values
         for i in xrange(len(traces[0].data)):
             buf.append(self._format_values(
                 datetime.utcfromtimestamp(starttime + i * delta),
-                (t.data[i] for t in traces), stats
-                ))
+                (t.data[i] for t in traces), stats))
 
         return ''.join(buf)
 
-    # DCS 20160325 -- include stats in parms list
     def _format_values(self, time, values, stats):
         """Format one line of data values.
 
@@ -140,8 +134,8 @@ class PCDCPWriter(object):
         unicode
             Formatted line containing values.
         """
-        # DCS 20160325 -- 1-sec and 1-min data have different formats
-        # won't work if input is IAGA2002: stats missing data_interval
+        # 1-sec and 1-min data have different formats.
+        # Won't work if input is IAGA2002: stats missing data_interval.
         time_width = 4
         data_width = 8
         data_multiplier = 100
@@ -158,11 +152,11 @@ class PCDCPWriter(object):
 
         tt = time.timetuple()
 
-        totalMinutes = int(tt.tm_hour * hr_multiplier + \
+        totalMinutes = int(tt.tm_hour * hr_multiplier +
                         tt.tm_min * mn_multiplier + tt.tm_sec * sc_multiplier)
 
-        return '{0:0>{tw}d} {1: >{dw}d} {2: >{dw}d} {3: >{dw}d} {4: >{dw}d}\n'.\
-        format( totalMinutes, tw=time_width,
+        return '{0:0>{tw}d} {1: >{dw}d} {2: >{dw}d} {3: >{dw}d}' \
+                ' {4: >{dw}d}\n'.format(totalMinutes, tw=time_width,
                 *[self.empty_value if numpy.isnan(val) else int(round(
                     val * data_multiplier))
                         for val in values], dw=data_width)

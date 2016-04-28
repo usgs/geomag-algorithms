@@ -1,6 +1,5 @@
 
 import numpy
-import VBFParser
 from cStringIO import StringIO
 from datetime import datetime
 from .. import ChannelConverter, TimeseriesUtility
@@ -8,20 +7,21 @@ from ..TimeseriesFactoryException import TimeseriesFactoryException
 from obspy.core import Stream
 
 
-# DCS 20160328 -- for a binlog, need to save previous time and volts
+# For a binlog, need to save previous time and volts.
 h_prev = [99.999999, 999]
 e_prev = [99.999999, 999]
 z_prev = [99.999999, 999]
-# DCS 20160328 -- use seperate HEZ buffers to group binlog output by component
+# Use seperate HEZ buffers to group binlog output by component.
 Hbuf = []
 Ebuf = []
 Zbuf = []
+
 
 class VBFWriter(object):
     """VBF writer.
     """
 
-    def __init__(self, empty_value=VBFParser.NINES):
+    def __init__(self, empty_value=numpy.int('9999999')):
         self.empty_value = empty_value
 
     def write(self, out, timeseries, channels):
@@ -135,10 +135,10 @@ class VBFWriter(object):
         tt = time.timetuple()
         totalMinutes = int(tt.tm_hour * 3600 + tt.tm_min * 60 + tt.tm_sec)
 
-        # DCS 20160328 -- init volt/bin vals to dead
+        # Init the volt/bin vals to deads.
         vdead = 99.999999
         bdead = 999
-        vblist =[vdead, bdead, vdead, bdead, vdead, bdead]
+        vblist = [vdead, bdead, vdead, bdead, vdead, bdead]
 
         # now "un-dead" the good vals, format volts as float, bins as int
         for idx, valx in enumerate(values):
@@ -148,18 +148,14 @@ class VBFWriter(object):
                 else:
                     vblist[idx] = int(valx)
 
-
         return '{0:0>5d} {1: >10.6f} {2: >4d} {3: >10.6f} {4: >4d} ' \
                 '{5: >10.6f} {6: >4d}\n'.format(totalMinutes, *vblist)
 
-
-
-
-    #===============================================
+    # ===============================================
     # CODE BELOW IS FOR MAKING A BIN CHANGE LOG.
     # VBFFactory calls the '_change_' version of the
     # procedures rather than the "usual" procedures
-    #===============================================
+    # ===============================================
 
     def write_change_log(self, out, timeseries, channels):
         """Write timeseries to vbf file.
@@ -180,13 +176,13 @@ class VBFWriter(object):
                     (channel, str(TimeseriesUtility.get_channels(timeseries))))
         stats = timeseries[0].stats
 
-
         out.write(self._format_change_header(stats))
 
         self._format_change_data(timeseries, channels)
 
         if (len(Hbuf) + len(Ebuf) + len(Zbuf)) > 0:
-            out.write(' C  Date       Time     DaySec     Bin change    Voltage change\n')
+            out.write(' C  Date       Time     DaySec     Bin change'
+            '    Voltage change\n')
             out.write(''.join(Hbuf))
             out.write('\n')
             out.write(''.join(Ebuf))
@@ -219,7 +215,6 @@ class VBFWriter(object):
 
         return ''.join(buf)
 
-
     def _format_change_data(self, timeseries, channels):
         """Format all data lines.
 
@@ -235,8 +230,6 @@ class VBFWriter(object):
         str
             A string formatted to be the data lines in a VBF file.
         """
-        buf = []
-
 
         # create new stream
         timeseriesLocal = Stream()
@@ -290,11 +283,10 @@ class VBFWriter(object):
                   ' ({1:0>5d})'. \
                     format(tt, totalMinutes)
 
-
         # init volt/bin vals to dead
         vdead = 99.999999
         bdead = 999
-        vblist =[vdead, bdead, vdead, bdead, vdead, bdead]
+        vblist = [vdead, bdead, vdead, bdead, vdead, bdead]
 
         # now "un-dead" the non-nans, format volts as float, bins as int
         for idx, valx in enumerate(values):
@@ -304,22 +296,21 @@ class VBFWriter(object):
                 else:
                     vblist[idx] = int(valx)
 
-
         if vblist[1] != 999 and h_prev[1] != 999 and vblist[1] != h_prev[1]:
-            Hbuf.append('{0: >3s} {1:>s}  ' \
-            '{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n'. \
+            Hbuf.append('{0: >3s} {1:>s}  '
+            '{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n'.
             format('(H)', timestr, h_prev[1],
                     vblist[1], h_prev[0], vblist[0]))
 
         if vblist[3] != 999 and e_prev[1] != 999 and vblist[3] != e_prev[1]:
-            Ebuf.append('{0: >3s} {1:>s}  ' \
-            '{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n'. \
+            Ebuf.append('{0: >3s} {1:>s}  '
+            '{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n'.
             format('(E)', timestr, e_prev[1],
                     vblist[3], e_prev[0], vblist[2]))
 
         if vblist[5] != 999 and z_prev[1] != 999 and vblist[5] != z_prev[1]:
-            Zbuf.append('{0: >3s} {1:>s}  ' \
-            '{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n'. \
+            Zbuf.append('{0: >3s} {1:>s}  '
+            '{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n'.
             format('(Z)', timestr, z_prev[1],
                     vblist[5], z_prev[0], vblist[4]))
 
@@ -332,9 +323,7 @@ class VBFWriter(object):
         z_prev[0] = vblist[4]
         z_prev[1] = vblist[5]
 
-
         return
-
 
     @classmethod
     def format(self, timeseries, channels):

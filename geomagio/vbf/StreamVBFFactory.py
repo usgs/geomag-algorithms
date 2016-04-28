@@ -18,8 +18,7 @@ class StreamVBFFactory(VBFFactory):
     Timeseriesfactory
     """
 
-    # DCS 20160401 -- 'output' flag added to parm list.
-    # If 'vbf' then write a vbf file, if 'binlog' then make a bin change log
+    # Flag "output" used for vbf file versus bin-change log.
     def __init__(self, stream, observatory=None, channels=None,
             type=None, interval=None, output='vbf'):
         VBFFactory.__init__(self, None, observatory, channels,
