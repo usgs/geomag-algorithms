@@ -57,6 +57,7 @@ system (roughly eastward). This is often referred to as HEZ coordinates, but
 for the remainder of this document we will refer to it as hez, to avoid
 confusion with more traditional definitions of H and E(==Y).
 
+![XYZ (blue) and hez (red) data](../images/transformation.png)
 
 The purpose of this document then is to provide a mathematical and algorithmic
 description of how one converts data measured in hez coordinates to to sensor-aligned HDz (ordinates), measures/computes absolutes as (F+pier_correction,D,I), where I is inclination, converts to HDZ at the pier, subtracts the absolute HDZ from the ordinate HDz to arrive at baselines.  Baselines are measured once or twice a week, but the vector difference is applied currently to minutes data in quasi-definitive and definitive data processing.  
