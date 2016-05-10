@@ -17,8 +17,8 @@ before_install:
   - conda update --yes conda
   - conda info -a
   ## back to other dependencies
-  - nvm install stable
-  - nvm use stable
+  - nvm install v4.2.4
+  - nvm use 4.2.4
   - npm install -g grunt-cli
   - npm --version
   - node --version
