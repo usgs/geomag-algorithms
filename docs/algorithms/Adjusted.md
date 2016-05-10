@@ -1,181 +1,104 @@
-Adjusted Algorithm
-=============
-
-Algorithm Theoretical Basis for "Geomag Adjusted"
+Geomagnetic Adjusted Data
+===========================================================
 
 Abram Claycomb &lt;[aclaycomb@usgs.gov](mailto:aclaycomb@usgs.gov)&gt;
 
 
-## Summary
-
-Mathematical underpinnings and general algorithm considerations are presented for converting geomagnetic observations from so-called HEZ coordinates, provided by the vector variation magnetometer (commonly referred  to as the fluxgate), into XYZ coordinates, using absolute magnetic field direction measurements collected on a theodolite, combined with total field (directionless or scalar) measurements, and pier correction measurements, or the measurement of total field difference between the absolutes pier and the vector magnetometer pier (or somewhere closer to it).
-
-
 ## Background and Motivation
 
-Historically, the most common coordinate system used to specify measured
-geomagnetic fields has been HDZ, where:
+The magnetic field measured at an observatory of the USGS is
+measured by a three-axis fluxgate sensor roughly aligned with the
+magnetic field.  The three axes are:
 
-- `H` is the magnitude of the geomagnetic field vector tangential to the
-  Earth's surface;
-- `D` is the declination, or clockwise angle from the vector pointing to the
-  geographic north pole to the H vector;
-- `Z` is the downward component of the geomagnetic field.
+- `h` - Horizontal 'leading' ahead of the local magnetic
+declination (magnetic north) at the time of installation, so
+that the local magnetic vector would eventually cross the h axis
+- `e` - Horizontal, nominally orthogonal to h (roughly magnetic east)
+- `z` - Nominally vertical, downward, and nominally orthogonal to both `h` and `e`. Vertical at installation on a balancing device with the intended purpose of staying level if the pier on which it is mounted tilts under the sensor, all enclosed under a glass dome to keep air movements from convecting heat directly to the sensor from the room, or pushing the balanced system
 
-This coordinate system is useful for navigation (it is the natural coordinate
-system for a magnetic compass), and any scientific analysis conducted in a
-geomagnetic field-aligned reference frame, but is somewhat awkward for most
-other applications.  This is the coordinate system that ordinate (vector magnetometer) hez coordinates are converted to before computing baselines.  Note: Z is meant to be downward, but the instrument can be misaligned vertically.  There is a system in place to reduce drift of the sensor axis, but it is not perfect.
+Simultaneously, the field is measured by an Overhauser-effect scalar magnetometer (non-directional).  This is called the total field:
 
-hez is defined as:
+- `F` - Total field at the Overhauser pier
 
-- `h` is the measurement of the magnetic field vector projected on the axis placed generally pointing magnetically north and as close to level as practical.
-- `e` is the measurement of the magnetic field vector projected on an axis orthogonal to h, also as close to level as practical, generally magnetically east at the time of installation.
-- `z` is the measurement of the magnetic field vector projected onto the axis aligned with the local gravity vector (again aligned as close as practical at time of installation).
+A third magnetometer, called a declination-inclination magnetometer (DIM) is used to manually find direction of
+the field for the purpose of calibrating the three-axis sensor
+mentioned above, and converting the coordinate system to that of
+a geographic north, east, and downward set of axes:
 
-A more generally useful set of coordinates for scientific
-analysis and engineering applications is the XYZ system:
+- `X` - Geographically North component of the magnetic field,
+based on a survey of the absolute pier, and the azimuth mark, at
+the time of installation, and periodically on a time scale of a
+few years
+- `Y` - Geographically East component of the magnetic field,
+again based on the survey mentioned in `X` above
+- `Z` - Vertical component of the magnetic field, based on
+leveling the theodolite at each absolute measurement session
 
--  `X` is the magnitude of the geographic north pole component of the H vector;
--  `Y` is the magnitude of the east component of the H vector;
--  `Z` is the downward component of the geomagnetic field
+The declination and inclination measured by the DIM are:
 
-> Note: leveling of theodolite and survey of pier and mark affect absolute measurements.
+- `D` - declination
+- `I` - inclination
 
-A possible observatory configuration is shown below:
+The measurements with the DIM are called absolutes and measured
+on a timescale on the order of 1 week.  Four sets of four
+measurements each are recorded on four orientations of the DIM
+sensor and these measurements are averaged, to account for errors
+in the sensor and its alignment to the optical axis of the
+theodolite to which it is mounted.
 
-![XYZ (green) and hez (red) coordinate systems at a hypothetical observatory](../images/senspier.png)
+The real-time measurements (to the nearest second) of `h`, `e`,
+`z` and `F` are used to compute what are known as baselines, or the differences in the pseudo-vector cylindrical coordinate representation.  The equations relating these quantities, with some definitions, are found below:
 
-Conversion between these two coordinate systems involves relatively straight-
-forward trigonometry (see [Eq. 1](#eq1), [Eq. 2](#eq2), and [Eq. 3](#eq3)).
+- `F_pier_correction` - measured on the order of once or twice
+per year, by a second Overhauser recording for a few hours at the absolute pier location (in place of the absolute DIM theodolite)
+- `F_corrected = F + F_pier_correction`
+- `X = F_corrected*cos(I)*cos(D)`
+- `Y = F_corrected*cos(I)*sin(D)`
+- `Z = F_corrected*sin(I)`
+- `H_absolute = X**2 + Y**2 = F_corrected*cos(I)`
+- `D_absolute = arctan2(Y,X) = D`
+- `Z_absolute = F_corrected*sin(I)`
+- `H_ordinate = h**2 + e**2` - were the angles small, this may
+have been historically approximated as `h`
+- `D_ordinate = arctan2(e,h)` - were the angles small, this may
+have been historically approximated as `e/h`
+- `Z_ordinate = z`
+- `H_baseline = H_absolute - H_ordinate`
+- `D_baseline = D_absolute - D_ordinate`
+- `Z_baseline = Z_absolute - Z_ordinate`
 
-However, in practice, a 3-axis
-magnetometer necessarily takes on a fixed orientation upon installation. For
-USGS observatories, this is aligned with the average magnetic north vector and
-downward, with the final axis completes a right-handed 3-dimensional coordinate
-system (roughly eastward). This is often referred to as HEZ coordinates, but
-for the remainder of this document we will refer to it as hez, to avoid
-confusion with more traditional definitions of H and E(==Y).
+## Calibration to Reduce Errors and Transform Coordinates
 
-![XYZ (blue) and hez (red) data](../images/transformation.png)
+The purpose of making the manual absolute measurements is to
+account for errors in the vector magnetometer, and transform
+the recorded `h`, `e`, `z` data into `X`, `Y`, `Z` coordinates.
+There are several types of errors:
 
-The purpose of this document then is to provide a mathematical and algorithmic
-description of how one converts data measured in hez coordinates to to sensor-aligned HDz (ordinates), measures/computes absolutes as (F+pier_correction,D,I), where I is inclination, converts to HDZ at the pier, subtracts the absolute HDZ from the ordinate HDz to arrive at baselines.  Baselines are measured once or twice a week, but the vector difference is applied currently to minutes data in quasi-definitive and definitive data processing.  
+- non-orthogonal sensor error, which can be corrected by a transformation matrix as a linear operator
+- scale error (measurement by one unit in one sensor not being equal to one unit of the field), which can again be corrected by a different kind of transformation matrix; for fluxgate (and DIM) magnetic sensors, this is known to be temperature-dependent
+- offset error (measurement with no field applied gives a non-zero sensor output; can be corrected by adding a vector, which can be re-cast as a matrix transformation and linear operator by an affine transformation; for fluxgate (and DIM) magnetic sensors, this is known to be temperature-dependent
+- local magnetic disturbances - usually minimized by site selection and disciplined operations during maintenance and measurement.
 
-The data is processed by
-adding the baselines delta H, delta D, and delta Z, to the HDz coordinates (obtained by simple trigonometry) of the vector magnetometer, to obtain north - east - down aligned HDZ at the absolutes pier, then the final HDZ are converted to XYZ by simple trigonometry.
-
-Adjusted Phase 1 maps from hez coordinates, arbitrarily oriented, to  XYZ coordinates, oriented North - East - Down (subject leveling and surveying error at the pier) with a linear, affine transformation of the form:
-
-- [X,Y,Z] = [M] * [H,E,Z]
-
-## Math and Theory
-
-First, following definitions in the previous section, the conversion from
-cylindrical HDZ to Cartesian XYZ is very straight-forward trigonometry:
-
-- <a name="eq1"></a>Equation 1: `X = H cos(D)`
-- <a name="eq2"></a>Equation 2: `Y = H sin(D)`
-- <a name="eq3"></a>Equation 3: `Z = Z`
-
-However, as noted previously, the USGS aligns its magnetometers with the
-magnetic north upon installation at an observatory, meaning raw data is
-generated in heZ coordinates, where "h" is is the primary axis in a fixed
-reference frame, "e" is the secondary axis in this reference frame, and "Z" is
-the tertiary axis, meant to be vertically down.
-
-![Magnetic Field Vectors in three coordinate systems](../images/figure.png)
-
-The figure above illustrates how the same full magnetic field vector **F**, can
-be represented in heZ, HDZ, and XYZ coordinates. Red objects are specific to
-the magnetometer's reference frame, while blue objects are specific to the
-geographic reference frame. Black is common to all frames considered here, and
-dashed lines help define Cartesian grids.
-
-One thing that is not labeled in this figure is the angle d (see [Eq. 4](#eq4)),
-which is the difference between declination D, and a declination
-baseline (D0, or DECBAS).
-
-The equations [Eq. 4](#eq4), [Eq. 5](#eq5), [Eq. 6](#eq6) describe how to
-convert the horizontal components of a USGS magnetometer's raw data element
-into more standard H and D components.
-
-- <a name="eq4"></a>Equation 4: `d = arctan(e/h)`
-- <a name="eq5"></a>Equation 5: `D = D0 + d`
-- <a name="eq6"></a>Equation 6: `H = sqrt(h*h + e*e) = h / cos(d)`
-
-To inverse transform from `XY` to `HD`:
-
-- <a name="eq7"></a>Equation 7: `H = sqrt(X*X + Y*Y)`
-- <a name="eq8"></a>Equation 8: `D = arctan(Y/X)`
-
-...and from `HD` to `he`:
-
-- <a name="eq9"></a>Equation  9: `d = D - D0`
-- <a name="eq10"></a>Equation 10:
-  `h = sqrt(H*H / (1 + tan(d)*tan(d))) = H cos(d)`
-- <a name="eq11"></a>Equation 11: `e = h * tan(d)`
-
-It is worth noting that there is potential for mathematically undefined results
-in several of the preceding equations, where infinite ratios are a possible
-argument to the arctan() function. However, Python's Numpy package, and indeed
-most modern math libraries, will return reasonable answers in such situations
-(hint: arctan(Inf)==pi/2).
-
-> Note: this library uses the atan2 function to handle the noted problem of
-> infinite ratios.
+The combined effect for the above mentioned errors, as well as
+a final rotation to transform coordinates to X,Y,Z can be found
+using a least-squares algorithm and baseline calculator data.  This is phase one of the Adjusted Data project.
 
 
-## Practical Considerations
+## Example
 
-### Magnetic Intensity Units
+Usage for this algorithm is shown in this
+[Adjusted Usage](Adjusted_usage.md)
+example.
 
-It is understood that all raw data inputs are provided in units of nanoTesla
-(nT). Of course this is not required for the equations to be valid, but it is
-incumbent on the programmer to make sure all input data units are the same, and
-that output units are defined accurately.
-
-### Declination Angular Units
-
-The equations in the preceding section are relatively simple to code up, with
-the standard caveat that angles must be appropriate for the trigonometric
-functions (e.g., if sin/cos/tan expect radians, be sure to provide parameters
-in radians). One thing that can potentially complicate this is that IAGA
-standards require declination angles to be in minutes of arc. Furthermore, D0
-(DECBAS) is not very well-defined by IAGA standards, but is typically reported
-in tenths of minutes of arc. None of these are difficult to convert, but it is
-incumbent on the programmer to make sure they know what units are being used
-for the inputs.
-
-> Note: this library internally uses radians for all angles, and factories
-> convert to and from this standard.
-
-### Declination Baseline
-
-Declination baseline is not well-defined by IAGA standards. The typical method
-used to publish it with actual data is to include it in the metadata. For older
-IMF formatted files, it is part of the periodic block header. For IAGA2002
-formatted file, it may be in the file header, but is not required. To the
-best of my knowledge, if it is not included, one should assume it is zero, but
-no corroborating documentation could be found to justify this statement.
-
-> Note: this library makes declination baseline available in trace stats as
-> `declination_base` ([see all trace metadata](./metadata.md).  The IAGA Factory
-> also attempts to parse DECBAS from the comments section.
+Example calculations of affine transformation matrices for USGS
+observatories are shown in this [Adjusted Example](AdjustedPhaseOneFunction2.ipynb) IPython notebook.
 
 
-### Declination in USGS Variations Data
+## References
 
-The USGS variations data is actually published in hdZ coordinates. If one
-wishes to apply equations in the preceding section to USGS variations data,
-they must first convert "d" back into "e" via [Eq. 11](#eq11).
+ - Jankowski, J., and Sucksdorff, C., [Guide for Magnetic Measurements and Observatory Practice](http://www.iugg.org/IAGA/iaga-pages/pdf/Iaga-Guide-Observatories.pdf),
+   Int. J. of Forecasting, 19(1), 143-148.
 
-### Data Flags
+ - Hitchman, P. G., Crosthwaite, W. V., Lewis, A. M., and Wang, L. (2011), [Australian Geomagnetism Report 2011](https://d28rz98at9flks.cloudfront.net/73627/Rec2012_072.pdf)
 
-It should go without saying that bad data in one coordinate system is bad data
-in another. However, on occasion, operational USGS Geomagnetism Program code has
-been discovered where coordinate transformations were applied
-before checking data flags. This is not an issue if data flags are NaN
-(not-a-number values), but more typical for Geomag data, these are values like
-99999, which can lead to seemingly valid, but erroneous values at times when the
-raw data were known to be bad.
+ 
