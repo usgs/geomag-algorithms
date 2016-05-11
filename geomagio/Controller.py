@@ -714,6 +714,13 @@ def parse_args(args):
 
     parser.add_argument('--output-file',
             help='Write to specified file')
+    parser.add_argument('--output-host',
+            default='cwbpub.cr.usgs.gov',
+            help='Write to specified host')
+    parser.add_argument('--output-port',
+            default=7981,
+            help='Write to specified port',
+            type=int)
     parser.add_argument('--output-stdout',
             action='store_true',
             default=False,
