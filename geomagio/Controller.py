@@ -344,7 +344,7 @@ def get_output_factory(args):
     if args.output_file is not None:
         output_stream = open(args.output_file, 'wb')
         output_factory_args['stream'] = output_stream
-    elif args.output_stdin:
+    elif args.output_stdout:
         output_stream = sys.stdout
         output_factory_args['stream'] = output_stream
     elif args.output_url is not None:
@@ -460,9 +460,6 @@ def main(args):
         args.output_url = args.output_pcdcp_url
     elif args.output_plot:
         args.output = 'plot'
-    elif args.output_temperature_file is not None:
-        args.output = 'temperature'
-        args.output_file = args.output_temperature_file
 
     # TODO check for unused arguments.
 
@@ -627,6 +624,10 @@ def parse_args(args):
             default=2060,
             help='Port number',
             type=int)
+    parser.add_argument('--input-stdin',
+            action='store_true',
+            default=False,
+            help='Read from standard input')
     parser.add_argument('--input-url',
             help='Read from a url pattern')
     parser.add_argument('--input-url-interval',
