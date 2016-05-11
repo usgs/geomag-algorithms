@@ -20,7 +20,7 @@ def test_parse_string():
     Send a PCDCP file string in to parse_string to make sure a well formed
     stream is created with proper values.
     """
-    stream = PCDCPFactory('').parse_string(pcdcpString)
+    stream = PCDCPFactory().parse_string(pcdcpString)
 
     assert_equals(type(stream), Stream)
     assert_equals(stream[0].stats.network, 'NT')

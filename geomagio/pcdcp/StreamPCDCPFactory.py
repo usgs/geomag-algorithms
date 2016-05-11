@@ -17,10 +17,8 @@ class StreamPCDCPFactory(PCDCPFactory):
     PCDCPFactory
     Timeseriesfactory
     """
-    def __init__(self, stream, observatory=None, channels=None,
-            type=None, interval=None):
-        PCDCPFactory.__init__(self, None, observatory, channels,
-            type, interval)
+    def __init__(self, stream, **kwargs):
+        PCDCPFactory.__init__(self, **kwargs)
         self._stream = stream
 
     def get_timeseries(self, starttime, endtime, observatory=None,

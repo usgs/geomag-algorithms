@@ -4,7 +4,6 @@ import obspy.core
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
-from ..Util import read_url
 from PCDCPParser import PCDCPParser
 from PCDCPWriter import PCDCPWriter
 
@@ -35,10 +34,8 @@ class PCDCPFactory(TimeseriesFactory):
     PCDCPParser
     """
 
-    def __init__(self, urlTemplate, observatory=None, channels=None, type=None,
-            interval=None):
-        TimeseriesFactory.__init__(self, observatory, channels, type,
-                interval, urlTemplate)
+    def __init__(self, **kwargs):
+        TimeseriesFactory.__init__(self, **kwargs)
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -68,24 +65,13 @@ class PCDCPFactory(TimeseriesFactory):
             If invalid values are requested, or errors occur while
             retrieving timeseries.
         """
-        observatory = observatory or self.observatory
-        channels = channels or self.channels
-        type = type or self.type
-        interval = interval or self.interval
-        days = self._get_days(starttime, endtime)
-        timeseries = obspy.core.Stream()
-        for day in days:
-            url_id = self._get_url(observatory, day, type, interval)
-            pcdcpFile = read_url(url_id)
-            timeseries += self.parse_string(pcdcpFile)
-
-        # merge channel traces for multiple days
-        timeseries.merge()
-
-        # trim to requested start/end time
-        timeseries.trim(starttime, endtime)
-
-        return timeseries
+        return self._get_timeseries(
+                starttime=starttime,
+                endtime=endtime,
+                observatory=observatory,
+                channels=channels,
+                type=type,
+                interval=interval)
 
     def parse_string(self, pcdcpString):
         """Parse the contents of a string in the format of a pcdcp file.
