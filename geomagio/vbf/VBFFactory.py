@@ -33,10 +33,8 @@ class VBFFactory(TimeseriesFactory):
     """
 
     # Flag "output" used for vbf file vs bin-change log.
-    def __init__(self, urlTemplate, observatory=None, channels=None, type=None,
-            interval=None, output='vbf'):
-        TimeseriesFactory.__init__(self, observatory, channels, type,
-                interval, urlTemplate)
+    def __init__(self, output='vbf', **kwargs):
+        TimeseriesFactory.__init__(self, **kwargs)
         self.output = output
 
     def get_timeseries(self, starttime, endtime, observatory=None,

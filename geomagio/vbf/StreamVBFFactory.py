@@ -19,10 +19,8 @@ class StreamVBFFactory(VBFFactory):
     """
 
     # Flag "output" used for vbf file versus bin-change log.
-    def __init__(self, stream, observatory=None, channels=None,
-            type=None, interval=None, output='vbf'):
-        VBFFactory.__init__(self, None, observatory, channels,
-            type, interval, output)
+    def __init__(self, stream, **kwargs):
+        VBFFactory.__init__(self, **kwargs)
         self._stream = stream
 
     def get_timeseries(self, starttime, endtime, observatory=None,
