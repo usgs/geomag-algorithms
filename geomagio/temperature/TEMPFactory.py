@@ -32,10 +32,8 @@ class TEMPFactory(TimeseriesFactory):
     TEMPParser
     """
 
-    def __init__(self, urlTemplate, observatory=None, channels=None, type=None,
-            interval=None):
-        TimeseriesFactory.__init__(self, observatory, channels, type,
-                interval, urlTemplate)
+    def __init__(self, **kwargs):
+        TimeseriesFactory.__init__(self, **kwargs)
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
