@@ -1,7 +1,9 @@
-import urllib2
+import pycurl
 import numpy
 import os
 from obspy.core import Stats, Trace
+from StringIO import StringIO
+import sys
 
 
 class ObjectView(object):
@@ -103,7 +105,7 @@ def get_intervals(starttime, endtime, size=86400, align=True, trim=False):
     return intervals
 
 
-def read_url(url):
+def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
     """Open and read url contents.
 
     Parameters
@@ -121,15 +123,24 @@ def read_url(url):
     urllib2.URLError
         if any occurs
     """
-    response = urllib2.urlopen(url)
     content = None
+    curl = pycurl.Curl()
+    out = StringIO()
     try:
-        content = response.read()
-    except urllib2.URLError, e:
-        print e.reason
-        raise
+        curl.setopt(pycurl.FOLLOWLOCATION, 1)
+        curl.setopt(pycurl.MAXREDIRS, max_redirects)
+        curl.setopt(pycurl.CONNECTTIMEOUT, connect_timeout)
+        curl.setopt(pycurl.TIMEOUT, timeout)
+        curl.setopt(pycurl.NOSIGNAL, 1)
+        curl.setopt(pycurl.URL, url)
+        curl.setopt(pycurl.WRITEFUNCTION, out.write)
+        curl.perform()
+        content = out.getvalue()
+    except Exception as e:
+        print >> sys.stderr, "Error reading url: " + str(e)
+        print >> sys.stderr, url
     finally:
-        response.close()
+        curl.close()
     return content
 
 
