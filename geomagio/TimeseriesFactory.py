@@ -1,6 +1,9 @@
 """Abstract Timeseries Factory Interface."""
+import obspy.core
 import os
+import sys
 from TimeseriesFactoryException import TimeseriesFactoryException
+import Util
 
 
 class TimeseriesFactory(object):
@@ -81,6 +84,21 @@ class TimeseriesFactory(object):
         """
         raise NotImplementedError('"get_timeseries" not implemented')
 
+    def parse_string(self, iaga2002String):
+        """Parse the contents of a string in the format of an IAGA2002 file.
+
+        Parameters
+        ----------
+        iaga2002String : str
+            string containing IAGA2002 content.
+
+        Returns
+        -------
+        obspy.core.Stream
+            parsed data.
+        """
+        raise NotImplementedError('"parse_string" not implemented')
+
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
             channels=None, type=None, interval=None):
         """Store timeseries data.
@@ -140,7 +158,60 @@ class TimeseriesFactory(object):
             os.makedirs(parent)
         return filename
 
-    def _get_url(self, observatory, date, type='variation', interval='minute'):
+    def _get_timeseries(self, starttime, endtime, observatory=None,
+            channels=None, type=None, interval=None):
+        """A basic implementation of get_timeseries using parse_string.
+
+        Parameters
+        ----------
+        starttime : UTCDateTime
+            time of first sample in timeseries.
+        endtime : UTCDateTime
+            time of last sample in timeseries.
+        observatory : str
+            observatory code, usually 3 characters, optional.
+            uses default if unspecified.
+        channels : array_like
+            list of channels to load, optional.
+            uses default if unspecified.
+        type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
+            data type, optional.
+            uses default if unspecified.
+        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+            data interval, optional.
+            uses default if unspecified.
+
+        Returns
+        -------
+        obspy.core.Stream
+            stream containing traces for requested timeseries.
+        """
+        observatory = observatory or self.observatory
+        channels = channels or self.channels
+        type = type or self.type
+        interval = interval or self.interval
+
+        timeseries = obspy.core.Stream()
+        urlIntervals = Util.get_intervals(starttime, endtime, self.urlInterval)
+        for urlInterval in urlIntervals:
+            url = self._get_url(
+                    observatory=observatory,
+                    date=urlInterval['start'],
+                    type=type,
+                    interval=interval,
+                    channels=channels)
+            data = Util.read_url(url)
+            try:
+                timeseries += self.parse_string(data)
+            except Exception as e:
+                print >> sys.stderr, "Error parsing data: " + str(e)
+                print >> sys.stderr, data
+        timeseries.merge()
+        timeseries.trim(starttime, endtime)
+        return timeseries
+
+    def _get_url(self, observatory, date, type='variation', interval='minute',
+            channels=None):
         """Get the url for a specified file.
 
         Replaces patterns (described in class docstring) with values based on
@@ -156,6 +227,8 @@ class TimeseriesFactory(object):
             data type.
         interval : {'minute', 'second', 'hourly', 'daily'}
             data interval.
+        channels : list
+            list of data channels being requested
 
         Raises
         ------
@@ -172,13 +245,14 @@ class TimeseriesFactory(object):
             'date': date.datetime,
             # deprecated date properties
             # used by Kakioka, upper/lower not supported in string.format
-            'month': date.strftime("%b").lower(),
-            'MONTH': date.strftime("%b").upper(),
+            'minute': date.hour * 60 + date.minute,
+            'month': date.strftime('%b').lower(),
+            'MONTH': date.strftime('%b').upper(),
             # LEGACY
             # old date properties, string.format supports any strftime format
             # i.e. '{date:%j}'
-            'julian': date.strftime("%j"),
-            'year': date.strftime("%Y"),
+            'julian': date.strftime('%j'),
+            'year': date.strftime('%Y'),
             'ymd': date.strftime('%Y%m%d')
         }
         if '{' in self.urlTemplate:
