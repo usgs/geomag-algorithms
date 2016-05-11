@@ -13,7 +13,7 @@ This example uses a state file to produce magnetic-h-based Dist, SQ, and SV
 channels using the EDGE channel naming convention.
 
     bin/geomag.py \
-      --input-edge cwbpub.cr.usgs.gov \
+      --input edge \
       --observatory BOU \
       --inchannels H E Z F \
       --starttime 2016-01-03T00:01:00 \
@@ -25,12 +25,13 @@ channels using the EDGE channel naming convention.
       --rename-output-channel H_SV MSV \
       --rename-output-channel H_Dist MDT \
       --outchannels MDT MSQ MSV \
-      --output-iaga-stdout
+      --output iaga2002 \
+      --output-stdout
 
 This example processes just one channel (X).
 
     bin/geomag.py \
-      --input-edge cwbpub.cr.usgs.gov \
+      --input edge \
       --observatory BOU \
       --inchannels X \
       --starttime 2016-01-03T00:01:00 \
@@ -41,7 +42,8 @@ This example processes just one channel (X).
       --rename-output-channel X_SQ MXQ \
       --rename-output-channel X_SV MXV \
       --outchannels MXT MXQ MXV \
-      --output-iaga-stdout
+      --output iaga \
+      --output-stdout
 
 > Note only one inchannel is specified and the --sqdist-mag option is omitted.
 

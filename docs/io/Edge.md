@@ -9,15 +9,15 @@ Read from an Earthworm-style interface
 (backslashes added for readability)
 <pre>
 geomag.py \
-    <b>--input-edge cwbpub.cr.usgs.gov</b> \
-    <b>--input-edge-port 2060</b> \
+    <b>--input edge</b>
     --observatory BOU
     --inchannels H E Z F \
     --interval minute \
     --type variation \
     --starttime=2015-11-01T00:00:00Z \
     --endtime=2015-11-01T23:59:59Z \
-    --output-iaga-stdout
+    --output iaga2002
+    --output-stdout
 </pre>
 
 
