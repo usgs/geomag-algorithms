@@ -1,10 +1,8 @@
 """Factory that loads temp/volt Files."""
 
 import obspy.core
-from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
-from ..Util import read_url
 from TEMPWriter import TEMPWriter
 
 
@@ -67,77 +65,7 @@ class TEMPFactory(TimeseriesFactory):
             If invalid values are requested, or errors occur while
             retrieving timeseries.
         """
-        observatory = observatory or self.observatory
-        channels = channels or self.channels
-        type = type or self.type
-        interval = interval or self.interval
-        days = self._get_days(starttime, endtime)
-        timeseries = obspy.core.Stream()
-        for day in days:
-            url_id = self._get_url(observatory, day, type, interval)
-            tempFile = read_url(url_id)
-            timeseries += self.parse_string(tempFile)
-
-        # merge channel traces for multiple days
-        timeseries.merge()
-
-        # trim to requested start/end time
-        timeseries.trim(starttime, endtime)
-
-        return timeseries
-
-    def parse_string(self, tempString):
-        """Parse the contents of a string in the format of a temp/volt file.
-
-        Parameters
-        ----------
-        tempString : str
-            String containing TEMP content.
-
-        Returns
-        -------
-        obspy.core.Stream
-            Parsed data.
-        """
-        parser = TEMPParser()
-        parser.parse(tempString)
-
-        yr = int(parser.header['year'])
-        yrday = int(parser.header['yearday'])
-
-        begin = int(parser.times[0])
-        startHour = int(begin / 60.0)
-        startMinute = int(begin % 60.0)
-        ending = int(parser.times[-1])
-        endHour = int(ending / 60.0)
-        endMinute = int(ending % 60.0)
-
-        starttime = obspy.core.UTCDateTime(year=yr, julday=yrday,
-                        hour=startHour, minute=startMinute)
-        endtime = obspy.core.UTCDateTime(year=yr, julday=yrday, hour=endHour,
-                        minute=endMinute)
-
-        data = parser.data
-        length = len(data[data.keys()[0]])
-        rate = (length - 1) / (endtime - starttime)
-        stream = obspy.core.Stream()
-
-        for channel in data.keys():
-            stats = obspy.core.Stats()
-            stats.network = 'NT'
-            stats.station = parser.header['station']
-            stats.starttime = starttime
-            stats.sampling_rate = rate
-            stats.npts = length
-            stats.channel = channel
-
-            if channel == 'D':
-                data[channel] = ChannelConverter.get_radians_from_minutes(
-                    data[channel])
-
-            stream += obspy.core.Trace(data[channel], stats)
-
-        return stream
+        raise NotImplementedError('"get_timeseries" not implemented')
 
     def _get_days(self, starttime, endtime):
         """Get days between (inclusive) starttime and endtime.
