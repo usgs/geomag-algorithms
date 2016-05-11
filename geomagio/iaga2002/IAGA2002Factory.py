@@ -4,7 +4,6 @@ import obspy.core
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
-from ..Util import read_url
 from IAGA2002Parser import IAGA2002Parser
 from IAGA2002Writer import IAGA2002Writer
 
@@ -33,10 +32,8 @@ class IAGA2002Factory(TimeseriesFactory):
     IAGA2002Parser
     """
 
-    def __init__(self, urlTemplate=None, observatory=None, channels=None,
-            type=None, interval=None):
-        TimeseriesFactory.__init__(self, observatory, channels, type,
-                interval, urlTemplate)
+    def __init__(self, **kwargs):
+        TimeseriesFactory.__init__(self, **kwargs)
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -66,21 +63,13 @@ class IAGA2002Factory(TimeseriesFactory):
             if invalid values are requested, or errors occur while
             retrieving timeseries.
         """
-        observatory = observatory or self.observatory
-        channels = channels or self.channels
-        type = type or self.type
-        interval = interval or self.interval
-        days = self._get_days(starttime, endtime)
-        timeseries = obspy.core.Stream()
-        for day in days:
-            url_id = self._get_url(observatory, day, type, interval)
-            iagaFile = read_url(url_id)
-            timeseries += self.parse_string(iagaFile)
-        # merge channel traces for multiple days
-        timeseries.merge()
-        # trim to requested start/end time
-        timeseries.trim(starttime, endtime)
-        return timeseries
+        return self._get_timeseries(
+                starttime=starttime,
+                endtime=endtime,
+                observatory=observatory,
+                channels=channels,
+                type=type,
+                interval=interval)
 
     def parse_string(self, iaga2002String):
         """Parse the contents of a string in the format of an IAGA2002 file.

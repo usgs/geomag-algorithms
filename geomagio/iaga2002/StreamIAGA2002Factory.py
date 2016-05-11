@@ -17,10 +17,8 @@ class StreamIAGA2002Factory(IAGA2002Factory):
     IAGA2002Factory
     Timeseriesfactory
     """
-    def __init__(self, stream, observatory=None, channels=None,
-            type=None, interval=None):
-        IAGA2002Factory.__init__(self, None, observatory, channels,
-            type, interval)
+    def __init__(self, stream, **kwargs):
+        IAGA2002Factory.__init__(self, **kwargs)
         self._stream = stream
 
     def get_timeseries(self, starttime, endtime, observatory=None,
