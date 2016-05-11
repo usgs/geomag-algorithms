@@ -192,7 +192,10 @@ class TimeseriesFactory(object):
         interval = interval or self.interval
 
         timeseries = obspy.core.Stream()
-        urlIntervals = Util.get_intervals(starttime, endtime, self.urlInterval)
+        urlIntervals = Util.get_intervals(
+                starttime=starttime,
+                endtime=endtime,
+                size=self.urlInterval)
         for urlInterval in urlIntervals:
             url = self._get_url(
                     observatory=observatory,
