@@ -160,16 +160,30 @@ class TimeseriesFactory(object):
         TimeseriesFactoryException
             if type or interval are not supported.
         """
-        return self.urlTemplate % {
-                'i': self._get_interval_abbreviation(interval),
-                'interval': self._get_interval_name(interval),
-                'julian': date.strftime("%j"),
-                'obs': observatory.lower(),
-                'OBS': observatory.upper(),
-                't': self._get_type_abbreviation(type),
-                'type': self._get_type_name(type),
-                'year': date.strftime("%Y"),
-                'ymd': date.strftime('%Y%m%d')}
+        params = {
+            'i': self._get_interval_abbreviation(interval),
+            'interval': self._get_interval_name(interval),
+            'obs': observatory.lower(),
+            'OBS': observatory.upper(),
+            't': self._get_type_abbreviation(type),
+            'type': self._get_type_name(type),
+            'date': date.datetime,
+            # deprecated date properties
+            # used by Kakioka, upper/lower not supported in string.format
+            'month': date.strftime("%b").lower(),
+            'MONTH': date.strftime("%b").upper(),
+            # LEGACY
+            # old date properties, string.format supports any strftime format
+            # i.e. '{date:%j}'
+            'julian': date.strftime("%j"),
+            'year': date.strftime("%Y"),
+            'ymd': date.strftime('%Y%m%d')
+        }
+        if '{' in self.urlTemplate:
+            # use new style string formatting
+            return self.urlTemplate.format(**params)
+        # use old style string interpolation
+        return self.urlTemplate % params
 
     def _get_interval_abbreviation(self, interval):
         """Get abbreviation for a data interval.
