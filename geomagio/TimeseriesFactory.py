@@ -239,18 +239,20 @@ class TimeseriesFactory(object):
             if type or interval are not supported.
         """
         params = {
+            'date': date.datetime,
             'i': self._get_interval_abbreviation(interval),
             'interval': self._get_interval_name(interval),
+            # used by Hermanus
+            'minute': date.hour * 60 + date.minute,
+            # end Hermanus
+            # used by Kakioka
+            'month': date.strftime('%b').lower(),
+            'MONTH': date.strftime('%b').upper(),
+            # end Kakioka
             'obs': observatory.lower(),
             'OBS': observatory.upper(),
             't': self._get_type_abbreviation(type),
             'type': self._get_type_name(type),
-            'date': date.datetime,
-            # deprecated date properties
-            # used by Kakioka, upper/lower not supported in string.format
-            'minute': date.hour * 60 + date.minute,
-            'month': date.strftime('%b').lower(),
-            'MONTH': date.strftime('%b').upper(),
             # LEGACY
             # old date properties, string.format supports any strftime format
             # i.e. '{date:%j}'
