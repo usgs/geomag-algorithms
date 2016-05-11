@@ -32,12 +32,14 @@ class TimeseriesFactory(object):
         - '%(ymd)s' time formatted as YYYYMMDD
     """
     def __init__(self, observatory=None, channels=('H', 'D', 'Z', 'F'),
-            type='variation', interval='minute', urlTemplate=''):
+            type='variation', interval='minute',
+            urlTemplate='', urlInterval=-1):
         self.observatory = observatory
         self.channels = channels
         self.type = type
         self.interval = interval
         self.urlTemplate = urlTemplate
+        self.urlInterval = urlInterval
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
