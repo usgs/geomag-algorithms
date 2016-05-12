@@ -414,53 +414,72 @@ def main(args):
 
     # TODO: remove argument mapping in future version
     # map legacy input arguments
+    usingDeprecated = False
     if args.input_edge is not None:
         args.input = 'edge'
         args.input_host = args.input_edge
         args.input_port = args.input_edge_port
+        usingDeprecated = True
     elif args.input_iaga_file is not None:
         args.input = 'iaga2002'
         args.input_file = args.input_iaga_file
+        usingDeprecated = True
     elif args.input_iaga_stdin:
         args.input = 'iaga2002'
         args.input_stdin = True
+        usingDeprecated = True
     elif args.input_iaga_url is not None:
         args.input = 'iaga2002'
         args.input_url = args.input_iaga_url
+        usingDeprecated = True
     elif args.input_imfv283_file is not None:
         args.input = 'imfv283'
         args.input_file = args.input_imfv283_file
+        usingDeprecated = True
     elif args.input_imfv283_url is not None:
         args.input = 'imfv283'
         args.input_url = args.input_imfv283_url
+        usingDeprecated = True
     elif args.input_imfv283_goes:
         args.input = 'goes'
+        usingDeprecated = True
     # map legacy output arguments
     if args.output_edge is not None:
         args.output = 'edge'
         args.output_host = args.output_edge
         args.output_port = args.edge_write_port
+        usingDeprecated = True
     elif args.output_iaga_file is not None:
         args.output = 'iaga2002'
         args.output_file = args.output_iaga_file
+        usingDeprecated = True
     elif args.output_iaga_stdout:
         args.output = 'iaga2002'
         args.output_stdout = True
+        usingDeprecated = True
     elif args.output_iaga_url is not None:
         args.output = 'iaga2002'
         args.output_url = args.output_iaga_url
+        usingDeprecated = True
     elif args.output_pcdcp_file is not None:
         args.output = 'pcdcp'
         args.output_file = args.output_pcdcp_file
+        usingDeprecated = True
     elif args.output_pcdcp_stdout:
         args.output = 'pcdcp'
         args.output_stdout = True
+        usingDeprecated = True
     elif args.output_pcdcp_url is not None:
         args.output = 'pcdcp'
         args.output_url = args.output_pcdcp_url
+        usingDeprecated = True
     elif args.output_plot:
         args.output = 'plot'
+        usingDeprecated = True
 
+    if usingDeprecated:
+        print >> sys.stderr, 'WARNING: you are using deprecated arguments,' + \
+                ' please update your usage'
     # TODO check for unused arguments.
 
     # create controller
