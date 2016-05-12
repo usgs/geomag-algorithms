@@ -190,7 +190,7 @@ class TimeseriesFactory(object):
                     self.write_file(fh, url_data, channels)
                 except NotImplementedError:
                     raise NotImplementedError(
-                            '"get_timeseries" not implemented')
+                            '"put_timeseries" not implemented')
 
     def write_file(self, fh, timeseries, channels):
         """Write timeseries data to the given file object.
