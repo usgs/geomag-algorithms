@@ -37,7 +37,7 @@ class StreamVBFFactory(VBFFactory):
         """Implements put_timeseries
 
         Notes: Calls VBFFactory.write_file in place of
-            VBFFactory.get_timeseries. This can result in a
+            VBFFactory.put_timeseries. This can result in a
             non-standard VBF file, specifically one of longer than
             expected length.
         """

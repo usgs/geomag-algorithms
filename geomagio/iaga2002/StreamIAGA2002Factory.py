@@ -35,7 +35,7 @@ class StreamIAGA2002Factory(IAGA2002Factory):
         """Implements put_timeseries
 
         Notes: Calls IAGA2002Factory.write_file in place of
-            IAGA2002Factory.get_timeseries. This can result in a
+            IAGA2002Factory.put_timeseries. This can result in a
             non-standard IAGA2002 file, specifically one of longer then
             expected length.
         """

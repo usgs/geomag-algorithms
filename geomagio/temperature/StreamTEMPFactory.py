@@ -35,7 +35,7 @@ class StreamTEMPFactory(TEMPFactory):
         """Implements put_timeseries
 
         Notes: Calls TEMPFactory.write_file in place of
-            TEMPFactory.get_timeseries. This can result in a
+            TEMPFactory.put_timeseries. This can result in a
             non-standard TEMP file, specifically one of longer than
             expected length.
         """

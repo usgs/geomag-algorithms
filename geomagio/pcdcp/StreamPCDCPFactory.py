@@ -35,7 +35,7 @@ class StreamPCDCPFactory(PCDCPFactory):
         """Implements put_timeseries
 
         Notes: Calls PCDCPFactory.write_file in place of
-            PCDCPFactory.get_timeseries. This can result in a
+            PCDCPFactory.put_timeseries. This can result in a
             non-standard PCDCP file, specifically one of longer than
             expected length.
         """
