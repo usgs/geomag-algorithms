@@ -9,6 +9,14 @@ import Util
 class TimeseriesFactory(object):
     """Base class for timeseries factories.
 
+    Add input support by:
+        - implementing `parse_string`
+        - or, overriding `get_timeseries`
+
+    Add output support by:
+        - implementing `write_file`
+        - or, overriding `put_timeseries`
+
     Attributes
     ----------
     observatory : str
