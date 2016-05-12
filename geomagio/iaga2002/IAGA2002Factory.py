@@ -3,7 +3,6 @@
 import obspy.core
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
-from ..TimeseriesFactoryException import TimeseriesFactoryException
 from IAGA2002Parser import IAGA2002Parser
 from IAGA2002Writer import IAGA2002Writer
 
@@ -105,54 +104,6 @@ class IAGA2002Factory(TimeseriesFactory):
             stream += obspy.core.Trace(data[channel], stats)
         return stream
 
-    def _get_days(self, starttime, endtime):
-        """Get days between (inclusive) starttime and endtime.
-
-        Parameters
-        ----------
-        starttime : obspy.core.UTCDateTime
-            the start time
-        endtime : obspy.core.UTCDateTime
-            the end time
-
-        Returns
-        -------
-        array_like
-            list of times, one per day, for all days between and including
-            ``starttime`` and ``endtime``.
-
-        Raises
-        ------
-        TimeseriesFactoryException
-            if starttime is after endtime
-        """
-        if starttime > endtime:
-            raise TimeseriesFactoryException(
-                    'starttime must be before endtime')
-        days = []
-        day = starttime
-        lastday = (endtime.year, endtime.month, endtime.day)
-        while True:
-            days.append(day)
-            if lastday == (day.year, day.month, day.day):
-                break
-            # move to next day
-            day = obspy.core.UTCDateTime(day.timestamp + 86400)
-        return days
-
-    def write_file(self, fh, timeseries, channels):
-        """writes timeseries data to the given file object.
-
-        Parameters
-        ----------
-        fh: file object
-        timeseries : obspy.core.Stream
-            stream containing traces to store.
-        channels : array_like
-            list of channels to store
-        """
-        IAGA2002Writer().write(fh, timeseries, channels)
-
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
             channels=None, type=None, interval=None):
         """Store timeseries data.
@@ -177,42 +128,23 @@ class IAGA2002Factory(TimeseriesFactory):
             data interval, optional.
             uses default if unspecified.
         """
-        if not self.urlTemplate.startswith('file://'):
-            raise TimeseriesFactoryException('Only file urls are supported')
-        channels = channels or self.channels
-        type = type or self.type
-        interval = interval or self.interval
-        stats = timeseries[0].stats
-        observatory = stats.station
-        starttime = starttime or stats.starttime
-        endtime = endtime or stats.endtime
-        days = self._get_days(starttime, endtime)
-        for day in days:
-            day_filename = self._get_file_from_url(
-                    self._get_url(observatory, day, type, interval))
-            day_timeseries = self._get_slice(timeseries, day, interval)
-            with open(day_filename, 'wb') as fh:
-                self.write_file(fh, day_timeseries, channels)
+        return self._put_timeseries(
+                timeseries=timeseries,
+                starttime=starttime,
+                endtime=endtime,
+                channels=channels,
+                type=type,
+                interval=interval)
 
-    def _get_slice(self, timeseries, day, interval):
-        """Get the first and last time for a day
+    def write_file(self, fh, timeseries, channels):
+        """writes timeseries data to the given file object.
 
         Parameters
         ----------
+        fh: file object
         timeseries : obspy.core.Stream
-            timeseries to slice
-        day : UTCDateTime
-            time in day to slice
-
-        Returns
-        -------
-        obspy.core.Stream
-            sliced stream
+            stream containing traces to store.
+        channels : array_like
+            list of channels to store
         """
-        day = day.datetime
-        start = obspy.core.UTCDateTime(day.year, day.month, day.day, 0, 0, 0)
-        if interval == 'minute':
-            end = start + 86340.0
-        else:
-            end = start + 86399.999999
-        return timeseries.slice(start, end)
+        IAGA2002Writer().write(fh, timeseries, channels)

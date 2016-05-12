@@ -84,13 +84,13 @@ class TimeseriesFactory(object):
         """
         raise NotImplementedError('"get_timeseries" not implemented')
 
-    def parse_string(self, iaga2002String):
+    def parse_string(self, data):
         """Parse the contents of a string in the format of an IAGA2002 file.
 
         Parameters
         ----------
-        iaga2002String : str
-            string containing IAGA2002 content.
+        data : str
+            string containing parsable content.
 
         Returns
         -------
@@ -128,6 +128,20 @@ class TimeseriesFactory(object):
             if any errors occur.
         """
         raise NotImplementedError('"put_timeseries" not implemented')
+
+    def write_file(self, fh, timeseries, channels):
+        """Write timeseries data to the given file object.
+
+        Parameters
+        ----------
+        fh : writable
+            file handle where data is written.
+        timeseries : obspy.core.Stream
+            stream containing traces to store.
+        channels : list
+            list of channels to store.
+        """
+        raise NotImplementedError('"write_file" not implemented')
 
     def _get_file_from_url(self, url):
         """Get a file for writing.
@@ -387,3 +401,61 @@ class TimeseriesFactory(object):
             raise TimeseriesFactoryException(
                     'Unsupported type "%s"' % type)
         return type_name
+
+    def _put_timeseries(self, timeseries, starttime=None, endtime=None,
+            channels=None, type=None, interval=None):
+        """A basic implementation of put_timeseries using write_file.
+
+        Parameters
+        ----------
+        timeseries : obspy.core.Stream
+            stream containing traces to store.
+        starttime : UTCDateTime
+            time of first sample in timeseries to store.
+            uses first sample if unspecified.
+        endtime : UTCDateTime
+            time of last sample in timeseries to store.
+            uses last sample if unspecified.
+        channels : array_like
+            list of channels to store, optional.
+            uses default if unspecified.
+        type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
+            data type, optional.
+            uses default if unspecified.
+        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+            data interval, optional.
+            uses default if unspecified.
+        Raises
+        ------
+        TimeseriesFactoryException
+            if any errors occur.
+        """
+        if not self.urlTemplate.startswith('file://'):
+            raise TimeseriesFactoryException('Only file urls are supported')
+        channels = channels or self.channels
+        type = type or self.type
+        interval = interval or self.interval
+        stats = timeseries[0].stats
+        delta = stats.delta
+        observatory = stats.station
+        starttime = starttime or stats.starttime
+        endtime = endtime or stats.endtime
+
+        urlIntervals = Util.get_intervals(
+                starttime=starttime,
+                endtime=endtime,
+                size=self.urlInterval)
+        for urlInterval in urlIntervals:
+            url = self._get_url(
+                    observatory=observatory,
+                    date=urlInterval['start'],
+                    type=type,
+                    interval=interval,
+                    channels=channels)
+            url_data = timeseries.slice(
+                    starttime=urlInterval['start'],
+                    # subtract delta to omit the sample at end: `[start, end)`
+                    endtime=(urlInterval['end'] - delta))
+            url_file = Util.get_file_from_url(url, createParentDirectory=True)
+            with open(url_file, 'wb') as fh:
+                self.write_file(fh, url_data, channels)
