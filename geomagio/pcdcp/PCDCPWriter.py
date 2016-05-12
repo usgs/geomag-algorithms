@@ -35,8 +35,7 @@ class PCDCPWriter(object):
         stats = timeseries[0].stats
 
         # Set dead val for 1-sec data.
-        # Won't work if input is IAGA2002: stats missing data_interval
-        if stats.data_interval == "second":
+        if stats.delta == 1:
             self.empty_value = PCDCPParser.NINES_RAW
 
         out.write(self._format_header(stats))
@@ -65,8 +64,7 @@ class PCDCPWriter(object):
 
         # Choose resolution for 1-sec vs 1-min header.
         resolution = "0.01nT"
-        # won't work if input is IAGA2002: stats missing data_interval
-        if stats.data_interval == "second":
+        if stats.delta == 1:
             resolution = "0.001nT"
 
         buf.append(observatory + '  ' + year + '  ' + yearday + '  ' +
@@ -142,7 +140,7 @@ class PCDCPWriter(object):
         hr_multiplier = 60
         mn_multiplier = 1
         sc_multiplier = 0
-        if stats.data_interval == "second":
+        if stats.delta == 1:
             time_width = 5
             data_width = 9
             data_multiplier = 1000
