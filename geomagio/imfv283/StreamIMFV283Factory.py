@@ -28,6 +28,4 @@ class StreamIMFV283Factory(IMFV283Factory):
         Notes: Calls IMFV283Factory.parse_string in place of
             IMFV283Factory.get_timeseries.
         """
-
-        self._stream.seek(0)
         return IMFV283Factory.parse_string(self, self._stream.read())

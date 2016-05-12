@@ -23,16 +23,12 @@ class TimeseriesFactory(object):
         data interval, optional.
         default 'minute'.
     urlTemplate : str
-        A string that contains any of the following replacement patterns:
-        - '%(i)s' : interval abbreviation
-        - '%(interval)s' interval name
-        - '%(julian)s' julian date
-        - '%(obs)s' lowercase observatory code
-        - '%(OBS)s' uppercase observatory code
-        - '%(t)s' type abbreviation
-        - '%(type)s' type name
-        - '%(year)s' year formatted as YYYY
-        - '%(ymd)s' time formatted as YYYYMMDD
+        A string that contains replacement patterns.
+        See https://github.com/usgs/geomag-algorithms/blob/master/docs/io.md
+        and/or TimeseriesFactory._get_url()
+    urlInterval : int
+        Interval in seconds between URLs.
+        Intervals begin at the unix epoch (1970-01-01T00:00:00Z)
     """
     def __init__(self, observatory=None, channels=('H', 'D', 'Z', 'F'),
             type='variation', interval='minute',
@@ -82,7 +78,34 @@ class TimeseriesFactory(object):
         TimeseriesFactoryException
             if any parameters are unsupported, or errors occur loading data.
         """
-        raise NotImplementedError('"get_timeseries" not implemented')
+        observatory = observatory or self.observatory
+        channels = channels or self.channels
+        type = type or self.type
+        interval = interval or self.interval
+
+        timeseries = obspy.core.Stream()
+        urlIntervals = Util.get_intervals(
+                starttime=starttime,
+                endtime=endtime,
+                size=self.urlInterval)
+        for urlInterval in urlIntervals:
+            url = self._get_url(
+                    observatory=observatory,
+                    date=urlInterval['start'],
+                    type=type,
+                    interval=interval,
+                    channels=channels)
+            data = Util.read_url(url)
+            try:
+                timeseries += self.parse_string(data)
+            except NotImplementedError:
+                raise NotImplementedError('"get_timeseries" not implemented')
+            except Exception as e:
+                print >> sys.stderr, "Error parsing data: " + str(e)
+                print >> sys.stderr, data
+        timeseries.merge()
+        timeseries.trim(starttime, endtime)
+        return timeseries
 
     def parse_string(self, data):
         """Parse the contents of a string in the format of an IAGA2002 file.
@@ -127,7 +150,39 @@ class TimeseriesFactory(object):
         TimeseriesFactoryException
             if any errors occur.
         """
-        raise NotImplementedError('"put_timeseries" not implemented')
+        if not self.urlTemplate.startswith('file://'):
+            raise TimeseriesFactoryException('Only file urls are supported')
+        channels = channels or self.channels
+        type = type or self.type
+        interval = interval or self.interval
+        stats = timeseries[0].stats
+        delta = stats.delta
+        observatory = stats.station
+        starttime = starttime or stats.starttime
+        endtime = endtime or stats.endtime
+
+        urlIntervals = Util.get_intervals(
+                starttime=starttime,
+                endtime=endtime,
+                size=self.urlInterval)
+        for urlInterval in urlIntervals:
+            url = self._get_url(
+                    observatory=observatory,
+                    date=urlInterval['start'],
+                    type=type,
+                    interval=interval,
+                    channels=channels)
+            url_data = timeseries.slice(
+                    starttime=urlInterval['start'],
+                    # subtract delta to omit the sample at end: `[start, end)`
+                    endtime=(urlInterval['end'] - delta))
+            url_file = Util.get_file_from_url(url, createParentDirectory=True)
+            with open(url_file, 'wb') as fh:
+                try:
+                    self.write_file(fh, url_data, channels)
+                except NotImplementedError:
+                    raise NotImplementedError(
+                            '"get_timeseries" not implemented')
 
     def write_file(self, fh, timeseries, channels):
         """Write timeseries data to the given file object.
@@ -171,61 +226,6 @@ class TimeseriesFactory(object):
         if not os.path.exists(parent):
             os.makedirs(parent)
         return filename
-
-    def _get_timeseries(self, starttime, endtime, observatory=None,
-            channels=None, type=None, interval=None):
-        """A basic implementation of get_timeseries using parse_string.
-
-        Parameters
-        ----------
-        starttime : UTCDateTime
-            time of first sample in timeseries.
-        endtime : UTCDateTime
-            time of last sample in timeseries.
-        observatory : str
-            observatory code, usually 3 characters, optional.
-            uses default if unspecified.
-        channels : array_like
-            list of channels to load, optional.
-            uses default if unspecified.
-        type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
-            data type, optional.
-            uses default if unspecified.
-        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
-            data interval, optional.
-            uses default if unspecified.
-
-        Returns
-        -------
-        obspy.core.Stream
-            stream containing traces for requested timeseries.
-        """
-        observatory = observatory or self.observatory
-        channels = channels or self.channels
-        type = type or self.type
-        interval = interval or self.interval
-
-        timeseries = obspy.core.Stream()
-        urlIntervals = Util.get_intervals(
-                starttime=starttime,
-                endtime=endtime,
-                size=self.urlInterval)
-        for urlInterval in urlIntervals:
-            url = self._get_url(
-                    observatory=observatory,
-                    date=urlInterval['start'],
-                    type=type,
-                    interval=interval,
-                    channels=channels)
-            data = Util.read_url(url)
-            try:
-                timeseries += self.parse_string(data)
-            except Exception as e:
-                print >> sys.stderr, "Error parsing data: " + str(e)
-                print >> sys.stderr, data
-        timeseries.merge()
-        timeseries.trim(starttime, endtime)
-        return timeseries
 
     def _get_url(self, observatory, date, type='variation', interval='minute',
             channels=None):
@@ -401,61 +401,3 @@ class TimeseriesFactory(object):
             raise TimeseriesFactoryException(
                     'Unsupported type "%s"' % type)
         return type_name
-
-    def _put_timeseries(self, timeseries, starttime=None, endtime=None,
-            channels=None, type=None, interval=None):
-        """A basic implementation of put_timeseries using write_file.
-
-        Parameters
-        ----------
-        timeseries : obspy.core.Stream
-            stream containing traces to store.
-        starttime : UTCDateTime
-            time of first sample in timeseries to store.
-            uses first sample if unspecified.
-        endtime : UTCDateTime
-            time of last sample in timeseries to store.
-            uses last sample if unspecified.
-        channels : array_like
-            list of channels to store, optional.
-            uses default if unspecified.
-        type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
-            data type, optional.
-            uses default if unspecified.
-        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
-            data interval, optional.
-            uses default if unspecified.
-        Raises
-        ------
-        TimeseriesFactoryException
-            if any errors occur.
-        """
-        if not self.urlTemplate.startswith('file://'):
-            raise TimeseriesFactoryException('Only file urls are supported')
-        channels = channels or self.channels
-        type = type or self.type
-        interval = interval or self.interval
-        stats = timeseries[0].stats
-        delta = stats.delta
-        observatory = stats.station
-        starttime = starttime or stats.starttime
-        endtime = endtime or stats.endtime
-
-        urlIntervals = Util.get_intervals(
-                starttime=starttime,
-                endtime=endtime,
-                size=self.urlInterval)
-        for urlInterval in urlIntervals:
-            url = self._get_url(
-                    observatory=observatory,
-                    date=urlInterval['start'],
-                    type=type,
-                    interval=interval,
-                    channels=channels)
-            url_data = timeseries.slice(
-                    starttime=urlInterval['start'],
-                    # subtract delta to omit the sample at end: `[start, end)`
-                    endtime=(urlInterval['end'] - delta))
-            url_file = Util.get_file_from_url(url, createParentDirectory=True)
-            with open(url_file, 'wb') as fh:
-                self.write_file(fh, url_data, channels)

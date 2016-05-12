@@ -53,7 +53,8 @@ class IMFV283Factory(TimeseriesFactory):
             if invalid values are requested, or errors occur while
             retrieving timeseries.
         """
-        timeseries = self._get_timeseries(
+        timeseries = TimeseriesFactory.get_timeseries(
+                self,
                 starttime=starttime,
                 endtime=endtime,
                 observatory=observatory,
