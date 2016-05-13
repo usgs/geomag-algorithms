@@ -535,7 +535,8 @@ def parse_args(args):
                     ' CAUTION: Using multiple observatories is not' +
                     ' recommended in most cases; especially with' +
                     ' single observatory formats like IAGA and PCDCP.',
-            nargs='*')
+            nargs='*',
+            type=str)
     parser.add_argument('--inchannels',
             nargs='*',
             help='Channels H, E, Z, etc')
