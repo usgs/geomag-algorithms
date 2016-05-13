@@ -23,15 +23,6 @@ class StreamVBFFactory(VBFFactory):
         VBFFactory.__init__(self, **kwargs)
         self._stream = stream
 
-    def get_timeseries(self, starttime, endtime, observatory=None,
-            channels=None, type=None, interval=None):
-        """Implements get_timeseries
-
-        Notes: Calls VBFFactory.parse_string in place of
-            VBFFactory.get_timeseries.
-        """
-        return VBFFactory.parse_string(self, self._stream.read())
-
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
             channels=None, type=None, interval=None):
         """Implements put_timeseries

@@ -21,15 +21,6 @@ class StreamTEMPFactory(TEMPFactory):
         TEMPFactory.__init__(self, **kwargs)
         self._stream = stream
 
-    def get_timeseries(self, starttime, endtime, observatory=None,
-            channels=None, type=None, interval=None):
-        """Implements get_timeseries
-
-        Notes: Calls TEMPFactory.parse_string in place of
-            TEMPFactory.get_timeseries.
-        """
-        return TEMPFactory.parse_string(self, self._stream.read())
-
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
             channels=None, type=None, interval=None):
         """Implements put_timeseries
