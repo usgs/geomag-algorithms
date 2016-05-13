@@ -28,7 +28,9 @@ class StreamPCDCPFactory(PCDCPFactory):
         Notes: Calls PCDCPFactory.parse_string in place of
             PCDCPFactory.get_timeseries.
         """
-        return PCDCPFactory.parse_string(self, self._stream.read())
+        return PCDCPFactory.parse_string(self,
+                data=self._stream.read(),
+                observatory=observatory)
 
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
             channels=None, type=None, interval=None):

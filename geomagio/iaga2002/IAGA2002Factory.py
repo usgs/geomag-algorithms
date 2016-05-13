@@ -34,21 +34,23 @@ class IAGA2002Factory(TimeseriesFactory):
     def __init__(self, **kwargs):
         TimeseriesFactory.__init__(self, **kwargs)
 
-    def parse_string(self, iaga2002String):
+    def parse_string(self, data, observatory=None, **kwargs):
         """Parse the contents of a string in the format of an IAGA2002 file.
 
         Parameters
         ----------
         iaga2002String : str
             string containing IAGA2002 content.
-
+        observatory : str
+            observatory in case headers are unavailable.
+            parses observatory from headers when available.
         Returns
         -------
         obspy.core.Stream
             parsed data.
         """
-        parser = IAGA2002Parser()
-        parser.parse(iaga2002String)
+        parser = IAGA2002Parser(observatory=observatory)
+        parser.parse(data)
         metadata = parser.metadata
         starttime = obspy.core.UTCDateTime(parser.times[0])
         endtime = obspy.core.UTCDateTime(parser.times[-1])

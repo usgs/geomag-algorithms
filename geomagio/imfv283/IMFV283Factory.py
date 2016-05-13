@@ -70,12 +70,12 @@ class IMFV283Factory(TimeseriesFactory):
                     stats.channel, 'variation', 'minute')
         return timeseries
 
-    def parse_string(self, imfV283String):
+    def parse_string(self, data, **kwargs):
         """Parse the contents of a string in the format of an IMFV283 file.
 
         Parameters
         ----------
-        IMFV283String : str
+        data : str
             string containing IMFV283 content.
 
         Returns
@@ -84,7 +84,7 @@ class IMFV283Factory(TimeseriesFactory):
             parsed data.
         """
         parser = IMFV283Parser()
-        parser.parse(imfV283String)
+        parser.parse(data)
 
         stream = parser.stream
         stream.merge()

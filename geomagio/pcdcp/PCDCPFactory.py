@@ -36,12 +36,12 @@ class PCDCPFactory(TimeseriesFactory):
     def __init__(self, **kwargs):
         TimeseriesFactory.__init__(self, **kwargs)
 
-    def parse_string(self, pcdcpString):
+    def parse_string(self, data, **kwargs):
         """Parse the contents of a string in the format of a pcdcp file.
 
         Parameters
         ----------
-        pcdcpString : str
+        data : str
             String containing PCDCP content.
 
         Returns
@@ -50,7 +50,7 @@ class PCDCPFactory(TimeseriesFactory):
             Parsed data.
         """
         parser = PCDCPParser()
-        parser.parse(pcdcpString)
+        parser.parse(data)
 
         yr = int(parser.header['year'])
         yrday = int(parser.header['yearday'])

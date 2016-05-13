@@ -105,7 +105,11 @@ class TimeseriesFactory(object):
                     channels=channels)
             data = Util.read_url(url)
             try:
-                timeseries += self.parse_string(data)
+                timeseries += self.parse_string(data,
+                        observatory=observatory,
+                        type=type,
+                        interval=interval,
+                        channels=channels)
             except NotImplementedError:
                 raise NotImplementedError('"get_timeseries" not implemented')
             except Exception as e:
@@ -115,7 +119,7 @@ class TimeseriesFactory(object):
         timeseries.trim(starttime, endtime)
         return timeseries
 
-    def parse_string(self, data):
+    def parse_string(self, data, **kwargs):
         """Parse the contents of a string in the format of an IAGA2002 file.
 
         Parameters
