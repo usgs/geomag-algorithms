@@ -11,6 +11,7 @@ import TimeseriesUtility
 import edge
 import iaga2002
 import pcdcp
+import imfv122
 import imfv283
 
 # factories for new filetypes
@@ -299,6 +300,13 @@ def get_input_factory(args):
                     **input_factory_args)
         elif input_url is not None:
             input_factory = iaga2002.IAGA2002Factory(
+                    **input_factory_args)
+    elif input_type == 'imfv122':
+        if input_stream is not None:
+            input_factory = imfv122.StreamIMFV122Factory(
+                    **input_factory_args)
+        elif input_url is not None:
+            input_factory = imfv122.IMFV122Factory(
                     **input_factory_args)
     elif input_type == 'imfv283':
         if input_stream is not None:
@@ -632,6 +640,7 @@ def parse_args(args):
                 'edge',
                 'goes',
                 'iaga2002',
+                'imfv122',
                 'imfv283',
                 'pcdcp'))
 
