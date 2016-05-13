@@ -6,18 +6,19 @@ Geomag Algorithms module
 from Algorithm import Algorithm
 from AlgorithmException import AlgorithmException
 # algorithms
+from AdjustedAlgorithm import AdjustedAlgorithm
 from DeltaFAlgorithm import DeltaFAlgorithm
 from SqDistAlgorithm import SqDistAlgorithm
 from XYZAlgorithm import XYZAlgorithm
-from AdjustedAlgorithm import AdjustedAlgorithm
+
 
 # algorithms is used by Controller to auto generate arguments
 algorithms = {
     'identity': Algorithm,
+    'adjusted': AdjustedAlgorithm,
     'deltaf': DeltaFAlgorithm,
     'sqdist': SqDistAlgorithm,
-    'xyz': XYZAlgorithm,
-    'adjusted': AdjustedAlgorithm
+    'xyz': XYZAlgorithm
 }
 
 
@@ -26,8 +27,8 @@ __all__ = [
     'Algorithm',
     'AlgorithmException',
     # algorithms
+    'AdjustedAlgorithm',
     'DeltaFAlgorithm',
     'SqDistAlgorithm',
     'XYZAlgorithm'
-    'AdjustedAlgorithm'
 ]

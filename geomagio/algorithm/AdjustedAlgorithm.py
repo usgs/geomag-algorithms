@@ -19,7 +19,9 @@ class AdjustedAlgorithm(Algorithm):
         self.matrix = matrix
         self.pier_correction = pier_correction
         self.statefile = statefile
-        self.load_state()
+        if (matrix is None):
+            self.load_state()
+
 
     def load_state(self):
         """Load algorithm state from a file.
@@ -107,9 +109,9 @@ class AdjustedAlgorithm(Algorithm):
         stats = Stats(stats)
         stats.data_type = 'adjusted'
         stats.location = 'A0'
-        Trace = super(AdjustedAlgorithm, cls).create_trace(channel, stats,
+        trace = super(AdjustedAlgorithm, cls).create_trace(channel, stats,
             data)
-        return Trace
+        return trace
 
     def process(self, stream):
         """Run algorithm for a stream.
