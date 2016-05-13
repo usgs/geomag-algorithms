@@ -61,7 +61,8 @@ class IAGA2002Writer(object):
         buf = []
         buf.append(self._format_header('Format', 'IAGA-2002'))
         if 'agency_name' in stats:
-            buf.append(self._format_header('Source of Data', stats.agency_name))
+            buf.append(self._format_header('Source of Data',
+                    stats.agency_name))
         if 'station_name' in stats:
             buf.append(self._format_header('Station Name', stats.station_name))
         buf.append(self._format_header('IAGA CODE', stats.station))
