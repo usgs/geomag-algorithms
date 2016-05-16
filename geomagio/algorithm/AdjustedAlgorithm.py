@@ -37,8 +37,6 @@ class AdjustedAlgorithm(Algorithm):
                 data = json.loads(data)
         except IOError as err:
             sys.stderr.write("I/O error {0}".format(err))
-        except Exception:
-            pass
         if data is None or data == '':
             return
         self.matrix[0, 0] = np.float64(data['M11'])
