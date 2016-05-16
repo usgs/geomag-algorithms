@@ -22,7 +22,6 @@ class AdjustedAlgorithm(Algorithm):
         if (matrix is None):
             self.load_state()
 
-
     def load_state(self):
         """Load algorithm state from a file.
         File name is self.statefile.
