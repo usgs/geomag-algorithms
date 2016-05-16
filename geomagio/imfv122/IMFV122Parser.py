@@ -140,5 +140,9 @@ class IMFV122Parser(object):
             data[data == int(EIGHTS)] = numpy.nan
             data[data == EIGHTS] = numpy.nan
             data[data == NINES] = numpy.nan
-            self.data[channel] = data / 10
+            if channel == 'D':
+                data = data / 100
+            else:
+                data = data / 10
+            self.data[channel] = data
         self._parsedata = None
