@@ -17,7 +17,8 @@ setup(
         'numpy',
         'matplotlib',
         'scipy',
-        'obspy'
+        'obspy',
+        'pycurl'
     ],
     scripts=[
         'bin/geomag.py'

@@ -60,22 +60,32 @@ class IAGA2002Writer(object):
         """
         buf = []
         buf.append(self._format_header('Format', 'IAGA-2002'))
-        buf.append(self._format_header('Source of Data', stats.agency_name))
-        buf.append(self._format_header('Station Name', stats.station_name))
+        if 'agency_name' in stats:
+            buf.append(self._format_header('Source of Data',
+                    stats.agency_name))
+        if 'station_name' in stats:
+            buf.append(self._format_header('Station Name', stats.station_name))
         buf.append(self._format_header('IAGA CODE', stats.station))
-        buf.append(self._format_header('Geodetic Latitude',
-                stats.geodetic_latitude))
-        buf.append(self._format_header('Geodetic Longitude',
-                stats.geodetic_longitude))
-        buf.append(self._format_header('Elevation', stats.elevation))
+        if 'geodetic_latitude' in stats:
+            buf.append(self._format_header('Geodetic Latitude',
+                    str(stats.geodetic_latitude)))
+        if 'geodetic_longitude' in stats:
+            buf.append(self._format_header('Geodetic Longitude',
+                    str(stats.geodetic_longitude)))
+        if 'elevation' in stats:
+            buf.append(self._format_header('Elevation', stats.elevation))
         buf.append(self._format_header('Reported', ''.join(channels)))
-        buf.append(self._format_header('Sensor Orientation',
-                stats.sensor_orientation))
-        buf.append(self._format_header('Digital Sampling',
-                str(1 / stats.sensor_sampling_rate) + ' second'))
-        buf.append(self._format_header('Data Interval Type',
-                stats.data_interval_type))
-        buf.append(self._format_header('Data Type', stats.data_type))
+        if 'sensor_orientation' in stats:
+            buf.append(self._format_header('Sensor Orientation',
+                    stats.sensor_orientation))
+        if 'sensor_sampling_rate' in stats:
+            buf.append(self._format_header('Digital Sampling',
+                    str(1 / stats.sensor_sampling_rate) + ' second'))
+        if 'data_interval_type' in stats:
+            buf.append(self._format_header('Data Interval Type',
+                    stats.data_interval_type))
+        if 'data_type' in stats:
+            buf.append(self._format_header('Data Type', stats.data_type))
         return ''.join(buf)
 
     def _format_comments(self, stats):

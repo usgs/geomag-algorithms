@@ -17,10 +17,8 @@ class StreamPCDCPFactory(PCDCPFactory):
     PCDCPFactory
     Timeseriesfactory
     """
-    def __init__(self, stream, observatory=None, channels=None,
-            type=None, interval=None):
-        PCDCPFactory.__init__(self, None, observatory, channels,
-            type, interval)
+    def __init__(self, stream, **kwargs):
+        PCDCPFactory.__init__(self, **kwargs)
         self._stream = stream
 
     def get_timeseries(self, starttime, endtime, observatory=None,
@@ -30,14 +28,16 @@ class StreamPCDCPFactory(PCDCPFactory):
         Notes: Calls PCDCPFactory.parse_string in place of
             PCDCPFactory.get_timeseries.
         """
-        return PCDCPFactory.parse_string(self, self._stream.read())
+        return PCDCPFactory.parse_string(self,
+                data=self._stream.read(),
+                observatory=observatory)
 
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
             channels=None, type=None, interval=None):
         """Implements put_timeseries
 
         Notes: Calls PCDCPFactory.write_file in place of
-            PCDCPFactory.get_timeseries. This can result in a
+            PCDCPFactory.put_timeseries. This can result in a
             non-standard PCDCP file, specifically one of longer than
             expected length.
         """

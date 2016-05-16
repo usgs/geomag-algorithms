@@ -34,12 +34,13 @@ class IAGA2002Parser(object):
         ``numpy.nan`` when values are missing.
     """
 
-    def __init__(self):
+    def __init__(self, observatory=None):
         """Create a new IAGA2002 parser."""
         # header fields
         self.headers = {}
         self.metadata = {
-            'network': 'NT'
+            'network': 'NT',
+            'station': observatory
         }
         # header comments
         self.comments = []
@@ -173,6 +174,7 @@ class IAGA2002Parser(object):
             if channel == EMPTY_CHANNEL:
                 continue
             data = numpy.array(data, dtype=numpy.float64)
+            data[data == int(EIGHTS)] = numpy.nan
             data[data == EIGHTS] = numpy.nan
             data[data == NINES] = numpy.nan
             self.data[channel] = data

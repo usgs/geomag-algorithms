@@ -1,10 +1,21 @@
 """Abstract Timeseries Factory Interface."""
+import obspy.core
 import os
+import sys
 from TimeseriesFactoryException import TimeseriesFactoryException
+import Util
 
 
 class TimeseriesFactory(object):
     """Base class for timeseries factories.
+
+    Add input support by:
+        - implementing `parse_string`
+        - or, overriding `get_timeseries`
+
+    Add output support by:
+        - implementing `write_file`
+        - or, overriding `put_timeseries`
 
     Attributes
     ----------
@@ -20,24 +31,22 @@ class TimeseriesFactory(object):
         data interval, optional.
         default 'minute'.
     urlTemplate : str
-        A string that contains any of the following replacement patterns:
-        - '%(i)s' : interval abbreviation
-        - '%(interval)s' interval name
-        - '%(julian)s' julian date
-        - '%(obs)s' lowercase observatory code
-        - '%(OBS)s' uppercase observatory code
-        - '%(t)s' type abbreviation
-        - '%(type)s' type name
-        - '%(year)s' year formatted as YYYY
-        - '%(ymd)s' time formatted as YYYYMMDD
+        A string that contains replacement patterns.
+        See https://github.com/usgs/geomag-algorithms/blob/master/docs/io.md
+        and/or TimeseriesFactory._get_url()
+    urlInterval : int
+        Interval in seconds between URLs.
+        Intervals begin at the unix epoch (1970-01-01T00:00:00Z)
     """
     def __init__(self, observatory=None, channels=('H', 'D', 'Z', 'F'),
-            type='variation', interval='minute', urlTemplate=''):
+            type='variation', interval='minute',
+            urlTemplate='', urlInterval=-1):
         self.observatory = observatory
         self.channels = channels
         self.type = type
         self.interval = interval
         self.urlTemplate = urlTemplate
+        self.urlInterval = urlInterval
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -77,7 +86,53 @@ class TimeseriesFactory(object):
         TimeseriesFactoryException
             if any parameters are unsupported, or errors occur loading data.
         """
-        raise NotImplementedError('"get_timeseries" not implemented')
+        observatory = observatory or self.observatory
+        channels = channels or self.channels
+        type = type or self.type
+        interval = interval or self.interval
+
+        timeseries = obspy.core.Stream()
+        urlIntervals = Util.get_intervals(
+                starttime=starttime,
+                endtime=endtime,
+                size=self.urlInterval)
+        for urlInterval in urlIntervals:
+            url = self._get_url(
+                    observatory=observatory,
+                    date=urlInterval['start'],
+                    type=type,
+                    interval=interval,
+                    channels=channels)
+            data = Util.read_url(url)
+            try:
+                timeseries += self.parse_string(data,
+                        observatory=observatory,
+                        type=type,
+                        interval=interval,
+                        channels=channels)
+            except NotImplementedError:
+                raise NotImplementedError('"get_timeseries" not implemented')
+            except Exception as e:
+                print >> sys.stderr, "Error parsing data: " + str(e)
+                print >> sys.stderr, data
+        timeseries.merge()
+        timeseries.trim(starttime, endtime)
+        return timeseries
+
+    def parse_string(self, data, **kwargs):
+        """Parse the contents of a string in the format of an IAGA2002 file.
+
+        Parameters
+        ----------
+        data : str
+            string containing parsable content.
+
+        Returns
+        -------
+        obspy.core.Stream
+            parsed data.
+        """
+        raise NotImplementedError('"parse_string" not implemented')
 
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
             channels=None, type=None, interval=None):
@@ -107,7 +162,53 @@ class TimeseriesFactory(object):
         TimeseriesFactoryException
             if any errors occur.
         """
-        raise NotImplementedError('"put_timeseries" not implemented')
+        if not self.urlTemplate.startswith('file://'):
+            raise TimeseriesFactoryException('Only file urls are supported')
+        channels = channels or self.channels
+        type = type or self.type
+        interval = interval or self.interval
+        stats = timeseries[0].stats
+        delta = stats.delta
+        observatory = stats.station
+        starttime = starttime or stats.starttime
+        endtime = endtime or stats.endtime
+
+        urlIntervals = Util.get_intervals(
+                starttime=starttime,
+                endtime=endtime,
+                size=self.urlInterval)
+        for urlInterval in urlIntervals:
+            url = self._get_url(
+                    observatory=observatory,
+                    date=urlInterval['start'],
+                    type=type,
+                    interval=interval,
+                    channels=channels)
+            url_data = timeseries.slice(
+                    starttime=urlInterval['start'],
+                    # subtract delta to omit the sample at end: `[start, end)`
+                    endtime=(urlInterval['end'] - delta))
+            url_file = Util.get_file_from_url(url, createParentDirectory=True)
+            with open(url_file, 'wb') as fh:
+                try:
+                    self.write_file(fh, url_data, channels)
+                except NotImplementedError:
+                    raise NotImplementedError(
+                            '"put_timeseries" not implemented')
+
+    def write_file(self, fh, timeseries, channels):
+        """Write timeseries data to the given file object.
+
+        Parameters
+        ----------
+        fh : writable
+            file handle where data is written.
+        timeseries : obspy.core.Stream
+            stream containing traces to store.
+        channels : list
+            list of channels to store.
+        """
+        raise NotImplementedError('"write_file" not implemented')
 
     def _get_file_from_url(self, url):
         """Get a file for writing.
@@ -138,7 +239,8 @@ class TimeseriesFactory(object):
             os.makedirs(parent)
         return filename
 
-    def _get_url(self, observatory, date, type='variation', interval='minute'):
+    def _get_url(self, observatory, date, type='variation', interval='minute',
+            channels=None):
         """Get the url for a specified file.
 
         Replaces patterns (described in class docstring) with values based on
@@ -154,22 +256,41 @@ class TimeseriesFactory(object):
             data type.
         interval : {'minute', 'second', 'hourly', 'daily'}
             data interval.
+        channels : list
+            list of data channels being requested
 
         Raises
         ------
         TimeseriesFactoryException
             if type or interval are not supported.
         """
-        return self.urlTemplate % {
-                'i': self._get_interval_abbreviation(interval),
-                'interval': self._get_interval_name(interval),
-                'julian': date.strftime("%j"),
-                'obs': observatory.lower(),
-                'OBS': observatory.upper(),
-                't': self._get_type_abbreviation(type),
-                'type': self._get_type_name(type),
-                'year': date.strftime("%Y"),
-                'ymd': date.strftime('%Y%m%d')}
+        params = {
+            'date': date.datetime,
+            'i': self._get_interval_abbreviation(interval),
+            'interval': self._get_interval_name(interval),
+            # used by Hermanus
+            'minute': date.hour * 60 + date.minute,
+            # end Hermanus
+            # used by Kakioka
+            'month': date.strftime('%b').lower(),
+            'MONTH': date.strftime('%b').upper(),
+            # end Kakioka
+            'obs': observatory.lower(),
+            'OBS': observatory.upper(),
+            't': self._get_type_abbreviation(type),
+            'type': self._get_type_name(type),
+            # LEGACY
+            # old date properties, string.format supports any strftime format
+            # i.e. '{date:%j}'
+            'julian': date.strftime('%j'),
+            'year': date.strftime('%Y'),
+            'ymd': date.strftime('%Y%m%d')
+        }
+        if '{' in self.urlTemplate:
+            # use new style string formatting
+            return self.urlTemplate.format(**params)
+        # use old style string interpolation
+        return self.urlTemplate % params
 
     def _get_interval_abbreviation(self, interval):
         """Get abbreviation for a data interval.

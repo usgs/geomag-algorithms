@@ -17,7 +17,7 @@ Metadata is stored in the `Stats` dictionary of each `Trace` object.
 
 - `channel`
   Data channel.
-  
+
   Examples:
     `H`,
     `D`,
@@ -56,12 +56,12 @@ Metadata is stored in the `Stats` dictionary of each `Trace` object.
 
 - `data_interval`
   Time between data samples.
+  This is usually set, but more useful properties are `delta` and `sampling_rate`
 
   Examples:
     `daily`,
     `hourly`,
     `minute`,
-    `monthly`,
     `second`
 
 - `data_interval_type`
@@ -85,4 +85,3 @@ Metadata is stored in the `Stats` dictionary of each `Trace` object.
 
 - `comments`
   Other comments about this data.
-

@@ -353,6 +353,13 @@ class EdgeFactory(TimeseriesFactory):
         """
         edge_interval_code = self._get_interval_code(interval)
         edge_channel = None
+
+        # If form is chan.loc, return chan (left) portion.
+        # Allows specific chan/loc selection.
+        if channel.find('.') >= 0:
+            tmplist = channel.split('.')
+            return tmplist[0].strip()
+
         if channel == 'D':
             edge_channel = edge_interval_code + 'VD'
         elif channel == 'E':
@@ -396,6 +403,13 @@ class EdgeFactory(TimeseriesFactory):
             returns an edge location code
         """
         location = None
+
+        # If form is chan.loc, return loc (right) portion
+        # Allows specific chan/loc selection.
+        if channel.find('.') >= 0:
+            tmplist = channel.split('.')
+            return tmplist[1].strip()
+
         if self.locationCode is not None:
             location = self.locationCode
         else:

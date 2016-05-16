@@ -1,34 +1,21 @@
-"""Factory that loads IAGA2002 Files."""
+"""Factory that loads IMFV122 Files."""
 
 import obspy.core
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
-from IAGA2002Parser import IAGA2002Parser
-from IAGA2002Writer import IAGA2002Writer
+from IMFV122Parser import IMFV122Parser
 
 
-# pattern for iaga 2002 file names
-IAGA_FILE_PATTERN = '%(obs)s%(ymd)s%(t)s%(i)s.%(i)s'
-
-
-class IAGA2002Factory(TimeseriesFactory):
-    """TimeseriesFactory for IAGA 2002 formatted files.
+class IMFV122Factory(TimeseriesFactory):
+    """TimeseriesFactory for IMFV122 formatted files.
 
     Parameters
     ----------
-    urlTemplate : str
-        A string that contains any of the following replacement patterns:
-        - '%(i)s' : interval abbreviation
-        - '%(interval)s' interval name
-        - '%(obs)s' lowercase observatory code
-        - '%(OBS)s' uppercase observatory code
-        - '%(t)s' type abbreviation
-        - '%(type)s' type name
-        - '%(ymd)s' time formatted as YYYYMMDD
+    See TimeseriesFactory
 
     See Also
     --------
-    IAGA2002Parser
+    IMFV122Parser
     """
 
     def __init__(self, **kwargs):
@@ -49,7 +36,7 @@ class IAGA2002Factory(TimeseriesFactory):
         obspy.core.Stream
             parsed data.
         """
-        parser = IAGA2002Parser(observatory=observatory)
+        parser = IMFV122Parser(observatory=observatory)
         parser.parse(data)
         metadata = parser.metadata
         starttime = obspy.core.UTCDateTime(parser.times[0])
@@ -69,16 +56,3 @@ class IAGA2002Factory(TimeseriesFactory):
                     data[channel])
             stream += obspy.core.Trace(data[channel], stats)
         return stream
-
-    def write_file(self, fh, timeseries, channels):
-        """writes timeseries data to the given file object.
-
-        Parameters
-        ----------
-        fh: file object
-        timeseries : obspy.core.Stream
-            stream containing traces to store.
-        channels : array_like
-            list of channels to store
-        """
-        IAGA2002Writer().write(fh, timeseries, channels)

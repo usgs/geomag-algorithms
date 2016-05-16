@@ -1,22 +1,21 @@
 
 import numpy
-import PCDCPParser
 from cStringIO import StringIO
 from datetime import datetime
-from .. import ChannelConverter, TimeseriesUtility
+from .. import TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from obspy.core import Stream
 
 
-class PCDCPWriter(object):
-    """PCDCP writer.
+class TEMPWriter(object):
+    """TEMP writer.
     """
 
-    def __init__(self, empty_value=PCDCPParser.NINES):
+    def __init__(self, empty_value=numpy.int('9999')):
         self.empty_value = empty_value
 
     def write(self, out, timeseries, channels):
-        """Write timeseries to pcdcp file.
+        """Write timeseries to temp/volt file.
 
         Parameters
         ----------
@@ -33,17 +32,11 @@ class PCDCPWriter(object):
                     'Missing channel "%s" for output, available channels %s' %
                     (channel, str(TimeseriesUtility.get_channels(timeseries))))
         stats = timeseries[0].stats
-
-        # Set dead val for 1-sec data.
-        if stats.delta == 1:
-            self.empty_value = PCDCPParser.NINES_RAW
-
         out.write(self._format_header(stats))
-
-        out.write(self._format_data(timeseries, channels, stats))
+        out.write(self._format_data(timeseries, channels))
 
     def _format_header(self, stats):
-        """format headers for PCDCP file
+        """format headers for temp/volt file
 
         Parameters
         ----------
@@ -53,7 +46,7 @@ class PCDCPWriter(object):
         Returns
         -------
         str
-            A string formatted to be a single header line in a PCDCP file.
+            A string formatted to be a single header line in a temp/volt file.
         """
         buf = []
 
@@ -62,17 +55,12 @@ class PCDCPWriter(object):
         yearday = str(stats.starttime.julday).zfill(3)
         date = stats.starttime.strftime("%d-%b-%y")
 
-        # Choose resolution for 1-sec vs 1-min header.
-        resolution = "0.01nT"
-        if stats.delta == 1:
-            resolution = "0.001nT"
-
-        buf.append(observatory + '  ' + year + '  ' + yearday + '  ' +
-                    date + '  HEZF  ' + resolution + '  File Version 2.00\n')
+        buf.append(observatory + '  ' + year + '  ' + yearday + '  ' + date +
+                    '  T1 T2 T3 T4 V1 Deg-C*10/volts*10  File Version 1.00\n')
 
         return ''.join(buf)
 
-    def _format_data(self, timeseries, channels, stats):
+    def _format_data(self, timeseries, channels):
         """Format all data lines.
 
         Parameters
@@ -85,7 +73,7 @@ class PCDCPWriter(object):
         Returns
         -------
         str
-            A string formatted to be the data lines in a PCDCP file.
+            A string formatted to be the data lines in a temp/volt file.
         """
         buf = []
 
@@ -94,9 +82,6 @@ class PCDCPWriter(object):
         # Use a copy of the trace so that we don't modify the original.
         for trace in timeseries:
             traceLocal = trace.copy()
-            if traceLocal.stats.channel == 'D':
-                traceLocal.data = \
-                    ChannelConverter.get_minutes_from_radians(traceLocal.data)
 
             # TODO - we should look into multiplying the trace all at once
             # like this, but this gives an error on Windows at the moment.
@@ -112,11 +97,11 @@ class PCDCPWriter(object):
         for i in xrange(len(traces[0].data)):
             buf.append(self._format_values(
                 datetime.utcfromtimestamp(starttime + i * delta),
-                (t.data[i] for t in traces), stats))
+                (t.data[i] for t in traces)))
 
         return ''.join(buf)
 
-    def _format_values(self, time, values, stats):
+    def _format_values(self, time, values):
         """Format one line of data values.
 
         Parameters
@@ -132,36 +117,18 @@ class PCDCPWriter(object):
         unicode
             Formatted line containing values.
         """
-        # 1-sec and 1-min data have different formats.
-        # Won't work if input is IAGA2002: stats missing data_interval.
-        time_width = 4
-        data_width = 8
-        data_multiplier = 100
-        hr_multiplier = 60
-        mn_multiplier = 1
-        sc_multiplier = 0
-        if stats.delta == 1:
-            time_width = 5
-            data_width = 9
-            data_multiplier = 1000
-            hr_multiplier = 3600
-            mn_multiplier = 60
-            sc_multiplier = 1
-
         tt = time.timetuple()
+        totalMinutes = int(tt.tm_hour * 60 + tt.tm_min)
 
-        totalMinutes = int(tt.tm_hour * hr_multiplier +
-                        tt.tm_min * mn_multiplier + tt.tm_sec * sc_multiplier)
-
-        return '{0:0>{tw}d} {1: >{dw}d} {2: >{dw}d} {3: >{dw}d}' \
-                ' {4: >{dw}d}\n'.format(totalMinutes, tw=time_width,
+        return '{0:0>4d} {1: >5d} {2: >5d} {3: >5d} {4: >5d}' \
+                ' {5: >5d}\n'.format(totalMinutes,
                 *[self.empty_value if numpy.isnan(val) else int(round(
-                    val * data_multiplier))
-                        for val in values], dw=data_width)
+                    val * 10))
+                        for val in values])
 
     @classmethod
     def format(self, timeseries, channels):
-        """Get an PCDCP formatted string.
+        """Get an temp/volt formatted string.
 
         Calls write() with a StringIO, and returns the output.
 
@@ -175,9 +142,9 @@ class PCDCPWriter(object):
         Returns
         -------
         unicode
-          PCDCP formatted string.
+          temp/volt formatted string.
         """
         out = StringIO()
-        writer = PCDCPWriter()
+        writer = TEMPWriter()
         writer.write(out, timeseries, channels)
         return out.getvalue()

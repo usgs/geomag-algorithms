@@ -29,9 +29,9 @@ geomag.py \
     --outchannels G \
     --starttime 2015-11-01T00:00:00Z \
     --endtime 2015-11-01T00:10:00Z \
-    --input-edge cwbpub.cr.usgs.gov \
-    --input-edge-port 2060 \
-    --output-iaga-stdout
+    --input edge \
+    --output iaga2002 \
+    --output-stdout
 ```
 
 

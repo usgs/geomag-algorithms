@@ -17,10 +17,8 @@ class StreamIMFV283Factory(IMFV283Factory):
     IMFV283Factory
     Timeseriesfactory
     """
-    def __init__(self, stream, observatory=None, channels=None,
-            type=None, interval=None):
-        IMFV283Factory.__init__(self, None, observatory, channels,
-            type, interval)
+    def __init__(self, stream, **kwargs):
+        IMFV283Factory.__init__(self, **kwargs)
         self._stream = stream
 
     def get_timeseries(self, starttime, endtime, observatory=None,
@@ -30,6 +28,4 @@ class StreamIMFV283Factory(IMFV283Factory):
         Notes: Calls IMFV283Factory.parse_string in place of
             IMFV283Factory.get_timeseries.
         """
-
-        self._stream.seek(0)
         return IMFV283Factory.parse_string(self, self._stream.read())

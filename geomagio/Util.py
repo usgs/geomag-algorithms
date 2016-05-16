@@ -1,6 +1,9 @@
-import urllib2
+import pycurl
 import numpy
+import os
 from obspy.core import Stats, Trace
+from StringIO import StringIO
+import sys
 
 
 class ObjectView(object):
@@ -22,7 +25,87 @@ class ObjectView(object):
         return str(self.__dict__)
 
 
-def read_url(url):
+def get_file_from_url(url, createParentDirectory=False):
+    """Get a file for writing.
+
+    Ensures parent directory exists.
+
+    Parameters
+    ----------
+    url : str
+        path to file
+    createParentDirectory : bool
+        whether to create parent directory if it does not exist.
+        useful when preparing to write to the returned file.
+
+    Returns
+    -------
+    str
+        path to file without file:// prefix
+
+    Raises
+    ------
+    Exception
+        if url does not start with file://
+    """
+    if not url.startswith('file://'):
+        raise Exception('Only file urls are supported by get_file_from_url')
+    filename = url.replace('file://', '')
+    if createParentDirectory:
+        parent = os.path.dirname(filename)
+        if not os.path.exists(parent):
+            os.makedirs(parent)
+    return filename
+
+
+def get_intervals(starttime, endtime, size=86400, align=True, trim=False):
+    """Divide an interval into smaller intervals.
+
+    Divides the interval [starttime, endtime] into chunks.
+
+    Parameters
+    ----------
+    starttime : obspy.core.UTCDateTime
+        start of time interval to divide
+    endtime : obspy.core.UTCDateTime
+        end of time interval to divide
+    size : int
+        size of each interval in seconds.
+    align : bool
+        align intervals to unix epoch.
+        (works best when size evenly divides a day)
+    trim : bool
+        whether to trim first/last interval to starttime and endtime.
+
+    Returns
+    -------
+    list<dict>
+        each dictionary has the keys "starttime" and "endtime"
+        which represent [intervalstart, intervalend).
+    """
+    if align:
+        # align based on size
+        time = starttime - (starttime.timestamp % size)
+    else:
+        time = starttime
+    intervals = []
+    while time < endtime:
+        start = time
+        time = time + size
+        end = time
+        if trim:
+            if start < starttime:
+                start = starttime
+            if end > endtime:
+                end = endtime
+        intervals.append({
+            'start': start,
+            'end': end
+        })
+    return intervals
+
+
+def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
     """Open and read url contents.
 
     Parameters
@@ -40,15 +123,24 @@ def read_url(url):
     urllib2.URLError
         if any occurs
     """
-    response = urllib2.urlopen(url)
     content = None
+    curl = pycurl.Curl()
+    out = StringIO()
     try:
-        content = response.read()
-    except urllib2.URLError, e:
-        print e.reason
-        raise
+        curl.setopt(pycurl.FOLLOWLOCATION, 1)
+        curl.setopt(pycurl.MAXREDIRS, max_redirects)
+        curl.setopt(pycurl.CONNECTTIMEOUT, connect_timeout)
+        curl.setopt(pycurl.TIMEOUT, timeout)
+        curl.setopt(pycurl.NOSIGNAL, 1)
+        curl.setopt(pycurl.URL, url)
+        curl.setopt(pycurl.WRITEFUNCTION, out.write)
+        curl.perform()
+        content = out.getvalue()
+    except Exception as e:
+        print >> sys.stderr, "Error reading url: " + str(e)
+        print >> sys.stderr, url
     finally:
-        response.close()
+        curl.close()
     return content
 
 

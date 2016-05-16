@@ -1,156 +1,193 @@
 IO Formats
 ==========
 
-#### EDGE
 
-`--input-edge HOST PORT`
+## Input
 
-Specify an IP address or host name where your Edge lives along with a port.
+### Input Format
 
+`--input {edge, goes, iaga2002, imfv283, pcdcp}`
+Specify input format.
 
-#### Iaga2002
+`edge`
+  EDGE/Earthworm server.
 
-`--input-iaga-file FILENAME`
+`iaga2002`
+  IAGA2002 format.
 
-Specify the name of the file to read from.
+`imfv283`
+  IMFV283 binary format.
 
-`--input-iaga-magweb`
-
-Data will be pulled from geomag.usgs.gov/data/magnetometer if it exists.
-
-`--input-iaga-stdin`
-
-Use redirection on the command line to send your data in.
-
-`--input-iaga-url URL`
-
-Use a file pattern to read from multiple IAGA2002 files.
-
-`--output-iaga-file FILENAME`
-
-Specify the name of the file to write to.
-
-`--output-iaga-stdout`
-
-Output will be send directly to the command line.
-
-`--output-iaga-url URL`
-
-Use a file pattern to write to multiple IAGA2002 files.
+`pcdcp`
+  PCDCP format.
 
 
-#### IMFV283
+### Input Source
+For input format `edge`
 
-`--input-imfv283-file FILENAME`
+`--input-host HOST`
+  (Default `cwbpub.cr.usgs.gov`)
 
-Specify the name of the file to read from.
+`--input-port PORT`
+  (Default `2060`)
 
-`--input-imfv283-stdin`
+For input formats `iaga2002`, `imfv283`, `pcdcp`
 
-Use redirection on the command line to send your data in.
+`--input-file FILE`
+  Read from a specific file.
 
-`--input-imfv283-url URL`
+`--input-stdin`
+  Read from standard input
 
-Use a file pattern to read IMFV283 file.
+`--input-url URLTEMPLATE`
+  Read one or more files using a pattern.
 
-`--input-imfv283-goes`
+`--input-url-interval URLINTERVAL`
+  (Default `86400` seconds)
 
-Reads IMFV283 data from an internet goes server.
-
-
-#### PCDCP
-
-`--input-pcdcp-file FILENAME`
-
-Specify the name of the file to read from.
-
-`--input-pcdcp-stdin`
-
-Use redirection on the command line to send your data in.
-
-`--input-pcdcp-url URL`
-
-Use a file pattern to read from multiple PCDCP files.
-
-`--output-pcdcp-file FILENAME`
-
-Specify the name of the file to write to.
-
-`--output-pcdcp-stdout`
-
-Output will be send directly to the command line.
-
-`--output-pcdcp-url`
-
-Use a file pattern to write to multiple PCDCP files.
+Interval specifies the amount of data in each url and defaults to 1 day.
 
 
-## IO Methods
 
-Several methods exist for retrieving and storing data.
+## Output
 
-#### Edge Server
+### Output Format
 
-`--input-edge HOST PORT`
+`--output {binlog, edge, iaga2002, pcdcp, plot, temperature, vbf}`
 
-Specify an IP address or host name where your Edge lives along with a port.
+Specify output format.
 
-#### Single File
+`binlog`
+  BINLOG format.
 
-```
---input-iaga-file FILENAME
---input-imfv283-file FILENAME
---input-pcdcp-file FILENAME
---output-iaga-file FILENAME
---output-pcdcp-file FILENAME
-```
+`edge`
+  EDGE server.
 
-Specify a single file name for the data to be read from or written to.
+`iaga2002`
+  IAGA2002 format.
 
-#### Multiple Files
+`pcdcp`
+  PCDCP format.
 
-```
---input-iaga-url
---input-imfv283-url
---input-pcdcp-url
---output-iaga-url
---output-pcdcp-url
-```
+`plot`
+  Interactive matplotlib plot.
+
+`temperature`
+  Temperature file format.
+
+`vbf`
+  Volt/Bin format.
+
+
+### Output Target
+For output format `edge`
+
+`--output-edge-read-port PORT`
+  (Default `2060`)
+  Port used when checking for output gaps to fill.
+
+`--output-edge-forceout`
+  Force miniseed blocks to be written instead of waiting for more data.
+
+`--output-edge-tag TAG`
+  (Default `GEOMAG`)
+  Unique identifier used for data being loaded.
+
+`--output-host HOST`
+  (Default `cwbpub.cr.usgs.gov`)
+
+`--output-port PORT`
+  (Default `2060`)
+
+For output formats `binlog`, `iaga2002`, `pcdcp`, `temperature`, `vbf`
+
+`--output-file FILE`
+  Write to a specific file.
+
+`--output-stdin`
+  Write to standard output
+
+`--output-url URLTEMPLATE`
+  Write one or more files using a pattern.
+
+  Only "file://" urls are currently supported for output.
+
+`--output-url-interval URLINTERVAL`
+  (Default `86400` seconds)
+
+
+## URL Templates
 
 URLs can be used to fetch or store groups of data using pattern matching. In
 order to use a directory of files on a local machine, just specify "file://"
 at the beginning of the pattern.
 
+NOTE: Any protocols supported by the systems `libcurl` are also supported
+by this application.  Certain protocols like 'sftp' require you to manually
+connect and accept the remove servers key fingerprint before they will work
+in a url template.
+
+`--input-url URLTEMPLATE`
+
+`--output-url URLTEMPLATE`
+
 Patterns that will be matched with information from the data:
 
-| Pattern           | Purpose                                                  |
-| ----------------- | -------------------------------------------------------- |
-| __%(i)s__         | interval abbreviation (sec, min, hor, etc.)              |
-| __%(interval)s__  | interval name (second, minute, hour, etc.)               |
-| __%(julian)s__    | julian day formatted as JJJ                              |
-| __%(obs)s__       | lowercase observatory 3-letter code                      |
-| __%(OBS)s__       | uppercase observatory 3-letter code                      |
-| __%(t)s__         | type abbreviation (v, q, d, etc.)                        |
-| __%(type)s__      | type name (variation, quasi-definitive, definitive, etc.)|
-| __%(year)s__      | year formatted as YYYY                                   |
-| __%(ymd)s__       | time formatted as YYYYMMDD                               |
+| Key           | Purpose                                                  |
+| ------------- | -------------------------------------------------------- |
+| __date__      | datetime object, for custom strftime format patterns     |
+| __i__         | interval abbreviation (sec, min, hor, etc.)              |
+| __interval__  | interval name (second, minute, hour, etc.)               |
+| __minute__    | minute of day                                            |
+| __month__     | lower case abbreviated month name                        |
+| __MONTH__     | upper case abbreviated month name                        |
+| __obs__       | lowercase observatory 3-letter code                      |
+| __OBS__       | uppercase observatory 3-letter code                      |
+| __t__         | type abbreviation (v, q, d, etc.)                        |
+| __type__      | type name (variation, quasi-definitive, definitive, etc.)|
+| _julian_      | deprecated. julian day formatted as JJJ                  |
+| _year_        | deprecated. year formatted as YYYY                       |
+| _ymd_         | deprecated. time formatted as YYYYMMDD                   |
 
-Typical IAGA2002 files are stored as `file://./%(obs)s%(ymd)s%(t)%(i)s.%(i)s`
 
-Example: bou20130402vmin.min
+These patterns can be used with python string formatting (_recommended_),
+or older string interpolation (for backward compatibility).
 
-Typical PCDCP files are stored as `file://./%(OBS)s%(Y)s%(j)s.%(i)s`
+See http://strftime.org/ for a list of available date format options.
 
-Example: BOU2013092.min
+### IAGA2002 example
+- `file://./{obs}{date:%Y%m%d}{t}{i}.{i}` (string formatting, _recommended_)
+- `file://./%(obs)s%(ymd)s%(t)%(i)s.%(i)s` (string interpolation)
 
-#### Std In and Std Out
+For date=2013-04-02, type=variation, interval=minute, the resulting url is
 
-```
---input-iaga-stdin
---input-imfv283-stdin
---input-pcdcp-stdin
---output-iaga-stdout
---output-pcdcp-stdout
-```
+`file://./bou20130402vmin.min`
 
-For standard in, pass the data in with redirection.
+
+### PCDCP example:
+- `file://./{OBS}/{date:%Y%j}.{i}` (string formatting, _recommended_)
+- `file://./%(OBS)s/%(Y)s%(j)s.%(i)s` (string interpolation)
+
+For date=2013-04-02, type=variation, interval=minute, the resulting url is
+
+`file://./BOU2013092.min`
+
+
+## URL Interval
+
+`--input-url-interval INTERVAL`
+
+`--output-url-interval INTERVAL`
+
+
+The default URL Interval is `86400` seconds, which results in a separate url
+for each day.  The url template is called once for each interval
+(intervals start at unix epoch 1970-01-01T00:00:00Z).
+
+Examples
+  `600` - 10 minutes per url
+- `3600` - one hour per url
+- `604800` - 7 days per url
+
+When customizing the interval, be sure the URL Template is unique for each
+interval otherwise urls may overlap and lead to undesirable results.
