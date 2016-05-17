@@ -569,7 +569,8 @@ def parse_args(args):
             help='EDGE location code, e.g. "R0", "R1"',
             type=edge.LocationCode)
     parser.add_argument('--outlocationcode',
-            help='EDGE output location code (when different from --locationcode)',
+            help='EDGE output location code'
+                    ' (if different from --locationcode)',
             type=edge.LocationCode)
     parser.add_argument('--interval',
             default='minute',

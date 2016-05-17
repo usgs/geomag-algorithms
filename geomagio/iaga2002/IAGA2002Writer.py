@@ -118,7 +118,8 @@ class IAGA2002Writer(object):
                     ' INTERMAGNET DVD.')
             comments.append('Go to www.intermagnet.org for details on' +
                     ' obtaining this product.')
-        if 'conditions_of_use' in stats and stats.conditions_of_use is not None:
+        if 'conditions_of_use' in stats and \
+                stats.conditions_of_use is not None:
             comments.append('CONDITIONS OF USE: ' + stats.conditions_of_use)
         # generate comment output
         buf = []
