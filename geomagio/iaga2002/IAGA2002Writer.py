@@ -102,7 +102,7 @@ class IAGA2002Writer(object):
             an array containing formatted strings of header data.
         """
         comments = []
-        if 'declination_base' in stats:
+        if 'declination_base' in stats and stats.declination_base is not None:
             comments.append('DECBAS               {:<8d}'
                     '(Baseline declination value in tenths of minutes East'
                     ' (0-216,000)).'.format(stats.declination_base))
@@ -118,7 +118,7 @@ class IAGA2002Writer(object):
                     ' INTERMAGNET DVD.')
             comments.append('Go to www.intermagnet.org for details on' +
                     ' obtaining this product.')
-        if 'conditions_of_use' in stats:
+        if 'conditions_of_use' in stats and stats.conditions_of_use is not None:
             comments.append('CONDITIONS OF USE: ' + stats.conditions_of_use)
         # generate comment output
         buf = []
