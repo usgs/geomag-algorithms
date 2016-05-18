@@ -71,7 +71,7 @@ class Controller(object):
         timeseries : obspy.core.Stream
         """
         timeseries = Stream()
-        for obs in list(observatory):
+        for obs in observatory:
             # get input interval for observatory
             # do this per observatory in case an
             # algorithm needs different amounts of data
@@ -130,7 +130,7 @@ class Controller(object):
         timeseries : obspy.core.Stream
         """
         timeseries = Stream()
-        for obs in list(observatory):
+        for obs in observatory:
             timeseries += self._outputFactory.get_timeseries(
                 observatory=obs,
                 starttime=starttime,
@@ -490,6 +490,10 @@ def main(args):
                 ' please update your usage'
     # TODO check for unused arguments.
 
+    # make sure observatory is a tuple
+    if isinstance(args.observatory, (str, unicode)):
+        args.observatory = (args.observatory,)
+
     # create controller
     input_factory = get_input_factory(args)
     output_factory = get_output_factory(args)
@@ -539,6 +543,7 @@ def parse_args(args):
             help='UTC date YYYY-MM-DD HH:MM:SS')
 
     parser.add_argument('--observatory',
+            default=(None,),
             help='Observatory code ie BOU, CMO, etc.' +
                     ' CAUTION: Using multiple observatories is not' +
                     ' recommended in most cases; especially with' +
