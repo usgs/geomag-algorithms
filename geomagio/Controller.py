@@ -494,6 +494,23 @@ def main(args):
     if isinstance(args.observatory, (str, unicode)):
         args.observatory = (args.observatory,)
 
+    if args.observatory_foreach:
+        observatory = args.observatory
+        for obs in observatory:
+            args.observatory = (obs,)
+            _main(args)
+    else:
+        _main(args)
+
+
+def _main(args):
+    """Actual main method logic, called by main
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        command line arguments
+    """
     # create controller
     input_factory = get_input_factory(args)
     output_factory = get_output_factory(args)
@@ -550,6 +567,11 @@ def parse_args(args):
                     ' single observatory formats like IAGA and PCDCP.',
             nargs='*',
             type=str)
+    parser.add_argument('--observatory-foreach',
+            action='store_true',
+            default=False,
+            help='When specifying multiple observatories, process'
+                    ' each observatory separately')
     parser.add_argument('--inchannels',
             nargs='*',
             help='Channels H, E, Z, etc')
