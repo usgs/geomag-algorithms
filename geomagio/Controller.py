@@ -203,6 +203,8 @@ class Controller(object):
         if options.update_limit != 0:
             if update_count >= options.update_limit:
                 return
+        print >> sys.stderr, 'checking gaps', \
+                options.starttime, options.endtime
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
@@ -214,10 +216,17 @@ class Controller(object):
                 starttime=options.starttime,
                 endtime=options.endtime,
                 channels=output_channels)
-        delta = output_timeseries[0].stats.delta
-        # find gaps in output, so they can be updated
-        output_gaps = TimeseriesUtility.get_merged_gaps(
-                TimeseriesUtility.get_stream_gaps(output_timeseries))
+        if len(output_timeseries) > 0:
+            # find gaps in output, so they can be updated
+            output_gaps = TimeseriesUtility.get_merged_gaps(
+                    TimeseriesUtility.get_stream_gaps(output_timeseries))
+        else:
+            output_gaps = [[
+                options.starttime,
+                options.endtime,
+                # next sample time not used
+                None
+            ]]
         for output_gap in output_gaps:
             input_timeseries = self._get_input_timeseries(
                     observatory=options.observatory,
@@ -233,12 +242,14 @@ class Controller(object):
             if output_gap[0] == options.starttime:
                 # found fillable gap at start, recurse to previous interval
                 interval = options.endtime - options.starttime
-                starttime = options.starttime - interval - delta
-                endtime = options.starttime - delta
+                starttime = options.starttime - interval - 1
+                endtime = options.starttime - 1
                 options.starttime = starttime
                 options.endtime = endtime
                 self.run_as_update(options, update_count + 1)
             # fill gap
+            print >> sys.stderr, 'processing', \
+                    options.starttime, options.endtime
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
             self.run(options)
@@ -526,7 +537,6 @@ def _main(args):
             args.starttime = args.endtime - 3600
         else:
             args.starttime = args.endtime - 600
-        print args.starttime, args.endtime
 
     if args.update:
         controller.run_as_update(args)
