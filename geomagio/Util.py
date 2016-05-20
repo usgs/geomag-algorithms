@@ -105,6 +105,30 @@ def get_intervals(starttime, endtime, size=86400, align=True, trim=False):
     return intervals
 
 
+def read_file(filepath):
+    """Open and read file contents.
+
+    Parameters
+    ----------
+    filepath : str
+        path to a file
+
+    Returns
+    -------
+    str
+        contents of file
+
+    Raises
+    ------
+    IOError
+        if file does not exist
+    """
+    file_data = None
+    with open(filepath, 'r') as f:
+        file_data = f.read()
+    return file_data
+
+
 def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
     """Open and read url contents.
 
@@ -123,9 +147,17 @@ def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
     urllib2.URLError
         if any occurs
     """
+    try:
+        # short circuit file urls
+        filepath = get_file_from_url(url)
+        return read_file(filepath)
+    except IOError as e:
+        raise e
+    except Exception:
+        pass
     content = None
-    curl = pycurl.Curl()
     out = StringIO()
+    curl = pycurl.Curl()
     try:
         curl.setopt(pycurl.FOLLOWLOCATION, 1)
         curl.setopt(pycurl.MAXREDIRS, max_redirects)
@@ -136,9 +168,6 @@ def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
         curl.setopt(pycurl.WRITEFUNCTION, out.write)
         curl.perform()
         content = out.getvalue()
-    except Exception as e:
-        print >> sys.stderr, "Error reading url: " + str(e)
-        print >> sys.stderr, url
     finally:
         curl.close()
     return content
