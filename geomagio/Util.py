@@ -3,7 +3,6 @@ import numpy
 import os
 from obspy.core import Stats, Trace
 from StringIO import StringIO
-import sys
 
 
 class ObjectView(object):
