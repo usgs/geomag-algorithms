@@ -3,6 +3,7 @@ import obspy.core
 import os
 import sys
 from TimeseriesFactoryException import TimeseriesFactoryException
+import TimeseriesUtility
 import Util
 
 
@@ -103,7 +104,10 @@ class TimeseriesFactory(object):
                     type=type,
                     interval=interval,
                     channels=channels)
-            data = Util.read_url(url)
+            try:
+                data = Util.read_url(url)
+            except IOError as e:
+                continue
             try:
                 timeseries += self.parse_string(data,
                         observatory=observatory,
@@ -189,6 +193,37 @@ class TimeseriesFactory(object):
                     # subtract delta to omit the sample at end: `[start, end)`
                     endtime=(urlInterval['end'] - delta))
             url_file = Util.get_file_from_url(url, createParentDirectory=True)
+            # existing data file, merge new data into existing
+            if os.path.isfile(url_file):
+                try:
+                    existing_data = Util.read_file(url_file)
+                    existing_data = self.parse_string(existing_data,
+                            observatory=url_data[0].stats.station,
+                            type=type,
+                            interval=interval,
+                            channels=channels)
+                    # TODO: make parse_string return the correct location code
+                    for trace in existing_data:
+                        # make location codes match, just in case
+                        new_trace = url_data.select(
+                                network=trace.stats.network,
+                                station=trace.stats.station,
+                                channel=trace.stats.channel)[0]
+                        trace.stats.location = new_trace.stats.location
+                    url_data = TimeseriesUtility.merge_streams(
+                            existing_data, url_data)
+                except IOError:
+                    # no data yet
+                    pass
+                except NotImplementedError:
+                    # factory only supports output
+                    pass
+                except Exception as e:
+                    print >> sys.stderr, \
+                            'Unable to merge with existing data.' + \
+                            '\nfile={}' + \
+                            '\nerror={}'.format(url_file, str(e))
+                    raise e
             with open(url_file, 'wb') as fh:
                 try:
                     self.write_file(fh, url_data, channels)

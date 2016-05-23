@@ -71,7 +71,7 @@ class Controller(object):
         timeseries : obspy.core.Stream
         """
         timeseries = Stream()
-        for obs in list(observatory):
+        for obs in observatory:
             # get input interval for observatory
             # do this per observatory in case an
             # algorithm needs different amounts of data
@@ -130,7 +130,7 @@ class Controller(object):
         timeseries : obspy.core.Stream
         """
         timeseries = Stream()
-        for obs in list(observatory):
+        for obs in observatory:
             timeseries += self._outputFactory.get_timeseries(
                 observatory=obs,
                 starttime=starttime,
@@ -203,6 +203,8 @@ class Controller(object):
         if options.update_limit != 0:
             if update_count >= options.update_limit:
                 return
+        print >> sys.stderr, 'checking gaps', \
+                options.starttime, options.endtime
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
@@ -214,10 +216,17 @@ class Controller(object):
                 starttime=options.starttime,
                 endtime=options.endtime,
                 channels=output_channels)
-        delta = output_timeseries[0].stats.delta
-        # find gaps in output, so they can be updated
-        output_gaps = TimeseriesUtility.get_merged_gaps(
-                TimeseriesUtility.get_stream_gaps(output_timeseries))
+        if len(output_timeseries) > 0:
+            # find gaps in output, so they can be updated
+            output_gaps = TimeseriesUtility.get_merged_gaps(
+                    TimeseriesUtility.get_stream_gaps(output_timeseries))
+        else:
+            output_gaps = [[
+                options.starttime,
+                options.endtime,
+                # next sample time not used
+                None
+            ]]
         for output_gap in output_gaps:
             input_timeseries = self._get_input_timeseries(
                     observatory=options.observatory,
@@ -233,12 +242,14 @@ class Controller(object):
             if output_gap[0] == options.starttime:
                 # found fillable gap at start, recurse to previous interval
                 interval = options.endtime - options.starttime
-                starttime = options.starttime - interval - delta
-                endtime = options.starttime - delta
+                starttime = options.starttime - interval - 1
+                endtime = options.starttime - 1
                 options.starttime = starttime
                 options.endtime = endtime
                 self.run_as_update(options, update_count + 1)
             # fill gap
+            print >> sys.stderr, 'processing', \
+                    options.starttime, options.endtime
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
             self.run(options)
@@ -490,6 +501,27 @@ def main(args):
                 ' please update your usage'
     # TODO check for unused arguments.
 
+    # make sure observatory is a tuple
+    if isinstance(args.observatory, (str, unicode)):
+        args.observatory = (args.observatory,)
+
+    if args.observatory_foreach:
+        observatory = args.observatory
+        for obs in observatory:
+            args.observatory = (obs,)
+            _main(args)
+    else:
+        _main(args)
+
+
+def _main(args):
+    """Actual main method logic, called by main
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        command line arguments
+    """
     # create controller
     input_factory = get_input_factory(args)
     output_factory = get_output_factory(args)
@@ -505,7 +537,6 @@ def main(args):
             args.starttime = args.endtime - 3600
         else:
             args.starttime = args.endtime - 600
-        print args.starttime, args.endtime
 
     if args.update:
         controller.run_as_update(args)
@@ -539,12 +570,18 @@ def parse_args(args):
             help='UTC date YYYY-MM-DD HH:MM:SS')
 
     parser.add_argument('--observatory',
+            default=(None,),
             help='Observatory code ie BOU, CMO, etc.' +
                     ' CAUTION: Using multiple observatories is not' +
                     ' recommended in most cases; especially with' +
                     ' single observatory formats like IAGA and PCDCP.',
             nargs='*',
             type=str)
+    parser.add_argument('--observatory-foreach',
+            action='store_true',
+            default=False,
+            help='When specifying multiple observatories, process'
+                    ' each observatory separately')
     parser.add_argument('--inchannels',
             nargs='*',
             help='Channels H, E, Z, etc')

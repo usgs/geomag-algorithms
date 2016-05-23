@@ -1,5 +1,6 @@
 """Timeseries Utilities"""
 import numpy
+import obspy.core
 
 
 def get_stream_gaps(stream):
@@ -129,3 +130,78 @@ def get_channels(stream):
         if channel:
             channels[channel] = True
     return [ch for ch in channels]
+
+
+def mask_stream(stream):
+    """Convert stream traces to masked arrays.
+
+    Parameters
+    ----------
+    stream : obspy.core.Stream
+        stream to mask
+
+    Returns
+    -------
+    obspy.core.Stream
+        stream with new Trace objects with numpy masked array data.
+    """
+    masked = obspy.core.Stream()
+    for trace in stream:
+        masked += obspy.core.Trace(
+                numpy.ma.masked_invalid(trace.data),
+                trace.stats)
+    return masked
+
+
+def unmask_stream(stream):
+    """Convert stream traces to unmasked arrays.
+
+    Parameters
+    ----------
+    stream : obspy.core.Stream
+        stream to unmask
+
+    Returns
+    -------
+    obspy.core.Stream
+        stream with new Trace objects with numpy array data, with numpy.nan
+        as a fill value in a filled array.
+    """
+    unmasked = obspy.core.Stream()
+    for trace in stream:
+        unmasked += obspy.core.Trace(
+                trace.data.filled(fill_value=numpy.nan)
+                        if isinstance(trace.data, numpy.ma.MaskedArray)
+                        else trace.data,
+                trace.stats)
+    return unmasked
+
+
+def merge_streams(*streams):
+    """Merge one or more streams.
+
+    Parameters
+    ----------
+    *streams : obspy.core.Stream
+        one or more streams to merge
+
+    Returns
+    -------
+    obspy.core.Stream
+        stream with contiguous traces merged, and gaps filled with numpy.nan
+    """
+    merged = obspy.core.Stream()
+    # add unmasked, split traces to be merged
+    for stream in streams:
+        merged += mask_stream(stream)
+    # split traces that contain gaps
+    merged = merged.split()
+    # merge data
+    merged.merge(
+            # 1 = do not interpolate
+            interpolation_samples=1,
+            # 1 = when there is overlap, use data from trace with last endtime
+            method=1)
+    # convert back to NaN filled array
+    merged = unmask_stream(merged)
+    return merged

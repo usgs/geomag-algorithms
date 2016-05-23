@@ -34,7 +34,8 @@ class IAGA2002Factory(TimeseriesFactory):
     def __init__(self, **kwargs):
         TimeseriesFactory.__init__(self, **kwargs)
 
-    def parse_string(self, data, observatory=None, **kwargs):
+    def parse_string(self, data, observatory=None, interval='minute',
+            **kwargs):
         """Parse the contents of a string in the format of an IAGA2002 file.
 
         Parameters
@@ -55,9 +56,18 @@ class IAGA2002Factory(TimeseriesFactory):
         starttime = obspy.core.UTCDateTime(parser.times[0])
         endtime = obspy.core.UTCDateTime(parser.times[-1])
         data = parser.data
-        length = len(data[data.keys()[0]])
-        rate = (length - 1) / (endtime - starttime)
         stream = obspy.core.Stream()
+        length = len(data[data.keys()[0]])
+        if starttime != endtime:
+            rate = (length - 1) / (endtime - starttime)
+        else:
+            # guess based on args
+            if interval == 'minute':
+                rate = 1 / 60
+            elif interval == 'second':
+                rate = 1
+            else:
+                raise Exception('one sample, and unable to guess rate')
         for channel in data.keys():
             stats = obspy.core.Stats(metadata)
             stats.starttime = starttime

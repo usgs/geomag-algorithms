@@ -37,7 +37,7 @@ class IAGA2002Writer(object):
                     (channel, str(TimeseriesUtility.get_channels(timeseries))))
         stats = timeseries[0].stats
         if len(channels) != 4:
-            self._pad_to_four_channels(timeseries, channels)
+            channels = self._pad_to_four_channels(timeseries, channels)
         out.write(self._format_headers(stats, channels))
         out.write(self._format_comments(stats))
         out.write(self._format_channels(channels, stats.station))
@@ -247,10 +247,12 @@ class IAGA2002Writer(object):
                         for val in values])
 
     def _pad_to_four_channels(self, timeseries, channels):
+        padded = channels[:]
         for x in range(len(channels), 4):
             channel = self.empty_channel
-            channels.append(channel)
+            padded.append(channel)
             timeseries += create_empty_trace(timeseries[0], channel)
+        return padded
 
     @classmethod
     def format(self, timeseries, channels):
