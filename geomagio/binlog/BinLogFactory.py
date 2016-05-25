@@ -1,19 +1,15 @@
-"""Factory that loads VBF Files."""
+"""Factory that creates BinLog Files."""
 
 from ..TimeseriesFactory import TimeseriesFactory
-from VBFWriter import VBFWriter
+from BinLogWriter import BinLogWriter
 
 
-# pattern for vbf file names
-VBF_FILE_PATTERN = '%(obs)s%(y)s%(j)s.%(i)s'
-
-
-class VBFFactory(TimeseriesFactory):
-    """TimeseriesFactory for VBF formatted files.
+class BinLogFactory(TimeseriesFactory):
+    """TimeseriesFactory for BinLog formatted files.
 
     Parameters
     ----------
-    output : vbf style output.
+    output : bin-change report.
 
     All other named parameters passed to TimeseriesFactory.
 
@@ -37,4 +33,4 @@ class VBFFactory(TimeseriesFactory):
         channels : list
             list of channels to store.
         """
-        VBFWriter().write(fh, timeseries, channels)
+        BinLogWriter().write(fh, timeseries, channels)
