@@ -12,13 +12,16 @@ import sys
 class AdjustedAlgorithm(Algorithm):
     """Adjusted Data Algorithm"""
 
-    def __init__(self, matrix=None, pier_correction=None, statefile=None):
+    def __init__(self, matrix=None, pier_correction=None, statefile=None,
+            data_type=None, location=None):
         Algorithm.__init__(self, inchannels=('H', 'E', 'Z', 'F'),
             outchannels=('X', 'Y', 'Z', 'F'))
         # state variables
         self.matrix = matrix
         self.pier_correction = pier_correction
         self.statefile = statefile
+        self.data_type = data_type
+        self.location = location
         if (matrix is None):
             self.load_state()
 
@@ -85,8 +88,7 @@ class AdjustedAlgorithm(Algorithm):
         with open(self.statefile, 'w') as f:
             f.write(json.dumps(data))
 
-    @classmethod
-    def create_trace(cls, channel, stats, data):
+    def create_trace(self, channel, stats, data):
         """Utility to create a new trace object.
 
         Parameters
@@ -104,9 +106,16 @@ class AdjustedAlgorithm(Algorithm):
             trace containing data and metadata.
         """
         stats = Stats(stats)
-        stats.data_type = 'adjusted'
-        stats.location = 'A0'
-        trace = super(AdjustedAlgorithm, cls).create_trace(channel, stats,
+        if self.data_type is None:
+            stats.data_type = 'adjusted'
+        else:
+            stats.data_type = self.data_type
+        if self.data_type is None:
+            stats.location = 'A0'
+        else:
+            stats.location = self.location
+
+        trace = super(AdjustedAlgorithm, self).create_trace(channel, stats,
             data)
         return trace
 
