@@ -47,6 +47,7 @@ Exception base class is `geomagio.TimeseriesFactoryException`.
 Base class is `geomagio.algorithm.Algorithm`
 Exception base class is `geomagio.algorithm.AlgorithmException`
 
+- Adjusted `geomagio.algorithm.AdjustedAlgorithm`
 - Delta F `geomagio.algorithm.DeltaFAlgorithm`
 - XYZ `geomagio.algorithm.XYZAlgorithm`
 

@@ -87,6 +87,14 @@ data to an **_iaga2002_** formatted file:
 
 There are flags to specify certain algorithms should be run against the data.
 
+### Adjusted ###
+
+`--algorithm adjusted`
+
+`--adjusted-statefile=/etc/adjusted/adjbou_state_.json`
+
+`--outchannels X Y Z F `
+
 #### XYZ ####
 
 `--algorithm xyz`
@@ -100,6 +108,10 @@ There are flags to specify certain algorithms should be run against the data.
 Rotate data from HEZ (obs) or HDZ (mag) to XYZ (geo) and back.
 
 Document: [/algorithms/XYZ_usage.md](./algorithms/XYZ_usage.md)
+
+
+
+
 
 Extensive explanation of all input and output methods:
 [IO Methods](./io.md)
