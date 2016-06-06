@@ -8,10 +8,13 @@ setup(
     packages=[
         'geomagio',
         'geomagio.algorithm',
-        'geomagio.iaga2002',
-        'geomagio.imfv283',
         'geomagio.edge',
-        'geomagio.pcdcp'
+        'geomagio.iaga2002',
+        'geomagio.imfv122',
+        'geomagio.imfv283',
+        'geomagio.pcdcp',
+        'geomagio.temperature',
+        'geomagio.vbf'
     ],
     install_requires=[
         'numpy',
