@@ -8,6 +8,7 @@ setup(
     packages=[
         'geomagio',
         'geomagio.algorithm',
+        'geomagio.binlog',
         'geomagio.edge',
         'geomagio.iaga2002',
         'geomagio.imfv122',
