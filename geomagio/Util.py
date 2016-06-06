@@ -143,7 +143,7 @@ def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
 
     Raises
     ------
-    urllib2.URLError
+    IOError
         if any occurs
     """
     try:
@@ -167,6 +167,8 @@ def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
         curl.setopt(pycurl.WRITEFUNCTION, out.write)
         curl.perform()
         content = out.getvalue()
+    except pycurl.error as e:
+        raise IOError(e.args)
     finally:
         curl.close()
     return content
