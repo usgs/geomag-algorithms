@@ -100,7 +100,7 @@ class IMFV122Parser(object):
             dayminute = int(start)
             hour = int(dayminute / 60)
             minute = dayminute % 60
-            self._delta = 1
+            self._delta = 60
         self._nexttime = UTCDateTime(
                 year=year,
                 julday=julday,
