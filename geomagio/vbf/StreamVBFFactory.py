@@ -18,7 +18,6 @@ class StreamVBFFactory(VBFFactory):
     Timeseriesfactory
     """
 
-    # Flag "output" used for vbf file versus bin-change log.
     def __init__(self, stream, **kwargs):
         VBFFactory.__init__(self, **kwargs)
         self._stream = stream

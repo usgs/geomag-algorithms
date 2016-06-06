@@ -17,6 +17,7 @@ import imfv283
 # factories for new filetypes
 import temperature
 import vbf
+import binlog
 
 
 class Controller(object):
@@ -406,13 +407,16 @@ def get_output_factory(args):
         elif output_url is not None:
             output_factory = temperature.TEMPFactory(
                     **output_factory_args)
-    elif output_type == 'vbf' or output_type == 'binlog':
+    elif output_type == 'vbf':
         if output_stream is not None:
             output_factory = vbf.StreamVBFFactory(
-                    output=output_type,
+                    **output_factory_args)
+    elif output_type == 'binlog':
+        if output_stream is not None:
+            output_factory = binlog.StreamBinLogFactory(
                     **output_factory_args)
         elif output_url is not None:
-            output_factory = vbf.VBFFactory(
+            output_factory = binlog.BinLogFactory(
                     output=output_type,
                     **output_factory_args)
     return output_factory
