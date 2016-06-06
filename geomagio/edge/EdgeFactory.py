@@ -15,7 +15,7 @@ import numpy
 import numpy.ma
 import obspy.core
 from datetime import datetime
-from obspy import earthworm
+from obspy.clients import earthworm
 from obspy.core import UTCDateTime
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
@@ -530,7 +530,7 @@ class EdgeFactory(TimeseriesFactory):
                 type, interval)
         edge_channel = self._get_edge_channel(observatory, channel,
                 type, interval)
-        data = self.client.getWaveform(network, station, location,
+        data = self.client.get_waveforms(network, station, location,
                 edge_channel, starttime, endtime)
         data.merge()
         if data.count() == 0:
@@ -575,7 +575,7 @@ class EdgeFactory(TimeseriesFactory):
         Parameters
         ----------
         timeseries: obspy.core.stream
-            The timeseries stream as returned by the call to getWaveform
+            The timeseries stream as returned by the call to get_waveforms
         starttime: obspy.core.UTCDateTime
             the starttime of the requested data
         endtime: obspy.core.UTCDateTime
