@@ -15,8 +15,12 @@ import numpy
 import numpy.ma
 import obspy.core
 from datetime import datetime
-from obspy.clients import earthworm
-from obspy.core import UTCDateTime
+try:
+    # obspy 1.x
+    from obspy.clients import earthworm
+except:
+    # obspy 0.x
+    from obspy import earthworm
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
@@ -209,8 +213,8 @@ class EdgeFactory(TimeseriesFactory):
         Notes: the original timeseries object is changed.
         """
         for trace in timeseries:
-            trace_starttime = UTCDateTime(trace.stats.starttime)
-            trace_endtime = UTCDateTime(trace.stats.endtime)
+            trace_starttime = obspy.core.UTCDateTime(trace.stats.starttime)
+            trace_endtime = obspy.core.UTCDateTime(trace.stats.endtime)
 
             if trace.stats.starttime > starttime:
                 cnt = int((trace_starttime - starttime) / trace.stats.delta)
@@ -553,11 +557,11 @@ class EdgeFactory(TimeseriesFactory):
         Returns
         -------
         tuple: (starttime, endtime)
-            starttime: UTCDateTime
-            endtime: UTCDateTime
+            starttime: obspy.core.UTCDateTime
+            endtime: obspy.core.UTCDateTime
         """
-        starttime = UTCDateTime(datetime.now())
-        endtime = UTCDateTime(0)
+        starttime = obspy.core.UTCDateTime(datetime.now())
+        endtime = obspy.core.UTCDateTime(0)
         for trace in timeseries:
             if trace.stats.starttime < starttime:
                 starttime = trace.stats.starttime
@@ -614,8 +618,8 @@ class EdgeFactory(TimeseriesFactory):
             data type.
         interval: {'daily', 'hourly', 'minute', 'second'}
             data interval.
-        starttime: UTCDateTime
-        endtime: UTCDateTime
+        starttime: obspy.core.UTCDateTime
+        endtime: obspy.core.UTCDateTime
 
         Notes
         -----
@@ -630,7 +634,7 @@ class EdgeFactory(TimeseriesFactory):
         edge_channel = self._get_edge_channel(observatory, channel,
                 type, interval)
 
-        now = UTCDateTime(datetime.utcnow())
+        now = obspy.core.UTCDateTime(datetime.utcnow())
         if ((now - endtime) > 864000) and (self.cwbport > 0):
             host = self.cwbhost
             port = self.cwbport
