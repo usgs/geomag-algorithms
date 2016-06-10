@@ -2,16 +2,20 @@ from distutils.core import setup
 
 setup(
     name='geomag-algorithms',
-    version='0.0.0',
+    version='0.2.0',
     description='USGS Geomag IO Library',
     url='https://github.com/usgs/geomag-algorithms',
     packages=[
         'geomagio',
         'geomagio.algorithm',
-        'geomagio.iaga2002',
-        'geomagio.imfv283',
+        'geomagio.binlog',
         'geomagio.edge',
-        'geomagio.pcdcp'
+        'geomagio.iaga2002',
+        'geomagio.imfv122',
+        'geomagio.imfv283',
+        'geomagio.pcdcp',
+        'geomagio.temperature',
+        'geomagio.vbf'
     ],
     install_requires=[
         'numpy',

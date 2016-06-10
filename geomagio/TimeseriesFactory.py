@@ -1,4 +1,5 @@
 """Abstract Timeseries Factory Interface."""
+import numpy
 import obspy.core
 import os
 import sys
@@ -119,8 +120,18 @@ class TimeseriesFactory(object):
             except Exception as e:
                 print >> sys.stderr, "Error parsing data: " + str(e)
                 print >> sys.stderr, data
+        if channels is not None:
+            filtered = obspy.core.Stream()
+            for channel in channels:
+                filtered += timeseries.select(channel=channel)
+            timeseries = filtered
         timeseries.merge()
-        timeseries.trim(starttime, endtime)
+        timeseries.trim(
+                starttime=starttime,
+                endtime=endtime,
+                nearest_sample=False,
+                pad=True,
+                fill_value=numpy.nan)
         return timeseries
 
     def parse_string(self, data, **kwargs):
@@ -166,6 +177,9 @@ class TimeseriesFactory(object):
         TimeseriesFactoryException
             if any errors occur.
         """
+        if len(timeseries) == 0:
+            # no data to put
+            return
         if not self.urlTemplate.startswith('file://'):
             raise TimeseriesFactoryException('Only file urls are supported')
         channels = channels or self.channels
@@ -218,12 +232,6 @@ class TimeseriesFactory(object):
                 except NotImplementedError:
                     # factory only supports output
                     pass
-                except Exception as e:
-                    print >> sys.stderr, \
-                            'Unable to merge with existing data.' + \
-                            '\nfile={}' + \
-                            '\nerror={}'.format(url_file, str(e))
-                    raise e
             with open(url_file, 'wb') as fh:
                 try:
                     self.write_file(fh, url_data, channels)
