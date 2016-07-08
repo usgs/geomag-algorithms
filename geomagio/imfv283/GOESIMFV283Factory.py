@@ -125,9 +125,6 @@ class GOESIMFV283Factory(IMFV283Factory):
 
         for server in self.server:
             print >> sys.stderr, server
-            print >> sys.stderr, self.password
-            print >> sys.stderr, self.getdcpmessages
-            print >> sys.stderr, self.directory + '/' + self.criteria_file_name
             proc = subprocess.Popen(
                     [self.getdcpmessages,
                     '-h ' + server,
