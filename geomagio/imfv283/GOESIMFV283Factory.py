@@ -41,13 +41,15 @@ class GOESIMFV283Factory(IMFV283Factory):
     """
     def __init__(self, observatory=None, channels=None,
             type=None, interval='minute', directory=None,
-            getdcpmessages=None, server=None, user=None):
+            getdcpmessages=None, password = None, server=None,
+            user=None):
         IMFV283Factory.__init__(self, None, observatory, channels,
             type, interval)
         self.directory = directory
         self.getdcpmessages = getdcpmessages
         self.server = server
         self.user = user
+        self.password = password
         self.observatories = observatory
         self.observatory = observatory[0]
         self.javaerror = 'java.io.IOException: Socket closed'
@@ -119,6 +121,7 @@ class GOESIMFV283Factory(IMFV283Factory):
                     [self.getdcpmessages,
                     '-h ' + server,
                     '-u ' + self.user,
+                    '-p ' + self.password,
                     '-f ' + self.directory + '/' + self.criteria_file_name,
                     '-t 60',
                     '-n'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
