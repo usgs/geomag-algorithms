@@ -299,6 +299,7 @@ def get_input_factory(args):
         input_factory = imfv283.GOESIMFV283Factory(
                 directory=args.input_goes_directory,
                 getdcpmessages=args.input_goes_getdcpmessages,
+                password=args.input_goes_password,
                 server=args.input_goes_server,
                 user=args.input_goes_user,
                 **input_factory_args)
@@ -580,7 +581,7 @@ def parse_args(args):
             type=edge.LocationCode)
     parser.add_argument('--interval',
             default='minute',
-            choices=['hourly', 'minute', 'second'])
+            choices=['hourly', 'minute', 'second', 'tenth'])
     parser.add_argument('--update',
             action='store_true',
             default=False,
@@ -634,6 +635,9 @@ def parse_args(args):
     parser.add_argument('--input-goes-getdcpmessages',
             default='',
             help='Location of getDcpMessages.')
+    parser.add_argument('--input-goes-password',
+            default='',
+            help='Password for goes user')
     parser.add_argument('--input-goes-server',
             nargs='*',
             help='The server name(s) to retrieve the GOES data from')
