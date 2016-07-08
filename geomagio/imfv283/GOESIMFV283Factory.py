@@ -127,11 +127,11 @@ class GOESIMFV283Factory(IMFV283Factory):
             print >> sys.stderr, server
             proc = subprocess.Popen(
                     [self.getdcpmessages,
-                    '-h ', server,
-                    '-u ', self.user,
-                    '-P ', self.password,
-                    '-f ', self.directory + '/' + self.criteria_file_name,
-                    '-t 60',
+                    '-h', server,
+                    '-u', self.user,
+                    '-P', self.password,
+                    '-f', self.directory + '/' + self.criteria_file_name,
+                    '-t', '60',
                     '-n'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (output, error) = proc.communicate()
             print >> sys.stderr, error
