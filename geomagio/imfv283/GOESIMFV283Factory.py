@@ -40,7 +40,7 @@ class GOESIMFV283Factory(IMFV283Factory):
     Timeseriesfactory
     """
     def __init__(self, directory=None, getdcpmessages=None,
-            password = None, server=None, user=None, **kwargs):
+            password=None, server=None, user=None, **kwargs):
         IMFV283Factory.__init__(self, None, **kwargs)
         self.directory = directory
         self.getdcpmessages = getdcpmessages
@@ -127,10 +127,10 @@ class GOESIMFV283Factory(IMFV283Factory):
             print >> sys.stderr, server
             proc = subprocess.Popen(
                     [self.getdcpmessages,
-                    '-h ' + server,
-                    '-u ' + self.user,
-                    '-P ' + self.password,
-                    '-f ' + self.directory + '/' + self.criteria_file_name,
+                    '-h ', server,
+                    '-u ', self.user,
+                    '-P ', self.password,
+                    '-f ', self.directory + '/' + self.criteria_file_name,
                     '-t 60',
                     '-n'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (output, error) = proc.communicate()
