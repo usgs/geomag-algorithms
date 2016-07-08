@@ -39,19 +39,14 @@ class GOESIMFV283Factory(IMFV283Factory):
     IMFV283Factory
     Timeseriesfactory
     """
-    def __init__(self, observatory=None, channels=None,
-            type=None, interval='minute', directory=None,
-            getdcpmessages=None, password = None, server=None,
-            user=None):
-        IMFV283Factory.__init__(self, None, observatory, channels,
-            type, interval)
+    def __init__(self, directory=None, getdcpmessages=None,
+            password = None, server=None, user=None, **kwargs):
+        IMFV283Factory.__init__(self, None, **kwargs)
         self.directory = directory
         self.getdcpmessages = getdcpmessages
         self.server = server
         self.user = user
         self.password = password
-        self.observatories = observatory
-        self.observatory = observatory[0]
         self.javaerror = 'java.io.IOException: Socket closed'
 
     def get_timeseries(self, starttime, endtime, observatory=None,
@@ -81,6 +76,19 @@ class GOESIMFV283Factory(IMFV283Factory):
             timeseries = timeseries.select(station=observatory)
 
         return timeseries
+
+    def _post_process(self, timeseries):
+        """And metadata to the timeseries traces.
+
+        Parameters
+        ----------
+        timeseries: obspy.core.Stream
+            timeseries object with incomplete metadata
+        """
+        for trace in timeseries:
+            stats = trace.stats
+            self.observatoryMetadata.set_metadata(stats, stats.station,
+                    stats.channel, 'variation', 'minute')
 
     def _retrieve_goes_messages(self, starttime, endtime, observatory):
         """Retrieve goes messages, using getdcpmessages commandline tool.
@@ -117,11 +125,14 @@ class GOESIMFV283Factory(IMFV283Factory):
 
         for server in self.server:
             print >> sys.stderr, server
+            print >> sys.stderr, self.password
+            print >> sys.stderr, self.getdcpmessages
+            print >> sys.stderr, self.directory + '/' + self.criteria_file_name
             proc = subprocess.Popen(
                     [self.getdcpmessages,
                     '-h ' + server,
                     '-u ' + self.user,
-                    '-p ' + self.password,
+                    '-P ' + self.password,
                     '-f ' + self.directory + '/' + self.criteria_file_name,
                     '-t 60',
                     '-n'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
