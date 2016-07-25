@@ -996,6 +996,8 @@ class ObservatoryMetadata(object):
         stats['channel'] = channel
         stats['data_interval'] = interval
         stats['data_type'] = type
+        if observatory not in self.metadata:
+            return
         # copy in standard metadata
         metadata = self.metadata[observatory]['metadata']
         for key in metadata:
