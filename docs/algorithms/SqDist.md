@@ -30,7 +30,7 @@ that we won't discuss in detail here.
 ## Exponential Smoothing
 
 Real time decomposition of geomagnetic time series into SV, SQ, and DIST should
-explicitly acknowledge and address time-causal nature of real time
+explicitly acknowledge and address the time-causal nature of real time
 observations. To this end, we employ a form of exponential smoothing, with
 "seasonal" adjustments, that updates estimates of SV and SQ based only on past
 observations, weighting older observations less and less as time passes. In
@@ -52,8 +52,8 @@ offsets at rate specified by the user.
 
 ## Example
 
-Usage and expected output for this algorithm is shown in this
-[Solar Quiet and Disturbance (Holt Winters)](SqDist.ipynb) IPython Notebook
+Detailed usage examples and expected output for this algorithm is shown in this
+[Solar Quiet and Disturbance (Holt Winters)](SqDistValidate.ipynb) IPython Notebook
 example.
 
 
