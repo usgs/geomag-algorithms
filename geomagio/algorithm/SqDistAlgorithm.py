@@ -581,7 +581,8 @@ class SqDistAlgorithm(Algorithm):
             command line argument parser
         """
         parser.add_argument('--sqdist-alpha',
-                default=1.0 / 1440.0 / 30,
+                # default=1.0 / 1440.0 / 30,
+                default=0,
                 help='Smoothing parameter for secular variation',
                 type=float)
         parser.add_argument('--sqdist-beta',
@@ -589,11 +590,13 @@ class SqDistAlgorithm(Algorithm):
                 help='Smoothing parameter for slope',
                 type=float)
         parser.add_argument('--sqdist-gamma',
-                default=1.0 / 30,
+                # default=1.0 / 30,
+                default=0,
                 help='Smoothing parameter for solar quiet',
                 type=float)
         parser.add_argument('--sqdist-m',
-                default=1440,
+                # default=1440,
+                default=1,
                 help='SqDist m parameter',
                 type=int)
         parser.add_argument('--sqdist-mag',

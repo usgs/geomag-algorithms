@@ -28,7 +28,9 @@ channels using the EDGE channel naming convention.
       --output iaga2002 \
       --output-stdout
 
-This example processes just one channel (X).
+This example processes just one channel (X), but explicitly sets parameters to
+ensure 1-minute data is loaded, and the SV and SQ values will evolve with ~30
+day time constant.
 
     bin/geomag.py \
       --input edge \
@@ -36,7 +38,11 @@ This example processes just one channel (X).
       --inchannels X \
       --starttime 2016-01-03T00:01:00 \
       --endtime 2016-01-04T00:00:00 \
+      --interval minute \
       --algorithm sqdist \
+      --sqdist-m = 1440 \
+      --sqdist-alpha = 2.315e-5 \
+      --sqdist-gamma = 3.333e-2 \
       --sqdist-statefile=/tmp/sqdist_x_state.json \
       --rename-output-channel X_Dist MXT \
       --rename-output-channel X_SQ MXQ \
@@ -45,7 +51,9 @@ This example processes just one channel (X).
       --output iaga \
       --output-stdout
 
-> Note only one inchannel is specified and the --sqdist-mag option is omitted.
+> Note only one inchannel is specified, the --sqdist-mag option is omitted, the 
+> --interval option is explicit (and there are 1440 of them in a day), alpha is 
+> approximately 1/30/1440, and gamma is approximately 1/30.
 
 
 ### Library Notes
