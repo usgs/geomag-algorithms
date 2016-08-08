@@ -31,17 +31,18 @@ that we won't discuss in detail here.
 
 Real time decomposition of geomagnetic time series into SV, SQ, and DIST should
 explicitly acknowledge and address the time-causal nature of real time
-observations. To this end, we employ a form of exponential smoothing, with
-"seasonal" adjustments, that updates estimates of SV and SQ based only on past
-observations, weighting older observations less and less as time passes. In
-effect, SV and SQ adapt to changing conditions at a predictable rate that can
-be specified by the user.
+observations. To this end, we employ a discrete form of exponential smoothing, with "seasonal" adjustments, to update estimates of SV and SQ based only on past observations.
 
-In addition, this approach is significantly less computationally expensive than
-traditional Fourier techniques. No Fourier transform of months-to-years-long
-data series is required, and memory requirements are comparably reduced, since
-a description of the state of the system at any given moment is only 1+m, where
-m is the number of data points in an SQ cycle, nominally 1 day.
+Simple exponential smoothing is a weighted average of the most recent observation and the previous weighted average, where the observation weight is, by definition, between 0 and 1. This weight is often referred to as a "forgetting factor", while its inverse referred to as the memory. More specifically, it represents the average age of the data that informs the current estimate of the average. If the forgetting factor is 0.5, the average age of the data used to estimate the current average is 2 samples; if the forgetting factor is 0.1, the average age is 10 samples; and so forth. If a memory in terms of actual time units is desired, simply define a forgetting factor equal to 1/memory_in_time_units/samples_per_time_unit. For example, if working with a 1-minute resolution time series, and the running average must most reflect the previous 30 days worth of observations, set the forgetting factor equal to 1/30/1440.
+
+Simple exponential smoothing can be extended to include "seasonal" adjustments. In other words, if there is a repeating cycle superposed on slowly varying baseline (e.g., SQ on top of SV), exponential smoothing can be applied to each element of the set of correction factors. In this case, if a forgetting factor is required to be in units of actual time, we must account for the fact that each correction factor only gets updated once-per-cycle, and multiply by the number of correction factors per cycle. For regular time series, this means samples_per_time_unit, so the forgetting factor for SQ that adapts on a 30-day time scale is simply 1/30.
+
+In addition to real time data considerations, this approach is significantly
+less computationally expensive than traditional Fourier techniques. No Fourier
+transform of months-to-years-long data series is required, and memory
+requirements are comparably reduced, since a description of the state of the
+system at any given moment is only 1+m, where m is the number of data points in
+an SQ cycle, nominally 1 day.
 
 Finally, exponential smoothing is generally more robust to common issues with
 real time data series; it easily extrapolates SV and SQ across gaps in the
@@ -52,9 +53,9 @@ offsets at rate specified by the user.
 
 ## Example
 
-Detailed usage examples and expected output for this algorithm is shown in this
-[Solar Quiet and Disturbance (Holt Winters)](SqDistValidate.ipynb) IPython Notebook
-example.
+Usage examples can be found [here](SqDist_usage.md), and a much more detailed
+description of this algorithm, and example inputs and outputs, can be found
+[here](SqDistValidate.ipynb (a Jupyter/IPython Notebook)).
 
 
 ## References
