@@ -5,6 +5,7 @@ LABEL usgs.geomag-algorithms.version=0.2.0
 
 
 # update os
+
 RUN apt-get update --fix-missing && \
     apt-get install -y --no-install-recommends \
         bzip2 \
@@ -39,15 +40,25 @@ COPY . /geomag-algorithms
 
 
 RUN pip install /geomag-algorithms && \
-    mkdir /notebooks
+    groupadd \
+        -g 1234 \
+        -r \
+        geomag_user && \
+    useradd \
+        -c 'Docker image user' \
+        -d /home/geomag_user \
+        -g geomag_user \
+        -r \
+        -s /sbin/nologin \
+        -u 1234 \
+         geomag_user && \
+    mkdir -p /home/geomag_user/notebooks && \
+    chown -R geomag_user:geomag_user /home/geomag_user
 
 
-WORKDIR /geomag-algorithms
+USER geomag_user
+
+WORKDIR /home/geomag_user
 EXPOSE 80
-CMD /bin/bash -c " \
-    exec jupyter notebook \
-        --ip='*' \
-        --notebook-dir=/notebooks \
-        --no-browser \
-        --port=80 \
-    "
+# entrypoint needs double quotes
+ENTRYPOINT [ "/geomag-algorithms/docker-entrypoint.sh" ]

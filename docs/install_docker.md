@@ -20,7 +20,8 @@ docker run -d --name geomagio -p 8000:80 usgs/geomag-algorithms
 - `usgs/geomag-algorithms:latest` refers to the
   latest version of the geomag-algorithms docker image
 
-  > Notebooks are stored in the container in the directory `/notebooks`
+  > Notebooks are stored in the container in the directory
+  > `/home/geomag_user/notebooks`
 
 
 ### Use the container
