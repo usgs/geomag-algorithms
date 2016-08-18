@@ -139,13 +139,16 @@ class Controller(object):
                 channels=channels)
         return timeseries
 
-    def run(self, options):
+    def run(self, options, input_timeseries=None):
         """run controller
         Parameters
         ----------
         options: dictionary
             The dictionary of all the command line arguments. Could in theory
             contain other options passed in by the controller.
+        input_timeseries : obspy.core.Stream
+            Used by run_as_update to save a double input read, since it has
+            already read the input to confirm data can be produced.
         """
         algorithm = self._algorithm
         input_channels = options.inchannels or \
@@ -153,7 +156,7 @@ class Controller(object):
         output_channels = options.outchannels or \
                 algorithm.get_output_channels()
         # input
-        timeseries = self._get_input_timeseries(
+        timeseries = input_timeseries or self._get_input_timeseries(
                 observatory=options.observatory,
                 starttime=options.starttime,
                 endtime=options.endtime,
@@ -253,7 +256,7 @@ class Controller(object):
             options.endtime = output_gap[1]
             print >> sys.stderr, 'processing', \
                     options.starttime, options.endtime
-            self.run(options)
+            self.run(options, input_timeseries)
 
 
 def get_input_factory(args):
