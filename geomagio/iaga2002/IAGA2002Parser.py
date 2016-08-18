@@ -5,8 +5,8 @@ import numpy
 from datetime import datetime
 
 # values that represent missing data points in IAGA2002
-EIGHTS = numpy.float64('88888.88')
-NINES = numpy.float64('99999.99')
+EIGHTS = numpy.float64('88888')
+NINES = numpy.float64('99999')
 
 # placeholder channel name used when less than 4 channels are being written.
 EMPTY_CHANNEL = 'NUL'
@@ -177,7 +177,6 @@ class IAGA2002Parser(object):
             if channel == EMPTY_CHANNEL:
                 continue
             data = numpy.array(data, dtype=numpy.float64)
-            data[data == int(EIGHTS)] = numpy.nan
             data[data == EIGHTS] = numpy.nan
             data[data == NINES] = numpy.nan
             self.data[channel] = data
