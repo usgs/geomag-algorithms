@@ -23,8 +23,8 @@ before_install:
   - npm --version
   - node --version
 install:
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy nose flake8
+  - conda config --add channels conda-forge
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION obspy pycurl nose flake8
   - source activate test-environment
-  - pip install obspy pycurl
   - npm install
 script: grunt lint test
