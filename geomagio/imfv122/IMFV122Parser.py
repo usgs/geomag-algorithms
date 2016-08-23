@@ -5,8 +5,8 @@ import numpy
 from obspy.core import UTCDateTime
 
 # values that represent missing data points in IAGA2002
-EIGHTS = numpy.float64('88888')
-NINES = numpy.float64('99999')
+EIGHTS = numpy.float64('888888')
+NINES = numpy.float64('999999')
 
 
 class IMFV122Parser(object):
