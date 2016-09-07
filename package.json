@@ -1,6 +1,6 @@
 {
   "name": "geomag-algorithms",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "http://geomag.usgs.gov/",
   "repository": "https://github.com/usgs/geomag-algorithms.git",
   "description": "Geomagnetism algorithms.",
@@ -10,8 +10,8 @@
   },
   "contributors": [
     {
-      "name": "Hal Simpson",
-      "email": "hasimpson@usgs.gov"
+      "name": "Abram Claycomb",
+      "email": "aclaycomb@usgs.gov"
     }
   ],
   "keywords": [
