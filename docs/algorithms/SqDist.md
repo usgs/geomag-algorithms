@@ -22,7 +22,8 @@ variety of time scales associated with distinct physical phenomena. These are:
 SV is fairly easily separated from higher frequency variations using low-order
 polynomials to *detrend* the data. `SQ` and `DIST` have similar time scales, and
 are therefore more difficult to separate. Fourier series can be fit to data to
-estimate `SQ`, which works reasonably well in non-real time situations.
+estimate `SQ`, which works reasonably well in non-real time situations, with
+sufficient data.
 
 However, Fourier decomposition suffers in real time processing because there is
 a large computational burden associated with the long time series required to
@@ -40,40 +41,48 @@ Real time decomposition of geomagnetic time series into `SV`, `SQ`, and `DIST`
 should explicitly acknowledge and address the time-causal nature of real time
 observations. To this end, we employ a discrete form of exponential smoothing,
 with "seasonal" adjustments, to update estimates of `SV` and `SQ` based only on
-past observations. A detailed theoretical basis and demonstration of our
+recent past observations. A detailed theoretical basis and demonstration of our
 algorithm can be found in [SqDistValidate.ipynb (a Jupyter/IPython
 Notebook)](SqDistValidate.ipynb), while a usage guide is in
 [SqDist_usage.md](SqDist_usage.md). Below, we summarize the basics.
 
-Exponential smoothing is a weighted running average of the most recent
+In brief, exponential smoothing is a weighted running average of the most recent
 observation and the previous average - a recursive process. If between 0 and 1,
 the weight associated with the observation is referred to as a "forgetting
-factor", whose inverse defines the average age (in terms of regular sample
-intervals) of the observations contributing to the current average. A weight of
-0 means new observations do not affect the average at all, while 1 means new
-observations become the average.
+factor", whose inverse defines the average age (in discrete samples) of the
+observations contributing to the current average (see
+[http://people.duke.edu/~rnau/411avg.htm](http://people.duke.edu/~rnau/411avg.htm)).
+A weight of 0 means new observations do not affect the average at all, while 1
+means new observations become the average.
 
 Exponential smoothing can be used to estimate a running mean, a linear trend,
-even a periodic sequence of `m` discrete "seasonal corrections" (there's more,
-but we focus on these three here). We define separate forgetting factors for
-each:
+even a periodic sequence of discrete "seasonal corrections" (there's more, but
+we focus on these three here). We define separate forgetting factors for each:
 
 - `alpha` - sensitivity of running average to new observations
 - `beta` - sensitivity of linear trend to new observations
-- `gamma` - sensitivity of seasonal correction to new observations
-- `m` - length of cycle for which seasonal corrections are estimated
+- `gamma` - sensitivity of seasonal corrections to new observations
+- `m` - number of discrete seasonal corrections in a cycle
+
+Discrete-sample exponential forgetting factors can be defined as:
+
+```
+ff = (m * cycles_per_sample) / (sample_rate * total_time)
+```
 
 Now, suppose we have a typical time series of 1-minute resolution geomagnetic
 data, and want to remove secular variations with a time scale longer than 30
 days (SV is traditionally fit to the monthly averages of "quiet days", leading
-to ~30 day time scale). 30 days is 43200 minutes, so we specify `alpha=1/43200`.
-If we want to allow the slope to vary with a similar time scale, we specify
-`beta=1/43200`. However, if we want seasonal corrections to vary with a 30 day
-time scale, it is necessary to account for the fact that they are only updated
-once per cycle. If that cycle is 1 day, or `m=1440` minutes, that means
-`gamma=1/43200*1440`.
+to ~30 day time scale). The total_time is 30 days and the sample_rate is 1440
+minutes/day. If updates occur with every observation, as is the case with SV,
+then cycles_per_sample is 1/1440. This leads to `alpha=(1440 * 1/1440) /   
+(1440 * 30) = 1/43200`. The same holds for `beta`. However, if updates occur
+only once per cycle, the cycles_per_sample is just 1, which leads to
+`gamma=(1440 * 1) / (1440 * 30) = 1440/43200`.
 
-So, `alpha`, `beta`, and `gamma`, combined with observations, provide a running average of geomagnetic time series (`SV+SQ`). This is then subtracted from the actual observations to produce `DIST`.
+So, `alpha`, `beta`, and `gamma`, combined with observations, provide a running
+average of geomagnetic time series (`SV+SQ`). This is then subtracted from the
+actual observations to produce `DIST`.
 
 ## Why Exponential Smoothing?
 
