@@ -606,6 +606,9 @@ class SqDistAlgorithm(Algorithm):
         parser.add_argument('--sqdist-statefile',
                 default=None,
                 help='File to store state between calls to algorithm')
+        parser.add_argument('--sqdist-zthresh',
+                default=6,
+                help='Set Z-score threshold')
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.
@@ -622,4 +625,5 @@ class SqDistAlgorithm(Algorithm):
         self.m = arguments.sqdist_m
         self.mag = arguments.sqdist_mag
         self.statefile = arguments.sqdist_statefile
+        self.zthresh = arguments.sqdist_zthresh
         self.load_state()
