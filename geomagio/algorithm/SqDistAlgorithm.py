@@ -436,6 +436,14 @@ class SqDistAlgorithm(Algorithm):
                 # performance.
                 r[i + 1] = gamma * (1 - alpha) * et / m
 
+                ## this properly smooths SQ locally; figure out if we need an
+                ## input parameter to control this, or if we just fix it to a
+                ## reasonable, but static value; also, figure out how/if r
+                ## needs to be changed  -EJR 8/2016
+                #s[i + m] = s[i] + gamma * (1 - alpha) * et / 61.
+                #s[i+m-30:i+m] = s[i+m-30:i+m] + gamma * (1-alpha) * et / 61.
+                #s[i+1:i+30+1] = s[i+1:i+30+1] + gamma * (1-alpha) * et / 61.
+
                 # update and append to s using equation-error formulation
                 s[i + m] = s[i] + gamma * (1 - alpha) * et
 
