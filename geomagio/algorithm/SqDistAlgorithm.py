@@ -463,7 +463,7 @@ class SqDistAlgorithm(Algorithm):
                 # s[i + m] = s[i] + gamma * (1 - alpha) * et
 
                 # distribute error correction across range of seasonal
-                # corrections according to weights calculated above 
+                # corrections according to weights calculated above
                 s[i + m] = s[i] + gamma * (1 - alpha) * et * weights[nts / 2]
                 s[i + m - nts / 2:i + m] = (s[i + m - nts / 2:i + m] +
                                             gamma * (1 - alpha) * et *
@@ -471,7 +471,7 @@ class SqDistAlgorithm(Algorithm):
                 s[i + 1:i + nts / 2 + 1] = (s[i + 1:i + nts / 2 + 1] +
                                             gamma * (1 - alpha) * et *
                                             weights[nts / 2 + 1:])
-                
+ 
                 # update l and b using equation-error formulation
                 l = l + phi * b + alpha * et
                 b = phi * b + alpha * beta * et
