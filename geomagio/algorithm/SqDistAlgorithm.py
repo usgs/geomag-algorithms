@@ -230,12 +230,13 @@ class SqDistAlgorithm(Algorithm):
         out += self.create_trace(channel + '_Dist', trace.stats, dist)
         out += self.create_trace(channel + '_SQ', trace.stats, sq)
         out += self.create_trace(channel + '_SV', trace.stats, sv)
+        out += self.create_trace(channel + '_Sigma', trace.stats, sigmahat)
         return out
 
     @classmethod
     def additive(cls, yobs, m, alpha, beta, gamma, phi=1,
                  yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
-                 zthresh=6, fc=0, hstep=0):
+                 zthresh=6, fc=0, hstep=0, smooth=1):
         """Primary function for Holt-Winters smoothing/forecasting with
           damped linear trend and additive seasonal component.
 
@@ -291,6 +292,9 @@ class SqDistAlgorithm(Algorithm):
         hstep : int
             the number of steps ahead to predict yhat[i]
             which forces an hstep prediction at each time step
+        smooth: int
+            period (in samples) at which Gaussian smoother will attenuate
+            signal power by half
 
         Returns
         -------
@@ -357,6 +361,25 @@ class SqDistAlgorithm(Algorithm):
             if len(sigma) != (hstep + 1):
                 raise AlgorithmException(
                     "sigma0 must have length %d" % (hstep + 1))
+
+        # generate a vector of weights that will "smooth" seasonal
+        # variations locally...the quotes are because what we really
+        # do is distribute the error correction across a range of
+        # seasonal corrections; we do NOT convovle this filter with
+        # a signal to dampen noise, as is typical. -EJR 10/2016
+
+        # smooth parameter should specify the required cut-off period in terms
+        # of discrete samples; for now, we generate a Gaussian filter according
+        # to White et al. (USGS SIR 2014-5045).
+        fom = 10**(-3 / 20.)  # halve power at corner frequency
+        omg = np.pi / np.float64(smooth)  # corner angular frequency
+        sig = np.sqrt(-2 * np.log(fom) / omg**2) + np.finfo(float).eps  # sig>0
+        ts = np.linspace(np.max((-m, -3 * np.round(sig))),
+                         np.min((m, 3 * np.round(sig))),
+                         np.min((2 * m, 6 * np.round(sig))) + 1)
+        nts = ts.size
+        weights = np.exp(-0.5 * (ts / sig)**2)
+        weights = weights / np.sum(weights)
 
         #
         # Now begin the actual Holt-Winters algorithm
@@ -436,8 +459,18 @@ class SqDistAlgorithm(Algorithm):
                 # performance.
                 r[i + 1] = gamma * (1 - alpha) * et / m
 
-                # update and append to s using equation-error formulation
-                s[i + m] = s[i] + gamma * (1 - alpha) * et
+                # #update and append to s using equation-error formulation
+                # s[i + m] = s[i] + gamma * (1 - alpha) * et
+
+                # distribute error correction across range of seasonal
+                # corrections according to weights calculated above
+                s[i + m] = s[i] + gamma * (1 - alpha) * et * weights[nts / 2]
+                s[i + m - nts / 2:i + m] = (s[i + m - nts / 2:i + m] +
+                                            gamma * (1 - alpha) * et *
+                                            weights[:nts / 2])
+                s[i + 1:i + nts / 2 + 1] = (s[i + 1:i + nts / 2 + 1] +
+                                            gamma * (1 - alpha) * et *
+                                            weights[nts / 2 + 1:])
 
                 # update l and b using equation-error formulation
                 l = l + phi * b + alpha * et
@@ -609,6 +642,9 @@ class SqDistAlgorithm(Algorithm):
         parser.add_argument('--sqdist-zthresh',
                 default=6,
                 help='Set Z-score threshold')
+        parser.add_argument('--sqdist-smooth',
+                default=1,
+                help='Local SQ smoothing parameter')
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.
@@ -626,4 +662,5 @@ class SqDistAlgorithm(Algorithm):
         self.mag = arguments.sqdist_mag
         self.statefile = arguments.sqdist_statefile
         self.zthresh = arguments.sqdist_zthresh
+        self.smooth = arguments.sqdist_smooth
         self.load_state()
