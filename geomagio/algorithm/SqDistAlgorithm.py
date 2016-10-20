@@ -471,7 +471,7 @@ class SqDistAlgorithm(Algorithm):
                 s[i + 1:i + nts / 2 + 1] = (s[i + 1:i + nts / 2 + 1] +
                                             gamma * (1 - alpha) * et *
                                             weights[nts / 2 + 1:])
- 
+
                 # update l and b using equation-error formulation
                 l = l + phi * b + alpha * et
                 b = phi * b + alpha * beta * et
