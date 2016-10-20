@@ -376,11 +376,10 @@ class SqDistAlgorithm(Algorithm):
         sig = np.sqrt(-2 * np.log(fom) / omg**2) + np.finfo(float).eps  # sig>0
         ts = np.linspace(np.max((-m, -3 * np.round(sig))),
                          np.min((m, 3 * np.round(sig))),
-                         np.min((2 *m, 6 * np.round(sig))) + 1)
+                         np.min((2 * m, 6 * np.round(sig))) + 1)
         nts = ts.size
         weights = np.exp(-0.5 * (ts / sig)**2)
         weights = weights / np.sum(weights)
-
 
         #
         # Now begin the actual Holt-Winters algorithm
@@ -460,17 +459,17 @@ class SqDistAlgorithm(Algorithm):
                 # performance.
                 r[i + 1] = gamma * (1 - alpha) * et / m
 
-                # update and append to s using equation-error formulation
-                #s[i + m] = s[i] + gamma * (1 - alpha) * et
+                # #update and append to s using equation-error formulation
+                # s[i + m] = s[i] + gamma * (1 - alpha) * et
 
                 # distribute error correction across range of seasonal
                 # corrections according to weights calculated above 
                 s[i + m] = s[i] + gamma * (1 - alpha) * et * weights[nts / 2]
-                s[i + m - nts / 2:i + m] = (s[i + m - nts / 2:i + m] + 
-                                            gamma * (1 - alpha) * et * 
+                s[i + m - nts / 2:i + m] = (s[i + m - nts / 2:i + m] +
+                                            gamma * (1 - alpha) * et *
                                             weights[:nts / 2])
-                s[i + 1:i + nts / 2 + 1] = (s[i + 1:i + nts / 2 + 1] + 
-                                            gamma * (1 - alpha) * et * 
+                s[i + 1:i + nts / 2 + 1] = (s[i + 1:i + nts / 2 + 1] +
+                                            gamma * (1 - alpha) * et *
                                             weights[nts / 2 + 1:])
                 
                 # update l and b using equation-error formulation
