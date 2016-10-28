@@ -125,7 +125,7 @@ notebook.
 
 There's a [Generation Tool](AdjustedPhase1GenerationTool.ipynb) notebook, for
 generating the tranformation matrices in an automated fashion, with tools for
-adjusting manually and previewing the effect on delta F, etc.
+adjusting manually and previewing the effect on delta F,  etc.
 
 
 ## References
