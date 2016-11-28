@@ -15,12 +15,16 @@ import numpy
 import numpy.ma
 import obspy.core
 from datetime import datetime
-try:
-    # obspy 1.x
-    from obspy.clients import earthworm
-except:
-    # obspy 0.x
-    from obspy import earthworm
+# try:
+#     # obspy 1.x
+#     from obspy.clients import earthworm
+# except:
+#     # obspy 0.x
+#     from obspy import earthworm
+
+# use local version of earthworm client to test memory leak fix
+import client as earthworm
+
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
