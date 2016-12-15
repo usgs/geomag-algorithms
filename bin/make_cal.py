@@ -95,6 +95,8 @@ calfile = []
 cals = sorted(cals, key=lambda c: c['start'])
 # group by date
 for date, cals in itertools.groupby(cals, key=lambda c: c['start'].date()):
+    # convert group to list so it can be reused
+    cals = list(cals)
     # within each day, order by H, then D, then Z
     for channel in ['H', 'D', 'Z']:
         channel_cals = [c for c in cals if c['channel'] == channel]
@@ -104,13 +106,14 @@ for date, cals in itertools.groupby(cals, key=lambda c: c['start'].date()):
         # add channel header
         calfile.append(CAL_HEADER_FORMAT.format(channel=channel, date=date))
         calfile.extend([CAL_LINE_FORMAT.format(**c) for c in channel_cals])
+calfile.append('')
 
 
 # write calfile
 filename = FILENAME_FORMAT.format(OBSERVATORY=OBSERVATORY, YEAR=YEAR)
 print >> sys.stderr, 'Writing cal file to {}'.format(filename)
 with open(filename, 'wb', -1) as f:
-    f.write('\n'.join(calfile) + '\n')
+    f.write(os.linesep.join(calfile))
 
 
 """
