@@ -25,6 +25,7 @@ setup(
         'pycurl'
     ],
     scripts=[
-        'bin/geomag.py'
+        'bin/geomag.py',
+        'bin/make_cal.py'
     ]
 )
