@@ -70,6 +70,7 @@ def get_intervals(starttime, endtime, size=86400, align=True, trim=False):
         end of time interval to divide
     size : int
         size of each interval in seconds.
+        when <= 0, returns one interval from start to end.
     align : bool
         align intervals to unix epoch.
         (works best when size evenly divides a day)
@@ -82,6 +83,11 @@ def get_intervals(starttime, endtime, size=86400, align=True, trim=False):
         each dictionary has the keys "starttime" and "endtime"
         which represent [intervalstart, intervalend).
     """
+    if size <= 0:
+        return [{
+            'start': starttime,
+            'end': endtime
+        }]
     if align:
         # align based on size
         time = starttime - (starttime.timestamp % size)
