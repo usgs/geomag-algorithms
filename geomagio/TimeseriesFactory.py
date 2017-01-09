@@ -226,6 +226,13 @@ class TimeseriesFactory(object):
                         trace.stats.location = new_trace.stats.location
                     url_data = TimeseriesUtility.merge_streams(
                             existing_data, url_data)
+                    # pad with NaN's out to urlInterval (like get_timeseries())
+                    url_data.trim(
+                          starttime=urlInterval['start'],
+                          endtime=(urlInterval['end'] - delta),
+                          nearest_sample=False,
+                          pad=True,
+                          fill_value=numpy.nan)
                 except IOError:
                     # no data yet
                     pass
