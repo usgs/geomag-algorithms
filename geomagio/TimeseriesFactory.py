@@ -232,6 +232,13 @@ class TimeseriesFactory(object):
                 except NotImplementedError:
                     # factory only supports output
                     pass
+            # pad with NaN's out to urlInterval (like get_timeseries())
+            url_data.trim(
+                starttime=urlInterval['start'],
+                endtime=(urlInterval['end'] - delta),
+                nearest_sample=False,
+                pad=True,
+                fill_value=numpy.nan)
             with open(url_file, 'wb') as fh:
                 try:
                     self.write_file(fh, url_data, channels)
