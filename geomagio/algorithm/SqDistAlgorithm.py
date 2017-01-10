@@ -329,7 +329,7 @@ class SqDistAlgorithm(Algorithm):
         if l0 is None:
             l = np.nanmean(yobs[0:int(m)])
             if l is np.nan:
-               l = 0.
+                l = 0.
         else:
             l = l0
             if not np.isscalar(l0):
