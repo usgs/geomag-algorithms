@@ -56,6 +56,7 @@ def test_get_interval__custom_size():
     intervals = Util.get_intervals(starttime, endtime, size=3600)
     assert_equals(len(intervals), 24)
 
+
 def test_get_interval__negative_size():
     """Util_test.test_get_interval__negative_size()
     """
@@ -65,6 +66,7 @@ def test_get_interval__negative_size():
     assert_equals(len(intervals), 1)
     assert_equals(intervals[0]['start'], starttime)
     assert_equals(intervals[0]['end'], endtime)
+
 
 def test_get_interval__trim():
     """Util_test.test_get_interval__trim()
