@@ -26,7 +26,8 @@ class SqDistAlgorithm(Algorithm):
 
     def __init__(self, alpha=None, beta=None, gamma=None, phi=1, m=1,
                  yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
-                 zthresh=6, fc=0, hstep=0, statefile=None, mag=False):
+                 zthresh=6, fc=0, hstep=0, statefile=None, mag=False,
+                 smooth=1):
         Algorithm.__init__(self, inchannels=None, outchannels=None)
         self.alpha = alpha
         self.beta = beta
@@ -38,6 +39,7 @@ class SqDistAlgorithm(Algorithm):
         self.hstep = hstep
         self.statefile = statefile
         self.mag = mag
+        self.smooth = smooth
         # state variables
         self.yhat0 = yhat0
         self.s0 = s0
@@ -208,7 +210,8 @@ class SqDistAlgorithm(Algorithm):
                 sigma0=self.sigma0,
                 zthresh=self.zthresh,
                 fc=self.fc,
-                hstep=self.hstep)
+                hstep=self.hstep,
+                smooth=self.smooth)
         # update state
         self.yhat0 = yhat0
         self.s0 = s0
@@ -453,6 +456,7 @@ class SqDistAlgorithm(Algorithm):
                     # still update sigma using et when et > zthresh * sigma
                     # (and is not NaN)
                     sigma[i + 1] = alpha * np.abs(et) + (1 - alpha) * sigma[i]
+                    jstep = hstep
             else:
                 # smooth (i.e., update l, b, and s by filtering et)
 
