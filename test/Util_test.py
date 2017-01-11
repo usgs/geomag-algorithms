@@ -57,6 +57,17 @@ def test_get_interval__custom_size():
     assert_equals(len(intervals), 24)
 
 
+def test_get_interval__negative_size():
+    """Util_test.test_get_interval__negative_size()
+    """
+    starttime = UTCDateTime('2015-01-01T00:00:00Z')
+    endtime = UTCDateTime('2015-01-02T00:00:00Z')
+    intervals = Util.get_intervals(starttime, endtime, size=-1)
+    assert_equals(len(intervals), 1)
+    assert_equals(intervals[0]['start'], starttime)
+    assert_equals(intervals[0]['end'], endtime)
+
+
 def test_get_interval__trim():
     """Util_test.test_get_interval__trim()
     """
