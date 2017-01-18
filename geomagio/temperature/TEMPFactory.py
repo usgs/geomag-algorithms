@@ -1,7 +1,8 @@
 """Factory that loads temp/volt Files."""
+from __future__ import absolute_import
 
 from ..TimeseriesFactory import TimeseriesFactory
-from TEMPWriter import TEMPWriter
+from .TEMPWriter import TEMPWriter
 
 
 # pattern for temp file names

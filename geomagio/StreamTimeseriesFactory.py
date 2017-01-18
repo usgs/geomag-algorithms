@@ -1,6 +1,7 @@
 """Stream wrapper for TimeseriesFactory."""
+from __future__ import absolute_import
 
-from TimeseriesFactory import TimeseriesFactory
+from .TimeseriesFactory import TimeseriesFactory
 
 
 class StreamTimeseriesFactory(TimeseriesFactory):

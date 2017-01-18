@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 
 import numpy
-import PCDCPParser
-from cStringIO import StringIO
+from . import PCDCPParser
+from io import StringIO
 from datetime import datetime
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException

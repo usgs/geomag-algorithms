@@ -1,23 +1,23 @@
 """Controller class for geomag algorithms"""
-
+from __future__ import absolute_import
 
 import argparse
 import sys
 from obspy.core import Stream, UTCDateTime
-from algorithm import algorithms
-from PlotTimeseriesFactory import PlotTimeseriesFactory
-from StreamTimeseriesFactory import StreamTimeseriesFactory
-import TimeseriesUtility
+from .algorithm import algorithms
+from .PlotTimeseriesFactory import PlotTimeseriesFactory
+from .StreamTimeseriesFactory import StreamTimeseriesFactory
+from . import TimeseriesUtility
 
 # factory packages
-import binlog
-import edge
-import iaga2002
-import pcdcp
-import imfv122
-import imfv283
-import temperature
-import vbf
+from . import binlog
+from . import edge
+from . import iaga2002
+from . import pcdcp
+from . import imfv122
+from . import imfv283
+from . import temperature
+from . import vbf
 
 
 class Controller(object):

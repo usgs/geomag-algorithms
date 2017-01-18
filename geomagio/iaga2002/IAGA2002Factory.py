@@ -1,10 +1,11 @@
 """Factory that loads IAGA2002 Files."""
+from __future__ import absolute_import
 
 import obspy.core
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
-from IAGA2002Parser import IAGA2002Parser
-from IAGA2002Writer import IAGA2002Writer
+from .IAGA2002Parser import IAGA2002Parser
+from .IAGA2002Writer import IAGA2002Writer
 
 
 # pattern for iaga 2002 file names

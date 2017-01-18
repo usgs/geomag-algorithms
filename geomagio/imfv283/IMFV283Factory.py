@@ -1,9 +1,10 @@
 """Factory that loads IAGA2002 Files."""
+from __future__ import absolute_import
 
 import numpy
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
-from IMFV283Parser import IMFV283Parser
+from .IMFV283Parser import IMFV283Parser
 from ..ObservatoryMetadata import ObservatoryMetadata
 
 

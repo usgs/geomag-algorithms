@@ -1,12 +1,13 @@
+from __future__ import absolute_import
 
-from cStringIO import StringIO
+from io import StringIO
 from datetime import datetime
 import numpy
 import textwrap
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..Util import create_empty_trace
-import IAGA2002Parser
+from . import IAGA2002Parser
 
 
 class IAGA2002Writer(object):

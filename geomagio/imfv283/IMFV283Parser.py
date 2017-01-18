@@ -1,11 +1,13 @@
 """Parsing methods for the IMFV283 Format."""
+from __future__ import absolute_import
+
 import math
 import numpy
 import sys
 import obspy
 from obspy.core import UTCDateTime
 
-import imfv283_codes
+from . import imfv283_codes
 
 # values that represent missing data points in IAGA2002
 DEAD_VALUE = 65535

@@ -11,10 +11,11 @@
     Use of fmin_l_bfgs_b to estimate parameters inspired by Andre Queiroz:
         https://gist.github.com/andrequeiroz/5888967
 """
+from __future__ import absolute_import
 
 from .. import StreamConverter
-from Algorithm import Algorithm
-from AlgorithmException import AlgorithmException
+from .Algorithm import Algorithm
+from .AlgorithmException import AlgorithmException
 import json
 import numpy as np
 from obspy.core import Stream, UTCDateTime

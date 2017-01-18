@@ -1,6 +1,6 @@
 
 import numpy
-from cStringIO import StringIO
+from io import StringIO
 from datetime import datetime
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException

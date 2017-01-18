@@ -1,6 +1,7 @@
 """Factory to load VBF files from an input StreamVBFFactory."""
+from __future__ import absolute_import
 
-from VBFFactory import VBFFactory
+from .VBFFactory import VBFFactory
 
 
 class StreamVBFFactory(VBFFactory):

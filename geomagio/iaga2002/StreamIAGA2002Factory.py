@@ -1,6 +1,7 @@
 """Factory to load IAGA2002 files from an input StreamIAGA2002Factory."""
+from __future__ import absolute_import
 
-from IAGA2002Factory import IAGA2002Factory
+from .IAGA2002Factory import IAGA2002Factory
 
 
 class StreamIAGA2002Factory(IAGA2002Factory):

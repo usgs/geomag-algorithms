@@ -1,11 +1,13 @@
 """Abstract Timeseries Factory Interface."""
+from __future__ import absolute_import
+
 import numpy
 import obspy.core
 import os
 import sys
-from TimeseriesFactoryException import TimeseriesFactoryException
-import TimeseriesUtility
-import Util
+from .TimeseriesFactoryException import TimeseriesFactoryException
+from . import TimeseriesUtility
+from . import Util
 
 
 class TimeseriesFactory(object):

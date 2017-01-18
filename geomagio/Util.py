@@ -2,7 +2,7 @@ import pycurl
 import numpy
 import os
 from obspy.core import Stats, Trace
-from StringIO import StringIO
+from io import StringIO
 
 
 class ObjectView(object):

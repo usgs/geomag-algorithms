@@ -8,9 +8,10 @@ to take advantage of it's newer realtime abilities.
 
 Edge is the USGS earthquake hazard centers replacement for earthworm.
 """
+from __future__ import absolute_import
 
 import sys
-import StringIO
+from io import StringIO
 import numpy
 import numpy.ma
 import obspy.core
@@ -23,13 +24,13 @@ from datetime import datetime
 #     from obspy import earthworm
 
 # use local version of earthworm client to test memory leak fix
-import client as earthworm
+from . import client as earthworm
 
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..ObservatoryMetadata import ObservatoryMetadata
-from RawInputClient import RawInputClient
+from .RawInputClient import RawInputClient
 
 
 class EdgeFactory(TimeseriesFactory):
@@ -140,7 +141,7 @@ class EdgeFactory(TimeseriesFactory):
         # need this until https://github.com/obspy/obspy/pull/1179
         # replace stdout
         original_stdout = sys.stdout
-        temp_stdout = StringIO.StringIO()
+        temp_stdout = StringIO()
         try:
             sys.stdout = temp_stdout
             # get the timeseries
