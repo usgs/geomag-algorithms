@@ -16,7 +16,7 @@ class IAGA2002Parser(object):
     """IAGA2002 parser.
 
     Based on documentation at:
-      http://www.ngdc.noaa.gov/IAGA/vdat/iagaformat.html
+      https://www.ngdc.noaa.gov/IAGA/vdat/IAGA2002/iaga2002format.html
 
     Attributes
     ----------
