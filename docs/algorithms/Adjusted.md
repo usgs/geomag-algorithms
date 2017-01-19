@@ -130,7 +130,7 @@ adjusting manually and previewing the effect on delta F,  etc.
 
 ## References
 
- - Jankowski, J., and Sucksdorff, C., [Guide for Magnetic Measurements and Observatory Practice](http://www.iugg.org/IAGA/iaga-pages/pdf/Iaga-Guide-Observatories.pdf),
+ - Jankowski, J., and Sucksdorff, C., [Guide for Magnetic Measurements and Observatory Practice](http://www.iaga-aiga.org/data/uploads/pdf/guides/iaga-guide-observatories.pdf),
    Int. J. of Forecasting, 19(1), 143-148.
 
  - Hitchman, P. G., Crosthwaite, W. V., Lewis, A. M., and Wang, L. (2011), [Australian Geomagnetism Report 2011](https://d28rz98at9flks.cloudfront.net/73627/Rec2012_072.pdf)
