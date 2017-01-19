@@ -1,7 +1,7 @@
 """IO Module for IAGA 2002 Format
 
 Based on documentation at:
-  http://www.ngdc.noaa.gov/IAGA/vdat/iagaformat.html
+  https://www.ngdc.noaa.gov/IAGA/vdat/IAGA2002/iaga2002format.html
 """
 
 from IAGA2002Factory import IAGA2002Factory
