@@ -184,7 +184,7 @@ class RawInputClient():
             raise TimeseriesFactoryException(
                     'Unsupported interval for RawInputClient')
 
-        for i in xrange(0, totalsamps, nsamp):
+        for i in range(0, totalsamps, nsamp):
             if totalsamps - i < nsamp:
                 endsample = totalsamps
             else:

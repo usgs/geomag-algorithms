@@ -1,5 +1,5 @@
 """Controller class for geomag algorithms"""
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import argparse
 import sys
@@ -207,8 +207,8 @@ class Controller(object):
         if options.update_limit != 0:
             if update_count >= options.update_limit:
                 return
-        print >> sys.stderr, 'checking gaps', \
-                options.starttime, options.endtime
+        print('checking gaps', options.starttime, options.endtime,
+            file=sys.stderr)
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
@@ -254,8 +254,8 @@ class Controller(object):
             # fill gap
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
-            print >> sys.stderr, 'processing', \
-                    options.starttime, options.endtime
+            print('processing', options.starttime, options.endtime,
+                file=sys.stderr)
             self.run(options, input_timeseries)
 
 
@@ -470,12 +470,12 @@ def main(args):
         usingDeprecated = True
 
     if usingDeprecated:
-        print >> sys.stderr, 'WARNING: you are using deprecated arguments,' + \
-                ' please update your usage'
+        print('WARNING: you are using deprecated arguments,' +
+              ' please update your usage', file=sys.stderr)
     # TODO check for unused arguments.
 
     # make sure observatory is a tuple
-    if isinstance(args.observatory, (str, unicode)):
+    if isinstance(args.observatory, (str, str)):
         args.observatory = (args.observatory,)
 
     if args.observatory_foreach:

@@ -1,5 +1,5 @@
 """Factory to load IMFV283 files from an input StreamIMFV283Factory."""
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 from .IMFV283Factory import IMFV283Factory
 import subprocess
@@ -69,8 +69,8 @@ class GOESIMFV283Factory(IMFV283Factory):
         timeseries.trim(starttime, endtime)
         # output the number of points we read for logging
         if len(timeseries):
-            print >> sys.stderr, "Read %s points from %s" % \
-                (timeseries[0].stats.npts, observatory)
+            print("Read %s points from %s" % (timeseries[0].stats.npts,
+                observatory), file=sys.stderr)
 
         self._post_process(timeseries)
         if observatory is not None:
@@ -125,7 +125,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         self._fill_criteria_file(starttime, endtime, observatory)
 
         for server in self.server:
-            print >> sys.stderr, server
+            print(server, file=sys.stderr)
             proc = subprocess.Popen(
                     [self.getdcpmessages,
                     '-h', server,
@@ -135,11 +135,10 @@ class GOESIMFV283Factory(IMFV283Factory):
                     '-t', '60',
                     '-n'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (output, error) = proc.communicate()
-            print >> sys.stderr, error
+            print(error, file=sys.stderr)
             if error.find(self.javaerror) >= 0:
-                print >> sys.stderr, \
-                        'Error: could not connect to %s' % \
-                        server
+                print('Error: could not connect to %s' % server,
+                    file=sys.stderr)
                 continue
             break
 

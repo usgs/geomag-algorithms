@@ -4,7 +4,7 @@
 Usage:
     python make_cal.py OBSERVATORY YEAR
 """
-
+from __future__ import print_function
 
 from datetime import datetime
 import itertools
@@ -31,8 +31,8 @@ SERVICE_URL = 'https://geomag.usgs.gov/baselines/observation.json.php'
 # parse observatory and year arguments
 if len(sys.argv) != 3:
     cmd = sys.argv[0]
-    print >> sys.stderr, 'Usage:   {} OBSERVATORY YEAR'.format(cmd)
-    print >> sys.stderr, 'Example: {} BOU 2016'.format(cmd)
+    print('Usage:   {} OBSERVATORY YEAR'.format(cmd), file=sys.stderr)
+    print('Example: {} BOU 2016'.format(cmd), file=sys.stderr)
     sys.exit(1)
 
 OBSERVATORY = sys.argv[1]
@@ -47,14 +47,14 @@ url = SERVICE_URL + '?' + '&'.join([
 ])
 
 try:
-    print >> sys.stderr, 'Loading data from web service\n\t{}'.format(url)
+    print('Loading data from web service\n\t{}'.format(url), file=sys.stderr)
     response = urllib2.urlopen(url,
         # allow environment certificate bundle override
         cafile=os.environ.get('SSL_CERT_FILE'))
     data = response.read()
     observations = json.loads(data)
-except Exception, e:
-    print >> sys.stderr, 'Error loading data ({})'.format(str(e))
+except Exception as e:
+    print('Error loading data ({})'.format(str(e)), file=sys.stderr)
     sys.exit(1)
 
 
@@ -111,7 +111,7 @@ calfile.append('')
 
 # write calfile
 filename = FILENAME_FORMAT.format(OBSERVATORY=OBSERVATORY, YEAR=YEAR)
-print >> sys.stderr, 'Writing cal file to {}'.format(filename)
+print('Writing cal file to {}'.format(filename), file=sys.stderr)
 with open(filename, 'wb', -1) as f:
     f.write(os.linesep.join(calfile))
 
