@@ -19,6 +19,6 @@
     "indent_to_bracket": false,
     "translate_tabs_to_spaces": true,
     "trim_automatic_white_space": true,
-    "trim_trailing_white_space_one_save": true
+    "trim_trailing_white_space_on_save": true
   }
 }
