@@ -334,7 +334,7 @@ class IMFV283Parser(object):
             byte1 = ord(msg[offset + ness_byte])
 
             goes_value1 = (byte3 & 0x3F) + ((byte2 & 0x3) * 0x40)
-            goes_value2 = ((byte2 / 0x4) & 0xF) + ((byte1 & 0xF) * 0x10)
+            goes_value2 = ((byte2 // 0x4) & 0xF) + ((byte1 & 0xF) * 0x10)
 
             # swap the bytes depending on domsat information.
             if domsat['swap_hdr'] and cnt <= 11 or \
