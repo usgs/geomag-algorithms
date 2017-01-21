@@ -69,7 +69,7 @@ class PCDCPFactory(TimeseriesFactory):
                         minute=endMinute)
 
         data = parser.data
-        length = len(data[data.keys()[0]])
+        length = len(data[list(data)[0]])
         rate = (length - 1) / (endtime - starttime)
         stream = obspy.core.Stream()
 
