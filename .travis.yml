@@ -3,7 +3,7 @@ sudo: false
 language: python
 python:
   - 2.7
-  - 3.6
+  - 3.5
 before_install:
   ## courtesy of http://conda.pydata.org/docs/travis.html
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
