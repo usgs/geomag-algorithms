@@ -1,5 +1,6 @@
 """Controller class for geomag algorithms"""
 from __future__ import absolute_import, print_function
+from builtins import str as unicode
 
 import argparse
 import sys
@@ -475,7 +476,7 @@ def main(args):
     # TODO check for unused arguments.
 
     # make sure observatory is a tuple
-    if isinstance(args.observatory, (str, str)):
+    if isinstance(args.observatory, (str, unicode)):
         args.observatory = (args.observatory,)
 
     if args.observatory_foreach:
