@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import range
 
 from io import StringIO
 from datetime import datetime

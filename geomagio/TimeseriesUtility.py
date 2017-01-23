@@ -1,4 +1,5 @@
 """Timeseries Utilities"""
+from builtins import range
 import numpy
 import obspy.core
 

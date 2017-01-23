@@ -1,5 +1,6 @@
 """Parsing methods for the IMFV283 Format."""
 from __future__ import absolute_import
+from builtins import range
 
 import math
 import numpy
