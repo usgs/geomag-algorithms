@@ -1,6 +1,7 @@
 """Factory to load BinLog files from an input StreamBinLogFactory."""
+from __future__ import absolute_import
 
-from BinLogFactory import BinLogFactory
+from .BinLogFactory import BinLogFactory
 
 
 class StreamBinLogFactory(BinLogFactory):

@@ -1,12 +1,14 @@
+from __future__ import absolute_import
+from builtins import range
 
-from cStringIO import StringIO
+from io import StringIO
 from datetime import datetime
 import numpy
 import textwrap
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..Util import create_empty_trace
-import IAGA2002Parser
+from . import IAGA2002Parser
 
 
 class IAGA2002Writer(object):
@@ -215,7 +217,7 @@ class IAGA2002Writer(object):
         traces = [timeseries.select(channel=c)[0] for c in channels]
         starttime = float(traces[0].stats.starttime)
         delta = traces[0].stats.delta
-        for i in xrange(len(traces[0].data)):
+        for i in range(len(traces[0].data)):
             buf.append(self._format_values(
                 datetime.utcfromtimestamp(starttime + i * delta),
                 (t.data[i] for t in traces)))

@@ -1,11 +1,13 @@
 """Abstract Timeseries Factory Interface."""
+from __future__ import absolute_import, print_function
+
 import numpy
 import obspy.core
 import os
 import sys
-from TimeseriesFactoryException import TimeseriesFactoryException
-import TimeseriesUtility
-import Util
+from .TimeseriesFactoryException import TimeseriesFactoryException
+from . import TimeseriesUtility
+from . import Util
 
 
 class TimeseriesFactory(object):
@@ -118,8 +120,8 @@ class TimeseriesFactory(object):
             except NotImplementedError:
                 raise NotImplementedError('"get_timeseries" not implemented')
             except Exception as e:
-                print >> sys.stderr, "Error parsing data: " + str(e)
-                print >> sys.stderr, data
+                print("Error parsing data: " + str(e), file=sys.stderr)
+                print(data, file=sys.stderr)
         if channels is not None:
             filtered = obspy.core.Stream()
             for channel in channels:

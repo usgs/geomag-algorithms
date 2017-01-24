@@ -1,6 +1,7 @@
 """Factory to load temp/volt files from an input StreamTEMPFactory."""
+from __future__ import absolute_import
 
-from TEMPFactory import TEMPFactory
+from .TEMPFactory import TEMPFactory
 
 
 class StreamTEMPFactory(TEMPFactory):

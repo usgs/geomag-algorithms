@@ -1,4 +1,5 @@
 """Timeseries Utilities"""
+from builtins import range
 import numpy
 import obspy.core
 
@@ -47,7 +48,7 @@ def get_trace_gaps(trace):
     starttime = stats.starttime
     length = len(data)
     delta = stats.delta
-    for i in xrange(0, length):
+    for i in range(0, length):
         if numpy.isnan(data[i]):
             if gap is None:
                 # start of a gap

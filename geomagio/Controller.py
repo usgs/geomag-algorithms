@@ -1,23 +1,24 @@
 """Controller class for geomag algorithms"""
-
+from __future__ import absolute_import, print_function
+from builtins import str as unicode
 
 import argparse
 import sys
 from obspy.core import Stream, UTCDateTime
-from algorithm import algorithms
-from PlotTimeseriesFactory import PlotTimeseriesFactory
-from StreamTimeseriesFactory import StreamTimeseriesFactory
-import TimeseriesUtility
+from .algorithm import algorithms
+from .PlotTimeseriesFactory import PlotTimeseriesFactory
+from .StreamTimeseriesFactory import StreamTimeseriesFactory
+from . import TimeseriesUtility
 
 # factory packages
-import binlog
-import edge
-import iaga2002
-import pcdcp
-import imfv122
-import imfv283
-import temperature
-import vbf
+from . import binlog
+from . import edge
+from . import iaga2002
+from . import pcdcp
+from . import imfv122
+from . import imfv283
+from . import temperature
+from . import vbf
 
 
 class Controller(object):
@@ -207,8 +208,8 @@ class Controller(object):
         if options.update_limit != 0:
             if update_count >= options.update_limit:
                 return
-        print >> sys.stderr, 'checking gaps', \
-                options.starttime, options.endtime
+        print('checking gaps', options.starttime, options.endtime,
+            file=sys.stderr)
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
@@ -254,8 +255,8 @@ class Controller(object):
             # fill gap
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
-            print >> sys.stderr, 'processing', \
-                    options.starttime, options.endtime
+            print('processing', options.starttime, options.endtime,
+                file=sys.stderr)
             self.run(options, input_timeseries)
 
 
@@ -470,8 +471,8 @@ def main(args):
         usingDeprecated = True
 
     if usingDeprecated:
-        print >> sys.stderr, 'WARNING: you are using deprecated arguments,' + \
-                ' please update your usage'
+        print('WARNING: you are using deprecated arguments,' +
+              ' please update your usage', file=sys.stderr)
     # TODO check for unused arguments.
 
     # make sure observatory is a tuple

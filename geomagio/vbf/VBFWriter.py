@@ -1,6 +1,7 @@
+from builtins import range
 
 import numpy
-from cStringIO import StringIO
+from io import StringIO
 from datetime import datetime
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
@@ -99,7 +100,7 @@ class VBFWriter(object):
         starttime = float(traces[0].stats.starttime)
         delta = traces[0].stats.delta
 
-        for i in xrange(len(traces[0].data)):
+        for i in range(len(traces[0].data)):
             buf.append(self._format_values(
                 datetime.utcfromtimestamp(starttime + i * delta),
                 (t.data[i] for t in traces)))

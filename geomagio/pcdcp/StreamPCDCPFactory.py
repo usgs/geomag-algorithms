@@ -1,6 +1,7 @@
 """Factory to load PCDCP files from an input StreamPCDCPFactory."""
+from __future__ import absolute_import
 
-from PCDCPFactory import PCDCPFactory
+from .PCDCPFactory import PCDCPFactory
 
 
 class StreamPCDCPFactory(PCDCPFactory):

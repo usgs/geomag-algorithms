@@ -1,6 +1,7 @@
 """Factory to load IMFV122 files from an input stream."""
+from __future__ import absolute_import
 
-from IMFV122Factory import IMFV122Factory
+from .IMFV122Factory import IMFV122Factory
 
 
 class StreamIMFV122Factory(IMFV122Factory):

@@ -1,7 +1,9 @@
+from __future__ import absolute_import
+from builtins import range
 
 import numpy
-import PCDCPParser
-from cStringIO import StringIO
+from . import PCDCPParser
+from io import StringIO
 from datetime import datetime
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
@@ -109,7 +111,7 @@ class PCDCPWriter(object):
         starttime = float(traces[0].stats.starttime)
         delta = traces[0].stats.delta
 
-        for i in xrange(len(traces[0].data)):
+        for i in range(len(traces[0].data)):
             buf.append(self._format_values(
                 datetime.utcfromtimestamp(starttime + i * delta),
                 (t.data[i] for t in traces), stats))

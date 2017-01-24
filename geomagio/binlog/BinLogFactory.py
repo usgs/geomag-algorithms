@@ -1,7 +1,8 @@
 """Factory that creates BinLog Files."""
+from __future__ import absolute_import
 
 from ..TimeseriesFactory import TimeseriesFactory
-from BinLogWriter import BinLogWriter
+from .BinLogWriter import BinLogWriter
 
 
 class BinLogFactory(TimeseriesFactory):

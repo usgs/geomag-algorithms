@@ -1,9 +1,10 @@
 """Factory that loads IMFV122 Files."""
+from __future__ import absolute_import
 
 import obspy.core
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
-from IMFV122Parser import IMFV122Parser
+from .IMFV122Parser import IMFV122Parser
 
 
 class IMFV122Factory(TimeseriesFactory):

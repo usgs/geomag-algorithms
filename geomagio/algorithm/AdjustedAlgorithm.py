@@ -2,7 +2,9 @@
     related geographic coordinate system, by using transformations generated
     from absolute, baseline measurements.
 """
-from Algorithm import Algorithm
+from __future__ import absolute_import
+
+from .Algorithm import Algorithm
 import json
 import numpy as np
 from obspy.core import Stream, Stats

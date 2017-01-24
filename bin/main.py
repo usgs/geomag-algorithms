@@ -23,7 +23,7 @@ def main():
             interval='minute', type='variation')
     timeseries = factory.get_timeseries(
             UTCDateTime('2014-11-01'), UTCDateTime('2014-11-02'))
-    print timeseries
+    print(timeseries)
 
 
 if __name__ == '__main__':

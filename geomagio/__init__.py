@@ -1,16 +1,18 @@
 """
 Geomag Algorithm Module
 """
-import ChannelConverter
-import StreamConverter
+from __future__ import absolute_import
 
-from Controller import Controller
-from ObservatoryMetadata import ObservatoryMetadata
-from PlotTimeseriesFactory import PlotTimeseriesFactory
-from TimeseriesFactory import TimeseriesFactory
-from TimeseriesFactoryException import TimeseriesFactoryException
-import TimeseriesUtility
-import Util
+from . import ChannelConverter
+from . import StreamConverter
+
+from .Controller import Controller
+from .ObservatoryMetadata import ObservatoryMetadata
+from .PlotTimeseriesFactory import PlotTimeseriesFactory
+from .TimeseriesFactory import TimeseriesFactory
+from .TimeseriesFactoryException import TimeseriesFactoryException
+from . import TimeseriesUtility
+from . import Util
 
 __all__ = [
     'ChannelConverter',

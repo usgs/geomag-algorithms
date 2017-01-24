@@ -1,3 +1,4 @@
+from builtins import range
 
 import socket  # noqa
 import struct
@@ -184,7 +185,7 @@ class RawInputClient():
             raise TimeseriesFactoryException(
                     'Unsupported interval for RawInputClient')
 
-        for i in xrange(0, totalsamps, nsamp):
+        for i in range(0, totalsamps, nsamp):
             if totalsamps - i < nsamp:
                 endsample = totalsamps
             else:
@@ -222,7 +223,7 @@ class RawInputClient():
                 self._open_socket()
             self.socket.sendall(buf)
             self.sequence += 1
-        except socket.error, v:
+        except socket.error as v:
             error = 'Socket error %d' % v[0]
             sys.stderr.write(error)
             raise TimeseriesFactoryException(error)
@@ -412,7 +413,7 @@ class RawInputClient():
                 newsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 newsocket.connect((self.host, self.port))
                 done = True
-            except socket.error, v:
+            except socket.error as v:
                 sys.stderr.write('Could not connect to socket, trying again')
                 sys.stderr.write('sockect error %d' % v[0])
                 sleep(1)

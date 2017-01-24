@@ -3,11 +3,12 @@
 Based on documentation at:
   https://www.ngdc.noaa.gov/IAGA/vdat/IAGA2002/iaga2002format.html
 """
+from __future__ import absolute_import
 
-from IAGA2002Factory import IAGA2002Factory
-from StreamIAGA2002Factory import StreamIAGA2002Factory
-from IAGA2002Parser import IAGA2002Parser
-from IAGA2002Writer import IAGA2002Writer
+from .IAGA2002Factory import IAGA2002Factory
+from .StreamIAGA2002Factory import StreamIAGA2002Factory
+from .IAGA2002Parser import IAGA2002Parser
+from .IAGA2002Writer import IAGA2002Writer
 
 
 __all__ = [

@@ -1,10 +1,11 @@
 """Factory that loads PCDCP Files."""
+from __future__ import absolute_import
 
 import obspy.core
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
-from PCDCPParser import PCDCPParser
-from PCDCPWriter import PCDCPWriter
+from .PCDCPParser import PCDCPParser
+from .PCDCPWriter import PCDCPWriter
 
 
 # pattern for pcdcp file names
@@ -68,7 +69,7 @@ class PCDCPFactory(TimeseriesFactory):
                         minute=endMinute)
 
         data = parser.data
-        length = len(data[data.keys()[0]])
+        length = len(data[list(data)[0]])
         rate = (length - 1) / (endtime - starttime)
         stream = obspy.core.Stream()
 

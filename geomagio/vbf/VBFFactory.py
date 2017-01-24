@@ -1,7 +1,8 @@
 """Factory that loads VBF Files."""
+from __future__ import absolute_import
 
 from ..TimeseriesFactory import TimeseriesFactory
-from VBFWriter import VBFWriter
+from .VBFWriter import VBFWriter
 
 
 # pattern for vbf file names

@@ -67,5 +67,5 @@ def test_set_metadata():
     observatorymetadata.set_metadata(stats, 'BOU', 'MVH',
             'quasi-definitive', 'second')
     assert_equals(stats['declination_base'], 20000)
-    print stats
+    print(stats)
     assert_equals(stats['data_interval_type'], 'Average 1-Second')

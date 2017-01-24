@@ -1,9 +1,10 @@
 """Algorithm that creates a deltaf
 
 """
+from __future__ import absolute_import
 
-from Algorithm import Algorithm
-from AlgorithmException import AlgorithmException
+from .Algorithm import Algorithm
+from .AlgorithmException import AlgorithmException
 from .. import StreamConverter
 
 # List of channels by geomagnetic observatory orientation.

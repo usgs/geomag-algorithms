@@ -1,11 +1,14 @@
 """Parsing methods for the IMFV283 Format."""
+from __future__ import absolute_import
+from builtins import range
+
 import math
 import numpy
 import sys
 import obspy
 from obspy.core import UTCDateTime
 
-import imfv283_codes
+from . import imfv283_codes
 
 # values that represent missing data points in IAGA2002
 DEAD_VALUE = 65535
@@ -116,7 +119,7 @@ class IMFV283Parser(object):
             parse_data[channel] = []
 
         bytecount = 30
-        for cnt in xrange(0, 12):
+        for cnt in range(0, 12):
             # get data in 2 byte pairs as integers.
             d1 = 0x100 * data[bytecount] + data[bytecount + 1]
             d2 = 0x100 * data[bytecount + 2] + data[bytecount + 3]
@@ -283,7 +286,7 @@ class IMFV283Parser(object):
         scale = goes_header['scale']
         offset = goes_header['offset']
         orientation = goes_header['orient']
-        for channel, loc in zip(CHANNELS[orientation], xrange(0, 4)):
+        for channel, loc in zip(CHANNELS[orientation], range(0, 4)):
             stats = obspy.core.Stats()
             stats.channel = channel
             stats.sampling_rate = 0.0166666666667
@@ -325,14 +328,14 @@ class IMFV283Parser(object):
         else:
             offset = HEADER_SIZE
 
-        for cnt in xrange(0, 63):
+        for cnt in range(0, 63):
             # Convert 3 byte "pair" into ordinal values for manipulation.
             byte3 = ord(msg[offset + ness_byte + 2])
             byte2 = ord(msg[offset + ness_byte + 1])
             byte1 = ord(msg[offset + ness_byte])
 
             goes_value1 = (byte3 & 0x3F) + ((byte2 & 0x3) * 0x40)
-            goes_value2 = ((byte2 / 0x4) & 0xF) + ((byte1 & 0xF) * 0x10)
+            goes_value2 = ((byte2 // 0x4) & 0xF) + ((byte1 & 0xF) * 0x10)
 
             # swap the bytes depending on domsat information.
             if domsat['swap_hdr'] and cnt <= 11 or \

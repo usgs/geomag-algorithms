@@ -6,10 +6,11 @@ Geo: Based on Geographic North.  X, Y, Z, F
 Obs: Based on the observatories orientaion. H, E, Z, F, d0
 Mag: Based on Magnetic North. H, D, Z, F
 """
+from __future__ import absolute_import
 
 import numpy
 import obspy.core
-import ChannelConverter
+from . import ChannelConverter
 
 
 def get_geo_from_mag(mag):

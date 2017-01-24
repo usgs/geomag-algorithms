@@ -1,6 +1,8 @@
 #! /usr/bin/env python
+from __future__ import absolute_import
+
 from nose.tools import assert_equals
-from StreamConverter_test import __create_trace
+from .StreamConverter_test import __create_trace
 import numpy
 from geomagio import TimeseriesUtility
 from obspy.core import Stream, UTCDateTime

@@ -1,10 +1,11 @@
 """Factory that loads IAGA2002 Files."""
+from __future__ import absolute_import
 
 import obspy.core
 from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
-from IAGA2002Parser import IAGA2002Parser
-from IAGA2002Writer import IAGA2002Writer
+from .IAGA2002Parser import IAGA2002Parser
+from .IAGA2002Writer import IAGA2002Writer
 
 
 # pattern for iaga 2002 file names
@@ -57,7 +58,7 @@ class IAGA2002Factory(TimeseriesFactory):
         endtime = obspy.core.UTCDateTime(parser.times[-1])
         data = parser.data
         stream = obspy.core.Stream()
-        length = len(data[data.keys()[0]])
+        length = len(data[list(data)[0]])
         if starttime != endtime:
             rate = (length - 1) / (endtime - starttime)
         else:

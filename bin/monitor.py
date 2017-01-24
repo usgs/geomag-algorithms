@@ -160,21 +160,21 @@ def print_html_header(starttime, endtime, title):
     title: string
         The title passed in by the user
     """
-    print '<!DOCTYPE html>\n' + \
-    '<html>\n' + \
-        '<head>\n' + \
-            '<title> %s \n to %s \n</title>' % \
-                    (format_time(starttime), format_time(endtime)) + \
-        '</head>\n' + \
-        '<body>\n' + \
-            '<style type="text/css">\n' + \
-                'table {border-collapse: collapse;}\n' + \
-                'th {border:1px solid black; padding: 2px;}\n' + \
-                'td {text-align:center;}\n' + \
-            '</style>\n' +\
-            title + '<br>\n'\
-            '%s to %s ' % \
-                (format_time(starttime), format_time(endtime))
+    print('<!DOCTYPE html>\n' +
+        '<html>\n' +
+            '<head>\n' +
+                '<title> %s \n to %s \n</title>' %
+                        (format_time(starttime), format_time(endtime)) +
+            '</head>\n' +
+            '<body>\n' +
+                '<style type="text/css">\n' +
+                    'table {border-collapse: collapse;}\n' +
+                    'th {border:1px solid black; padding: 2px;}\n' +
+                    'td {text-align:center;}\n' +
+                '</style>\n' +
+                title + '<br>\n'
+                '%s to %s ' %
+                    (format_time(starttime), format_time(endtime)))
 
 
 def print_observatories(args):
@@ -265,9 +265,9 @@ def print_observatories(args):
                     '%s %ss<br>\n' % (warning, interval)
         summary_table += table_end
         if print_it:
-            print summary_header
-            print summary_table
-            print gap_details
+            print(summary_header)
+            print(summary_table)
+            print(gap_details)
 
     return warning_issued
 
@@ -287,8 +287,8 @@ def main(args):
     print_html_header(args.starttime, args.endtime, args.title)
 
     warning_issued = print_observatories(args)
-    print '</body>\n' + \
-          '</html>\n'
+    print('</body>\n' +
+          '</html>\n')
 
     sys.exit(warning_issued)
 
