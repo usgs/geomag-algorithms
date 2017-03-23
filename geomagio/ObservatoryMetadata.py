@@ -575,7 +575,7 @@ DEFAULT_METADATA = {
     },
     'BLC': {
         'metadata': {
-            'station_name': 'Bake Lake',
+            'station_name': 'Baker Lake',
             'agency_name': 'Geological Survey of Canada (GSC)',
             'geodetic_latitude': '64.300',
             'geodetic_longitude': '264.000',
