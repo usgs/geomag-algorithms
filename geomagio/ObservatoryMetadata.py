@@ -102,7 +102,7 @@ DEFAULT_METADATA = {
             'elevation': '10',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 16000,
+            'declination_base': 10589,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -132,7 +132,7 @@ DEFAULT_METADATA = {
             'elevation': '10',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 16000,
+            'declination_base': 10589,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -162,7 +162,7 @@ DEFAULT_METADATA = {
             'elevation': '8',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 1530,
+            'declination_base': 215772,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -192,7 +192,7 @@ DEFAULT_METADATA = {
             'elevation': '197',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 16876,
+            'declination_base': 12151,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -209,7 +209,7 @@ DEFAULT_METADATA = {
             'elevation': '197',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 16876,
+            'declination_base': 12151,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -226,7 +226,7 @@ DEFAULT_METADATA = {
             'elevation': '10',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 13200,
+            'declination_base': 12755,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -256,7 +256,7 @@ DEFAULT_METADATA = {
             'elevation': '10',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 13200,
+            'declination_base': 12755,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -286,7 +286,7 @@ DEFAULT_METADATA = {
             'elevation': '69',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 210942,
+            'declination_base': 209690,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -316,7 +316,7 @@ DEFAULT_METADATA = {
             'elevation': '331',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 9250,
+            'declination_base': 8097,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -346,7 +346,7 @@ DEFAULT_METADATA = {
             'elevation': '140',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 1157,
+            'declination_base': 764,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -376,7 +376,7 @@ DEFAULT_METADATA = {
             'elevation': '4',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 6920,
+            'declination_base': 5982,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -406,7 +406,7 @@ DEFAULT_METADATA = {
             'elevation': '770',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 12133,
+            'declination_base': 9547,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -436,7 +436,7 @@ DEFAULT_METADATA = {
             'elevation': '80',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 13974,
+            'declination_base': 7386,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -466,7 +466,7 @@ DEFAULT_METADATA = {
             'elevation': '24',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 16523,
+            'declination_base': 12349,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -496,7 +496,7 @@ DEFAULT_METADATA = {
             'elevation': '424',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 209800,
+            'declination_base': 208439,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -526,7 +526,7 @@ DEFAULT_METADATA = {
             'elevation': '946',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 0.01,
-            'declination_base': 7258,
+            'declination_base': 5863,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -575,7 +575,7 @@ DEFAULT_METADATA = {
     },
     'BLC': {
         'metadata': {
-            'station_name': 'Bake Lake',
+            'station_name': 'Baker Lake',
             'agency_name': 'Geological Survey of Canada (GSC)',
             'geodetic_latitude': '64.300',
             'geodetic_longitude': '264.000',
