@@ -1,7 +1,7 @@
 from builtins import range
 
 import numpy
-from io import StringIO
+from io import BytesIO
 from datetime import datetime
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
@@ -196,7 +196,7 @@ class BinLogWriter(object):
     def format(self, timeseries, channels):
         """Get a BinLog formatted string.
 
-        Calls write() with a StringIO, and returns the output.
+        Calls write() with a BytesIO, and returns the output.
 
         Parameters
         ----------
@@ -210,7 +210,7 @@ class BinLogWriter(object):
         unicode
           BinLog formatted string.
         """
-        out = StringIO()
+        out = BytesIO()
         writer = BinLogWriter()
         writer.write(out, timeseries, channels)
         return out.getvalue()
