@@ -3,7 +3,7 @@ from builtins import range
 
 import numpy
 from . import PCDCPParser
-from io import StringIO
+from io import BytesIO
 from datetime import datetime
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
@@ -165,7 +165,7 @@ class PCDCPWriter(object):
     def format(self, timeseries, channels):
         """Get an PCDCP formatted string.
 
-        Calls write() with a StringIO, and returns the output.
+        Calls write() with a BytesIO, and returns the output.
 
         Parameters
         ----------
@@ -179,7 +179,7 @@ class PCDCPWriter(object):
         unicode
           PCDCP formatted string.
         """
-        out = StringIO()
+        out = BytesIO()
         writer = PCDCPWriter()
         writer.write(out, timeseries, channels)
         return out.getvalue()

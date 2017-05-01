@@ -11,7 +11,7 @@ Edge is the USGS earthquake hazard centers replacement for earthworm.
 from __future__ import absolute_import
 
 import sys
-from io import StringIO
+from io import BytesIO
 import numpy
 import numpy.ma
 import obspy.core
@@ -141,7 +141,7 @@ class EdgeFactory(TimeseriesFactory):
         # need this until https://github.com/obspy/obspy/pull/1179
         # replace stdout
         original_stdout = sys.stdout
-        temp_stdout = StringIO()
+        temp_stdout = BytesIO()
         try:
             sys.stdout = temp_stdout
             # get the timeseries

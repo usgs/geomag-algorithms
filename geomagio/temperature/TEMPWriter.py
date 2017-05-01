@@ -1,7 +1,7 @@
 from builtins import range
 
 import numpy
-from io import StringIO
+from io import BytesIO
 from datetime import datetime
 from .. import TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
@@ -131,7 +131,7 @@ class TEMPWriter(object):
     def format(self, timeseries, channels):
         """Get an temp/volt formatted string.
 
-        Calls write() with a StringIO, and returns the output.
+        Calls write() with a BytesIO, and returns the output.
 
         Parameters
         ----------
@@ -145,7 +145,7 @@ class TEMPWriter(object):
         unicode
           temp/volt formatted string.
         """
-        out = StringIO()
+        out = BytesIO()
         writer = TEMPWriter()
         writer.write(out, timeseries, channels)
         return out.getvalue()

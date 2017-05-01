@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from builtins import range
 
-from io import StringIO
+from io import BytesIO
 from datetime import datetime
 import numpy
 import textwrap
@@ -260,7 +260,7 @@ class IAGA2002Writer(object):
     def format(self, timeseries, channels):
         """Get an IAGA2002 formatted string.
 
-        Calls write() with a StringIO, and returns the output.
+        Calls write() with a BytesIO, and returns the output.
 
         Parameters
         ----------
@@ -271,7 +271,7 @@ class IAGA2002Writer(object):
         unicode
           IAGA2002 formatted string.
         """
-        out = StringIO()
+        out = BytesIO()
         writer = IAGA2002Writer()
         writer.write(out, timeseries, channels)
         return out.getvalue()

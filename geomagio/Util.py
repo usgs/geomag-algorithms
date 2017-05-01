@@ -2,7 +2,7 @@ import pycurl
 import numpy
 import os
 from obspy.core import Stats, Trace
-from io import StringIO
+from io import BytesIO
 
 
 class ObjectView(object):
@@ -161,7 +161,7 @@ def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
     except Exception:
         pass
     content = None
-    out = StringIO()
+    out = BytesIO()
     curl = pycurl.Curl()
     try:
         curl.setopt(pycurl.FOLLOWLOCATION, 1)
