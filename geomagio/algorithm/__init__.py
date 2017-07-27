@@ -8,10 +8,11 @@ from .Algorithm import Algorithm
 from .AlgorithmException import AlgorithmException
 # algorithms
 from .AdjustedAlgorithm import AdjustedAlgorithm
+from .AverageAlgorithm import AverageAlgorithm
 from .DeltaFAlgorithm import DeltaFAlgorithm
 from .SqDistAlgorithm import SqDistAlgorithm
 from .XYZAlgorithm import XYZAlgorithm
-from .AverageAlgorithm import AverageAlgorithm
+
 
 
 # algorithms is used by Controller to auto generate arguments
