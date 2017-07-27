@@ -14,7 +14,6 @@ from .SqDistAlgorithm import SqDistAlgorithm
 from .XYZAlgorithm import XYZAlgorithm
 
 
-
 # algorithms is used by Controller to auto generate arguments
 algorithms = {
     'identity': Algorithm,
