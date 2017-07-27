@@ -98,11 +98,8 @@ class AverageAlgorithm(Algorithm):
             if obsy in CORR:
                 latcorr = CORR[obsy]
 
-#            print '============================'
-#            print 'Obsy: %s latcorr: %f' % (obsy, latcorr)
-#            print '============================'
-            # loop thru the station's timeseries, create array
-            # of all data and take into account correction factor
+            # create array of data for each station
+            # and take into account correction factor
             ts = timeseries.select(station=obsy)[0]
             combined.append(ts.data * latcorr)
 
@@ -111,17 +108,17 @@ class AverageAlgorithm(Algorithm):
 
         # Create a stream from the trace function
         stream = obspy.core.Stream((
-                get_trace(self.outchannel,self._stats, dst_tot), ))
+                get_trace(self.outchannel, self._stats, dst_tot), ))
 
         # set the full metadata for the USGS station used for averaged
         # data sets
 
         self._set_metadata(
-            stream = stream,
-            observatory = 'USGS',
-            channel = self.outchannel,
-            type = stream[0].stats.data_type,
-            interval = timeseries[0].stats.data_interval)
+            stream=stream,
+            observatory='USGS',
+            channel=self.outchannel,
+            type=stream[0].stats.data_type,
+            interval=timeseries[0].stats.data_interval)
 
         # return averaged values as a stream with channel = MSD
         return stream
@@ -143,8 +140,7 @@ class AverageAlgorithm(Algorithm):
         for trace in stream:
             self.observatoryMetadata.set_metadata(trace.stats, observatory,
                     channel, type, interval)
-        
-        
+
     @classmethod
     def add_arguments(cls, parser):
         """Add command line arguments to argparse parser.
@@ -154,7 +150,7 @@ class AverageAlgorithm(Algorithm):
         parser: ArgumentParser
             command line argument parser
         """
-        parser.add_argument('--observatory-scale',
+        parser.add_argument('--average-observatory-scale',
                default=(None,),
                help='Scale factor for observatories specified with ' +
                     '--observatory argument',
@@ -171,11 +167,14 @@ class AverageAlgorithm(Algorithm):
         """
 
         self.observatories = arguments.observatory
+        if len(arguments.outchannels) > 1:
+            raise AlgorithmException(
+                'Only 1 channel can be specified')
         if arguments.outchannels:
             self.outchannel = arguments.outchannels[0]
         else:
             self.outchannel = 'MSD'
-        self.scales = arguments.observatory_scale
+        self.scales = arguments.average_observatory_scale
         if self.scales[0] is not None:
             if len(self.observatories) != len(self.scales):
                 raise AlgorithmException(
@@ -205,7 +204,6 @@ def get_trace(channel, stats, data):
     stats = obspy.core.Stats(stats)
 
     stats.channel = channel
-#    stats.channel = 'MSD'
     stats.station = 'USGS'
     stats.network = 'NT'
     stats.location = 'R0'
