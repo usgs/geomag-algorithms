@@ -112,18 +112,17 @@ class AverageAlgorithm(Algorithm):
 
         # set the full metadata for the USGS station used for averaged
         # data sets
-
-        self._set_metadata(
+        self.set_metadata(
             stream=stream,
             observatory='USGS',
             channel=self.outchannel,
             type=stream[0].stats.data_type,
             interval=timeseries[0].stats.data_interval)
 
-        # return averaged values as a stream with channel = MSD
+        # return averaged values as a stream
         return stream
 
-    def _set_metadata(self, stream, observatory, channel, type, interval):
+    def set_metadata(self, stream, observatory, channel, type, interval):
         """set metadata for a given stream/channel
         Parameters
         ----------
