@@ -8,6 +8,7 @@ from .Algorithm import Algorithm
 from .AlgorithmException import AlgorithmException
 # algorithms
 from .AdjustedAlgorithm import AdjustedAlgorithm
+from .AverageAlgorithm import AverageAlgorithm
 from .DeltaFAlgorithm import DeltaFAlgorithm
 from .SqDistAlgorithm import SqDistAlgorithm
 from .XYZAlgorithm import XYZAlgorithm
@@ -17,6 +18,7 @@ from .XYZAlgorithm import XYZAlgorithm
 algorithms = {
     'identity': Algorithm,
     'adjusted': AdjustedAlgorithm,
+    'average': AverageAlgorithm,
     'deltaf': DeltaFAlgorithm,
     'sqdist': SqDistAlgorithm,
     'xyz': XYZAlgorithm
@@ -29,6 +31,7 @@ __all__ = [
     'AlgorithmException',
     # algorithms
     'AdjustedAlgorithm',
+    'AverageAlgorithm',
     'DeltaFAlgorithm',
     'SqDistAlgorithm',
     'XYZAlgorithm'

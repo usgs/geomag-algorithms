@@ -25,6 +25,5 @@ __all__ = [
     'TimeseriesFactoryException',
     'TimeseriesUtility',
     'Util',
-    'Url',
-    'XYZAlgorithm'
+    'Url'
 ]
