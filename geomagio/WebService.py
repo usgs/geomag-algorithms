@@ -3,6 +3,8 @@
 
 from __future__ import print_function
 from builtins import bytes, str
+from cgi import parse_qs, escape
+from datetime import datetime
 
 from geomagio.edge import EdgeFactory
 from geomagio.iaga2002 import IAGA2002Writer
@@ -15,21 +17,16 @@ class WebService(object):
 
     def __call__(self, environ, start_response):
         """Implement WSGI interface"""
+        self.query = WebServiceQuery
         # parse params
+        self.query.parse(environ['QUERY_STRING'])
         # fetch data
+        data = self.query.fetch(self.factory)
         # send response
         start_response('200 OK',
                 [
                     ("Content-Type", "text/plain")
                 ])
-        data = self.factory.get_timeseries(
-                observatory='BOU',
-                channels=('H', 'E', 'Z', 'F'),
-                starttime=UTCDateTime('2017-07-14T00:00:00Z'),
-                endtime=UTCDateTime('2017-07-15T00:00:00Z'),
-                type='variation',
-                interval='minute')
-        data = IAGA2002Writer.format(data, ('H', 'E', 'Z', 'F'))
         if isinstance(data, str):
             data = data.encode('utf8')
         return [data]
@@ -69,19 +66,62 @@ class WebServiceQuery(object):
         self.format = format
 
     @classmethod
-    def parse(params):
+    def parse(self, params):
         """Parse query parameters from a dictionary.
 
         Parameters
         ----------
         params : dict
+        """
+        # Create dictionary of lists
+        dict = parse_qs(params)
+        # Return values
+        id = dict.get('id', [''])[0]
+        starttime = dict.get('starttime', [''])[0]
+        endtime = dict.get('endtime', [''])[0]
+        elements = dict.get('elements', [''])[0]
+        sampling_period = dict.get('sampling_period', [''])[0]
+        type = dict.get('type', [''])[0]
+        format = dict.get('format', [''])[0]
+        # Escape to avoid script injection
+        self.id = escape(id)
+        self.starttime = escape(starttime)
+        self.endtime = escape(endtime)
+        self.elements = escape(elements)
+        self.elements = [x.strip() for x in elements.split(',')]
+        self.sampling_period = escape(sampling_period)
+        self.type = escape(type)
+        self.format = escape(format)
+
+
+    @classmethod
+    def fetch(self, factory):
+        """Get requested data.
+
+        Parameters
+        ----------
+        factory : EdgeFactory
 
         Returns
         -------
-        WebServiceQuery
-            parsed query object.
+        data
+            string of data and metadata.
         """
-        pass
+        self.factory = factory
+        # Default to observatory data for current UTC day in IAGA2002 format
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+        data = self.factory.get_timeseries(
+                observatory=self.id or 'BOU',
+                channels=self.elements or ('X','Y','Z','F'),
+                starttime=UTCDateTime(self.starttime or today + 'T00:00:00Z'),
+                endtime=UTCDateTime(self.endtime or today + 'T24:00:00Z'),
+                type=self.type or 'variation',
+                interval=self.sampling_period or 'minute')
+        # TODO: Add option for json and create json writer
+        data = IAGA2002Writer.format(data, self.elements or ('X', 'Y', 'Z', 'F'))
+        return data
+
+
 
 
 if __name__ == '__main__':
