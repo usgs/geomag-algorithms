@@ -67,11 +67,16 @@ class WebServiceQuery(object):
 
     @classmethod
     def parse(self, params):
-        """Parse query parameters from a dictionary.
+        """Parse query parameters from a dictionary and set defaults.
 
         Parameters
         ----------
         params : dict
+
+        Returns
+        -------
+        WebServiceQuery
+            parsed query object.
         """
         # Create dictionary of lists
         dict = parse_qs(params)
@@ -87,11 +92,33 @@ class WebServiceQuery(object):
         self.id = escape(id)
         self.starttime = escape(starttime)
         self.endtime = escape(endtime)
-        self.elements = escape(elements)
-        self.elements = [x.strip() for x in elements.split(',')]
+        elements = escape(elements)
         self.sampling_period = escape(sampling_period)
         self.type = escape(type)
         self.format = escape(format)
+        # Check for values
+        if not self.id:
+            self.id = 'BOU'
+        if not starttime or not endtime:
+            self.starttime = str(datetime.utcnow().strftime("%Y-%m-%dT")) + '00:00:00Z'
+            self.endtime = str(datetime.utcnow().strftime("%Y-%m-%dT")) + '23:59:00Z'
+        if elements:
+            self.elements = [el.strip() and el.upper() for el in elements.split(',')]
+        else:
+            self.elements = ('X','Y','Z','F')
+        if self.sampling_period == '1':
+            self.sampling_period = 'second'
+        if self.sampling_period == '60':
+            self.sampling_period = 'minute'
+        # TODO: Add hourly option
+        if not self.sampling_period:
+            self.sampling_period = 'minute'
+        if not self.type:
+            self.type = 'variation'
+        if not self.format:
+             self.format = 'iaga2002'
+
+
 
 
     @classmethod
@@ -105,22 +132,22 @@ class WebServiceQuery(object):
         Returns
         -------
         data
-            string of data and metadata.
+            string of timeseries data and metadata.
         """
         self.factory = factory
-        # Default to observatory data for current UTC day in IAGA2002 format
-        today = datetime.utcnow().strftime("%Y-%m-%d")
         data = self.factory.get_timeseries(
-                observatory=self.id or 'BOU',
-                channels=self.elements or ('X','Y','Z','F'),
-                starttime=UTCDateTime(self.starttime or today + 'T00:00:00Z'),
-                endtime=UTCDateTime(self.endtime or today + 'T24:00:00Z'),
-                type=self.type or 'variation',
-                interval=self.sampling_period or 'minute')
-        # TODO: Add option for json and create json writer
-        data = IAGA2002Writer.format(data, self.elements or ('X', 'Y', 'Z', 'F'))
+                observatory=self.id,
+                channels=self.elements,
+                starttime=UTCDateTime(self.starttime),
+                endtime=UTCDateTime(self.endtime),
+                type=self.type,
+                interval=self.sampling_period)
+        # TODO: Add option for json and create writer
+        # TODO: Add web service info (request, submission date/time, url, version)
+        data = IAGA2002Writer.format(data, self.elements)
         return data
 
+    # TODO: Add error messages and direction to usage details
 
 
 
