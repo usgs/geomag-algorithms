@@ -26,25 +26,6 @@ class JSONFactory(TimeseriesFactory):
     def __init__(self, **kwargs):
         TimeseriesFactory.__init__(self, **kwargs)
 
-    # TODO: Write parser method
-    def parse_string(self, data, observatory=None, interval='minute',
-            **kwargs):
-        """Parse the contents of a string in the format of an json file.
-
-        Parameters
-        ----------
-        jsonString : str
-            string containing IAGA2002 content.
-        observatory : str
-            observatory in case headers are unavailable.
-            parses observatory from headers when available.
-        Returns
-        -------
-        obspy.core.Stream
-            parsed data.
-        """
-        pass
-
     def write_file(self, fh, timeseries, channels):
         """writes timeseries data to the given file object.
 

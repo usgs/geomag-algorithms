@@ -5,20 +5,16 @@ from io import BytesIO
 from collections import OrderedDict
 from datetime import datetime
 import json
-import numpy
+import numpy as np
 import textwrap
 from .. import ChannelConverter, TimeseriesUtility
 from ..edge import EdgeFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..Util import create_empty_trace
 
-
 class JSONWriter(object):
     """JSON writer.
     """
-
-    def __init__(self):
-        self.dictionary = OrderedDict()
 
     def write(self, out, timeseries, channels, **kwargs):
         """write timeseries to json file
@@ -32,6 +28,7 @@ class JSONWriter(object):
         channels: array_like
             channels to be written from timeseries object
         """
+        dictionary = OrderedDict()
         request = kwargs.get('request')
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
@@ -39,14 +36,13 @@ class JSONWriter(object):
                     'Missing channel "%s" for output, available channels %s' %
                     (channel, str(TimeseriesUtility.get_channels(timeseries))))
         stats = timeseries[0].stats
-        if len(channels) != 4:
-            channels = self._pad_to_four_channels(timeseries, channels)
-        self._format_metadata(stats, channels)
+        dictionary['type'] = 'Timeseries'
+        dictionary['metadata'] = self._format_metadata(stats, channels)
         if request:
-            self.dictionary['metadata']['url'] = 'http://geomag.usgs.gov/ws/edge/?' + request
-        self._format_times(timeseries, channels)
-        self._format_data(timeseries, channels, stats)
-        out.write(json.dumps(self.dictionary, ensure_ascii=True).encode(
+            dictionary['metadata']['url'] = 'http://geomag.usgs.gov/ws/edge/?' + request
+        dictionary['times'] = self._format_times(timeseries, channels)
+        dictionary['values'] = self._format_data(timeseries, channels, stats)
+        out.write(json.dumps(dictionary, ensure_ascii=True).encode(
                 'utf8'))
 
     def _format_metadata(self, stats, channels):
@@ -58,15 +54,18 @@ class JSONWriter(object):
             holds the observatory metadata
         channels: array_like
             channels to be reported.
+
+        Returns
+        -------
+        dictionary
+            a dictionary containing metadata.
         """
-        dict = self.dictionary.copy()
-        dict['type'] = 'Timeseries'
-        dict['metadata'] = OrderedDict()
-        dict['metadata']['intermagnet'] = OrderedDict()
-        dict['metadata']['intermagnet']['imo'] = OrderedDict()
-        dict['metadata']['intermagnet']['imo']['iaga_code'] = stats.station
+        metadata_dict = OrderedDict()
+        intermag = OrderedDict()
+        imo = OrderedDict()
+        imo['iaga_code'] = stats.station
         if 'station_name' in stats:
-            dict['metadata']['intermagnet']['imo']['name'] = stats.station_name
+            imo['name'] = stats.station_name
         coords = [None] * 3
         if 'geodetic_longitude' in stats:
             coords[0] = str(stats.geodetic_longitude)
@@ -74,12 +73,13 @@ class JSONWriter(object):
             coords[1] = str(stats.geodetic_latitude)
         if 'elevation' in stats:
             coords[2] = str(stats.elevation)
-        dict['metadata']['intermagnet']['imo']['coordinates'] = coords
-        dict['metadata']['intermagnet']['reported_orientation'] = ''.join(channels)
+        imo['coordinates'] = coords
+        intermag['imo'] = imo
+        intermag['reported_orientation'] = ''.join(channels)
         if 'sensor_orientation' in stats:
-            dict['metadata']['intermagnet']['sensor_orientation'] = stats.sensor_orientation
+            intermag['sensor_orientation'] = stats.sensor_orientation
         if 'data_type' in stats:
-            dict['metadata']['intermagnet']['data_type'] = stats.data_type
+            intermag['data_type'] = stats.data_type
         if 'sampling_rate' in stats:
             if stats.sampling_rate == 1. / 60.:
                 rate = 60
@@ -89,22 +89,28 @@ class JSONWriter(object):
                 rate = 86400
             else:
                 rate = 1
-            dict['metadata']['intermagnet']['sampling_period'] = str(rate)
+            intermag['sampling_period'] = str(rate)
         if 'sensor_sampling_rate' in stats:
-            dict['metadata']['intermagnet']['digital_sampling_rate'] = str(1 / stats.sensor_sampling_rate)
-        dict['metadata']['status'] = 200
-        dict['metadata']['generated'] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-        self.dictionary = dict
+            intermag['digital_sampling_rate'] = str(1 / stats.sensor_sampling_rate)
+        metadata_dict['intermagnet'] = intermag
+        metadata_dict['status'] = 200
+        metadata_dict['generated'] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        return metadata_dict
 
     def _format_times(self, timeseries, channels):
         """format times for json file and update dictionary
 
         Parameters
         ----------
-        timeseries: obspy.core.stream
-            timeseries object with data to be written
+        stats: obspy.core.trace.stats
+            holds the observatory metadata
         channels: array_like
             channels to be reported.
+
+        Returns
+        -------
+        array_like
+            an array containing formatted strings of time data.
         """
         times = []
         traces = [timeseries.select(channel=c)[0] for c in channels]
@@ -113,7 +119,7 @@ class JSONWriter(object):
         for i in range(len(traces[0].data)):
             times.append(self._format_time_string(
                 datetime.utcfromtimestamp(starttime + i * delta)))
-        self.dictionary['times'] = times
+        return times
 
     def _format_time_string(self, time):
         """format one time.
@@ -144,8 +150,12 @@ class JSONWriter(object):
             list and order of channel values to output.
         stats: obspy.core.trace.stats
             holds the observatory metadata
+
+        Returns
+        -------
+        array_like
+            an array containing dictionaries of data.
         """
-        self.dictionary['values'] = []
         if timeseries.select(channel='D'):
             d = timeseries.select(channel='D')
             d[0].data = ChannelConverter.get_minutes_from_radians(d[0].data)
@@ -155,38 +165,24 @@ class JSONWriter(object):
             value_dict = OrderedDict()
             trace = timeseries.select(channel=c)[0]
             value_dict['id'] = c
-            value_dict['metadata'] = OrderedDict()
-            value_dict['metadata']['element'] = c
+            value_dict = OrderedDict()
+            value_dict['element'] = c
             if 'network' in stats:
-                value_dict['metadata']['network'] = stats.network
-            value_dict['metadata']['station'] = stats.station
-            edge_channel = self.edge._get_edge_channel(stats.station,
-                                                        c,
-                                                        stats.data_type,
-                                                        stats.data_interval)
-            value_dict['metadata']['channel'] = edge_channel
+                value_dict['network'] = stats.network
+            value_dict['station'] = stats.station
+            if 'channel' in stats:
+                edge_channel = trace.stats.channel
+            else:
+                edge_channel = c
+            value_dict['channel'] = edge_channel
             if 'location' in stats:
-                value_dict['metadata']['location'] = stats.location
+                value_dict['location'] = stats.location
             # TODO: Add flag metadata
             values += [value_dict]
-            data = []
-            for i in range(len(trace.data)):
-                if numpy.isnan(trace.data[i]):
-                    data += ['null']
-                else:
-                    data += [str(trace.data[i])]
-
-
-            value_dict['values'] = data
-        self.dictionary['values'] += values
-
-    def _pad_to_four_channels(self, timeseries, channels):
-        padded = channels[:]
-        for x in range(len(channels), 4):
-            channel = 'NUL'
-            padded.append(channel)
-            timeseries += create_empty_trace(timeseries[0], channel)
-        return padded
+            data = np.copy(trace.data)
+            data[np.isnan(data)] = None
+            value_dict['values'] = data.tolist()
+        return values
 
     @classmethod
     def format(self, timeseries, channels, **kwargs):
