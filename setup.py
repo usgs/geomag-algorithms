@@ -13,6 +13,7 @@ setup(
         'geomagio.iaga2002',
         'geomagio.imfv122',
         'geomagio.imfv283',
+        'geomagio.JSON',
         'geomagio.pcdcp',
         'geomagio.temperature',
         'geomagio.vbf'
