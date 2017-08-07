@@ -2,7 +2,7 @@
 """
 
 from __future__ import print_function
-from builtins import bytes, str
+from builtins import str
 from cgi import parse_qs, escape
 from datetime import datetime
 
@@ -17,19 +17,60 @@ class WebService(object):
 
     def __call__(self, environ, start_response):
         """Implement WSGI interface"""
-        self.query = WebServiceQuery
         # parse params
-        self.query.parse(environ['QUERY_STRING'])
+        query = {}
+        query = WebServiceQuery.parse(environ['QUERY_STRING'])
         # fetch data
-        data = self.query.fetch(self.factory)
+        data = self.fetch(query)
+        # format data
+        data_string = self.format(query, data)
         # send response
         start_response('200 OK',
                 [
                     ("Content-Type", "text/plain")
                 ])
-        if isinstance(data, str):
-            data = data.encode('utf8')
-        return [data]
+        if isinstance(data_string, str):
+            data_string = data_string.encode('utf8')
+        return [data_string]
+
+    def fetch(self, query):
+        """Get requested data.
+
+        Parameters
+        ----------
+        query : dictionary of parsed query parameters
+
+        Returns
+        -------
+        obspy.core.Stream
+            timeseries object with requested data.
+        """
+        data = self.factory.get_timeseries(
+                observatory=query['id'],
+                channels=query['elements'],
+                starttime=query['starttime'],
+                endtime=query['endtime'],
+                type=query['type'],
+                interval=query['sampling_period'])
+        return data
+
+    def format(self, query, data):
+        """Format requested data.
+
+        Parameters
+        ----------
+        query : dictionary of parsed query parameters
+        data : obspy.core.Stream
+            timeseries object with data to be written
+
+        Returns
+        -------
+        unicode
+          IMFJSON or IAGA2002 formatted string.
+        """
+        # TODO: Add option for json format
+        data_string = IAGA2002Writer.format(data, query['elements'])
+        return data_string
 
 
 class WebServiceQuery(object):
@@ -66,17 +107,22 @@ class WebServiceQuery(object):
         self.format = format
 
     @classmethod
-    def parse(self, params):
-        """Parse query parameters from a dictionary and set defaults.
+    def parse(cls, params):
+        """Parse query string parameters and set defaults.
 
         Parameters
         ----------
-        params : dict
+        params : query string
 
         Returns
         -------
         WebServiceQuery
             parsed query object.
+
+        Raises
+        ------
+        TimeseriesFactoryException
+            if id, type, sampling_period, or format are not supported.
         """
         # Create dictionary of lists
         dict = parse_qs(params)
@@ -89,66 +135,85 @@ class WebServiceQuery(object):
         type = dict.get('type', [''])[0]
         format = dict.get('format', [''])[0]
         # Escape to avoid script injection
-        self.id = escape(id)
-        self.starttime = escape(starttime)
-        self.endtime = escape(endtime)
+        id = escape(id)
+        starttime = escape(starttime)
+        endtime = escape(endtime)
         elements = escape(elements)
-        self.sampling_period = escape(sampling_period)
-        self.type = escape(type)
-        self.format = escape(format)
-        # Check for values
-        if not self.id:
-            self.id = 'BOU'
-        if not starttime or not endtime:
-            self.starttime = str(datetime.utcnow().strftime("%Y-%m-%dT")) + '00:00:00Z'
-            self.endtime = str(datetime.utcnow().strftime("%Y-%m-%dT")) + '23:59:00Z'
+        sampling_period = escape(sampling_period)
+        type = escape(type)
+        format = escape(format)
+        # Check for parameters and set defaults
+        if not id:
+            raise WebServiceException(
+                'Missing observatory id.')
+        now = datetime.now()
+        if starttime and endtime:
+            starttime = UTCDateTime(starttime)
+            endtime = UTCDateTime(endtime)
+        if not starttime and not endtime:
+            starttime = UTCDateTime(
+                        year=now.year,
+                        month=now.month,
+                        day=now.day,
+                        hour=0)
+            endtime = starttime  + (24 * 60 * 60 - 1)
+        if starttime and not endtime:
+            starttime = UTCDateTime(starttime)
+            endtime = starttime  + (24 * 60 * 60 - 1)
+        if not starttime and endtime:
+            raise WebServiceException(
+                    'Missing start time.')
         if elements:
-            self.elements = [el.strip() and el.upper() for el in elements.split(',')]
-        else:
-            self.elements = ('X','Y','Z','F')
-        if self.sampling_period == '1':
-            self.sampling_period = 'second'
-        if self.sampling_period == '60':
-            self.sampling_period = 'minute'
+            elements = [el.strip().upper() for el in elements.split(',')]
+        if not elements:
+            elements = ('X', 'Y', 'Z', 'F')
+        valid_periods = ['1', '60']
+        if not sampling_period:
+            sampling_period = '60'
+        if sampling_period not in valid_periods:
+            raise WebServiceException(
+                    'Invalid sampling period.'\
+                    ' Valid sampling periods: %s' % valid_periods)
         # TODO: Add hourly option
-        if not self.sampling_period:
-            self.sampling_period = 'minute'
-        if not self.type:
-            self.type = 'variation'
-        if not self.format:
-             self.format = 'iaga2002'
+        if sampling_period == '1':
+            sampling_period = 'second'
+        if sampling_period == '60':
+            sampling_period = 'minute'
+        valid_types = [
+                    'variation',
+                    'adjusted',
+                    'quasi-definitive',
+                    'definitive'
+                    ]
+        if not type:
+            type = 'variation'
+        if type not in valid_types:
+            raise WebServiceException(
+                'Invalid data type.'\
+                ' Valid data types: %s' % valid_types)
+        # TODO: Add json to valid formats
+        valid_formats = ['iaga2002']
+        if not format:
+            format = 'iaga2002'
+        if format not in valid_formats:
+            raise WebServiceException(
+                'Invalid format.'\
+                ' Valid formats: %s' % valid_formats)
+        # Fill dictionary with parameters and return
+        query = {}
+        query['id'] = id
+        query['starttime'] = starttime
+        query['endtime'] = endtime
+        query['elements'] = elements
+        query['sampling_period'] = sampling_period
+        query['type'] = type
+        query['format'] = format
+        return query
 
 
-
-
-    @classmethod
-    def fetch(self, factory):
-        """Get requested data.
-
-        Parameters
-        ----------
-        factory : EdgeFactory
-
-        Returns
-        -------
-        data
-            string of timeseries data and metadata.
-        """
-        self.factory = factory
-        data = self.factory.get_timeseries(
-                observatory=self.id,
-                channels=self.elements,
-                starttime=UTCDateTime(self.starttime),
-                endtime=UTCDateTime(self.endtime),
-                type=self.type,
-                interval=self.sampling_period)
-        # TODO: Add option for json and create writer
-        # TODO: Add web service info (request, submission date/time, url, version)
-        data = IAGA2002Writer.format(data, self.elements)
-        return data
-
-    # TODO: Add error messages and direction to usage details
-
+class WebServiceException(Exception):
+    """Base class for exceptions thrown by web services."""
+    pass
 
 
 if __name__ == '__main__':
