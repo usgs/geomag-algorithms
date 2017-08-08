@@ -29,11 +29,13 @@ class AverageAlgorithm(Algorithm):
 
     """
 
-    def __init__(self):
+    def __init__(self, observatories=None, channel=None):
         Algorithm.__init__(self)
         self._npts = -1
         self._stt = -1
         self._stats = None
+        self.obs = observatories
+        self.ch = channel
         self.observatoryMetadata = ObservatoryMetadata()
 
     def check_stream(self, timeseries):
@@ -45,6 +47,23 @@ class AverageAlgorithm(Algorithm):
         timeseries: obspy.core.Stream
             stream to be checked.
         """
+
+        # Initialize observatories based on either command arguments
+        # or _init_ inputs
+        if self.obs:
+            self.observatories = self.obs
+        if not hasattr(self, 'observatories'):
+            obs = []
+            for series in timeseries:
+                obs.append(series.stats.station)
+            self.observatories = obs
+
+        # Initialize channel based on either command arguments or
+        # _init_ inputs
+        if self.ch:
+            self.outchannel = self.ch
+        if not hasattr(self, 'outchannel'):
+            self.outchannel = timeseries[0].stats.channel
 
         # A stream produced by EdgeFactory should always pass these checks.
 
