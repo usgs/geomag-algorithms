@@ -11,6 +11,19 @@ from geomagio.iaga2002 import IAGA2002Writer
 from obspy.core import UTCDateTime
 
 
+DEFAULT_ELEMENTS = ('X', 'Y', 'Z', 'F')
+DEFAULT_PERIOD = '60'
+DEFAULT_TYPE = 'variation'
+VALID_TYPES = [
+        'variation',
+        'adjusted',
+        'quasi-definitive',
+        'definitive'
+]
+VALID_PERIODS = ['1', '60']
+VALID_FORMATS = ['iaga2002']
+
+
 class WebService(object):
     def __init__(self, factory):
         self.factory = factory
@@ -18,19 +31,18 @@ class WebService(object):
     def __call__(self, environ, start_response):
         """Implement WSGI interface"""
         # parse params
-        query = {}
         query = WebServiceQuery.parse(environ['QUERY_STRING'])
         # fetch data
         data = self.fetch(query)
         # format data
         data_string = self.format(query, data)
+        if isinstance(data_string, str):
+            data_string = data_string.encode('utf8')
         # send response
         start_response('200 OK',
                 [
                     ("Content-Type", "text/plain")
                 ])
-        if isinstance(data_string, str):
-            data_string = data_string.encode('utf8')
         return [data_string]
 
     def fetch(self, query):
@@ -46,12 +58,12 @@ class WebService(object):
             timeseries object with requested data.
         """
         data = self.factory.get_timeseries(
-                observatory=query['id'],
-                channels=query['elements'],
-                starttime=query['starttime'],
-                endtime=query['endtime'],
-                type=query['type'],
-                interval=query['sampling_period'])
+                observatory=query.id,
+                channels=query.elements,
+                starttime=query.starttime,
+                endtime=query.endtime,
+                type=query.type,
+                interval=query.sampling_period)
         return data
 
     def format(self, query, data):
@@ -69,7 +81,7 @@ class WebService(object):
           IMFJSON or IAGA2002 formatted string.
         """
         # TODO: Add option for json format
-        data_string = IAGA2002Writer.format(data, query['elements'])
+        data_string = IAGA2002Writer.format(data, query.elements)
         return data_string
 
 
@@ -126,88 +138,116 @@ class WebServiceQuery(object):
         """
         # Create dictionary of lists
         dict = parse_qs(params)
-        # Return values
-        id = dict.get('id', [''])[0]
-        starttime = dict.get('starttime', [''])[0]
-        endtime = dict.get('endtime', [''])[0]
-        elements = dict.get('elements', [''])[0]
-        sampling_period = dict.get('sampling_period', [''])[0]
-        type = dict.get('type', [''])[0]
-        format = dict.get('format', [''])[0]
+        # Get values
+        if len(dict.get('id', [])) <= 1:
+            id = dict.get('id', [''])[0]
+        else:
+            raise WebServiceException(
+                '"id" accepts only one value')
+        if len(dict.get('starttime', [])) <= 1:
+            starttime = dict.get('starttime', [''])[0]
+        else:
+            raise WebServiceException(
+                '"starttime" accepts only one value')
+        if len(dict.get('endtime', [])) <= 1:
+            endtime = dict.get('endtime', [''])[0]
+        else:
+            raise WebServiceException(
+                '"endtime" accepts only one value')
+        if len(dict.get('elements', [])) <= 1:
+            elements = dict.get('elements', [''])[0]
+        else:
+            raise WebServiceException(
+                '"elements" accepts only one set of values')
+        if len(dict.get('sampling_period', [])) <= 1:
+            sampling_period = dict.get('sampling_period', [''])[0]
+        else:
+            raise WebServiceException(
+                '"sampling_period" accepts only one value')
+        if len(dict.get('type', [])) <= 1:
+            type = dict.get('type', [''])[0]
+        else:
+            raise WebServiceException(
+                '"type" accepts only one value')
+        if len(dict.get('format', [])) <= 1:
+            format = dict.get('format', [''])[0]
+        else:
+            raise WebServiceException(
+                '"format" accepts only one value')
         # Escape to avoid script injection
         id = escape(id)
         starttime = escape(starttime)
         endtime = escape(endtime)
         elements = escape(elements)
         sampling_period = escape(sampling_period)
-        type = escape(type)
+        type = escape(type).lower()
         format = escape(format)
         # Check for parameters and set defaults
         if not id:
             raise WebServiceException(
-                'Missing observatory id.')
+                '"id" is a required parameter')
         now = datetime.now()
-        if starttime and endtime:
-            starttime = UTCDateTime(starttime)
-            endtime = UTCDateTime(endtime)
-        if not starttime and not endtime:
+        if starttime:
+            try:
+                starttime = UTCDateTime(starttime)
+            except:
+                raise WebServiceException(
+                        'Invalid starttime "%s"' % starttime)
+        else:
             starttime = UTCDateTime(
-                        year=now.year,
-                        month=now.month,
-                        day=now.day,
-                        hour=0)
-            endtime = starttime  + (24 * 60 * 60 - 1)
-        if starttime and not endtime:
-            starttime = UTCDateTime(starttime)
-            endtime = starttime  + (24 * 60 * 60 - 1)
-        if not starttime and endtime:
+                    year=now.year,
+                    month=now.month,
+                    day=now.day,
+                    hour=0)
+        if endtime:
+            try:
+                endtime = UTCDateTime(endtime)
+            except:
+                raise WebServiceException(
+                        'Invalid endtime "%s"' % endtime)
+        else:
+            endtime = starttime + (24 * 60 * 60 - 1)
+        if starttime > endtime:
             raise WebServiceException(
-                    'Missing start time.')
+                    'Starttime before endtime "%s" "%s"'
+                     % (starttime, endtime))
         if elements:
             elements = [el.strip().upper() for el in elements.split(',')]
-        if not elements:
-            elements = ('X', 'Y', 'Z', 'F')
-        valid_periods = ['1', '60']
+        else:
+            elements = DEFAULT_ELEMENTS
         if not sampling_period:
-            sampling_period = '60'
-        if sampling_period not in valid_periods:
+            sampling_period = DEFAULT_PERIOD
+        if sampling_period not in VALID_PERIODS:
             raise WebServiceException(
-                    'Invalid sampling period.'\
-                    ' Valid sampling periods: %s' % valid_periods)
+                    'Invalid sampling period.'
+                    ' Valid sampling periods: %s' % VALID_PERIODS)
         # TODO: Add hourly option
         if sampling_period == '1':
             sampling_period = 'second'
         if sampling_period == '60':
             sampling_period = 'minute'
-        valid_types = [
-                    'variation',
-                    'adjusted',
-                    'quasi-definitive',
-                    'definitive'
-                    ]
         if not type:
-            type = 'variation'
-        if type not in valid_types:
+            type = DEFAULT_TYPE
+        if type not in VALID_TYPES:
             raise WebServiceException(
-                'Invalid data type.'\
-                ' Valid data types: %s' % valid_types)
+                'Invalid data type.'
+                ' Valid data types: %s' % VALID_TYPES)
         # TODO: Add json to valid formats
-        valid_formats = ['iaga2002']
         if not format:
             format = 'iaga2002'
-        if format not in valid_formats:
+        if format not in VALID_FORMATS:
             raise WebServiceException(
-                'Invalid format.'\
-                ' Valid formats: %s' % valid_formats)
-        # Fill dictionary with parameters and return
-        query = {}
-        query['id'] = id
-        query['starttime'] = starttime
-        query['endtime'] = endtime
-        query['elements'] = elements
-        query['sampling_period'] = sampling_period
-        query['type'] = type
-        query['format'] = format
+                'Invalid format.'
+                ' Valid formats: %s' % VALID_FORMATS)
+        # Create WebServiceQuery object and set properties
+        query = WebServiceQuery
+        query.id = id
+        query.starttime = starttime
+        query.endtime = endtime
+        query.elements = elements
+        query.sampling_period = sampling_period
+        query.type = type
+        query.format = format
         return query
 
 
