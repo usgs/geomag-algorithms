@@ -34,8 +34,8 @@ class AverageAlgorithm(Algorithm):
         self._npts = -1
         self._stt = -1
         self._stats = None
-        self.obs = observatories
-        self.ch = channel
+        self.observatories = observatories
+        self.outchannel = channel
         self.observatoryMetadata = ObservatoryMetadata()
 
     def check_stream(self, timeseries):
@@ -47,23 +47,6 @@ class AverageAlgorithm(Algorithm):
         timeseries: obspy.core.Stream
             stream to be checked.
         """
-
-        # Initialize observatories based on either command arguments
-        # or _init_ inputs
-        if self.obs:
-            self.observatories = self.obs
-        if not hasattr(self, 'observatories'):
-            obs = []
-            for series in timeseries:
-                obs.append(series.stats.station)
-            self.observatories = obs
-
-        # Initialize channel based on either command arguments or
-        # _init_ inputs
-        if self.ch:
-            self.outchannel = self.ch
-        if not hasattr(self, 'outchannel'):
-            self.outchannel = timeseries[0].stats.channel
 
         # A stream produced by EdgeFactory should always pass these checks.
 
@@ -104,6 +87,11 @@ class AverageAlgorithm(Algorithm):
         out_stream:
             new stream object containing the averaged values.
         """
+
+        # If outchannel is not initialized it defaults to the
+        # channel input channel
+        if not self.outchannel:
+            self.outchannel = timeseries[0].stats.channel
 
         self.check_stream(timeseries)
 
@@ -185,13 +173,13 @@ class AverageAlgorithm(Algorithm):
         """
 
         self.observatories = arguments.observatory
-        if len(arguments.outchannels) > 1:
-            raise AlgorithmException(
-                'Only 1 channel can be specified')
         if arguments.outchannels:
-            self.outchannel = arguments.outchannels[0]
-        else:
-            self.outchannel = 'MSD'
+            self.outchannel = arguments.outchannels       
+            if len(self.outchannel) > 1:
+                raise AlgorithmException(
+                    'Only 1 channel can be specified')
+
+
         self.scales = arguments.average_observatory_scale
         if self.scales[0] is not None:
             if len(self.observatories) != len(self.scales):
