@@ -174,11 +174,10 @@ class AverageAlgorithm(Algorithm):
 
         self.observatories = arguments.observatory
         if arguments.outchannels:
-            self.outchannel = arguments.outchannels       
+            self.outchannel = arguments.outchannels
             if len(self.outchannel) > 1:
                 raise AlgorithmException(
                     'Only 1 channel can be specified')
-
 
         self.scales = arguments.average_observatory_scale
         if self.scales[0] is not None:
