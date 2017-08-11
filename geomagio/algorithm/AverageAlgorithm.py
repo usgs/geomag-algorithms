@@ -89,10 +89,11 @@ class AverageAlgorithm(Algorithm):
         """
 
         # If outchannel is not initialized it defaults to the
-        # channel input channel
+        # input channel of the timeseries
         if not self.outchannel:
             self.outchannel = timeseries[0].stats.channel
 
+        # Run checks on input timeseries
         self.check_stream(timeseries)
 
         # initialize array for data to be appended
@@ -174,10 +175,10 @@ class AverageAlgorithm(Algorithm):
 
         self.observatories = arguments.observatory
         if arguments.outchannels:
-            self.outchannel = arguments.outchannels
-            if len(self.outchannel) > 1:
+            if len(arguments.outchannels) > 1:
                 raise AlgorithmException(
                     'Only 1 channel can be specified')
+            self.outchannel = arguments.outchannels[0]
 
         self.scales = arguments.average_observatory_scale
         if self.scales[0] is not None:
