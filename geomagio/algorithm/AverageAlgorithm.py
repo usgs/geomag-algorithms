@@ -29,11 +29,13 @@ class AverageAlgorithm(Algorithm):
 
     """
 
-    def __init__(self):
+    def __init__(self, observatories=None, channel=None):
         Algorithm.__init__(self)
         self._npts = -1
         self._stt = -1
         self._stats = None
+        self.observatories = observatories
+        self.outchannel = channel
         self.observatoryMetadata = ObservatoryMetadata()
 
     def check_stream(self, timeseries):
@@ -86,6 +88,12 @@ class AverageAlgorithm(Algorithm):
             new stream object containing the averaged values.
         """
 
+        # If outchannel is not initialized it defaults to the
+        # input channel of the timeseries
+        if not self.outchannel:
+            self.outchannel = timeseries[0].stats.channel
+
+        # Run checks on input timeseries
         self.check_stream(timeseries)
 
         # initialize array for data to be appended
@@ -166,13 +174,12 @@ class AverageAlgorithm(Algorithm):
         """
 
         self.observatories = arguments.observatory
-        if len(arguments.outchannels) > 1:
-            raise AlgorithmException(
-                'Only 1 channel can be specified')
         if arguments.outchannels:
+            if len(arguments.outchannels) > 1:
+                raise AlgorithmException(
+                    'Only 1 channel can be specified')
             self.outchannel = arguments.outchannels[0]
-        else:
-            self.outchannel = 'MSD'
+
         self.scales = arguments.average_observatory_scale
         if self.scales[0] is not None:
             if len(self.observatories) != len(self.scales):
