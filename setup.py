@@ -11,9 +11,9 @@ setup(
         'geomagio.binlog',
         'geomagio.edge',
         'geomagio.iaga2002',
+        'geomagio.imfjson',
         'geomagio.imfv122',
         'geomagio.imfv283',
-        'geomagio.JSON',
         'geomagio.pcdcp',
         'geomagio.temperature',
         'geomagio.vbf'

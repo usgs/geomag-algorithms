@@ -1,13 +1,11 @@
 """Factory for json files."""
 from __future__ import absolute_import
 
-import obspy.core
-from .. import ChannelConverter
 from ..TimeseriesFactory import TimeseriesFactory
-from .JSONWriter import JSONWriter
+from .IMFJSONWriter import IMFJSONWriter
 
 
-class JSONFactory(TimeseriesFactory):
+class IMFJSONFactory(TimeseriesFactory):
     """TimeseriesFactory for IAGA 2002 formatted files.
 
     Parameters
@@ -37,4 +35,4 @@ class JSONFactory(TimeseriesFactory):
         channels : array_like
             list of channels to store
         """
-        JSONWriter().write(fh, timeseries, channels)
+        IMFJSONWriter().write(fh, timeseries, channels)

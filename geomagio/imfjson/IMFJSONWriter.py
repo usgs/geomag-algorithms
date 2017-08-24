@@ -1,18 +1,15 @@
 from __future__ import absolute_import
-from builtins import range
 
 from io import BytesIO
 from collections import OrderedDict
 from datetime import datetime
 import json
 import numpy as np
-import textwrap
 from .. import ChannelConverter, TimeseriesUtility
 from ..edge import EdgeFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
-from ..Util import create_empty_trace
 
-class JSONWriter(object):
+class IMFJSONWriter(object):
     """JSON writer.
     """
 
