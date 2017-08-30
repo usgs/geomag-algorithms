@@ -4,6 +4,8 @@
 from __future__ import print_function
 from cgi import parse_qs, escape
 from datetime import datetime
+from json import load
+import os.path
 import sys
 
 from geomagio.edge import EdgeFactory
@@ -16,6 +18,15 @@ DEFAULT_DATA_TYPE = 'variation'
 DEFAULT_ELEMENTS = ('X', 'Y', 'Z', 'F')
 DEFAULT_OUTPUT_FORMAT = 'iaga2002'
 DEFAULT_SAMPLING_PERIOD = '60'
+ERROR_CODE_MESSAGES = {
+        204: 'No Data',
+        400: 'Bad Request',
+        404: 'Not Found',
+        409: 'Conflict',
+        500: 'Internal Server Error',
+        501: 'Not Implemented',
+        503: 'Service Unavailable'
+}
 VALID_DATA_TYPES = [
         'variation',
         'adjusted',
@@ -45,12 +56,12 @@ def _get_param(params, key, required=False):
 
     Raises
     ------
-    WebServiceError
+    WebServiceException
         if the parameter is specified more than once
         or if required paramenter is not specified.
     """
     value = params.get(key)
-    if type(value) in (list, tuple):
+    if isinstance(value, (list, tuple)):
         if len(value) > 1:
             raise WebServiceException('"' + key +
                     '" may only be specified once.')
@@ -62,75 +73,54 @@ def _get_param(params, key, required=False):
     return value
 
 
-def _verify_parameters(query):
-    """Verify that parameters are valid.
-
-    Parameters
-    ----------
-    query : WebServiceQuery
-        parsed query object.
-
-    Raises
-    ------
-    WebServiceError
-        if any parameters are not supported.
-    """
-    if len(query.elements) > 4 and query.output_format == 'iaga2002':
-        raise WebServiceException(
-                'No more than 4 elements allowed for iaga2002 format.')
-    if query.starttime > query.endtime:
-        raise WebServiceException(
-                'Starttime must be before endtime.')
-    if query.data_type not in VALID_DATA_TYPES:
-        raise WebServiceException(
-                'Bad type value "%s".'
-                ' Valid values are: %s' % (query.data_type, VALID_DATA_TYPES))
-    if query.sampling_period not in VALID_SAMPLING_PERIODS:
-        raise WebServiceException(
-                'Bad sampling_period value "%s".'
-                ' Valid values are: %s'
-                % (query.sampling_period, VALID_SAMPLING_PERIODS))
-    if query.output_format not in VALID_OUTPUT_FORMATS:
-        raise WebServiceException(
-                'Bad format value "%s".'
-                ' Valid values are: %s'
-                % (query.output_format, VALID_OUTPUT_FORMATS))
-
-
 class WebService(object):
     def __init__(self, factory, metadata=None):
         self.factory = factory
         self.metadata = metadata or ObservatoryMetadata().metadata
+        base = os.path.dirname(__file__)
+        filepath = os.path.abspath(os.path.join(base, '..', 'package.json'))
+        with open(filepath) as package:
+            specifications = load(package)
+        self.version = specifications['version']
 
     def __call__(self, environ, start_response):
         """Implement WSGI interface"""
         try:
             # parse params
             query = self.parse(parse_qs(environ['QUERY_STRING']))
-            # fetch data
-            data = self.fetch(query)
-            # format data
-            data_string = self.format_data(query, data)
-            if isinstance(data_string, str):
-                data_string = data_string.encode('utf8')
+            query._verify_parameters()
         except Exception:
             exception = sys.exc_info()[1]
             message = exception.args[0]
-            error = WebServiceError('BAD_REQUEST', message, environ)
-            start_response(error.status,
-                    [
-                        ("Content-Type", "text/plain")
-                    ])
-            return [error.error_body]
-        # send response
-        start_response('200 OK',
+            self.error(400, message, environ, start_response)
+            return [self.error_body]
+        try:
+            # fetch timeseries
+            timeseries = self.fetch(query)
+            # format timeseries
+            timeseries_string = self.format_data(
+                    query, timeseries, start_response)
+            if isinstance(timeseries_string, str):
+                timeseries_string = timeseries_string.encode('utf8')
+        except Exception:
+            exception = sys.exc_info()[1]
+            message = exception.args[0]
+            self.error(500, message, environ, start_response)
+            return [self.error_body]
+        return [timeseries_string]
+
+    def error(self, code, message, environ, start_response):
+        """Assign error_body value based on error format."""
+        # TODO: Add option for json formatted error
+        self.error_body = self.http_error(code, message, environ)
+        status = str(code) + ' ' + ERROR_CODE_MESSAGES[code]
+        start_response(status,
                 [
                     ("Content-Type", "text/plain")
                 ])
-        return [data_string]
 
     def fetch(self, query):
-        """Get requested data.
+        """Get requested timeseries.
 
         Parameters
         ----------
@@ -141,27 +131,27 @@ class WebService(object):
         obspy.core.Stream
             timeseries object with requested data.
         """
-        _verify_parameters(query)
         if query.sampling_period == '1':
-            query.sampling_period = 'second'
+            sampling_period = 'second'
         if query.sampling_period == '60':
-            query.sampling_period = 'minute'
-        data = self.factory.get_timeseries(
+            sampling_period = 'minute'
+        timeseries = self.factory.get_timeseries(
                 observatory=query.observatory_id,
                 channels=query.elements,
                 starttime=query.starttime,
                 endtime=query.endtime,
                 type=query.data_type,
-                interval=query.sampling_period)
-        return data
+                interval=sampling_period)
+        return timeseries
 
-    def format_data(self, query, data):
-        """Format requested data.
+    @classmethod
+    def format_data(cls, query, timeseries, start_response):
+        """Format requested timeseries.
 
         Parameters
         ----------
         query : dictionary of parsed query parameters
-        data : obspy.core.Stream
+        timeseries : obspy.core.Stream
             timeseries object with data to be written
 
         Returns
@@ -170,8 +160,33 @@ class WebService(object):
           IAGA2002 formatted string.
         """
         # TODO: Add option for json format
-        data_string = IAGA2002Writer.format(data, query.elements)
-        return data_string
+        timeseries_string = IAGA2002Writer.format(timeseries, query.elements)
+        start_response('200 OK',
+                [
+                    ("Content-Type", "text/plain")
+                ])
+        return timeseries_string
+
+    def http_error(self, code, message, environ):
+        """Format http error message.
+
+        Returns
+        -------
+        error_body : str
+            body of http error message.
+        """
+        status_message = ERROR_CODE_MESSAGES[code]
+        error_body = 'Error ' + str(code) + ': ' + status_message + \
+                '\n\n' + message + '\n\n' + \
+                'Usage details are available from ' + \
+                'http://geomag.usgs.gov/ws/edge/ \n\n' + \
+                'Request:\n' + \
+                environ['QUERY_STRING'] + '\n\n' + \
+                'Request Submitted:\n' + \
+                datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ") + '\n\n' + \
+                'Service version:\n' + \
+                str(self.version)
+        return error_body
 
     def parse(self, params):
         """Parse query string parameters and set defaults.
@@ -188,7 +203,7 @@ class WebService(object):
 
         Raises
         ------
-        WebServiceError
+        WebServiceException
             if any parameters are not supported.
         """
         # Get values
@@ -237,7 +252,7 @@ class WebService(object):
         if not elements:
             elements = DEFAULT_ELEMENTS
         else:
-            elements = [el.strip().upper() for el in elements.split(',')]
+            elements = [e.strip().upper() for e in elements.replace(',', '')]
         if not sampling_period:
             sampling_period = DEFAULT_SAMPLING_PERIOD
         else:
@@ -292,80 +307,41 @@ class WebServiceQuery(object):
         self.data_type = data_type
         self.output_format = output_format
 
+    @classmethod
+    def _verify_parameters(cls):
+        """Verify that parameters are valid.
+
+        Raises
+        ------
+        WebServiceException
+            if any parameters are not supported.
+        """
+        if len(cls.elements) > 4 and cls.output_format == 'iaga2002':
+            raise WebServiceException(
+                    'No more than four elements allowed for iaga2002 format.')
+        if cls.starttime > cls.endtime:
+            raise WebServiceException(
+                    'Starttime must be before endtime.')
+        if cls.data_type not in VALID_DATA_TYPES:
+            raise WebServiceException(
+                    'Bad type value "%s".'
+                    ' Valid values are: %s'
+                    % (cls.data_type, VALID_DATA_TYPES))
+        if cls.sampling_period not in VALID_SAMPLING_PERIODS:
+            raise WebServiceException(
+                    'Bad sampling_period value "%s".'
+                    ' Valid values are: %s'
+                    % (cls.sampling_period, VALID_SAMPLING_PERIODS))
+        if cls.output_format not in VALID_OUTPUT_FORMATS:
+            raise WebServiceException(
+                    'Bad format value "%s".'
+                    ' Valid values are: %s'
+                    % (cls.output_format, VALID_OUTPUT_FORMATS))
+
 
 class WebServiceException(Exception):
     """Base class for exceptions thrown by web services."""
     pass
-
-
-class WebServiceError(object):
-    """Base class for creating error pages."""
-    def __init__(self, code, message, environ):
-        self.code = code
-        self.message = message
-        self.environ = environ
-        self.error_body = None
-        self.error_types = {
-                'NO_DATA': {
-                        'code': 204,
-                        'status': 'No Data'
-                },
-                'BAD_REQUEST': {
-                        'code': 400,
-                        'status': 'Bad Request'
-                },
-                'NOT_FOUND': {
-                        'code': 404,
-                        'status': 'Not Found'
-                },
-                'CONFLICT': {
-                        'code': 409,
-                        'status': 'Conflict'
-                },
-                'SERVER_ERROR': {
-                        'code': 500,
-                        'status': 'Internal Server Error'
-                },
-                'NOT_IMPLEMENTED': {
-                        'code': 501,
-                        'status': 'Not Implemented'
-                },
-                'SERVICE_UNAVAILABLE': {
-                        'code': 503,
-                        'status': 'Service Unavailable'
-                },
-        }
-        self.status = None
-        self.error()
-
-    def error(self):
-        """Assign error_body value based on error format."""
-        # TODO: Add option for json formatted error
-        self.error_body = self.http_error()
-
-    def http_error(self):
-        """Format http error message.
-
-        Returns
-        -------
-        error_body : str
-            body of http error message.
-        """
-        code_message = str(self.error_types[self.code]['code'])
-        status_message = self.error_types[self.code]['status']
-        self.status = code_message + ' ' + status_message
-        server_software = self.environ['SERVER_SOFTWARE'].split(' ')
-        error_body = 'Error ' + code_message + ': ' + status_message + \
-                '\n\n' + self.message + '\n\n' + \
-                'Usage details are available from ' + \
-                'http://geomag.usgs.gov/ws/edge/ \n\n' + \
-                'Request:\n' + \
-                self.environ['QUERY_STRING'] + '\n\n' + \
-                'Request Submitted:\n' + \
-                datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ") + '\n\n' + \
-                'Service version:\n' + \
-                server_software[0]
-        return error_body
 
 
 if __name__ == '__main__':
