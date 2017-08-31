@@ -92,8 +92,8 @@ class WebService(object):
         except Exception:
             exception = sys.exc_info()[1]
             message = exception.args[0]
-            self.error(400, message, environ, start_response)
-            return [self.error_body]
+            error_body = self.error(400, message, environ, start_response)
+            return [error_body]
         try:
             # fetch timeseries
             timeseries = self.fetch(query)
@@ -105,19 +105,22 @@ class WebService(object):
         except Exception:
             exception = sys.exc_info()[1]
             message = exception.args[0]
-            self.error(500, message, environ, start_response)
-            return [self.error_body]
+            error_body = self.error(500, message, environ, start_response)
+            return [error_body]
         return [timeseries_string]
 
     def error(self, code, message, environ, start_response):
         """Assign error_body value based on error format."""
         # TODO: Add option for json formatted error
-        self.error_body = self.http_error(code, message, environ)
+        error_body = self.http_error(code, message, environ)
         status = str(code) + ' ' + ERROR_CODE_MESSAGES[code]
         start_response(status,
                 [
                     ("Content-Type", "text/plain")
                 ])
+        if isinstance(error_body, str):
+            error_body = error_body.encode('utf8')
+        return error_body
 
     def fetch(self, query):
         """Get requested timeseries.
@@ -144,8 +147,7 @@ class WebService(object):
                 interval=sampling_period)
         return timeseries
 
-    @classmethod
-    def format_data(cls, query, timeseries, start_response):
+    def format_data(self, query, timeseries, start_response):
         """Format requested timeseries.
 
         Parameters
@@ -176,17 +178,17 @@ class WebService(object):
             body of http error message.
         """
         status_message = ERROR_CODE_MESSAGES[code]
-        error_body = 'Error ' + str(code) + ': ' + status_message + \
+        http_error_body = 'Error ' + str(code) + ': ' + status_message + \
                 '\n\n' + message + '\n\n' + \
                 'Usage details are available from ' + \
                 'http://geomag.usgs.gov/ws/edge/ \n\n' + \
                 'Request:\n' + \
-                environ['QUERY_STRING'] + '\n\n' + \
-                'Request Submitted:\n' + \
+                environ['PATH_INFO'] + '?' + environ['QUERY_STRING'] + \
+                '\n\n' + 'Request Submitted:\n' + \
                 datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ") + '\n\n' + \
                 'Service version:\n' + \
                 str(self.version)
-        return error_body
+        return http_error_body
 
     def parse(self, params):
         """Parse query string parameters and set defaults.
@@ -262,7 +264,7 @@ class WebService(object):
         else:
             data_type = data_type.lower()
         # Create WebServiceQuery object and set properties
-        query = WebServiceQuery
+        query = WebServiceQuery()
         query.observatory_id = observatory_id
         query.starttime = starttime
         query.endtime = endtime
@@ -307,8 +309,7 @@ class WebServiceQuery(object):
         self.data_type = data_type
         self.output_format = output_format
 
-    @classmethod
-    def _verify_parameters(cls):
+    def _verify_parameters(self):
         """Verify that parameters are valid.
 
         Raises
@@ -316,27 +317,27 @@ class WebServiceQuery(object):
         WebServiceException
             if any parameters are not supported.
         """
-        if len(cls.elements) > 4 and cls.output_format == 'iaga2002':
+        if len(self.elements) > 4 and self.output_format == 'iaga2002':
             raise WebServiceException(
                     'No more than four elements allowed for iaga2002 format.')
-        if cls.starttime > cls.endtime:
+        if self.starttime > self.endtime:
             raise WebServiceException(
                     'Starttime must be before endtime.')
-        if cls.data_type not in VALID_DATA_TYPES:
+        if self.data_type not in VALID_DATA_TYPES:
             raise WebServiceException(
                     'Bad type value "%s".'
                     ' Valid values are: %s'
-                    % (cls.data_type, VALID_DATA_TYPES))
-        if cls.sampling_period not in VALID_SAMPLING_PERIODS:
+                    % (self.data_type, VALID_DATA_TYPES))
+        if self.sampling_period not in VALID_SAMPLING_PERIODS:
             raise WebServiceException(
                     'Bad sampling_period value "%s".'
                     ' Valid values are: %s'
-                    % (cls.sampling_period, VALID_SAMPLING_PERIODS))
-        if cls.output_format not in VALID_OUTPUT_FORMATS:
+                    % (self.sampling_period, VALID_SAMPLING_PERIODS))
+        if self.output_format not in VALID_OUTPUT_FORMATS:
             raise WebServiceException(
                     'Bad format value "%s".'
                     ' Valid values are: %s'
-                    % (cls.output_format, VALID_OUTPUT_FORMATS))
+                    % (self.output_format, VALID_OUTPUT_FORMATS))
 
 
 class WebServiceException(Exception):
