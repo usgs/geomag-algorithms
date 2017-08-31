@@ -154,7 +154,7 @@ class EdgeFactory(TimeseriesFactory):
         finally:
             output = temp_stdout.getvalue()
             if output != '':
-                sys.stderr.write(output)
+                sys.stderr.write(str(output))
             temp_stdout.close()
             sys.stdout = original_stdout
         self._post_process(timeseries, starttime, endtime, channels)

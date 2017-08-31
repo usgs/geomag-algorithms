@@ -40,10 +40,11 @@ class IAGA2002Writer(object):
         stats = timeseries[0].stats
         if len(channels) != 4:
             channels = self._pad_to_four_channels(timeseries, channels)
-        out.write(self._format_headers(stats, channels))
-        out.write(self._format_comments(stats))
-        out.write(self._format_channels(channels, stats.station))
-        out.write(self._format_data(timeseries, channels))
+        out.write(self._format_headers(stats, channels).encode('utf8'))
+        out.write(self._format_comments(stats).encode('utf8'))
+        out.write(self._format_channels(channels, stats.station).encode(
+                'utf8'))
+        out.write(self._format_data(timeseries, channels).encode('utf8'))
 
     def _format_headers(self, stats, channels):
         """format headers for IAGA2002 file
