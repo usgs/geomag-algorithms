@@ -343,11 +343,3 @@ class WebServiceQuery(object):
 class WebServiceException(Exception):
     """Base class for exceptions thrown by web services."""
     pass
-
-
-if __name__ == '__main__':
-    from wsgiref.simple_server import make_server
-
-    app = WebService(EdgeFactory())
-    httpd = make_server('', 7981, app)
-    httpd.serve_forever()
