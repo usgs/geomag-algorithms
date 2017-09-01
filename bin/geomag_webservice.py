@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
 from __future__ import absolute_import, print_function
-from builtins import str as unicode
 
 import os
 import sys
@@ -9,7 +8,7 @@ from wsgiref.simple_server import make_server
 # ensure geomag is on the path before importing
 try:
     import geomagio  # noqa (tells linter to ignore this line.)
-except:
+except ImportError:
     path = os.path
     script_dir = path.dirname(path.abspath(__file__))
     sys.path.append(path.normpath(path.join(script_dir, '..')))
