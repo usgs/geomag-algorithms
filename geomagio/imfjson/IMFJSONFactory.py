@@ -6,7 +6,7 @@ from .IMFJSONWriter import IMFJSONWriter
 
 
 class IMFJSONFactory(TimeseriesFactory):
-    """TimeseriesFactory for IAGA 2002 formatted files.
+    """TimeseriesFactory for IMF JSON formatted files.
 
     Parameters
     ----------

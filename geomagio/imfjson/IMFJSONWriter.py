@@ -1,12 +1,11 @@
 from __future__ import absolute_import
 
-from io import BytesIO
 from collections import OrderedDict
+from io import BytesIO
 from datetime import datetime
 import json
 import numpy as np
 from .. import ChannelConverter, TimeseriesUtility
-from ..edge import EdgeFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 
 class IMFJSONWriter(object):
@@ -14,7 +13,7 @@ class IMFJSONWriter(object):
     """
 
     def write(self, out, timeseries, channels, **kwargs):
-        """write timeseries to json file
+        """Write timeseries to json file.
 
         Parameters
         ----------
@@ -24,8 +23,15 @@ class IMFJSONWriter(object):
             timeseries object with data to be written
         channels: array_like
             channels to be written from timeseries object
+        kwargs
+            request : query string
+
+        Raises
+        ------
+        TimeseriesFactoryException
+            if there is a missing channel.
         """
-        dictionary = OrderedDict()
+        file_dict = OrderedDict()
         request = kwargs.get('request')
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
@@ -33,17 +39,63 @@ class IMFJSONWriter(object):
                     'Missing channel "%s" for output, available channels %s' %
                     (channel, str(TimeseriesUtility.get_channels(timeseries))))
         stats = timeseries[0].stats
-        dictionary['type'] = 'Timeseries'
-        dictionary['metadata'] = self._format_metadata(stats, channels)
+        file_dict['type'] = 'Timeseries'
+        file_dict['metadata'] = self._format_metadata(stats, channels)
         if request:
-            dictionary['metadata']['url'] = 'http://geomag.usgs.gov/ws/edge/?' + request
-        dictionary['times'] = self._format_times(timeseries, channels)
-        dictionary['values'] = self._format_data(timeseries, channels, stats)
-        out.write(json.dumps(dictionary, ensure_ascii=True).encode(
-                'utf8'))
+            base = 'http://geomag.usgs.gov/ws/edge/?'
+            file_dict['metadata']['url'] = base + request
+        file_dict['times'] = self._format_times(timeseries, channels)
+        file_dict['values'] = self._format_data(timeseries, channels, stats)
+        formatted_timeseries = json.dumps(file_dict,
+                ensure_ascii=True).encode('utf8')
+        out.write(str(formatted_timeseries))
+
+    def _format_data(self, timeseries, channels, stats):
+        """Format all data lines.
+
+        Parameters
+        ----------
+        timeseries : obspy.core.Stream
+            stream containing traces with channel listed in channels
+        channels : sequence
+            list and order of channel values to output.
+        stats: obspy.core.trace.stats
+            holds the observatory metadata
+
+        Returns
+        -------
+        array_like
+            an array containing dictionaries of data.
+        """
+        if timeseries.select(channel='D'):
+            d = timeseries.select(channel='D')
+            d[0].data = ChannelConverter.get_minutes_from_radians(d[0].data)
+        values = []
+        for c in channels:
+            value_dict = OrderedDict()
+            trace = timeseries.select(channel=c)[0]
+            value_dict['id'] = c
+            value_dict = OrderedDict()
+            value_dict['element'] = c
+            if 'network' in stats:
+                value_dict['network'] = stats.network
+            value_dict['station'] = stats.station
+            if 'channel' in stats:
+                edge_channel = trace.stats.channel
+            else:
+                edge_channel = c
+            value_dict['channel'] = edge_channel
+            if 'location' in stats:
+                value_dict['location'] = stats.location
+            # TODO: Add flag metadata
+            values += [value_dict]
+            data = np.copy(trace.data)
+            data[np.isnan(data)] = None
+            value_dict['values'] = data.tolist()
+        return values
 
     def _format_metadata(self, stats, channels):
-        """format metadata for json file and update dictionary
+        """Format metadata for json file and update dictionary
 
         Parameters
         ----------
@@ -88,19 +140,21 @@ class IMFJSONWriter(object):
                 rate = 1
             intermag['sampling_period'] = str(rate)
         if 'sensor_sampling_rate' in stats:
-            intermag['digital_sampling_rate'] = str(1 / stats.sensor_sampling_rate)
+            sampling = 1 / stats.sensor_sampling_rate
+            intermag['digital_sampling_rate'] = str(sampling)
         metadata_dict['intermagnet'] = intermag
         metadata_dict['status'] = 200
-        metadata_dict['generated'] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        generated = datetime.utcnow()
+        metadata_dict['generated'] = generated.strftime("%Y-%m-%dT%H:%M:%SZ")
         return metadata_dict
 
     def _format_times(self, timeseries, channels):
-        """format times for json file and update dictionary
+        """Format times for json file and update dictionary
 
         Parameters
         ----------
-        stats: obspy.core.trace.stats
-            holds the observatory metadata
+        timeseries : obspy.core.Stream
+            stream containing traces with channel listed in channels
         channels: array_like
             channels to be reported.
 
@@ -119,7 +173,7 @@ class IMFJSONWriter(object):
         return times
 
     def _format_time_string(self, time):
-        """format one time.
+        """Format one datetime object.
 
         Parameters
         ----------
@@ -133,53 +187,8 @@ class IMFJSONWriter(object):
         """
         tt = time.timetuple()
         return '{0.tm_year:0>4d}-{0.tm_mon:0>2d}-{0.tm_mday:0>2d}T' \
-                '{0.tm_hour:0>2d}:{0.tm_min:0>2d}:{0.tm_sec:0>2d}.{1:0>3d}Z'.format(
-                tt, int(time.microsecond / 1000))
-
-    def _format_data(self, timeseries, channels, stats):
-        """Format all data lines.
-
-        Parameters
-        ----------
-        timeseries : obspy.core.Stream
-            stream containing traces with channel listed in channels
-        channels : sequence
-            list and order of channel values to output.
-        stats: obspy.core.trace.stats
-            holds the observatory metadata
-
-        Returns
-        -------
-        array_like
-            an array containing dictionaries of data.
-        """
-        if timeseries.select(channel='D'):
-            d = timeseries.select(channel='D')
-            d[0].data = ChannelConverter.get_minutes_from_radians(d[0].data)
-        values = []
-        self.edge = EdgeFactory()
-        for c in channels:
-            value_dict = OrderedDict()
-            trace = timeseries.select(channel=c)[0]
-            value_dict['id'] = c
-            value_dict = OrderedDict()
-            value_dict['element'] = c
-            if 'network' in stats:
-                value_dict['network'] = stats.network
-            value_dict['station'] = stats.station
-            if 'channel' in stats:
-                edge_channel = trace.stats.channel
-            else:
-                edge_channel = c
-            value_dict['channel'] = edge_channel
-            if 'location' in stats:
-                value_dict['location'] = stats.location
-            # TODO: Add flag metadata
-            values += [value_dict]
-            data = np.copy(trace.data)
-            data[np.isnan(data)] = None
-            value_dict['values'] = data.tolist()
-        return values
+                '{0.tm_hour:0>2d}:{0.tm_min:0>2d}:{0.tm_sec:0>2d}.{1:0>3d}Z' \
+                ''.format(tt, int(time.microsecond / 1000))
 
     @classmethod
     def format(self, timeseries, channels, **kwargs):
@@ -189,9 +198,12 @@ class IMFJSONWriter(object):
 
         Parameters
         ----------
+        timeseries : obspy.core.Stream
+            stream containing traces with channel listed in channels
+        channels: array_like
+            channels to be written from timeseries object
         kwargs
             request : query string
-        timeseries : obspy.core.Stream
 
         Returns
         -------
@@ -200,6 +212,6 @@ class IMFJSONWriter(object):
         """
         request = kwargs.get('request')
         out = BytesIO()
-        writer = JSONWriter()
-        writer.write(out, timeseries, channels, request)
+        writer = IMFJSONWriter()
+        writer.write(out, timeseries, channels, request=request)
         return out.getvalue()

@@ -14,6 +14,7 @@ from . import TimeseriesUtility
 from . import binlog
 from . import edge
 from . import iaga2002
+from . import imfjson
 from . import pcdcp
 from . import imfv122
 from . import imfv283
