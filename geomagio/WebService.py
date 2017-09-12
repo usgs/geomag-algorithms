@@ -9,6 +9,7 @@ import sys
 from geomagio.edge import EdgeFactory
 from geomagio.iaga2002 import IAGA2002Writer
 from geomagio.ObservatoryMetadata import ObservatoryMetadata
+from geomagio.WebServiceUsage import WebServiceUsage
 from obspy.core import UTCDateTime
 
 
@@ -86,8 +87,12 @@ class WebService(object):
         except Exception:
             exception = sys.exc_info()[1]
             message = exception.args[0]
-            error_body = self.error(400, message, environ, start_response)
-            return [error_body]
+            if message == '"id" is a required parameter.':
+                usage_page = WebServiceUsage().usage_page(start_response)
+                return[usage_page]
+            else:
+                error_body = self.error(400, message, environ, start_response)
+                return [error_body]
         try:
             # fetch timeseries
             timeseries = self.fetch(query)
