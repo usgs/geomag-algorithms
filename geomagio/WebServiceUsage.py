@@ -1,125 +1,123 @@
+"""Factory that loads html for Web Service Usage Documentation"""
 from datetime import datetime
 from geomagio.ObservatoryMetadata import ObservatoryMetadata
 
 class WebServiceUsage(object):
     def __init__(self, metadata=None):
-        metadata = metadata or ObservatoryMetadata().metadata
+        metadata = metadata or ObservatoryMetadata().metadata.keys()
         self.date = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-        self.metadata = ', '.join(metadata)
+        self.metadata = ', '.join(sorted(metadata))
 
-    def usage_page(self, start_response):
+    def set_usage_page(self, start_response):
+        """Set body of Web Service Usage Documentation Page"""
         start_response('200 OK',
                 [
                     ("Content-Type", "text/html")
                 ])
-        usage_body = '''
-        <h2>Example Requests</h3>
-        <dl>
-          <dt>BOU observatory data for current UTC day in IAGA2002 format</dt>
-          <dd>
-          <a href="http://geomag.usgs.gov/ws/edge/?id=BOU">http://geomag.usgs.gov/ws/edge/?id=BOU</a>
-          </dd>
-          <dt>BOU observatory data for current UTC day in JSON format</dt>
-          <dd>
-          <a href="http://geomag.usgs.gov/ws/edge/?id=BOU&format=json">http://geomag.usgs.gov/ws/edge/?id=BOU&format=json</a>
-          </dd>
-        </dl>
+        usage_body = """
+            <head>
+              <title>Geomag Web Service Usage</title>
+              <meta charset="utf-8"/>
+              <meta name="viewport" content="width=device-width, initial-scale=1"/>
+              <link href="/theme/site/geomag/index.scss" type="text/css">
+              <style>
+                  code,
+                  pre {{
+                    background: #f8f8f8;
+                    border-radius: 3px;
+                    color: #555;
+                    font-family: monospace;
+                  }}
+              </style>
+            </head>
+
+            <body>
+                <main role="main" class="page" aria-labelledby="page-header">
+                <header class="page-header" id="page-header">
+                    <h1>Geomag Web Service Usage</h1>
+                </header>
 
 
-        <h2>Request Limits</h2>
-        <p>
-          To ensure availablility for users, the web service restricts the amount of
-          data that can be retrieved in one request.  The amount of data requested
-          is computed as follows, where interval is the number of seconds between
-          starttime and endtime:
-        </p>
-
-        <pre>
-          samples = count(elements) * interval / sampling_period
-        </pre>
-        <h3>Limits by output format</h3>
-        <dl>
-          <dt>json</dt>
-          <dd>
-            <code>172800 samples</code> = 4 elements * 12 hours * 3600 samples/hour.
-          </dd>
-
-          <dt>iaga2002</dt>
-          <dd>
-            <code>345600 samples</code> = 4 elements * 24 hours * 3600 samples/hour.
-          </dd>
-        </dl>
-
-        <p>
-          NOTE: while the <code>json</code> format supports fewer total samples per
-          request, users may request fewer elements to retrieve longer intervals.
-        </p>
+                <h2>Example Requests</h3>
+                 <dl>
+                    <b>BOU observatory data for current UTC day in IAGA2002 format</b>
+                    <dd>
+                    <a href="http://geomag.usgs.gov/ws/edge/?id=BOU">http://geomag.usgs.gov/ws/edge/?id=BOU</a>
+                    </dd>
 
 
-        <h2>Parameters</h2>
-        <dl>
-          <dt>id</dt>
-          <dd>
-            Observatory code.
-            Required.<br/>
-            Valid values: {metadata}
-          </dd>
+                <h2>Parameters</h2>
+                <dl>
+                    <b>id</b>
+                    <dd>
+                        Observatory code.
+                        Required.<br/>
+                        Valid values: <code>{metadata}</code>
+                    </dd>
 
-          <dt>starttime</dt>
-          <dd>
-            Time of first requested data.<br/>
-            Default: start of current UTC day<br/>
-            Format: ISO8601 (<code>YYYY-MM-DDTHH:MM:SSZ</code>)<br/>
-            Example: <code>{date}</code>
-          </dd>
+                    <b>starttime</b>
+                    <dd>
+                        Time of first requested data.<br/>
+                        Default: start of current UTC day<br/>
+                        Format: ISO8601 (<code>YYYY-MM-DDTHH:MM:SSZ</code>)<br/>
+                        Example: <code>{date}</code>
+                    </dd>
 
-          <dt>endtime</dt>
-          <dd>
-            Time of last requested data.<br/>
-            Default: starttime + 24 hours<br/>
-            Format: ISO8601 (<code>YYYY-MM-DDTHH:MM:SSZ</code>)<br/>
-            Example: <code>{date}</code>
-          </dd>
+                    <b>endtime</b>
+                    <dd>
+                        Time of last requested data.<br/>
+                        Default: starttime + 24 hours<br/>
+                        Format: ISO8601 (<code>YYYY-MM-DDTHH:MM:SSZ</code>)<br/>
+                        Example: <code>{date}</code>
+                    </dd>
 
-          <dt>elements</dt>
-          <dd>
-            Comma separated list of requested elements.<br/>
-            Default: <code>X,Y,Z,F</code><br/>
-          </dd>
+                    <b>elements</b>
+                    <dd>
+                        Comma separated list of requested elements.<br/>
+                        Default: <code>X,Y,Z,F</code><br/>
+                    </dd>
+                    <b>sampling_period</b>
+                    <dd>
+                        Interval in seconds between values.<br/>
+                        Default: <code>60</code><br/>
+                        Valid values:
+                          <code>1</code>,
+                          <code>60</code>
+                    </dd>
 
-          <dt>sampling_period</dt>
-          <dd>
-            Interval in seconds between values.<br/>
-            Default: <code>60</code><br/>
-            Valid values:
-              <code>1</code>,
-              <code>60</code>
-          </dd>
+                    <b>type</b>
+                    <dd>
+                        Type of data.<br/>
+                        Default: <code>variation</code><br/>
+                        Valid values:
+                          <code>variation</code>,
+                           <code>adjusted</code>,
+                           <code>quasi-definitive</code>,
+                           <code>definitive</code><br/>
+                    </dd>
 
-          <dt>type</dt>
-          <dd>
-            Type of data.<br/>
-            Default: <code>variation</code>
-            Valid values:
-              <code>variation</code>,
-               <code>adjusted</code>,
-               <code>quasi-definitive</code>,
-               <code>definitive</code><br/>
-            <small>
-              NOTE: the USGS web service also supports specific EDGE location codes.
-              For example:
-                  <code>R0</code> is "internet variation",
-                  <code>R1</code> is "satellite variation".
-            </small>
-          </dd>
+                    <b>format</b>
+                    <dd>
+                        Output format.<br/>
+                        Default: <code>iaga2002</code><br/>
+                        Valid values:
+                          <code>iaga2002</code>.
+                    </dd>
+                </dl>
+              </main>
 
-          <dt>format</dt>
-          <dd>
-            Output format.<br/>
-            Default: <code>iaga2002</code><br/>
-            Valid values:
-              <code>iaga2002</code>.
-          </dd>
-        </dl>
-        '''.format(metadata=self.metadata, date=self.date)
+
+              <nav class="site-footer">
+              <p> Not what you were looking for?<br/>
+                  Search usa.gov: </p>
+                <form class="site-search" role="search" action="//search.usa.gov/search" method="get" accept-charset="UTF-8">
+                  <input name="utf8" type="hidden" value="x"/>
+                  <input name="affiliate" type="hidden" value="usgs"/>
+                  <input name="sitelimit" type="hidden" />
+                  <input id="query" name="query" type="search" placeholder="Search usa.gov..." title="Search"/>
+                  <button type="submit">Search</button>
+                </form>
+              </nav>
+            </body>
+        """.format(metadata=self.metadata, date=self.date)
         return usage_body

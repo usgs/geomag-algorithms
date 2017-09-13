@@ -88,7 +88,7 @@ class WebService(object):
             exception = sys.exc_info()[1]
             message = exception.args[0]
             if message == '"id" is a required parameter.':
-                usage_page = WebServiceUsage().usage_page(start_response)
+                usage_page = WebServiceUsage().set_usage_page(start_response)
                 return[usage_page]
             else:
                 error_body = self.error(400, message, environ, start_response)
