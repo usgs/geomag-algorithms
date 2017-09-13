@@ -8,6 +8,7 @@ import numpy as np
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 
+
 class IMFJSONWriter(object):
     """JSON writer.
     """
@@ -67,9 +68,6 @@ class IMFJSONWriter(object):
         array_like
             an array containing dictionaries of data.
         """
-        if timeseries.select(channel='D'):
-            d = timeseries.select(channel='D')
-            d[0].data = ChannelConverter.get_minutes_from_radians(d[0].data)
         values = []
         for c in channels:
             value_dict = OrderedDict()
@@ -89,9 +87,10 @@ class IMFJSONWriter(object):
                 value_dict['location'] = stats.location
             # TODO: Add flag metadata
             values += [value_dict]
-            data = np.copy(trace.data)
-            data[np.isnan(data)] = None
-            value_dict['values'] = data.tolist()
+            series = np.copy(trace.data)
+            series = ChannelConverter.get_minutes_from_radians(series)
+            series[np.isnan(series)] = None
+            value_dict['values'] = series
         return values
 
     def _format_metadata(self, stats, channels):
