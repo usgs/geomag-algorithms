@@ -88,9 +88,11 @@ class IMFJSONWriter(object):
             # TODO: Add flag metadata
             values += [value_dict]
             series = np.copy(trace.data)
-            series = ChannelConverter.get_minutes_from_radians(series)
+            if c == 'D':
+                series = ChannelConverter.get_minutes_from_radians(series)
             series[np.isnan(series)] = None
-            value_dict['values'] = series
+            # Converting numpy array to list required for JSON serialization
+            value_dict['values'] = series.tolist()
         return values
 
     def _format_metadata(self, stats, channels):
