@@ -875,7 +875,7 @@ DEFAULT_METADATA = {
     },
     'STJ': {
         'metadata': {
-            'station_name': 'Saint John\'s',
+            'station_name': 'St Johns',
             'agency_name': 'Geological Survey of Canada (GSC)',
             'geodetic_latitude': '47.600',
             'geodetic_longitude': '307.300',
@@ -925,7 +925,7 @@ DEFAULT_METADATA = {
     },
     'YKC': {
         'metadata': {
-            'station_name': 'Yellow Knife',
+            'station_name': 'Yellowknife',
             'agency_name': 'Geological Survey of Canada (GSC)',
             'geodetic_latitude': '62.400',
             'geodetic_longitude': '245.500',
