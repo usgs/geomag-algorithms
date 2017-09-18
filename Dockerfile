@@ -1,7 +1,7 @@
 FROM debian:jessie
 
 MAINTAINER Jeremy Fee <jmfee@usgs.gov>
-LABEL usgs.geomag-algorithms.version=0.2.0
+LABEL usgs.geomag-algorithms.version=0.4.0
 
 # update os
 RUN apt-get update --fix-missing && \
