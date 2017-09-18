@@ -88,10 +88,24 @@ Docker is the simplest install option.
     from the image `usgs/geomag-algorithms` on docker hub
 
     ```
-    docker run -d --name geomagio -p 8000:80 usgs/geomag-algorithms
+    docker run -d --name geomagio -p 8000:8000 usgs/geomag-algorithms
     ```
 
-2. Use the running container
+2. Find the token, (the token improves security)
+
+    ```
+    docker logs geomagio
+    ```
+
+    This outputs a URL to copy/paste into your browser address bar:
+    ```
+    Copy/paste this URL into your browser when you connect for the first time,
+    to login with a token:
+        http://localhost:8000/?token=TOKEN
+    ```
+
+
+3. Use the running container
 
   - Run the `geomag.py` command line interface:
 
@@ -99,10 +113,10 @@ Docker is the simplest install option.
     docker exec -it geomagio geomag.py
     ```
 
-  - Run python interactively in a web browser:
+  - Run python interactively in a web browser (using the token found in step 2):
 
     ```
-    open http://localhost:8000
+    http://localhost:8000/?token=TOKEN
     ```
 
     > In the top right corner, choose "New" then "Python 2"
