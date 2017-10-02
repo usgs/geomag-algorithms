@@ -118,14 +118,22 @@ class AverageAlgorithm(Algorithm):
         stream = obspy.core.Stream((
                 get_trace(self.outchannel, self._stats, dst_tot), ))
 
+        # TODO: move this to a better place
+        interval = None
+        if 'data_interval' in timeseries[0].stats:
+            interval = timeseries[0].stats.data_interval
+        elif timeseries[0].stats.delta == 60:
+            interval = 'minute'
+        elif timeseries[0].stats.delta == 1:
+            interval = 'second'
+
         # set the full metadata for the USGS station used for averaged
         # data sets
         self.set_metadata(
             stream=stream,
             observatory='USGS',
             channel=self.outchannel,
-            type=stream[0].stats.data_type,
-            interval=timeseries[0].stats.data_interval)
+            type=stream[0].stats.data_type)
 
         # return averaged values as a stream
         return stream

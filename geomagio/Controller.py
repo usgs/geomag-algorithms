@@ -217,7 +217,7 @@ class Controller(object):
                 algorithm.get_output_channels()
         # request output to see what has already been generated
         output_timeseries = self._get_output_timeseries(
-                observatory=options.observatory,
+                observatory=options.output_observatory,
                 starttime=options.starttime,
                 endtime=options.endtime,
                 channels=output_channels)
@@ -346,7 +346,7 @@ def get_output_factory(args):
     # standard arguments
     output_factory_args = {}
     output_factory_args['interval'] = args.interval
-    output_factory_args['observatory'] = args.observatory
+    output_factory_args['observatory'] = args.output_observatory
     output_factory_args['type'] = args.type
     # stream/url arguments
     if args.output_file is not None:
@@ -479,10 +479,16 @@ def main(args):
     if isinstance(args.observatory, (str, unicode)):
         args.observatory = (args.observatory,)
 
+    if args.output_observatory is None:
+        args.output_observatory = args.observatory
+    elif args.observatory_foreach:
+        raise Exception("Cannot specify --output-observatory with --observatory-foreach")
+
     if args.observatory_foreach:
         observatory = args.observatory
         for obs in observatory:
             args.observatory = (obs,)
+            args.output_observatory = (obs,)
             _main(args)
     else:
         _main(args)
@@ -546,6 +552,15 @@ def parse_args(args):
     parser.add_argument('--observatory',
             default=(None,),
             help='Observatory code ie BOU, CMO, etc.' +
+                    ' CAUTION: Using multiple observatories is not' +
+                    ' recommended in most cases; especially with' +
+                    ' single observatory formats like IAGA and PCDCP.',
+            nargs='*',
+            type=str)
+    parser.add_argument('--output-observatory',
+            default=None,
+            help='Defaults to valur of --observatory argument.' +
+                    ' Observatory code ie BOU, CMO, etc.' +
                     ' CAUTION: Using multiple observatories is not' +
                     ' recommended in most cases; especially with' +
                     ' single observatory formats like IAGA and PCDCP.',
