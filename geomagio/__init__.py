@@ -5,14 +5,15 @@ from __future__ import absolute_import
 
 from . import ChannelConverter
 from . import StreamConverter
+from . import TimeseriesUtility
+from . import Util
 
 from .Controller import Controller
 from .ObservatoryMetadata import ObservatoryMetadata
 from .PlotTimeseriesFactory import PlotTimeseriesFactory
 from .TimeseriesFactory import TimeseriesFactory
 from .TimeseriesFactoryException import TimeseriesFactoryException
-from . import TimeseriesUtility
-from . import Util
+from .WebService import WebService
 
 __all__ = [
     'ChannelConverter',
@@ -25,5 +26,5 @@ __all__ = [
     'TimeseriesFactoryException',
     'TimeseriesUtility',
     'Util',
-    'Url'
+    'WebService'
 ]

@@ -74,8 +74,8 @@ def _get_param(params, key, required=False):
 
 
 class WebService(object):
-    def __init__(self, factory, metadata=None):
-        self.factory = factory
+    def __init__(self, factory=None, metadata=None):
+        self.factory = factory or EdgeFactory()
         self.metadata = metadata or ObservatoryMetadata().metadata
         base = os.path.dirname(__file__)
         filepath = os.path.abspath(os.path.join(base, '..', 'package.json'))
@@ -343,11 +343,3 @@ class WebServiceQuery(object):
 class WebServiceException(Exception):
     """Base class for exceptions thrown by web services."""
     pass
-
-
-if __name__ == '__main__':
-    from wsgiref.simple_server import make_server
-
-    app = WebService(EdgeFactory())
-    httpd = make_server('', 7981, app)
-    httpd.serve_forever()

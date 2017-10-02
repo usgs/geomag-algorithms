@@ -26,6 +26,7 @@ setup(
     ],
     scripts=[
         'bin/geomag.py',
-        'bin/make_cal.py',
+        'bin/geomag_webservice.py',
+        'bin/make_cal.py'
     ]
 )
