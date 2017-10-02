@@ -482,7 +482,8 @@ def main(args):
     if args.output_observatory is None:
         args.output_observatory = args.observatory
     elif args.observatory_foreach:
-        raise Exception("Cannot specify --output-observatory with --observatory-foreach")
+        raise Exception("Cannot specify" +
+             " --output-observatory and --observatory-foreach")
 
     if args.observatory_foreach:
         observatory = args.observatory

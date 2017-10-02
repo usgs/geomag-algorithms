@@ -133,7 +133,8 @@ class AverageAlgorithm(Algorithm):
             stream=stream,
             observatory='USGS',
             channel=self.outchannel,
-            type=stream[0].stats.data_type)
+            type=stream[0].stats.data_type,
+            interval=interval)
 
         # return averaged values as a stream
         return stream
