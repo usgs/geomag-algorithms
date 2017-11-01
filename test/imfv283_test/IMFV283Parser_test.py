@@ -1,6 +1,8 @@
 """Tests for the IMFV283 Parser class."""
 
 from nose.tools import assert_equals
+from obspy import UTCDateTime
+
 from geomagio.imfv283 import IMFV283Parser, imfv283_codes
 
 
@@ -33,3 +35,37 @@ def test_parse_goes_header():
         191)
     goes_header = IMFV283Parser()._parse_goes_header(goes_data)
     assert_equals(goes_header['day'], 23)
+
+
+def test_estimate_data_time__correct_doy():
+    """imfv283_test.IMFV283Parser_test.test_estimate_data_time__correct_doy()
+
+    Use example goes packet from BOU station, with correct goes doy value.
+    """
+    parser = IMFV283Parser()
+    # BOU aka normal
+    transmission = '17274013121'
+    day = 274
+    minute = 72
+    (data_time, transmit_time, corrected) = \
+            parser._estimate_data_time(transmission, day, minute)
+    assert_equals(data_time, UTCDateTime('2017-10-01T01:12:00Z'))
+    assert_equals(transmit_time, UTCDateTime('2017-10-01T01:31:21Z'))
+    assert_equals(corrected, False)
+
+
+def test_estimate_data_time__incorrect_doy():
+    """imfv283_test.IMFV283Parser_test.test_estimate_data_time__correct_doy()
+
+    Use example goes packet from BLC station, with incorrect goes doy value.
+    """
+    parser = IMFV283Parser()
+    # BLC aka 1999 rollover gps issue
+    transmission = '17274013241'
+    day = 46
+    minute = 78
+    (data_time, transmit_time, corrected) = \
+            parser._estimate_data_time(transmission, day, minute)
+    assert_equals(data_time, UTCDateTime('2017-10-01T01:18:00Z'))
+    assert_equals(transmit_time, UTCDateTime('2017-10-01T01:32:41Z'))
+    assert_equals(corrected, True)
