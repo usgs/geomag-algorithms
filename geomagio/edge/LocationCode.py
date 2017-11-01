@@ -27,6 +27,6 @@ def LocationCode(code):
     """
     try:
         return re.match('^[A-Z0-9]{2}$', code).group(0)
-    except:
+    except AttributeError:
         raise argparse.ArgumentTypeError(
                 'Invalid location code, expected /^[A-Z0-9]{2}$/')

@@ -5,7 +5,7 @@ import sys
 # ensure geomag is on the path before importing
 try:
     import geomagio  # noqa (ignores this line for lint purposes.)
-except:
+except ImportError:
     script_dir = path.dirname(path.abspath(__file__))
     sys.path.append(path.normpath(path.join(script_dir, '..')))
 

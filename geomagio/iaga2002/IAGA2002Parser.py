@@ -108,7 +108,7 @@ class IAGA2002Parser(object):
                     value = 1 / float(value.replace('second', '').strip())
                 elif value.find('Hz') != -1:
                     value = float(value.replace('Hz', '').strip())
-            except:
+            except ValueError:
                 return
         elif key_upper == 'DATA INTERVAL TYPE':
             key = 'data_interval_type'
