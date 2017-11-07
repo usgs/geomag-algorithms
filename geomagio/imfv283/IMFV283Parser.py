@@ -2,12 +2,12 @@
 from __future__ import absolute_import
 from builtins import range
 
-import math
 import numpy
 import sys
 import obspy
-from obspy.core import UTCDateTime
 
+from datetime import datetime, timedelta
+from obspy import UTCDateTime
 from . import imfv283_codes
 
 # values that represent missing data points in IAGA2002
@@ -99,6 +99,73 @@ class IMFV283Parser(object):
                 sys.stderr.write("Incorrect data line ")
                 sys.stderr.write(line)
 
+    def _estimate_data_time(self, transmission, doy, minute,
+            max_transmit_delay=1800):
+        """Get data start time for a GOES data packet.
+
+        Parameters
+        ----------
+        transmission : str
+            goes transmission time in format 'YYDDDHHMMSS', where
+                YY is 2 digit year (assumed to be years since 2000)
+                DDD is julian year day
+                HH is hour of day (24 hour clock)
+                MM is minute of day
+                SS is second of day
+        doy : int
+            day of year for first data sample
+        minute : int
+            minute of day for first data sample
+        max_transmit_delay : int
+            maximum delay in seconds between doy+minute and transmission
+            before attempting to correct gps timing errors.
+            default 1800 (30 minutes)
+
+        Returns
+        -------
+        data_time : UTCDateTime
+            estimated time of first data sample
+        transmit_time : UTCDateTime
+            time when message was transmitted
+        corrected : bool
+            whether a gps timing error was corrected
+        """
+        # convert to datetime
+        transmit_time = UTCDateTime(
+                '20' + transmission[0:5] + 'T' + transmission[5:])
+        transmit_year = transmit_time.year
+        # delta should not include first day of year
+        data_time_delta = timedelta(days=doy - 1, minutes=minute)
+        data_time = UTCDateTime(
+                datetime(transmit_year, 1, 1) + data_time_delta)
+        if data_time > transmit_time:
+            # data cannot be measured after it is transmitted
+            data_time = UTCDateTime(datetime(transmit_year - 1, 1, 1)) + \
+                    data_time_delta
+        # check transmission delay, to detect gps clock errors
+        transmit_delay = transmit_time - data_time
+        if transmit_delay < max_transmit_delay:
+            return (data_time, transmit_time, False)
+        # otherwise, try to correct gps timing errors
+        if transmit_year >= 1999:
+            # on 1999-08-22, gps clocks reset to 1980-01-06
+            # 228 = (UTCDateTime('1999-08-22') - UTCDateTime('1999-01-06')) \
+            #       / (24 * 60 * 60)
+            corrected_data_time = data_time + timedelta(days=228)
+            transmit_delay = transmit_time - corrected_data_time
+            if transmit_delay < max_transmit_delay:
+                return (corrected_data_time, transmit_time, True)
+        if transmit_year >= 2019:
+            # on 2019-04-07, gps clocks reset to 1980-01-06
+            # 91 = (UTCDateTime('2019-04-07') - UTCDateTime('2019-01-06')) \
+            #        / (24 * 60 * 60)
+            corrected_data_time = data_time + timedelta(days=91)
+            transmit_delay = transmit_time - corrected_data_time
+            if transmit_delay < max_transmit_delay:
+                return (corrected_data_time, transmit_time, True)
+        # otherwise return reported data_time
+        return (data_time, transmit_time, False)
+
     def _get_data(self, header, data):
         """get data from data packet
 
@@ -154,47 +221,6 @@ class IMFV283Parser(object):
         if data_len == MSG_SIZE_300B:
             return HEADER_SIZE + 1
         return HEADER_SIZE
-
-    def _get_startime(self, msg_header, goes_header):
-        """Get Starttime by combining headers.
-
-        Parameters
-        ----------
-        msg_header : dict
-            header information for the message packet
-        goes_header : dict
-            header information for the goes data packet
-
-        Returns
-        -------
-        goes_time : UTCDateTime
-            The starttime for the goes data packet.
-        msg_time : UTCDateTime
-            The starttime for the goes message packet.
-        Notes
-        -----
-        The goes data packet stores the day of the year, and the minute of
-        the day.  To get a complete starttime, we use the year for the message
-        and correct for the case where the message came in a new year, vs.
-        when the data packet was created.
-        """
-        msg_time = msg_header['transmission_time']
-        msg_year = 2000 + int(msg_time[0:2])
-        msg_day = int(msg_time[2:5])
-
-        oridinal_time = '%04d%sT%s' % (msg_year, msg_time[2:5], msg_time[5:])
-        msg_time = UTCDateTime(oridinal_time)
-
-        if msg_day == 1 and goes_header['day'] >= 365:
-            msg_year -= 1
-
-        hour = math.floor(goes_header['minute'] / 60.)
-        minute = goes_header['minute'] % 60
-
-        ordinal_time = '%04d%03dT%02d%02d' % (msg_year, goes_header['day'],
-                hour, minute)
-        goes_time = UTCDateTime(ordinal_time)
-        return (goes_time, msg_time)
 
     def _parse_goes_header(self, data):
         """ parse goes data header
@@ -278,9 +304,17 @@ class IMFV283Parser(object):
             parsed header of the goes data
 
         """
-        (goes_time, msg_time) = self._get_startime(msg_header, goes_header)
+        (goes_time, msg_time, corrected) = self._estimate_data_time(
+                msg_header['transmission_time'],
+                goes_header['day'],
+                goes_header['minute'])
+        if corrected:
+            sys.stderr.write(
+                'corrected gps week number error\n' +
+                '\ttransmit day={}, reported day={}, corrected day={}\n'
+                .format(msg_time.julday, goes_header['day'], goes_time.julday))
         if (msg_time - goes_time) > (24 * 60):
-            sys.stderr.write('data over twice as old as the message')
+            sys.stderr.write('data over twice as old as the message\n')
             return
 
         scale = goes_header['scale']

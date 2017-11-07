@@ -276,7 +276,7 @@ def __get_obs_d_from_obs(obs):
     """
     try:
         d = obs.select(channel='D')[0]
-    except:
+    except IndexError:
         h = obs.select(channel='H')[0]
         e = obs.select(channel='E')[0]
         d = __get_trace('D', e.stats,
@@ -301,7 +301,7 @@ def __get_obs_e_from_obs(obs):
     """
     try:
         e = obs.select(channel='E')[0]
-    except:
+    except IndexError:
         h = obs.select(channel='H')[0]
         d = obs.select(channel='D')[0]
         e = __get_trace('E', d.stats,

@@ -238,7 +238,7 @@ class WebService(object):
         else:
             try:
                 starttime = UTCDateTime(starttime)
-            except:
+            except TypeError:
                 raise WebServiceException(
                         'Bad starttime value "%s".'
                         ' Valid values are ISO-8601 timestamps.' % starttime)
@@ -247,7 +247,7 @@ class WebService(object):
         else:
             try:
                 endtime = UTCDateTime(endtime)
-            except:
+            except TypeError:
                 raise WebServiceException(
                         'Bad endtime value "%s".'
                         ' Valid values are ISO-8601 timestamps.' % endtime)
