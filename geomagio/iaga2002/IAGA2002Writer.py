@@ -244,7 +244,7 @@ class IAGA2002Writer(object):
         return '{0.tm_year:0>4d}-{0.tm_mon:0>2d}-{0.tm_mday:0>2d} ' \
                 '{0.tm_hour:0>2d}:{0.tm_min:0>2d}:{0.tm_sec:0>2d}.{1:0>3d} ' \
                 '{0.tm_yday:0>3d}   ' \
-                '{2:10.2f}{3:10.2f}{4:10.2f}{5:10.2f}\n'.format(
+                ' {2:9.2f} {3:9.2f} {4:9.2f} {5:9.2f}\n'.format(
                 tt, int(time.microsecond / 1000),
                 *[self.empty_value if numpy.isnan(val) else val
                         for val in values])
