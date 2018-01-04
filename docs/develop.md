@@ -55,7 +55,7 @@ Run unit tests using Nose
         npm install
         npm run watch
 
-There are also "npm run" aliases for individual commands which are listed by running
+    There are also "npm run" aliases for individual commands which are listed by running
 
         npm run
 

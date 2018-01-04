@@ -18,6 +18,6 @@ Using Anaconda is recommended ( https://conda.io/miniconda.html ).
 
 4) Use **geomagio**
 
-  - Use the main script, `geomag.py -h`
-  - In python scripts, `import geomagio`
-  - Install the Jupyter notebook server ( http://jupyter.org/install.html )
+    - Use the main script, `geomag.py -h`
+    - In python scripts, `import geomagio`
+    - Interactively with Jupyter notebooks ( http://jupyter.org/install.html )
