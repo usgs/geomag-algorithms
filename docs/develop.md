@@ -12,7 +12,7 @@ Begin Developing
 > Using Anaconda is recommended ( https://conda.io/miniconda.html ).
 
         conda config --add channels conda-forge
-        conda create --name geomagenv obspy pycurl flake8 nose
+        conda create --name geomagenv obspy pycurl flake8 nose coverage
         source activate geomagenv
 
 2. Fork this project on Github ( https://guides.github.com/activities/forking/ ).
@@ -43,12 +43,21 @@ Run unit tests using Nose
         cd geomag-algorithms
         nosetests
 
+- **Unit test coverage**
+
+        cd geomag-algorithms
+        nosetests --with-coverage --cover-package geomagio
+
 - **Automatically run linting and tests while developing**
 (Requires NodeJS)
 
         cd geomag-algorithms
         npm install
         npm run watch
+
+There are also "npm run" aliases for individual commands which are listed by running
+
+        npm run
 
 
 Coding Standards
