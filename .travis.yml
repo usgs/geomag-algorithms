@@ -5,6 +5,7 @@ python:
   - 2.7
   - 3.4
   - 3.5
+  - 3.6
 before_install:
   ## courtesy of http://conda.pydata.org/docs/travis.html
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -18,15 +19,13 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update --yes conda
   - conda info -a
-  ## back to other dependencies
-  - nvm install v4.2.4
-  - nvm use 4.2.4
-  - npm install -g grunt-cli
-  - npm --version
-  - node --version
 install:
   - conda config --add channels conda-forge
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION obspy pycurl nose flake8
   - source activate test-environment
-  - npm install
-script: grunt lint test
+script:
+  - flake8 -v bin/ geomagio/ test/
+  - nosetests -v .
+after_success:
+  - nosetests --with-coverage --cover-package=geomagio --cover-xml
+  - bash <(curl -s https://codecov.io/bash)

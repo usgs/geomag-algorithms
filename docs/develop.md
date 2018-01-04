@@ -2,50 +2,64 @@ Development Dependencies
 ========================
 
 These instructions only need to be completed if you plan on developing new
-code for this project.
+code for this project, and may also be used to run a local copy of the code.
 
-If developing on windows, see the [Windows](#windows) section below.
 
 Begin Developing
 ----------------
 
-1. Use npm to install `grunt-cli`
+1. Install `obspy`, `pycurl`, `flake8`, and `nose`.
+> Using Anaconda is recommended ( https://conda.io/miniconda.html ).
 
-        npm install -g grunt-cli
+        conda config --add channels conda-forge
+        conda create --name geomagenv obspy pycurl flake8 nose
+        source activate geomagenv
 
-2. Install `numpy`, `scipy`, `obspy`, and `flake8` if they aren't already
-   installed.
+2. Fork this project on Github ( https://guides.github.com/activities/forking/ ).
 
-3. Clone this project (or fork and clone your fork)
+        https://github.com/{YOUR_GITHUB_ACCOUNT}/geomag-algorithms.git
 
-        git clone https://github.com/usgs/geomag-algorithms.git
+3. Clone your fork
 
-4. From root directory of project, install npm dependencies
+        git clone https://github.com/{YOUR_GITHUB_ACCOUNT}/geomag-algorithms.git
+        cd geomag-algorithms
+        git remote add upstream https://github.com/usgs/geomag-algorithms.git
 
+4. Use branches to develop new features and submit pull requests.
+
+
+Developer Tools
+---------------
+
+- **Linting errors**
+Check for linting errors using Flake8
+
+        cd geomag-algorithms
+        flake8
+
+- **Unit tests**
+Run unit tests using Nose
+
+        cd geomag-algorithms
+        nosetests
+
+- **Automatically run linting and tests while developing**
+(Requires NodeJS)
+
+        cd geomag-algorithms
         npm install
-
-5. Run grunt to run unit tests, and watch for changes to python files
-
-        grunt
+        npm run watch
 
 
-### Windows
-
-1. Install the newest release of Node
-   [(http://nodejs.org/download/)](http://nodejs.org/download/) for  Windows,
-   using the Windows Installer (.msi).
-
-1. Close and re-open your terminal so that your new PATH is loaded.
-
-
-### Coding Standards
+Coding Standards
+----------------
 
 This project adheres to PEP8 standards in most cases:
     https://www.python.org/dev/peps/pep-0008
 
-#### PEP8 Exceptions
+**PEP8 Exceptions**
 
-- Hanging/Visual indents (E126, E127, E128, E131)
+- Hanging/Visual indents (E122, E126, E127, E128, E131)
 
     - line continuations should use two indentations (8 spaces).
     - do not use visual indents.
