@@ -1,22 +1,23 @@
 Installation
 ============
 
-Using Anaconda is recommended ( https://conda.io/miniconda.html ).
 
 
-1) Install Anaconda/Miniconda
+1) Install Python and dependencies (obspy and pycurl)
 
-2) Create a virtual environment
+    Using Anaconda is recommended ( https://conda.io/miniconda.html ).
 
         conda config --add channels conda-forge
-        conda create --name geomagenv obspy pycurl flake8 nose
+        conda create --name geomagenv obspy pycurl
         source activate geomagenv
 
-3) Install **geomagio**
+
+2) Install **geomagio**
 
         pip install git+https://github.com/usgs/geomag-algorithms.git
 
-4) Use **geomagio**
+
+3) Use **geomagio**
 
     - Use the main script, `geomag.py -h`
     - In python scripts, `import geomagio`
