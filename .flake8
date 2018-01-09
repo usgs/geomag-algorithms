@@ -1,0 +1,13 @@
+[flake8]
+count = True
+exclude = .git,__pycache,node_modules
+# This project uses PEP8 with the following exceptions:
+# - continuation lines should use 2 levels of indentation (8 spaces)
+#   E122: continuation line missing indentation or outdented
+#   E126: continuation line over-indented for hanging indent
+#   E127: continuation line over-indented for visual indent
+#   E128: continuation line under-indented for visual indent
+#   E131: continuation line unaligned for hanging indent
+# - short variables should be avoided, but not currently enforced
+#   E741: do not use variables named ‘l’, ‘O’, or ‘I’
+ignore = E122, E126, E127, E128, E131, E741

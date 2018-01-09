@@ -104,7 +104,6 @@ Docker is the simplest install option.
         http://localhost:8000/?token=TOKEN
     ```
 
-
 3. Use the running container
 
   - Run the `geomag.py` command line interface:
