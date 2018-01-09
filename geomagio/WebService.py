@@ -4,7 +4,6 @@
 from __future__ import print_function
 from cgi import parse_qs, escape
 from datetime import datetime
-from json import load
 import os.path
 import sys
 
