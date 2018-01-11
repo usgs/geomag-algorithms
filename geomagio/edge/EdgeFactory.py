@@ -385,6 +385,18 @@ class EdgeFactory(TimeseriesFactory):
             edge_channel = edge_interval_code + 'VX'
         elif channel == 'Y':
             edge_channel = edge_interval_code + 'VY'
+        elif channel == 'E-E':
+            edge_channel = edge_interval_code + 'QE'
+        elif channel == 'E-N':
+            edge_channel = edge_interval_code + 'QN'
+        elif channel == 'DIST':
+            edge_channel = edge_interval_code + 'DT'
+        elif channel == 'DST':
+            edge_channel = edge_interval_code + 'GD'
+        elif channel == 'SQ':
+            edge_channel = edge_interval_code + 'SQ'
+        elif channel == 'SV':
+            edge_channel = edge_interval_code + 'SV'
         else:
             edge_channel = channel
         return edge_channel
