@@ -34,8 +34,14 @@ def test__get_edge_channel():
             'MSF')
     assert_equals(EdgeFactory()._get_edge_channel('', 'H', '', 'minute'),
             'MVH')
-    assert_equals(EdgeFactory()._get_edge_channel('', 'Z', '', 'minute'),
-            'MVZ')
+    assert_equals(EdgeFactory()._get_edge_channel('', 'DIST', '', 'minute'),
+            'MDT')
+    assert_equals(EdgeFactory()._get_edge_channel('', 'DST', '', 'minute'),
+            'MGD')
+    assert_equals(EdgeFactory()._get_edge_channel('', 'E-E', '', 'minute'),
+            'MQE')
+    assert_equals(EdgeFactory()._get_edge_channel('', 'E-N', '', 'minute'),
+            'MQN')
 
 
 def test__get_edge_location():
