@@ -13,7 +13,7 @@ class IMFJSONWriter(object):
     """JSON writer.
     """
 
-    def write(self, out, timeseries, channels, **kwargs):
+    def write(self, out, timeseries, channels, url=None):
         """Write timeseries to json file.
 
         Parameters
@@ -24,8 +24,8 @@ class IMFJSONWriter(object):
             timeseries object with data to be written
         channels: array_like
             channels to be written from timeseries object
-        kwargs
-            request : query string
+        url: str
+            string with the requested url
 
         Raises
         ------
@@ -33,7 +33,6 @@ class IMFJSONWriter(object):
             if there is a missing channel.
         """
         file_dict = OrderedDict()
-        request = kwargs.get('request')
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 raise TimeseriesFactoryException(
@@ -42,13 +41,11 @@ class IMFJSONWriter(object):
         stats = timeseries[0].stats
         file_dict['type'] = 'Timeseries'
         file_dict['metadata'] = self._format_metadata(stats, channels)
-        if request:
-            base = 'http://geomag.usgs.gov/ws/edge/?'
-            file_dict['metadata']['url'] = base + request
+        file_dict['metadata']['url'] = url
         file_dict['times'] = self._format_times(timeseries, channels)
         file_dict['values'] = self._format_data(timeseries, channels, stats)
         formatted_timeseries = json.dumps(file_dict,
-                ensure_ascii=True).encode('utf8')
+                ensure_ascii=True, separators=(',', ':')).encode('utf8')
         out.write(str(formatted_timeseries))
 
     def _format_data(self, timeseries, channels, stats):
@@ -73,19 +70,14 @@ class IMFJSONWriter(object):
             value_dict = OrderedDict()
             trace = timeseries.select(channel=c)[0]
             value_dict['id'] = c
-            value_dict = OrderedDict()
-            value_dict['element'] = c
-            if 'network' in stats:
-                value_dict['network'] = stats.network
-            value_dict['station'] = stats.station
-            if 'channel' in stats:
-                edge_channel = trace.stats.channel
-            else:
-                edge_channel = c
-            value_dict['channel'] = edge_channel
-            if 'location' in stats:
-                value_dict['location'] = stats.location
-            # TODO: Add flag metadata
+            value_dict['metadata'] = OrderedDict()
+            metadata = value_dict['metadata']
+            metadata['element'] = c
+            metadata['network'] = stats.network
+            metadata['station'] = stats.station
+            edge_channel = trace.stats.channel
+            metadata['channel'] = edge_channel
+            metadata['location'] = stats.location
             values += [value_dict]
             series = np.copy(trace.data)
             if c == 'D':
@@ -93,6 +85,7 @@ class IMFJSONWriter(object):
             series[np.isnan(series)] = None
             # Converting numpy array to list required for JSON serialization
             value_dict['values'] = series.tolist()
+            # TODO: Add flag metadata
         return values
 
     def _format_metadata(self, stats, channels):
@@ -118,11 +111,11 @@ class IMFJSONWriter(object):
             imo['name'] = stats.station_name
         coords = [None] * 3
         if 'geodetic_longitude' in stats:
-            coords[0] = str(stats.geodetic_longitude)
+            coords[0] = float(stats.geodetic_longitude)
         if 'geodetic_latitude' in stats:
-            coords[1] = str(stats.geodetic_latitude)
+            coords[1] = float(stats.geodetic_latitude)
         if 'elevation' in stats:
-            coords[2] = str(stats.elevation)
+            coords[2] = float(stats.elevation)
         imo['coordinates'] = coords
         intermag['imo'] = imo
         intermag['reported_orientation'] = ''.join(channels)
@@ -139,10 +132,10 @@ class IMFJSONWriter(object):
                 rate = 86400
             else:
                 rate = 1
-            intermag['sampling_period'] = str(rate)
+            intermag['sampling_period'] = rate
         if 'sensor_sampling_rate' in stats:
-            sampling = 1 / stats.sensor_sampling_rate
-            intermag['digital_sampling_rate'] = str(sampling)
+            sampling = stats.sensor_sampling_rate
+            intermag['digital_sampling_rate'] = sampling
         metadata_dict['intermagnet'] = intermag
         metadata_dict['status'] = 200
         generated = datetime.utcnow()
@@ -192,7 +185,7 @@ class IMFJSONWriter(object):
                 ''.format(tt, int(time.microsecond / 1000))
 
     @classmethod
-    def format(self, timeseries, channels, **kwargs):
+    def format(self, timeseries, channels, url=None):
         """Get a json formatted string.
 
         Calls write() with a BytesIO, and returns the output.
@@ -202,17 +195,16 @@ class IMFJSONWriter(object):
         timeseries : obspy.core.Stream
             stream containing traces with channel listed in channels
         channels: array_like
-            channels to be written from timeseries object
-        kwargs
-            request : query string
+            channels to be written from timeseries
+        url: str
+            string with the requested url
 
         Returns
         -------
         unicode
          json formatted string.
         """
-        request = kwargs.get('request')
         out = BytesIO()
         writer = IMFJSONWriter()
-        writer.write(out, timeseries, channels, request=request)
+        writer.write(out, timeseries, channels, url=url)
         return out.getvalue()
