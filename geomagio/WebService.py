@@ -4,7 +4,6 @@
 from __future__ import print_function
 from cgi import parse_qs, escape
 from datetime import datetime
-import os.path
 import sys
 
 from geomagio.edge import EdgeFactory
@@ -73,10 +72,10 @@ def _get_param(params, key, required=False):
 
 
 class WebService(object):
-    def __init__(self, factory=None, metadata=None):
+    def __init__(self, factory=None, version=None, metadata=None):
         self.factory = factory or EdgeFactory()
         self.metadata = metadata or ObservatoryMetadata().metadata
-        self.version = os.getenv('VERSION', None)
+        self.version = version
 
     def __call__(self, environ, start_response):
         """Implement WSGI interface"""
