@@ -1,0 +1,12 @@
+version: "3"
+services:
+  web:
+    image: usgs/geomag-algorithms:latest
+    environment:
+      - EDGE_HOST=cwbpub.cr.usgs.gov
+      - EDGE_PORT=2060
+      - GEOMAG_WEBSERVICE_PORT=8000
+      - GEOMAG_VERSION=0.3.1
+    ports:
+      - "8000:8000"
+    entrypoint: /geomag-algorithms/bin/geomag_webservice.py

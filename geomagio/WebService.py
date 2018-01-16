@@ -4,8 +4,6 @@
 from __future__ import print_function
 from cgi import parse_qs, escape
 from datetime import datetime
-from json import load
-import os.path
 import sys
 
 from geomagio.edge import EdgeFactory
@@ -74,14 +72,10 @@ def _get_param(params, key, required=False):
 
 
 class WebService(object):
-    def __init__(self, factory=None, metadata=None):
+    def __init__(self, factory=None, version=None, metadata=None):
         self.factory = factory or EdgeFactory()
         self.metadata = metadata or ObservatoryMetadata().metadata
-        base = os.path.dirname(__file__)
-        filepath = os.path.abspath(os.path.join(base, '..', 'package.json'))
-        with open(filepath) as package:
-            specifications = load(package)
-        self.version = specifications['version']
+        self.version = version
 
     def __call__(self, environ, start_response):
         """Implement WSGI interface"""
@@ -185,9 +179,10 @@ class WebService(object):
                 'Request:\n' + \
                 environ['PATH_INFO'] + '?' + environ['QUERY_STRING'] + \
                 '\n\n' + 'Request Submitted:\n' + \
-                datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ") + '\n\n' + \
-                'Service version:\n' + \
-                str(self.version)
+                datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ") + '\n\n'
+        # Check if there is version information available
+        if self.version is not None:
+            http_error_body += 'Service version:\n' + str(self.version)
         return http_error_body
 
     def parse(self, params):

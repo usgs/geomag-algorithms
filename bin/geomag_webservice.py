@@ -22,6 +22,7 @@ if __name__ == '__main__':
     factory_type = os.getenv('GEOMAG_FACTORY_TYPE', 'edge')
     webservice_host = os.getenv('GEOMAG_WEBSERVICE_HOST', '')
     webservice_port = int(os.getenv('GEOMAG_WEBSERVICE_PORT', '7981'))
+    version = os.getenv('GEOMAG_VERSION', None)
 
     # configure factory
     if factory_type == 'edge':
@@ -30,6 +31,6 @@ if __name__ == '__main__':
         raise "Unknown factory type '%s'" % factory_type
 
     print("Starting webservice on %s:%d" % (webservice_host, webservice_port))
-    app = geomagio.WebService(factory)
+    app = geomagio.WebService(factory, version)
     httpd = make_server(webservice_host, webservice_port, app)
     httpd.serve_forever()
