@@ -1,20 +1,55 @@
 """Unit Tests for WebService"""
 from cgi import parse_qs
 from datetime import datetime
-from nose.tools import assert_equals
-from nose.tools import assert_raises
-from nose.tools import assert_is_instance
-import sys
+from nose.tools import assert_equals, assert_is_instance, assert_raises
+import numpy
 from webtest import TestApp
 
 from geomagio.edge import EdgeFactory
 from geomagio.WebService import _get_param
 from geomagio.WebService import WebService
+import obspy.core
 from obspy.core.stream import Stream
 from obspy.core.utcdatetime import UTCDateTime
 
 
-APP = TestApp(WebService(EdgeFactory()))
+class TestFactory(object):
+    "Factory to test for 200 and 400 response statuses."
+    @staticmethod
+    def get_timeseries(observatory=None, channels=None,
+            starttime=None, endtime=None, type=None,
+            interval=None):
+            stream = obspy.core.Stream()
+            for channel in channels:
+                stats = obspy.core.Stats()
+                stats.channel = channel
+                stats.starttime = starttime
+                stats.network = 'Test'
+                stats.station = observatory
+                stats.location = observatory
+                if interval == 'second':
+                    stats.sampling_rate = 1.
+                elif interval == 'minute':
+                    stats.sampling_rate = 1. / 60.
+                elif interval == 'hourly':
+                    stats.sampling_rate = 1. / 3600.
+                elif interval == 'daily':
+                    stats.sampling_rate = 1. / 86400.
+                length = int((endtime - starttime) * stats.sampling_rate)
+                stats.npts = length + 1
+                data = numpy.full(length, numpy.nan, dtype=numpy.float64)
+                trace = obspy.core.Trace(data, stats)
+                stream.append(trace)
+            return stream
+
+
+class ErrorFactory(object):
+    "Factory to test for 500 response status."
+    @staticmethod
+    def get_timeseries(observatory=None, channels=None,
+            starttime=None, endtime=None, type=None,
+            interval=None):
+            pass
 
 
 def test__get_param():
@@ -78,6 +113,7 @@ def test_parse():
     assert_equals(query.sampling_period, '60')
     assert_equals(query.output_format, 'iaga2002')
     assert_equals(query.data_type, 'variation')
+    assert_raises(Exception, service.parse, parse_qs('/?id=bad'))
 
 
 def test_requests():
@@ -86,70 +122,25 @@ def test_requests():
     Use TestApp to confirm correct response status, status int,
     and content-type.
     """
+    app = TestApp(WebService(TestFactory()))
     # Check invalid request (bad values)
-    invalid_values = [
-        '/',
-        '/?id=bad',
-        '/?id=BOU&starttime=2017-50-50',
-        '/?id=BOU&starttime=2016-06-06&endtime=2017-50-50',
-        '/?id=BOU&starttime=2016-06-06&endtime=2016-06-05',
-        '/?id=BOU&elements=H,E,D,Z,F',
-        '/?id=BOU&sampling_period=20',
-        '/?id=BOU&type=bad',
-        '/?id=BOU&format=bad'
-    ]
-    for invalid_val in invalid_values:
-        try:
-            response = APP.get(invalid_val, expect_errors=True)
-            assert_equals(response.status_int, 400)
-            assert_equals(response.status, '400 Bad Request')
-            assert_equals(response.content_type, 'text/plain')
-        except Exception:
-            exception = sys.exc_info()[1]
-            message = exception.args[0]
-            print('FAIL: ' + message + '\nrequest = ' + invalid_val)
+    response = app.get('/?id=bad', expect_errors=True)
+    assert_equals(response.status_int, 400)
+    assert_equals(response.status, '400 Bad Request')
+    assert_equals(response.content_type, 'text/plain')
     # Check invalid request (duplicates)
-    duplicate_values = [
-            '/?id=BOU&id=BOU',
-            '/?id=BOU&starttime=2016-06-06&starttime=2016-06-06',
-            '/?id=BOU&endtime=2017-50-50&endtime=2017-50-50',
-            '/?id=BOU&elements=H,E,Z&elements=H,E,Z',
-            '/?id=BOU&sampling_period=1&sampling_period=60',
-            '/?id=BOU&type=variation&type=variation',
-            '/?id=BOU&format=iaga2002&format=iaga2002'
-    ]
-    for duplicate in duplicate_values:
-        try:
-            response = APP.get(duplicate, expect_errors=True)
-            assert_equals(response.status_int, 400)
-            assert_equals(response.status, '400 Bad Request')
-            assert_equals(response.content_type, 'text/plain')
-        except Exception:
-            exception = sys.exc_info()[1]
-            message = exception.args[0]
-            print('FAIL: ' + message + '\nrequest = ' + duplicate)
+    response = app.get('/?id=BOU&id=BOU', expect_errors=True)
+    assert_equals(response.status_int, 400)
+    assert_equals(response.status, '400 Bad Request')
+    assert_equals(response.content_type, 'text/plain')
     # Check valid request (upper and lower case)
-    valid_requests = [
-            '/?id=BOU',
-            '/?id=bou',
-            '/?id=bou&starttime=2016-06-06',
-            '/?id=bou&starttime=2016-06-06&endtime=2016-06-07',
-            '/?id=bou&elements=H,E,Z,F',
-            '/?id=bou&elements=h,e,z,f',
-            '/?id=BOU&sampling_period=1',
-            '/?id=BOU&sampling_period=60',
-            '/?id=BOU&type=variation',
-            '/?id=BOU&type=VARIATION',
-            '/?id=BOU&format=iaga2002',
-            '/?id=BOU&format=IAGA2002'
-    ]
-    for request in valid_requests:
-        try:
-            response = APP.get(request)
-            assert_equals(response.status_int, 200)
-            assert_equals(response.status, '200 OK')
-            assert_equals(response.content_type, 'text/plain')
-        except Exception:
-            exception = sys.exc_info()[1]
-            message = exception.args[0]
-            print('FAIL: ' + message + '\nrequest = ' + request)
+    response = app.get('/?id=BOU')
+    assert_equals(response.status_int, 200)
+    assert_equals(response.status, '200 OK')
+    assert_equals(response.content_type, 'text/plain')
+    # Test internal server error (use fake factory)
+    app = TestApp(WebService(ErrorFactory()))
+    response = app.get('/?id=BOU', expect_errors=True)
+    assert_equals(response.status_int, 500)
+    assert_equals(response.status, '500 Internal Server Error')
+    assert_equals(response.content_type, 'text/plain')

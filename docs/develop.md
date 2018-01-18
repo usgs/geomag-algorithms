@@ -8,11 +8,11 @@ code for this project, and may also be used to run a local copy of the code.
 Begin Developing
 ----------------
 
-1. Install `obspy`, `pycurl`, `flake8`, and `nose`.
+1. Install `obspy`, `pycurl`, `flake8`, `nose`, `webtest`.
 > Using Anaconda is recommended ( https://conda.io/miniconda.html ).
 
         conda config --add channels conda-forge
-        conda create --name geomagenv obspy pycurl flake8 nose coverage
+        conda create --name geomagenv obspy pycurl flake8 nose coverage webtest
         source activate geomagenv
 
 2. Fork this project on Github ( https://guides.github.com/activities/forking/ ).

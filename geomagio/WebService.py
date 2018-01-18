@@ -107,7 +107,7 @@ class WebService(object):
                 timeseries_string = timeseries_string.encode('utf8')
         except Exception:
             exception = sys.exc_info()[1]
-            message = exception.args[0]
+            message = "Server error."
             error_body = self.error(500, message, environ, start_response)
             return [error_body]
         return [timeseries_string]
