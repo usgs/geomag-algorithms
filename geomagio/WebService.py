@@ -80,6 +80,9 @@ class WebService(object):
 
     def __call__(self, environ, start_response):
         """Implement WSGI interface"""
+        if environ['QUERY_STRING'] == '':
+            usage_page = WebServiceUsage().set_usage_page(start_response)
+            return[usage_page]
         try:
             # parse params
             query = self.parse(parse_qs(environ['QUERY_STRING']))
@@ -87,12 +90,8 @@ class WebService(object):
         except Exception:
             exception = sys.exc_info()[1]
             message = exception.args[0]
-            if message == '"id" is a required parameter.':
-                usage_page = WebServiceUsage().set_usage_page(start_response)
-                return[usage_page]
-            else:
-                error_body = self.error(400, message, environ, start_response)
-                return [error_body]
+            error_body = self.error(400, message, environ, start_response)
+            return [error_body]
         try:
             # fetch timeseries
             timeseries = self.fetch(query)

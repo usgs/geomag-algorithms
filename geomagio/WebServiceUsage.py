@@ -2,6 +2,7 @@
 from datetime import datetime
 from geomagio.ObservatoryMetadata import ObservatoryMetadata
 
+
 class WebServiceUsage(object):
     def __init__(self, metadata=None):
         metadata = metadata or ObservatoryMetadata().metadata.keys()
@@ -18,7 +19,8 @@ class WebServiceUsage(object):
             <head>
               <title>Geomag Web Service Usage</title>
               <meta charset="utf-8"/>
-              <meta name="viewport" content="width=device-width, initial-scale=1"/>
+              <meta name="viewport" content="width=device-width,
+                    initial-scale=1"/>
               <link href="/theme/site/geomag/index.scss" type="text/css">
               <style>
                   code,
@@ -40,9 +42,11 @@ class WebServiceUsage(object):
 
                 <h2>Example Requests</h3>
                  <dl>
-                    <b>BOU observatory data for current UTC day in IAGA2002 format</b>
+                    <b>BOU observatory data for current UTC day in IAGA2002
+                            format</b>
                     <dd>
-                    <a href="http://geomag.usgs.gov/ws/edge/?id=BOU">http://geomag.usgs.gov/ws/edge/?id=BOU</a>
+                    <a href="http://geomag.usgs.gov/ws/edge/?id=BOU">
+                            http://geomag.usgs.gov/ws/edge/?id=BOU</a>
                     </dd>
 
 
@@ -59,7 +63,8 @@ class WebServiceUsage(object):
                     <dd>
                         Time of first requested data.<br/>
                         Default: start of current UTC day<br/>
-                        Format: ISO8601 (<code>YYYY-MM-DDTHH:MM:SSZ</code>)<br/>
+                        Format: ISO8601
+                                (<code>YYYY-MM-DDTHH:MM:SSZ</code>)<br/>
                         Example: <code>{date}</code>
                     </dd>
 
@@ -67,7 +72,8 @@ class WebServiceUsage(object):
                     <dd>
                         Time of last requested data.<br/>
                         Default: starttime + 24 hours<br/>
-                        Format: ISO8601 (<code>YYYY-MM-DDTHH:MM:SSZ</code>)<br/>
+                        Format: ISO8601
+                                (<code>YYYY-MM-DDTHH:MM:SSZ</code>)<br/>
                         Example: <code>{date}</code>
                     </dd>
 
@@ -75,6 +81,9 @@ class WebServiceUsage(object):
                     <dd>
                         Comma separated list of requested elements.<br/>
                         Default: <code>X,Y,Z,F</code><br/>
+                        Valid values: <code>D, DIST, DST, E, E-E, E-N, F, G,
+                                H, SQ, SV, UK1, UK2, UK3, UK4, X, Y, Z</code>
+                                <br/>
                     </dd>
                     <b>sampling_period</b>
                     <dd>
@@ -110,11 +119,14 @@ class WebServiceUsage(object):
               <nav class="site-footer">
               <p> Not what you were looking for?<br/>
                   Search usa.gov: </p>
-                <form class="site-search" role="search" action="//search.usa.gov/search" method="get" accept-charset="UTF-8">
+                <form class="site-search" role="search"
+                        action="//search.usa.gov/search" method="get"
+                        accept-charset="UTF-8">
                   <input name="utf8" type="hidden" value="x"/>
                   <input name="affiliate" type="hidden" value="usgs"/>
                   <input name="sitelimit" type="hidden" />
-                  <input id="query" name="query" type="search" placeholder="Search usa.gov..." title="Search"/>
+                  <input id="query" name="query" type="search"
+                        placeholder="Search usa.gov..." title="Search"/>
                   <button type="submit">Search</button>
                 </form>
               </nav>
