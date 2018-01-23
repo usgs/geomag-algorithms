@@ -18,18 +18,6 @@ EXAMPLE_DATA = EXAMPLE_INPUT_FACTORY.get_timeseries(
 EXAMPLE_STATS = EXAMPLE_DATA[0].stats
 
 
-def test_output_type():
-    """imfjson.IMFJSONWriter_test.test_output_type()
-
-    Call the format method with the test
-    stats and channels.
-    Verify that the output type is correct.
-    """
-    writer = IMFJSONWriter()
-    output = writer.format(EXAMPLE_DATA, EXAMPLE_CHANNELS)
-    assert_equals(type(output), str)
-
-
 def test_metadata():
     """imfjson.IMFJSONWriter_test.test_metadata()
 
@@ -88,21 +76,19 @@ def test_values():
     writer = IMFJSONWriter()
     values = writer._format_data(EXAMPLE_DATA, EXAMPLE_CHANNELS,
             EXAMPLE_STATS)
-    assert_equals(values[0].keys(), ["id", "metadata", "values"])
+    test_val_keys = ["id", "metadata", "values"]
+    for val in values:
+        for key, test in zip(val, test_val_keys):
+            assert_equals(key, test)
     assert_equals(values[0]['id'], "H")
-    assert_equals(values[1].keys(), ["id", "metadata", "values"])
     assert_equals(values[1]['id'], "E")
-    assert_equals(values[2].keys(), ["id", "metadata", "values"])
     assert_equals(values[2]['id'], "Z")
     # Test values-metadata (need to add flags)
     metadata = values[0]['metadata']
-    assert_equals(metadata.keys(), [
-            "element",
-            "network",
-            "station",
-            "channel",
-            "location"
-                                    ])
+    test_metadata_keys = ["element", "network", "station",
+            "channel", "location"]
+    for key, test in zip(metadata, test_metadata_keys):
+        assert_equals(key, test)
     assert_equals(metadata['element'], "H")
     assert_equals(metadata['network'], "NT")
     assert_equals(metadata['station'], "BOU")
