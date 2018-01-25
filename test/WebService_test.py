@@ -5,7 +5,6 @@ from nose.tools import assert_equals, assert_is_instance, assert_raises
 import numpy
 from webtest import TestApp
 
-from geomagio.edge import EdgeFactory
 from geomagio.WebService import _get_param
 from geomagio.WebService import WebService
 import obspy.core
@@ -75,7 +74,7 @@ def test_fetch():
     Call function WebService.fetch to confirm tht it returns an
     obspy.core.stream object.
     """
-    service = WebService(EdgeFactory())
+    service = WebService(TestFactory())
     query = service.parse(parse_qs('id=BOU&starttime=2016-06-06'
             '&endtime=2016-06-07&elements=H,E,Z,F&sampling_period=60'
             '&format=iaga2002&type=variation'))
@@ -90,7 +89,7 @@ def test_parse():
     string values are applied to the correct class attribute. Also
     confirm that default values are applied correctly.
     """
-    service = WebService(EdgeFactory())
+    service = WebService(TestFactory())
     query = service.parse(parse_qs('id=BOU&starttime=2016-06-06'
             '&endtime=2016-06-07&elements=H,E,Z,F&sampling_period=60'
             '&format=iaga2002&type=variation'))

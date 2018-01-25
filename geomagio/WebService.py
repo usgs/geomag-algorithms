@@ -6,7 +6,6 @@ from cgi import escape, parse_qs
 from collections import OrderedDict
 from datetime import datetime
 from json import dumps
-import sys
 
 from geomagio.edge import EdgeFactory
 from geomagio.iaga2002 import IAGA2002Writer
@@ -87,9 +86,8 @@ class WebService(object):
             query = self.parse(parse_qs(environ['QUERY_STRING']))
             query._verify_parameters()
             self.output_format = query.output_format
-        except Exception:
-            exception = sys.exc_info()[1]
-            message = exception.args[0]
+        except Exception as e:
+            message = str(e)
             ftype = parse_qs(environ['QUERY_STRING']).get('format', [''])[0]
             if ftype == 'json':
                 self.output_format = 'json'
@@ -105,8 +103,7 @@ class WebService(object):
                     query, timeseries, start_response, environ)
             if isinstance(timeseries_string, str):
                 timeseries_string = timeseries_string.encode('utf8')
-        except Exception:
-            exception = sys.exc_info()[1]
+        except Exception as e:
             message = "Server error."
             error_body = self.error(500, message, environ, start_response)
             return [error_body]
