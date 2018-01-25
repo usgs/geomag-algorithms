@@ -2,7 +2,7 @@
 """
 
 from __future__ import print_function
-from cgi import parse_qs, escape
+from cgi import escape, parse_qs
 from datetime import datetime
 import sys
 
@@ -121,7 +121,8 @@ class WebService(object):
 
         Parameters
         ----------
-        query : dictionary of parsed query parameters
+        query : dict
+            parsed query parameters
 
         Returns
         -------

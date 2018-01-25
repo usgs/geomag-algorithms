@@ -77,6 +77,13 @@ class IMFJSONWriter(object):
             metadata['station'] = stats.station
             edge_channel = trace.stats.channel
             metadata['channel'] = edge_channel
+            if stats.location == "":
+                if stats.data_type == 'variation':
+                    stats.location = 'R0'
+                elif stats.data_type == 'quasi-definitive':
+                    stats.location = 'Q0'
+                elif stats.data_type == 'definitive':
+                    stats.location = 'D0'
             metadata['location'] = stats.location
             values += [value_dict]
             series = np.copy(trace.data)
@@ -133,8 +140,9 @@ class IMFJSONWriter(object):
             else:
                 rate = 1
             intermag['sampling_period'] = rate
+        # 1/sampling_rate to output in seconds rather than hertz
         if 'sensor_sampling_rate' in stats:
-            sampling = stats.sensor_sampling_rate
+            sampling = 1 / stats.sensor_sampling_rate
             intermag['digital_sampling_rate'] = sampling
         metadata_dict['intermagnet'] = intermag
         metadata_dict['status'] = 200
