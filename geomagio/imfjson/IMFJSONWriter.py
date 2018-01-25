@@ -89,9 +89,10 @@ class IMFJSONWriter(object):
             series = np.copy(trace.data)
             if c == 'D':
                 series = ChannelConverter.get_minutes_from_radians(series)
-            series[np.isnan(series)] = None
             # Converting numpy array to list required for JSON serialization
-            value_dict['values'] = series.tolist()
+            series = series.tolist()
+            series = [None if str(x) == 'nan' else x for x in series]
+            value_dict['values'] = series
             # TODO: Add flag metadata
         return values
 

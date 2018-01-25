@@ -3,11 +3,14 @@
 
 from __future__ import print_function
 from cgi import escape, parse_qs
+from collections import OrderedDict
 from datetime import datetime
+from json import dumps
 import sys
 
 from geomagio.edge import EdgeFactory
 from geomagio.iaga2002 import IAGA2002Writer
+from geomagio.imfjson import IMFJSONWriter
 from geomagio.ObservatoryMetadata import ObservatoryMetadata
 from obspy.core import UTCDateTime
 
@@ -31,7 +34,7 @@ VALID_DATA_TYPES = [
         'quasi-definitive',
         'definitive'
 ]
-VALID_OUTPUT_FORMATS = ['iaga2002']
+VALID_OUTPUT_FORMATS = ['iaga2002', 'json']
 VALID_SAMPLING_PERIODS = ['1', '60']
 
 
@@ -83,9 +86,15 @@ class WebService(object):
             # parse params
             query = self.parse(parse_qs(environ['QUERY_STRING']))
             query._verify_parameters()
+            self.output_format = query.output_format
         except Exception:
             exception = sys.exc_info()[1]
             message = exception.args[0]
+            ftype = parse_qs(environ['QUERY_STRING']).get('format', [''])[0]
+            if ftype == 'json':
+                self.output_format = 'json'
+            else:
+                self.output_format = 'iaga2002'
             error_body = self.error(400, message, environ, start_response)
             return [error_body]
         try:
@@ -93,7 +102,7 @@ class WebService(object):
             timeseries = self.fetch(query)
             # format timeseries
             timeseries_string = self.format_data(
-                    query, timeseries, start_response)
+                    query, timeseries, start_response, environ)
             if isinstance(timeseries_string, str):
                 timeseries_string = timeseries_string.encode('utf8')
         except Exception:
@@ -105,7 +114,6 @@ class WebService(object):
 
     def error(self, code, message, environ, start_response):
         """Assign error_body value based on error format."""
-        # TODO: Add option for json formatted error
         error_body = self.http_error(code, message, environ)
         status = str(code) + ' ' + ERROR_CODE_MESSAGES[code]
         start_response(status,
@@ -142,7 +150,7 @@ class WebService(object):
                 interval=sampling_period)
         return timeseries
 
-    def format_data(self, query, timeseries, start_response):
+    def format_data(self, query, timeseries, start_response, environ):
         """Format requested timeseries.
 
         Parameters
@@ -156,8 +164,14 @@ class WebService(object):
         unicode
           IAGA2002 formatted string.
         """
-        # TODO: Add option for json format
-        timeseries_string = IAGA2002Writer.format(timeseries, query.elements)
+        url = environ['HTTP_HOST'] + environ['PATH_INFO'] + \
+                environ['QUERY_STRING']
+        if query.output_format == 'json':
+            timeseries_string = IMFJSONWriter.format(timeseries,
+                    query.elements, url)
+        else:
+            timeseries_string = IAGA2002Writer.format(timeseries,
+                    query.elements)
         start_response('200 OK',
                 [
                     ("Content-Type", "text/plain")
@@ -169,22 +183,65 @@ class WebService(object):
 
         Returns
         -------
-        error_body : str
+        http_error_body : str
             body of http error message.
         """
+        query_string = environ['QUERY_STRING']
+        path_info = environ['PATH_INFO']
+        host = environ['HTTP_HOST']
+        if self.output_format == 'json':
+            http_error_body = self.json_error(code, message, path_info,
+                    query_string, host)
+        else:
+            http_error_body = self.iaga2002_error(code, message, path_info,
+                    query_string)
+        return http_error_body
+
+    def iaga2002_error(self, code, message, path_info, query_string):
+        """Format iaga2002 error message.
+
+        Returns
+        -------
+        error_body : str
+            body of iaga2002 error message.
+        """
         status_message = ERROR_CODE_MESSAGES[code]
-        http_error_body = 'Error ' + str(code) + ': ' + status_message + \
+        error_body = 'Error ' + str(code) + ': ' + status_message + \
                 '\n\n' + message + '\n\n' + \
                 'Usage details are available from ' + \
                 'http://geomag.usgs.gov/ws/edge/ \n\n' + \
                 'Request:\n' + \
-                environ['PATH_INFO'] + '?' + environ['QUERY_STRING'] + \
-                '\n\n' + 'Request Submitted:\n' + \
+                path_info + '?' + query_string + '\n\n' + \
+                'Request Submitted:\n' + \
                 datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ") + '\n\n'
         # Check if there is version information available
         if self.version is not None:
-            http_error_body += 'Service version:\n' + str(self.version)
-        return http_error_body
+            error_body += 'Service version:\n' + str(self.version)
+        return error_body
+
+    def json_error(self, code, message, path_info, query_string, host):
+        """Format json error message.
+
+        Returns
+        -------
+        error_body : str
+            body of json error message.
+        """
+        error_dict = OrderedDict()
+        error_dict['type'] = "Error"
+        error_dict['metadata'] = OrderedDict()
+        error_dict['metadata']['status'] = 400
+        date = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        error_dict['metadata']['generated'] = date
+        error_dict['metadata']['url'] = host + path_info + '?' + query_string
+        status_message = ERROR_CODE_MESSAGES[code]
+        error_dict['metadata']['title'] = status_message
+        error_dict['metadata']['api'] = str(self.version)
+        error_dict['metadata']['error'] = message
+        error_body = dumps(error_dict,
+                ensure_ascii=True).encode('utf8')
+        error_body = str(error_body)
+        return error_body
 
     def parse(self, params):
         """Parse query string parameters and set defaults.
@@ -234,7 +291,7 @@ class WebService(object):
         else:
             try:
                 starttime = UTCDateTime(starttime)
-            except TypeError:
+            except Exception:
                 raise WebServiceException(
                         'Bad starttime value "%s".'
                         ' Valid values are ISO-8601 timestamps.' % starttime)
@@ -243,7 +300,7 @@ class WebService(object):
         else:
             try:
                 endtime = UTCDateTime(endtime)
-            except TypeError:
+            except Exception:
                 raise WebServiceException(
                         'Bad endtime value "%s".'
                         ' Valid values are ISO-8601 timestamps.' % endtime)

@@ -24,7 +24,7 @@ class IMFJSONFactory(TimeseriesFactory):
     def __init__(self, **kwargs):
         TimeseriesFactory.__init__(self, **kwargs)
 
-    def write_file(self, fh, timeseries, channels):
+    def write_file(self, fh, timeseries, channels, url=None):
         """writes timeseries data to the given file object.
 
         Parameters
@@ -33,6 +33,9 @@ class IMFJSONFactory(TimeseriesFactory):
         timeseries : obspy.core.Stream
             stream containing traces to store.
         channels : array_like
-            list of channels to store
+            list of channels to store.
+        url : str
+            string representing the requested url
+            uses default if unspecified.
         """
-        IMFJSONWriter().write(fh, timeseries, channels)
+        IMFJSONWriter().write(fh, timeseries, channels, url)
