@@ -4,6 +4,7 @@ from builtins import range
 from io import BytesIO
 from datetime import datetime
 import numpy
+from os import linesep
 import textwrap
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactoryException import TimeseriesFactoryException
@@ -146,7 +147,7 @@ class IAGA2002Writer(object):
             a string formatted to be a single header line in an IAGA2002 file
         """
         prefix = ' '
-        suffix = ' |\n'
+        suffix = ' |' + linesep
         return ''.join((prefix, name.ljust(23), value.ljust(44), suffix))
 
     def _format_comment(self, comment):
@@ -163,7 +164,7 @@ class IAGA2002Writer(object):
         """
         buf = []
         prefix = ' # '
-        suffix = ' |\n'
+        suffix = ' |' + linesep
         lines = textwrap.wrap(comment, 65)
         for line in lines:
             buf.extend((prefix, line.ljust(65), suffix))
@@ -198,7 +199,7 @@ class IAGA2002Writer(object):
                 raise TimeseriesFactoryException(
                         'channel "{}" is not 1 character'.format(channel))
             buf.append('   {:<7s}'.format(iaga_code + channel))
-        buf.append('|\n')
+        buf.append('|' + linesep)
         return ''.join(buf)
 
     def _format_data(self, timeseries, channels):
@@ -244,10 +245,10 @@ class IAGA2002Writer(object):
         return '{0.tm_year:0>4d}-{0.tm_mon:0>2d}-{0.tm_mday:0>2d} ' \
                 '{0.tm_hour:0>2d}:{0.tm_min:0>2d}:{0.tm_sec:0>2d}.{1:0>3d} ' \
                 '{0.tm_yday:0>3d}   ' \
-                ' {2:9.2f} {3:9.2f} {4:9.2f} {5:9.2f}\n'.format(
+                ' {2:9.2f} {3:9.2f} {4:9.2f} {5:9.2f}'.format(
                 tt, int(time.microsecond / 1000),
                 *[self.empty_value if numpy.isnan(val) else val
-                        for val in values])
+                        for val in values]) + linesep
 
     def _pad_to_four_channels(self, timeseries, channels):
         padded = channels[:]
