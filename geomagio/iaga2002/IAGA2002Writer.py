@@ -194,7 +194,7 @@ class IAGA2002Writer(object):
         buf = ['DATE       TIME         DOY  ']
         for channel in channels:
             channel_len = len(channel)
-            if channel_len < 1 or channel_len > 3:
+            if channel_len < 1 or channel_len > 4:
                 raise TimeseriesFactoryException(
                         'channel "{}" is not 1 character'.format(channel))
             buf.append('   {:<7s}'.format(iaga_code + channel))
