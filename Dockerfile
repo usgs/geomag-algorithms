@@ -28,7 +28,7 @@ RUN conda config --set ssl_verify $SSL_CERT_FILE && \
 
 
 FROM usgs/hazdev-base-images:latest-centos
-MAINTAINER Jeremy Fee <jmfee@usgs.gov>
+LABEL maintainer="Jeremy Fee <jmfee@usgs.gov>"
 LABEL usgs.geomag-algorithms.version=0.4.0
 
 # use conda install from build container
