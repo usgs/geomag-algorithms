@@ -25,7 +25,7 @@ install:
   - source activate test-environment
 script:
   - flake8 --config=.flake8 bin/ geomagio/ test/
-  - nosetests .
+  - nosetests -v .
 after_success:
   - nosetests --with-coverage --cover-package=geomagio --cover-xml
   - bash <(curl -s https://codecov.io/bash)

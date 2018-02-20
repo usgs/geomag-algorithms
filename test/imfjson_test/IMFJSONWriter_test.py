@@ -44,11 +44,12 @@ def test_times():
 
     Call the _format_times method with the test
     data and channels.
-    Verify, the times are the correct value and format.
+    Verify, the times are the correct value and string format.
     """
     writer = IMFJSONWriter()
     times = writer._format_times(EXAMPLE_DATA, EXAMPLE_CHANNELS)
-    test_day, test_time = np.loadtxt(EXAMPLE_FILE, skiprows=25,
+    # load times to test against
+    test_day, test_time = np.genfromtxt(EXAMPLE_FILE, skip_header=25,
         usecols=(0, 1), unpack=True, dtype=str)
     test_date_times = []
     for idx in range(test_day.shape[0]):
