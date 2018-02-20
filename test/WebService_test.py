@@ -18,28 +18,28 @@ class TestFactory(object):
     def get_timeseries(observatory=None, channels=None,
             starttime=None, endtime=None, type=None,
             interval=None):
-            stream = obspy.core.Stream()
-            for channel in channels:
-                stats = obspy.core.Stats()
-                stats.channel = channel
-                stats.starttime = starttime
-                stats.network = 'Test'
-                stats.station = observatory
-                stats.location = observatory
-                if interval == 'second':
-                    stats.sampling_rate = 1.
-                elif interval == 'minute':
-                    stats.sampling_rate = 1. / 60.
-                elif interval == 'hourly':
-                    stats.sampling_rate = 1. / 3600.
-                elif interval == 'daily':
-                    stats.sampling_rate = 1. / 86400.
-                length = int((endtime - starttime) * stats.sampling_rate)
-                stats.npts = length + 1
-                data = numpy.full(length, numpy.nan, dtype=numpy.float64)
-                trace = obspy.core.Trace(data, stats)
-                stream.append(trace)
-            return stream
+        stream = obspy.core.Stream()
+        for channel in channels:
+            stats = obspy.core.Stats()
+            stats.channel = channel
+            stats.starttime = starttime
+            stats.network = 'Test'
+            stats.station = observatory
+            stats.location = observatory
+            if interval == 'second':
+                stats.sampling_rate = 1.
+            elif interval == 'minute':
+                stats.sampling_rate = 1. / 60.
+            elif interval == 'hourly':
+                stats.sampling_rate = 1. / 3600.
+            elif interval == 'daily':
+                stats.sampling_rate = 1. / 86400.
+            length = int((endtime - starttime) * stats.sampling_rate)
+            stats.npts = length + 1
+            data = numpy.full(length, numpy.nan, dtype=numpy.float64)
+            trace = obspy.core.Trace(data, stats)
+            stream.append(trace)
+        return stream
 
 
 class ErrorFactory(object):
@@ -48,7 +48,7 @@ class ErrorFactory(object):
     def get_timeseries(observatory=None, channels=None,
             starttime=None, endtime=None, type=None,
             interval=None):
-            pass
+        pass
 
 
 def test__get_param():
