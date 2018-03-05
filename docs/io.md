@@ -53,7 +53,7 @@ Interval specifies the amount of data in each url and defaults to 1 day.
 
 ### Output Format
 
-`--output {binlog, edge, iaga2002, pcdcp, plot, temperature, vbf}`
+`--output {binlog, edge, iaga2002, imfjson, pcdcp, plot, temperature, vbf}`
 
 Specify output format.
 
@@ -65,6 +65,9 @@ Specify output format.
 
 `iaga2002`
   IAGA2002 format.
+
+`imfjson`
+  IMFJSON format.
 
 `pcdcp`
   PCDCP format.
@@ -104,7 +107,7 @@ For output formats `binlog`, `iaga2002`, `pcdcp`, `temperature`, `vbf`
 `--output-file FILE`
   Write to a specific file.
 
-`--output-stdin`
+`--output-stdout`
   Write to standard output
 
 `--output-url URLTEMPLATE`
