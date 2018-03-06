@@ -14,6 +14,7 @@ from . import TimeseriesUtility
 from . import binlog
 from . import edge
 from . import iaga2002
+from . import imfjson
 from . import pcdcp
 from . import imfv122
 from . import imfv283
@@ -378,6 +379,8 @@ def get_output_factory(args):
             output_factory = binlog.BinLogFactory(**output_factory_args)
         elif output_type == 'iaga2002':
             output_factory = iaga2002.IAGA2002Factory(**output_factory_args)
+        elif output_type == 'imfjson':
+            output_factory = imfjson.IMFJSONFactory(**output_factory_args)
         elif output_type == 'pcdcp':
             output_factory = pcdcp.PCDCPFactory(**output_factory_args)
         elif output_type == 'temperature':
@@ -766,6 +769,7 @@ def parse_args(args):
                 'binlog',
                 'edge',
                 'iaga2002',
+                'imfjson',
                 'pcdcp',
                 'plot',
                 'temperature',
