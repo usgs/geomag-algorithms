@@ -11,6 +11,7 @@ from geomagio.edge import EdgeFactory
 from geomagio.iaga2002 import IAGA2002Writer
 from geomagio.imfjson import IMFJSONWriter
 from geomagio.ObservatoryMetadata import ObservatoryMetadata
+from geomagio.WebServiceUsage import WebServiceUsage
 from obspy.core import UTCDateTime
 
 
@@ -74,13 +75,17 @@ def _get_param(params, key, required=False):
 
 
 class WebService(object):
-    def __init__(self, factory=None, version=None, metadata=None):
+    def __init__(self, factory=None, version=None, metadata=None,
+            usage_documentation=None):
         self.factory = factory or EdgeFactory()
         self.metadata = metadata or ObservatoryMetadata().metadata
         self.version = version
+        self.usage_documentation = usage_documentation or WebServiceUsage()
 
     def __call__(self, environ, start_response):
         """Implement WSGI interface"""
+        if environ['QUERY_STRING'] == '':
+            return self.usage_documentation.__call__(environ, start_response)
         try:
             # parse params
             query = self.parse(parse_qs(environ['QUERY_STRING']))
