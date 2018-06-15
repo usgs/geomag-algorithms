@@ -65,7 +65,7 @@ class AverageAlgorithm(Algorithm):
             if first:
                 self._stats = ts.stats
                 self._npts = ts.stats.npts
-                selt._stt = ts.stats.starttime
+                self._stt = ts.stats.starttime
                 first = False
 
             if ts.stats.npts != self._npts:
