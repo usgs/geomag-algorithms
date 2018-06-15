@@ -64,7 +64,7 @@ def __get_channel(component, interval):
     else:
         channel_end = __get_channel_end(component)
     return channel_start + channel_end
-    
+
 def __get_channel_start(interval):
     if interval == '10hertz' or interval == 0.1:
         return 'B'
