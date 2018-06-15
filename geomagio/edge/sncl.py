@@ -6,6 +6,7 @@ Channel
 Location
 """
 
+# components that map directly to channel suffixes
 CHANNEL_FROM_COMPONENT = {
     # e-field
     'E-E':  'QX',
@@ -18,6 +19,7 @@ CHANNEL_FROM_COMPONENT = {
     'DST':  'X4',
     'K':    'XK'
 }
+# reverse lookup of component from channel
 COMPONENT_FROM_CHANNEL = dict((v,k) for (k,v) in CHANNEL_FROM_COMPONENT.iteritems())
 
 
@@ -29,9 +31,46 @@ def get_scnl(observatory,
         component=None,
         channel=None,
         data_type='variation',
-        location=None,
         interval='second',
+        location=None,
         network='NT'):
+    """Generate a SNCL code from data attributes.
+
+    Parameters
+    ----------
+    observatory : str
+        observatory code.
+    component : str
+        geomag component name.
+    channel : str
+        default None.
+        use a specific channel code, instead of generating.
+    data_type : str
+        default 'variation'
+        'variation', 'adjusted', 'quasi-definitive', or 'definitive'.
+    interval: str|float
+        default 'second'
+        'tenhertz', 'second', 'minute', 'hour', 'day',
+        or equivalent interval in seconds
+    location : str
+        default None
+        use a specific location code, instead of generating.
+    network : str
+        default 'NT'
+        network `observatory` is a part of.
+
+    Raises
+    ------
+    SNCLException : when unable to generate a SNCL
+
+    Returns
+    -------
+    dict : dictionary containing the following keys
+        'station'  : observatory code
+        'network'  : network code
+        'channel'  : channel code
+        'location' : location code
+    """
     # use explicit channel/location if specified
     channel = channel or __get_channel(component, interval)
     location = location or __get_location(component, data_type)
@@ -43,6 +82,30 @@ def get_scnl(observatory,
     }
 
 def parse_sncl(sncl):
+    """Parse a SNCL code into data attributes.
+
+    Parameters
+    ----------
+    sncl : dict
+        dictionary object with the following keys
+            'station'  : observatory code
+            'network'  : network code
+            'channel'  : channel code
+            'location' : location code
+
+    Raises
+    ------
+    SNCLException : when unable to parse a SNCL
+
+    Returns
+    -------
+    dict : dictionary containing the following keys
+        'observatory' : observatory code
+        'network'     : network code
+        'component'   : geomag component name
+        'data_type'   : geomag data type (e.g. 'variation')
+        'interval'    : data interval in seconds (e.g. 1)
+    """
     network = sncl['network']
     station = sncl['station']
     channel = sncl['channel']
