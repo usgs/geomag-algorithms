@@ -9,8 +9,8 @@ Location
 # components that map directly to channel suffixes
 CHANNEL_FROM_COMPONENT = {
     # e-field
-    'E-E':  'QX',
-    'E-N':  'QY',
+    'E-E':  'QY',
+    'E-N':  'QX',
     'E-U':  'QU',
     'E-V':  'QV',
     # derived indicies
