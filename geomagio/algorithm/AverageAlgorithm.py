@@ -57,26 +57,24 @@ class AverageAlgorithm(Algorithm):
                     'Only 1 channel may be averaged at one time'
                     % (len(self.observatories), len(timeseries)))
 
-        count = 1
+        first = True
         # timeseries starttime and number of samples must match
         for ts in timeseries:
             # grab 1st set of stats to use in output.
             # Its values will be good if checks pass.
-            if count == 1:
+            if first:
                 self._stats = ts.stats
-
-            if count == 1:
                 self._npts = ts.stats.npts
+                selt._stt = ts.stats.starttime
+                first = False
+
             if ts.stats.npts != self._npts:
                 raise AlgorithmException(
                     'Received timeseries have different lengths')
 
-            if count == 1:
-                self._stt = ts.stats.starttime
             if ts.stats.starttime != self._stt:
                 raise AlgorithmException(
                     'Received timeseries have different starttimes')
-            count += 1
 
     def process(self, timeseries):
         """averages a channel across multiple stations
