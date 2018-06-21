@@ -1,4 +1,4 @@
-FROM usgs/hazdev-base-images:latest-centos AS pycurl-build
+FROM usgs/centos:latest AS pycurl-build
 
 # install conda dependencies
 RUN yum install -y \
@@ -18,7 +18,7 @@ RUN echo 'export PATH=/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
 
 # install algorithms and dependencies via conda
 RUN conda config --set ssl_verify $SSL_CERT_FILE && \
-    conda config --add channels obspy && \
+    conda config --add channels conda-forge && \
     conda install --yes jupyter obspy && \
     conda clean -i -l -t -y && \
     # build pycurl with SFTP support
@@ -27,9 +27,8 @@ RUN conda config --set ssl_verify $SSL_CERT_FILE && \
         pip install pycurl
 
 
-FROM usgs/hazdev-base-images:latest-centos
+FROM usgs/centos:latest
 LABEL maintainer="Jeremy Fee <jmfee@usgs.gov>"
-LABEL usgs.geomag-algorithms.version=0.4.0
 
 # use conda install from build container
 ENV PATH /conda/bin:$PATH
