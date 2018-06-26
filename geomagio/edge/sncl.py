@@ -9,18 +9,19 @@ Location
 # components that map directly to channel suffixes
 CHANNEL_FROM_COMPONENT = {
     # e-field
-    'E-E':  'QY',
-    'E-N':  'QX',
-    'E-U':  'QU',
-    'E-V':  'QV',
+    'E-E': 'QY',
+    'E-N': 'QX',
+    'E-U': 'QU',
+    'E-V': 'QV',
     # derived indicies
-    'AE':   'XA',
+    'AE': 'XA',
     'DST3': 'X3',
-    'DST':  'X4',
-    'K':    'XK'
+    'DST': 'X4',
+    'K': 'XK'
 }
 # reverse lookup of component from channel
-COMPONENT_FROM_CHANNEL = dict((v,k) for (k,v) in CHANNEL_FROM_COMPONENT.iteritems())
+COMPONENT_FROM_CHANNEL = dict(
+        (v, k) for (k, v) in CHANNEL_FROM_COMPONENT.iteritems())
 
 
 class SNCLException(Exception):
@@ -81,6 +82,7 @@ def get_scnl(observatory,
         'location': location,
     }
 
+
 def parse_sncl(sncl):
     """Parse a SNCL code into data attributes.
 
@@ -128,6 +130,7 @@ def __get_channel(component, interval):
         channel_end = __get_channel_end(component)
     return channel_start + channel_end
 
+
 def __get_channel_start(interval):
     if interval == 'tenhertz' or interval == 0.1:
         return 'B'
@@ -140,6 +143,7 @@ def __get_channel_start(interval):
     if interval == 'day' or interval == 86400:
         return 'P'
     raise SNCLException('Unexpected interval {}'.format(interval))
+
 
 def __get_channel_end(component):
     # default to engineering units
@@ -165,6 +169,7 @@ def __get_location(component, data_type):
     location_end = __get_location_end(component)
     return location_start + location_end
 
+
 def __get_location_start(data_type):
     if data_type == 'variation':
         return 'R'
@@ -175,6 +180,7 @@ def __get_location_start(data_type):
     elif data_type == 'definitive':
         return 'D'
     raise SNCLException('Unexpected data type {}'.format(data_type))
+
 
 def __get_location_end(component):
     if component.endswith('-Sat'):
@@ -207,6 +213,7 @@ def __parse_component(channel, location):
         raise SNCLException('Unexpected channel middle {}'.format(channel))
     return component + component_end
 
+
 def __parse_component_end(location):
     location_end = location[1]
     if location_end == '0':
@@ -221,6 +228,7 @@ def __parse_component_end(location):
         return '-SV'
     raise SNCLException('Unexpected location end {}'.format(location_end))
 
+
 def __parse_data_type(location):
     location_start = location[0]
     if location_start == 'R':
@@ -232,6 +240,7 @@ def __parse_data_type(location):
     if location_start == 'D':
         return 'definitive'
     raise SNCLException('Unexpected location start {}'.format(location_start))
+
 
 def __parse_interval(channel):
     channel_start = channel[0]
