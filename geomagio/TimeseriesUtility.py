@@ -4,7 +4,7 @@ import numpy
 import obspy.core
 
 
-def get_stream_gaps(stream):
+def get_stream_gaps(stream, channels=None):
     """Get gaps in a given stream
     Parameters
     ----------
@@ -12,6 +12,7 @@ def get_stream_gaps(stream):
         the stream to check for gaps
     channels: array_like
         list of channels to check for gaps
+        Default is None (check all channels).
 
     Returns
     -------
@@ -25,6 +26,8 @@ def get_stream_gaps(stream):
     gaps = {}
     for trace in stream:
         channel = trace.stats.channel
+        if channels is not None and channel not in channels:
+            continue
         gaps[channel] = get_trace_gaps(trace)
     return gaps
 
