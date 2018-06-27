@@ -36,6 +36,7 @@ def test_get_stream_gaps():
     # no gaps in Z channel
     assert_equals(len(gaps['Z']), 0)
 
+
 def test_get_stream_gaps_channels():
     """TimeseriesUtility_test.test_get_stream_gaps_channels()
 
@@ -55,6 +56,7 @@ def test_get_stream_gaps_channels():
     gaps = TimeseriesUtility.get_stream_gaps(stream, ['Z'])
     assert_equals('H' in gaps, False)
     assert_equals(len(gaps['Z']), 0)
+
 
 def test_get_trace_gaps():
     """TimeseriesUtility_test.test_get_trace_gaps()

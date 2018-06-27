@@ -362,7 +362,7 @@ def get_output_factory(args):
         try:
             # python 3
             output_stream = sys.stdout.buffer
-        except:
+        except AttributeError:
             # python 2
             output_stream = sys.stdout
     elif args.output_url is not None:
