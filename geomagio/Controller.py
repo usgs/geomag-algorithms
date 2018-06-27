@@ -210,13 +210,15 @@ class Controller(object):
         if options.update_limit != 0:
             if update_count >= options.update_limit:
                 return
-        print('checking gaps', options.starttime, options.endtime,
-            file=sys.stderr)
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
+        output_observatory = options.output_observatory
         output_channels = options.outchannels or \
                 algorithm.get_output_channels()
+        print('checking gaps', options.starttime, options.endtime,
+                output_observatory, output_channels,
+                file=sys.stderr)
         # request output to see what has already been generated
         output_timeseries = self._get_output_timeseries(
                 observatory=options.output_observatory,
@@ -258,7 +260,8 @@ class Controller(object):
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
             print('processing', options.starttime, options.endtime,
-                file=sys.stderr)
+                    output_observatory, output_channels,
+                    file=sys.stderr)
             self.run(options, input_timeseries)
 
 
@@ -493,10 +496,20 @@ def main(args):
 
     if args.observatory_foreach:
         observatory = args.observatory
+        observatory_exception = None
         for obs in observatory:
             args.observatory = (obs,)
             args.output_observatory = (obs,)
-            _main(args)
+            try:
+                _main(args)
+            except Exception as e:
+                print("Exception processing observatory {}".format(obs),
+                        str(e),
+                        file=sys.stderr)
+        if observatory_exception:
+            print("Exceptions occurred during processing", file=sys.stderr)
+            sys.exit(1)
+
     else:
         _main(args)
 
