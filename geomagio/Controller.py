@@ -359,7 +359,12 @@ def get_output_factory(args):
     if args.output_file is not None:
         output_stream = open(args.output_file, 'wb')
     elif args.output_stdout:
-        output_stream = sys.stdout
+        try:
+            # python 3
+            output_stream = sys.stdout.buffer
+        except:
+            # python 2
+            output_stream = sys.stdout
     elif args.output_url is not None:
         output_url = args.output_url
         output_factory_args['urlInterval'] = args.output_url_interval
