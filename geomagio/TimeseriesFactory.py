@@ -198,16 +198,20 @@ class TimeseriesFactory(object):
                 endtime=endtime,
                 size=self.urlInterval)
         for urlInterval in urlIntervals:
+            interval_start = urlInterval['start']
+            interval_end = urlInterval['end']
+            if interval_start != interval_end:
+                interval_end = interval_end - delta
             url = self._get_url(
                     observatory=observatory,
-                    date=urlInterval['start'],
+                    date=interval_start,
                     type=type,
                     interval=interval,
                     channels=channels)
             url_data = timeseries.slice(
-                    starttime=urlInterval['start'],
+                    starttime=interval_start,
                     # subtract delta to omit the sample at end: `[start, end)`
-                    endtime=(urlInterval['end'] - delta))
+                    endtime=interval_end)
             url_file = Util.get_file_from_url(url, createParentDirectory=True)
             # existing data file, merge new data into existing
             if os.path.isfile(url_file):
@@ -236,8 +240,8 @@ class TimeseriesFactory(object):
                     pass
             # pad with NaN's out to urlInterval (like get_timeseries())
             url_data.trim(
-                starttime=urlInterval['start'],
-                endtime=(urlInterval['end'] - delta),
+                starttime=interval_start,
+                endtime=interval_end,
                 nearest_sample=False,
                 pad=True,
                 fill_value=numpy.nan)
