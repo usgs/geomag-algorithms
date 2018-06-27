@@ -4,11 +4,12 @@ from builtins import str as unicode
 
 import argparse
 import sys
+from io import BytesIO
 from obspy.core import Stream, UTCDateTime
 from .algorithm import algorithms
 from .PlotTimeseriesFactory import PlotTimeseriesFactory
 from .StreamTimeseriesFactory import StreamTimeseriesFactory
-from . import TimeseriesUtility
+from . import TimeseriesUtility, Util
 
 # factory packages
 from . import binlog
@@ -289,9 +290,11 @@ def get_input_factory(args):
     elif args.input_stdin:
         input_stream = sys.stdin
     elif args.input_url is not None:
-        input_factory_args['urlInterval'] = args.input_url_interval
-        input_factory_args['urlTemplate'] = args.input_url
-
+        if '{' in args.input_url:
+            input_factory_args['urlInterval'] = args.input_url_interval
+            input_factory_args['urlTemplate'] = args.input_url
+        else:
+            input_stream = BytesIO(Util.read_url(args.input_url))
     input_type = args.input
     if input_type == 'edge':
         input_factory = edge.EdgeFactory(
@@ -317,7 +320,7 @@ def get_input_factory(args):
         elif input_type == 'imfv283':
             input_factory = imfv283.IMFV283Factory(**input_factory_args)
         elif input_type == 'pcdcp':
-                input_factory = pcdcp.PCDCPFactory(**input_factory_args)
+            input_factory = pcdcp.PCDCPFactory(**input_factory_args)
         # wrap stream
         if input_stream is not None:
             input_factory = StreamTimeseriesFactory(
