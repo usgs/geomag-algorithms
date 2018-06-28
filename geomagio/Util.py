@@ -173,6 +173,7 @@ def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
         curl.setopt(pycurl.WRITEFUNCTION, out.write)
         curl.perform()
         content = out.getvalue()
+        content = content.decode('utf-8')
     except pycurl.error as e:
         raise IOError(e.args)
     finally:
