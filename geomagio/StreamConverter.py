@@ -28,15 +28,15 @@ def get_geo_from_mag(mag):
     """
     h = mag.select(channel='H')[0]
     d = mag.select(channel='D')[0]
-    z = mag.select(channel='Z')[0]
-    f = mag.select(channel='F')[0]
+    z = mag.select(channel='Z')
+    f = mag.select(channel='F')
     mag_h = h.data
     mag_d = d.data
     (geo_x, geo_y) = ChannelConverter.get_geo_from_mag(mag_h, mag_d)
     return obspy.core.Stream((
         __get_trace('X', h.stats, geo_x),
         __get_trace('Y', d.stats, geo_y),
-        z, f))
+        )) + z + f
 
 
 def get_geo_from_obs(obs):
@@ -116,15 +116,15 @@ def get_mag_from_geo(geo):
     """
     x = geo.select(channel='X')[0]
     y = geo.select(channel='Y')[0]
-    z = geo.select(channel='Z')[0]
-    f = geo.select(channel='F')[0]
+    z = geo.select(channel='Z')
+    f = geo.select(channel='F')
     geo_x = x.data
     geo_y = y.data
     (mag_h, mag_d) = ChannelConverter.get_mag_from_geo(geo_x, geo_y)
     return obspy.core.Stream((
             __get_trace('H', x.stats, mag_h),
             __get_trace('D', y.stats, mag_d),
-            z, f))
+            )) + z + f
 
 
 def get_mag_from_obs(obs):
@@ -142,8 +142,8 @@ def get_mag_from_obs(obs):
     """
     h = obs.select(channel='H')[0]
     e = __get_obs_e_from_obs(obs)
-    z = obs.select(channel='Z')[0]
-    f = obs.select(channel='F')[0]
+    z = obs.select(channel='Z')
+    f = obs.select(channel='F')
     obs_h = h.data
     obs_e = e.data
     d0 = ChannelConverter.get_radians_from_minutes(
@@ -152,7 +152,7 @@ def get_mag_from_obs(obs):
     return obspy.core.Stream((
             __get_trace('H', h.stats, mag_h),
             __get_trace('D', e.stats, mag_d),
-            z, f))
+            )) + z + f
 
 
 def get_obs_from_geo(geo, include_d=False):
@@ -189,8 +189,9 @@ def get_obs_from_mag(mag, include_d=False):
     """
     h = mag.select(channel='H')[0]
     d = mag.select(channel='D')[0]
-    z = mag.select(channel='Z')[0]
-    f = mag.select(channel='F')[0]
+    z = mag.select(channel='Z')
+    f = mag.select(channel='F')
+
     mag_h = h.data
     mag_d = d.data
     d0 = ChannelConverter.get_radians_from_minutes(
@@ -200,11 +201,11 @@ def get_obs_from_mag(mag, include_d=False):
     traces = (
         __get_trace('H', h.stats, obs_h),
         __get_trace('E', d.stats, obs_e),
-        z, f)
+        )
     if include_d:
         obs_d = ChannelConverter.get_obs_d_from_obs(obs_h, obs_e)
         traces = traces + (__get_trace('D', d.stats, obs_d),)
-    return obspy.core.Stream(traces)
+    return obspy.core.Stream(traces) + z + f
 
 
 def get_obs_from_obs(obs, include_e=False, include_d=False):
@@ -225,16 +226,16 @@ def get_obs_from_obs(obs, include_e=False, include_d=False):
         new stream object containing observatory components H, D, E, Z, and F
     """
     h = obs.select(channel='H')[0]
-    z = obs.select(channel='Z')[0]
-    f = obs.select(channel='F')[0]
-    traces = (h, z, f)
+    z = obs.select(channel='Z')
+    f = obs.select(channel='F')
+    traces = (h, )
     if include_d:
         d = __get_obs_d_from_obs(obs)
         traces = traces + (d, )
     if include_e:
         e = __get_obs_e_from_obs(obs)
         traces = traces + (e, )
-    return obspy.core.Stream(traces)
+    return obspy.core.Stream(traces) + z + f
 
 
 def __get_trace(channel, stats, data):

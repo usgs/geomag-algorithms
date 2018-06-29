@@ -7,6 +7,7 @@ from __future__ import absolute_import
 from .Algorithm import Algorithm
 from .AlgorithmException import AlgorithmException
 from .. import StreamConverter
+import numpy as np
 
 # List of channels by geomagnetic observatory orientation.
 # geo represents a geographic north/south orientation
@@ -51,10 +52,16 @@ class XYZAlgorithm(Algorithm):
         channels: array_like
             channels that are expected in stream.
         """
-        for channel in self._inchannels:
+        for channel in self.get_required_channels():
             if len(timeseries.select(channel=channel)) == 0:
                 raise AlgorithmException(
                     'Channel %s not found in input' % channel)
+
+    def get_required_channels(self):
+        """Only the first two channels are required
+            for the XYZAlgorithm
+        """
+        return self._inchannels[:2]
 
     def process(self, timeseries):
         """converts a timeseries stream into a different coordinate system
@@ -104,6 +111,7 @@ class XYZAlgorithm(Algorithm):
             elif informat == 'obs' or informat == 'obsd':
                 out_stream = StreamConverter.get_obs_from_obs(timeseries,
                         include_d=True)
+
         return out_stream
 
     @classmethod
@@ -134,5 +142,15 @@ class XYZAlgorithm(Algorithm):
         """
         self._informat = arguments.xyz_from
         self._outformat = arguments.xyz_to
-        self._inchannels = CHANNELS[self._informat]
-        self._outchannels = CHANNELS[self._outformat]
+        self._inchannels = arguments.inchannels or \
+                            CHANNELS[self._informat]
+        # outchannels set according to specified outchannels or inchannel designation
+        # if the inchannels do not have 'Z' or 'F' neither will the outchannel
+        if arguments.outchannels:
+            self._outchannels = arguments.outchannels
+        else:
+            self._outchannels = CHANNELS[self._outformat]
+            if not 'Z' in self._inchannels:
+                del self._outchannels[self._outchannels.index('Z')]
+            if not 'F' in self._inchannels:
+                del self._outchannels[self._outchannels.index('F')]

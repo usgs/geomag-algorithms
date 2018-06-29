@@ -46,6 +46,16 @@ class Algorithm(object):
         """
         return self._inchannels
 
+    def get_required_channels(self):
+        """Get only required channels
+
+        Returns
+        -------
+        array_like
+            list of channels essential to the algorithm
+        """
+        return self._inchannels
+
     def get_output_channels(self):
         """Get output channels
 
