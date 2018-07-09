@@ -7,7 +7,6 @@ from __future__ import absolute_import
 from .Algorithm import Algorithm
 from .AlgorithmException import AlgorithmException
 from .. import StreamConverter
-import numpy as np
 
 # List of channels by geomagnetic observatory orientation.
 # geo represents a geographic north/south orientation
