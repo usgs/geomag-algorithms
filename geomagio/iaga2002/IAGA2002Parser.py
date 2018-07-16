@@ -61,6 +61,9 @@ class IAGA2002Parser(object):
         data : str
             IAGA 2002 formatted file contents.
         """
+        # create parsing time and data arrays
+        self._parsedata = ([], [], [], [], [])
+
         parsing_headers = True
         lines = data.splitlines()
         for line in lines:
@@ -137,8 +140,6 @@ class IAGA2002Parser(object):
         self.channels.append(line[40:50].strip().replace(iaga_code, ''))
         self.channels.append(line[50:60].strip().replace(iaga_code, ''))
         self.channels.append(line[60:69].strip().replace(iaga_code, ''))
-        # create parsing data arrays
-        self._parsedata = ([], [], [], [], [])
 
     def _parse_data(self, line):
         """Parse one data point in the timeseries.

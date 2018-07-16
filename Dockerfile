@@ -19,7 +19,7 @@ RUN echo 'export PATH=/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
 # install algorithms and dependencies via conda
 RUN conda config --set ssl_verify $SSL_CERT_FILE && \
     conda config --add channels conda-forge && \
-    conda install --yes jupyter obspy && \
+    conda install --yes jupyter obspy 'icu=58.*' && \
     conda clean -i -l -t -y && \
     # build pycurl with SFTP support
         export PIP_CERT=$SSL_CERT_FILE && \

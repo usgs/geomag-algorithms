@@ -153,7 +153,7 @@ class EdgeFactory(TimeseriesFactory):
         # restore stdout
         finally:
             output = temp_stdout.getvalue()
-            if output != '':
+            if output:
                 sys.stderr.write(str(output))
             temp_stdout.close()
             sys.stdout = original_stdout

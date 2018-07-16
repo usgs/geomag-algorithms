@@ -53,11 +53,14 @@ class IAGA2002Factory(TimeseriesFactory):
         """
         parser = IAGA2002Parser(observatory=observatory)
         parser.parse(data)
+        stream = obspy.core.Stream()
+        if len(parser.times) == 0:
+            # no data parsed
+            return stream
         metadata = parser.metadata
         starttime = obspy.core.UTCDateTime(parser.times[0])
         endtime = obspy.core.UTCDateTime(parser.times[-1])
         data = parser.data
-        stream = obspy.core.Stream()
         length = len(data[list(data)[0]])
         if starttime != endtime:
             rate = (length - 1) / (endtime - starttime)
