@@ -37,6 +37,27 @@ def test_get_stream_gaps():
     assert_equals(len(gaps['Z']), 0)
 
 
+def test_get_stream_gaps_channels():
+    """TimeseriesUtility_test.test_get_stream_gaps_channels()
+
+    test that gaps are only checked in specified channels.
+    """
+    stream = Stream
+    stream = Stream([
+        __create_trace('H', [numpy.nan, 1, 1, numpy.nan, numpy.nan]),
+        __create_trace('Z', [0, 0, 0, 1, 1, 1])
+    ])
+    for trace in stream:
+        # set time of first sample
+        trace.stats.starttime = UTCDateTime('2015-01-01T00:00:00Z')
+        # set sample rate to 1 second
+        trace.stats.delta = 1
+    # find gaps
+    gaps = TimeseriesUtility.get_stream_gaps(stream, ['Z'])
+    assert_equals('H' in gaps, False)
+    assert_equals(len(gaps['Z']), 0)
+
+
 def test_get_trace_gaps():
     """TimeseriesUtility_test.test_get_trace_gaps()
 

@@ -4,11 +4,12 @@ from builtins import str as unicode
 
 import argparse
 import sys
+from io import BytesIO
 from obspy.core import Stream, UTCDateTime
 from .algorithm import algorithms
 from .PlotTimeseriesFactory import PlotTimeseriesFactory
 from .StreamTimeseriesFactory import StreamTimeseriesFactory
-from . import TimeseriesUtility
+from . import TimeseriesUtility, Util
 
 # factory packages
 from . import binlog
@@ -209,13 +210,15 @@ class Controller(object):
         if options.update_limit != 0:
             if update_count >= options.update_limit:
                 return
-        print('checking gaps', options.starttime, options.endtime,
-            file=sys.stderr)
         algorithm = self._algorithm
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
+        output_observatory = options.output_observatory
         output_channels = options.outchannels or \
                 algorithm.get_output_channels()
+        print('checking gaps', options.starttime, options.endtime,
+                output_observatory, output_channels,
+                file=sys.stderr)
         # request output to see what has already been generated
         output_timeseries = self._get_output_timeseries(
                 observatory=options.output_observatory,
@@ -257,7 +260,8 @@ class Controller(object):
             options.starttime = output_gap[0]
             options.endtime = output_gap[1]
             print('processing', options.starttime, options.endtime,
-                file=sys.stderr)
+                    output_observatory, output_channels,
+                    file=sys.stderr)
             self.run(options, input_timeseries)
 
 
@@ -289,9 +293,11 @@ def get_input_factory(args):
     elif args.input_stdin:
         input_stream = sys.stdin
     elif args.input_url is not None:
-        input_factory_args['urlInterval'] = args.input_url_interval
-        input_factory_args['urlTemplate'] = args.input_url
-
+        if '{' in args.input_url:
+            input_factory_args['urlInterval'] = args.input_url_interval
+            input_factory_args['urlTemplate'] = args.input_url
+        else:
+            input_stream = BytesIO(Util.read_url(args.input_url))
     input_type = args.input
     if input_type == 'edge':
         input_factory = edge.EdgeFactory(
@@ -317,7 +323,7 @@ def get_input_factory(args):
         elif input_type == 'imfv283':
             input_factory = imfv283.IMFV283Factory(**input_factory_args)
         elif input_type == 'pcdcp':
-                input_factory = pcdcp.PCDCPFactory(**input_factory_args)
+            input_factory = pcdcp.PCDCPFactory(**input_factory_args)
         # wrap stream
         if input_stream is not None:
             input_factory = StreamTimeseriesFactory(
@@ -353,7 +359,12 @@ def get_output_factory(args):
     if args.output_file is not None:
         output_stream = open(args.output_file, 'wb')
     elif args.output_stdout:
-        output_stream = sys.stdout
+        try:
+            # python 3
+            output_stream = sys.stdout.buffer
+        except AttributeError:
+            # python 2
+            output_stream = sys.stdout
     elif args.output_url is not None:
         output_url = args.output_url
         output_factory_args['urlInterval'] = args.output_url_interval
@@ -490,10 +501,20 @@ def main(args):
 
     if args.observatory_foreach:
         observatory = args.observatory
+        observatory_exception = None
         for obs in observatory:
             args.observatory = (obs,)
             args.output_observatory = (obs,)
-            _main(args)
+            try:
+                _main(args)
+            except Exception as e:
+                print("Exception processing observatory {}".format(obs),
+                        str(e),
+                        file=sys.stderr)
+        if observatory_exception:
+            print("Exceptions occurred during processing", file=sys.stderr)
+            sys.exit(1)
+
     else:
         _main(args)
 
