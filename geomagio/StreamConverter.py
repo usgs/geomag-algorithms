@@ -35,8 +35,7 @@ def get_geo_from_mag(mag):
     (geo_x, geo_y) = ChannelConverter.get_geo_from_mag(mag_h, mag_d)
     return obspy.core.Stream((
         __get_trace('X', h.stats, geo_x),
-        __get_trace('Y', d.stats, geo_y),
-        )) + z + f
+        __get_trace('Y', d.stats, geo_y))) + z + f
 
 
 def get_geo_from_obs(obs):
@@ -123,8 +122,7 @@ def get_mag_from_geo(geo):
     (mag_h, mag_d) = ChannelConverter.get_mag_from_geo(geo_x, geo_y)
     return obspy.core.Stream((
             __get_trace('H', x.stats, mag_h),
-            __get_trace('D', y.stats, mag_d),
-            )) + z + f
+            __get_trace('D', y.stats, mag_d))) + z + f
 
 
 def get_mag_from_obs(obs):
@@ -151,8 +149,7 @@ def get_mag_from_obs(obs):
     (mag_h, mag_d) = ChannelConverter.get_mag_from_obs(obs_h, obs_e, d0)
     return obspy.core.Stream((
             __get_trace('H', h.stats, mag_h),
-            __get_trace('D', e.stats, mag_d),
-            )) + z + f
+            __get_trace('D', e.stats, mag_d))) + z + f
 
 
 def get_obs_from_geo(geo, include_d=False):
@@ -200,8 +197,7 @@ def get_obs_from_mag(mag, include_d=False):
 
     traces = (
         __get_trace('H', h.stats, obs_h),
-        __get_trace('E', d.stats, obs_e),
-        )
+        __get_trace('E', d.stats, obs_e))
     if include_d:
         obs_d = ChannelConverter.get_obs_d_from_obs(obs_h, obs_e)
         traces = traces + (__get_trace('D', d.stats, obs_d),)

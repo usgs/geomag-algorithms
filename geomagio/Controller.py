@@ -246,7 +246,7 @@ class Controller(object):
                     starttime=output_gap[0],
                     endtime=output_gap[1],
                     stream=input_timeseries,
-                    channels = algorithm.get_required_channels() or \
+                    channels=algorithm.get_required_channels() or
                         input_channels):
                 continue
             # check for fillable gap at start
