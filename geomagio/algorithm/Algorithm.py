@@ -87,7 +87,7 @@ class Algorithm(object):
         """
         return (start, end)
 
-    def can_produce_data(self, starttime, endtime, stream, channels = None):
+    def can_produce_data(self, starttime, endtime, stream, channels=None):
         """Can Product data
 
         Parameters
@@ -100,7 +100,7 @@ class Algorithm(object):
             The input stream we want to make certain has data for the algorithm
         """
         input_gaps = TimeseriesUtility.get_merged_gaps(
-                TimeseriesUtility.get_stream_gaps(stream,channels))
+                TimeseriesUtility.get_stream_gaps(stream, channels))
         for input_gap in input_gaps:
             # Check for gaps that include the entire range
             if (starttime >= input_gap[0] and

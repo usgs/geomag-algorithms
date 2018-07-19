@@ -142,13 +142,13 @@ class XYZAlgorithm(Algorithm):
         self._outformat = arguments.xyz_to
         self._inchannels = arguments.inchannels or \
                             CHANNELS[self._informat]
-        # outchannels set according to specified outchannels or inchannel designation
+        # Set outchannels to outchannel argument or inchannel designation
         # if the inchannels do not have 'Z' or 'F' neither will the outchannel
         if arguments.outchannels:
             self._outchannels = arguments.outchannels
         else:
             self._outchannels = CHANNELS[self._outformat]
-            if not 'Z' in self._inchannels:
+            if 'Z' not in self._inchannels:
                 del self._outchannels[self._outchannels.index('Z')]
-            if not 'F' in self._inchannels:
+            if 'F' not in self._inchannels:
                 del self._outchannels[self._outchannels.index('F')]
