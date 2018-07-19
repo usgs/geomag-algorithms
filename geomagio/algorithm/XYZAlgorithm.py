@@ -110,7 +110,6 @@ class XYZAlgorithm(Algorithm):
             elif informat == 'obs' or informat == 'obsd':
                 out_stream = StreamConverter.get_obs_from_obs(timeseries,
                         include_d=True)
-
         return out_stream
 
     @classmethod
