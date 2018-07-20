@@ -245,9 +245,7 @@ class Controller(object):
             if not algorithm.can_produce_data(
                     starttime=output_gap[0],
                     endtime=output_gap[1],
-                    stream=input_timeseries,
-                    channels=algorithm.get_required_channels() or
-                        input_channels):
+                    stream=input_timeseries):
                 continue
             # check for fillable gap at start
             if output_gap[0] == options.starttime:
