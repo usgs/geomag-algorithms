@@ -2,8 +2,10 @@
 from obspy.core.stream import Stream
 from nose.tools import assert_equals
 from nose.tools import assert_is
+from nose.tools import assert_not_equal
 from geomagio.algorithm import XYZAlgorithm
 from ..StreamConverter_test import __create_trace
+import numpy as np
 
 
 def test_xyzalgorithm_process():
@@ -32,3 +34,39 @@ def test_xyzalgorithm_channels():
     outchannels = ['X', 'Y', 'Z', 'F']
     assert_equals(algorithm.get_input_channels(), inchannels)
     assert_equals(algorithm.get_output_channels(), outchannels)
+
+def test_xyzalgorithm_limited_channels():
+    """XYZAlgorithm_test.test_xyzalgorithm_limited_channels()
+
+    confirms that only the required channels are necessary for processing
+    ie. 'H' and 'E' are only needed to get 'X' and 'Y' without 'Z' or 'F'
+    """
+    algorithm = XYZAlgorithm('obs','mag')
+    count = 5
+    outchannels = ['D']
+    timeseries = Stream()
+    timeseries += __create_trace('H',[2]*count)
+    timeseries += __create_trace('E',[3]*count)
+    outstream = algorithm.process(timeseries)
+    assert_equals(len(outstream.select(channel = 'D')[0].data),count)
+    assert_not_equal(outstream.select(channel='D')[0].data.any(),np.NaN)
+
+def test_xyzalgorithm_uneccesary_channel_empty():
+    """XYZAlgorithm_test.test_xyzalgorithm_uneccesary_channel_gaps()
+
+    confirms the process will run when an uneccesary channel is input
+    but contains gaps or is completely empty. ie. gaps in 'Z' channel
+    or and empty 'F' channel. This also makes sure the 'Z' and 'F' channels
+    are passed without any modification.
+    """
+    algorithm = XYZAlgorithm('obs','mag')
+    timeseries = Stream()
+    timeseries += __create_trace('H', [1, 1])
+    timeseries += __create_trace('E', [1, 1])
+    timeseries += __create_trace('Z', [1, np.NaN])
+    timeseries += __create_trace('F', [np.NaN,np.NaN])
+    outstream = algorithm.process(timeseries)
+    assert_equals(outstream.select(channel = 'Z')[0].data.all(),timeseries.select(channel='Z')[0].data.all())
+    assert_equals(outstream.select(channel = 'F')[0].data.all(),timeseries.select(channel='F')[0].data.all())
+    assert_equals(len(outstream.select(channel='D')[0].data),2)
+    assert_not_equal(outstream.select(channel = 'D')[0].data.any(),np.NaN)
