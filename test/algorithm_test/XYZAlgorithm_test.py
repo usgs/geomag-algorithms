@@ -35,21 +35,22 @@ def test_xyzalgorithm_channels():
     assert_equals(algorithm.get_input_channels(), inchannels)
     assert_equals(algorithm.get_output_channels(), outchannels)
 
+
 def test_xyzalgorithm_limited_channels():
     """XYZAlgorithm_test.test_xyzalgorithm_limited_channels()
 
     confirms that only the required channels are necessary for processing
     ie. 'H' and 'E' are only needed to get 'X' and 'Y' without 'Z' or 'F'
     """
-    algorithm = XYZAlgorithm('obs','mag')
+    algorithm = XYZAlgorithm('obs', 'mag')
     count = 5
-    outchannels = ['D']
     timeseries = Stream()
-    timeseries += __create_trace('H',[2]*count)
-    timeseries += __create_trace('E',[3]*count)
+    timeseries += __create_trace('H', [2] * count)
+    timeseries += __create_trace('E', [3] * count)
     outstream = algorithm.process(timeseries)
-    assert_equals(len(outstream.select(channel = 'D')[0].data),count)
-    assert_not_equal(outstream.select(channel='D')[0].data.any(),np.NaN)
+    assert_equals(len(outstream.select(channel='D')[0].data), count)
+    assert_not_equal(outstream.select(channel='D')[0].data.any(), np.NaN)
+
 
 def test_xyzalgorithm_uneccesary_channel_empty():
     """XYZAlgorithm_test.test_xyzalgorithm_uneccesary_channel_gaps()
@@ -59,14 +60,16 @@ def test_xyzalgorithm_uneccesary_channel_empty():
     or and empty 'F' channel. This also makes sure the 'Z' and 'F' channels
     are passed without any modification.
     """
-    algorithm = XYZAlgorithm('obs','mag')
+    algorithm = XYZAlgorithm('obs', 'mag')
     timeseries = Stream()
     timeseries += __create_trace('H', [1, 1])
     timeseries += __create_trace('E', [1, 1])
     timeseries += __create_trace('Z', [1, np.NaN])
-    timeseries += __create_trace('F', [np.NaN,np.NaN])
+    timeseries += __create_trace('F', [np.NaN, np.NaN])
     outstream = algorithm.process(timeseries)
-    assert_equals(outstream.select(channel = 'Z')[0].data.all(),timeseries.select(channel='Z')[0].data.all())
-    assert_equals(outstream.select(channel = 'F')[0].data.all(),timeseries.select(channel='F')[0].data.all())
-    assert_equals(len(outstream.select(channel='D')[0].data),2)
-    assert_not_equal(outstream.select(channel = 'D')[0].data.any(),np.NaN)
+    assert_equals(outstream.select(channel='Z')[0].data.all(),
+        timeseries.select(channel='Z')[0].data.all())
+    assert_equals(outstream.select(channel='F')[0].data.all(),
+        timeseries.select(channel='F')[0].data.all())
+    assert_equals(len(outstream.select(channel='D')[0].data), 2)
+    assert_not_equal(outstream.select(channel='D')[0].data.any(), np.NaN)
