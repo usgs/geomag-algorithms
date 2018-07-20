@@ -2,7 +2,6 @@
 from obspy.core.stream import Stream
 from nose.tools import assert_equals
 from nose.tools import assert_is
-from nose.tools import assert_not_equal
 from geomagio.algorithm import XYZAlgorithm
 from ..StreamConverter_test import __create_trace
 import numpy as np
@@ -48,8 +47,14 @@ def test_xyzalgorithm_limited_channels():
     timeseries += __create_trace('H', [2] * count)
     timeseries += __create_trace('E', [3] * count)
     outstream = algorithm.process(timeseries)
-    assert_equals(len(outstream.select(channel='D')[0].data), count)
-    assert_not_equal(outstream.select(channel='D')[0].data.any(), np.NaN)
+    ds = outstream.select(channel='D')
+    # there is 1 trace
+    assert_equals(len(ds), 1)
+    d = ds[0]
+    # d has `count` values (same as input)
+    assert_equals(len(d.data), count)
+    # d has no NaN values
+    assert_equals(len(d[d == np.NaN]), 0)
 
 
 def test_xyzalgorithm_uneccesary_channel_empty():
@@ -71,5 +76,11 @@ def test_xyzalgorithm_uneccesary_channel_empty():
         timeseries.select(channel='Z')[0].data.all())
     assert_equals(outstream.select(channel='F')[0].data.all(),
         timeseries.select(channel='F')[0].data.all())
-    assert_equals(len(outstream.select(channel='D')[0].data), 2)
-    assert_not_equal(outstream.select(channel='D')[0].data.any(), np.NaN)
+    ds = outstream.select(channel='D')
+    # there is 1 trace
+    assert_equals(len(ds), 1)
+    d = ds[0]
+    # d has 2 values (same as input)
+    assert_equals(len(d.data), 2)
+    # d has no NaN values
+    assert_equals(len(d[d == np.NaN]), 0)
