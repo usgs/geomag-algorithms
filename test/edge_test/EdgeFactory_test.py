@@ -1,10 +1,9 @@
 """Tests for EdgeFactory.py"""
 
-from obspy.core.utcdatetime import UTCDateTime
-from obspy.core.stream import Stream
-from obspy.core.trace import Trace
+from obspy.core import Stats, Stream, Trace, UTCDateTime
 from geomagio.edge import EdgeFactory
 from nose.tools import assert_equals
+import numpy as np
 
 
 def test__get_edge_network():
@@ -93,3 +92,35 @@ def dont_get_timeseries():
         'BOU', 'Expect timeseries to have stats')
     assert_equals(timeseries.select(channel='H')[0].stats.channel,
         'H', 'Expect timeseries stats channel to be equal to H')
+
+
+def test_clean_timeseries():
+    """edge_test.EdgeFactory_test.test_clean_timeseries()
+    """
+    edge_factory = EdgeFactory()
+    trace1 = _create_trace([1, 1, 1, 1, 1], 'H', UTCDateTime("2018-01-01"))
+    trace2 = _create_trace([2, 2],'E',UTCDateTime("2018-01-01"))
+    timeseries = Stream(traces=[trace1, trace2])
+    edge_factory._clean_timeseries(timeseries,trace1.stats.starttime,trace1.stats.endtime)
+    assert_equals(len(trace1.data),len(trace2.data))
+    assert_equals(trace1.stats.starttime,trace2.stats.starttime)
+    assert_equals(trace1.stats.endtime,trace2.stats.endtime)
+    # change starttime by less than 1 delta
+    starttime = trace1.stats.starttime
+    endtime = trace1.stats.endtime
+    edge_factory._clean_timeseries(timeseries,starttime-30,endtime+30)
+    assert_equals(trace1.stats.starttime,starttime)
+    # Change starttime by more than 1 delta
+    edge_factory._clean_timeseries(timeseries,starttime-90,endtime+90)
+    assert_equals(trace1.stats.starttime,starttime-60)
+    assert_equals(np.isnan(trace1.data[0]),np.isnan(np.NaN))
+
+
+def _create_trace(data,channel,starttime,delta=60.):
+    stats = Stats()
+    stats.channel = channel
+    stats.delta = delta
+    stats.starttime = starttime
+    stats.npts = len(data)
+    data = np.array(data,dtype=np.float64)
+    return Trace(data,stats)

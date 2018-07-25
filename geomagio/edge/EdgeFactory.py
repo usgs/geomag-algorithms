@@ -220,19 +220,25 @@ class EdgeFactory(TimeseriesFactory):
         for trace in timeseries:
             trace_starttime = obspy.core.UTCDateTime(trace.stats.starttime)
             trace_endtime = obspy.core.UTCDateTime(trace.stats.endtime)
+            trace_delta = trace.stats.delta
 
-            if trace.stats.starttime > starttime:
-                cnt = int((trace_starttime - starttime) / trace.stats.delta)
-                trace.data = numpy.concatenate([
-                        numpy.full(cnt, numpy.nan, dtype=numpy.float64),
-                        trace.data])
-                trace.stats.starttime = starttime
+            if trace_starttime > starttime:
+                cnt = int((trace_starttime - starttime) / trace_delta)
+                if cnt > 0:
+                    trace.data = numpy.concatenate([
+                            numpy.full(cnt, numpy.nan, dtype=numpy.float64),
+                            trace.data])
+                    trace_starttime = trace_starttime - trace_delta * cnt
+                    trace.stats.starttime = trace_starttime
+
             if trace_endtime < endtime:
                 cnt = int((endtime - trace_endtime) / trace.stats.delta)
-                trace.data = numpy.concatenate([
-                        trace.data,
-                        numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
-                trace.stats.endttime = endtime
+                if cnt > 0:
+                    trace.data = numpy.concatenate([
+                            trace.data,
+                            numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
+                    trace_endtime = trace_endtime + trace_delta * cnt
+                    trace.stats.endttime = trace_endtime
 
     def _convert_timeseries_to_decimal(self, stream):
         """convert geomag edge timeseries data stored as ints, to decimal by
