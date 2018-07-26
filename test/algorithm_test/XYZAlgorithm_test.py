@@ -54,7 +54,7 @@ def test_xyzalgorithm_limited_channels():
     # d has `count` values (same as input)
     assert_equals(len(d.data), count)
     # d has no NaN values
-    assert_equals(len(d[d == np.NaN]), 0)
+    assert_equals(np.isnan(d).any(), False)
 
 
 def test_xyzalgorithm_uneccesary_channel_empty():
