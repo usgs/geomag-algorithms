@@ -221,7 +221,6 @@ class EdgeFactory(TimeseriesFactory):
             trace_starttime = obspy.core.UTCDateTime(trace.stats.starttime)
             trace_endtime = obspy.core.UTCDateTime(trace.stats.endtime)
             trace_delta = trace.stats.delta
-
             if trace_starttime > starttime:
                 cnt = int((trace_starttime - starttime) / trace_delta)
                 if cnt > 0:
@@ -230,15 +229,12 @@ class EdgeFactory(TimeseriesFactory):
                             trace.data])
                     trace_starttime = trace_starttime - trace_delta * cnt
                     trace.stats.starttime = trace_starttime
-
             if trace_endtime < endtime:
                 cnt = int((endtime - trace_endtime) / trace.stats.delta)
                 if cnt > 0:
                     trace.data = numpy.concatenate([
                             trace.data,
                             numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
-                    trace_endtime = trace_endtime + trace_delta * cnt
-                    trace.stats.endttime = trace_endtime
 
     def _convert_timeseries_to_decimal(self, stream):
         """convert geomag edge timeseries data stored as ints, to decimal by
@@ -326,24 +322,28 @@ class EdgeFactory(TimeseriesFactory):
         obspy.core.Stream
             stream of the requested channel data
         """
+        if interval == 'second':
+            delta = 1.
+        elif interval == 'minute':
+            delta = 60.
+        elif interval == 'hourly':
+            delta = 3600.
+        elif interval == 'daily':
+            delta = 86400.
         stats = obspy.core.Stats()
-        stats.channel = channel
-        stats.starttime = starttime
         stats.network = network
         stats.station = station
         stats.location = location
-        if interval == 'second':
-            stats.sampling_rate = 1.
-        elif interval == 'minute':
-            stats.sampling_rate = 1. / 60.
-        elif interval == 'hourly':
-            stats.sampling_rate = 1. / 3600.
-        elif interval == 'daily':
-            stats.sampling_rate = 1. / 86400.
-        length = int((endtime - starttime) * stats.sampling_rate)
+        stats.channel = channel
+        # Calculate first valid sample time based on interval
+        trace_starttime = obspy.core.UTCDateTime(
+            numpy.ceil(starttime.timestamp / delta) * delta)
+        stats.starttime = trace_starttime
+        stats.delta = delta
+        # Calculate number of valid samples up to or before endtime
+        length = int((endtime - trace_starttime) / delta)
         stats.npts = length + 1
-
-        data = numpy.full(length, numpy.nan, dtype=numpy.float64)
+        data = numpy.full(stats.npts, numpy.nan, dtype=numpy.float64)
         return obspy.core.Stream(obspy.core.Trace(data, stats))
 
     def _get_edge_channel(self, observatory, channel, type, interval):

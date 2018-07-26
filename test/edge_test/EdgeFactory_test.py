@@ -99,28 +99,78 @@ def test_clean_timeseries():
     """
     edge_factory = EdgeFactory()
     trace1 = _create_trace([1, 1, 1, 1, 1], 'H', UTCDateTime("2018-01-01"))
-    trace2 = _create_trace([2, 2],'E',UTCDateTime("2018-01-01"))
+    trace2 = _create_trace([2, 2], 'E', UTCDateTime("2018-01-01"))
     timeseries = Stream(traces=[trace1, trace2])
-    edge_factory._clean_timeseries(timeseries,trace1.stats.starttime,trace1.stats.endtime)
-    assert_equals(len(trace1.data),len(trace2.data))
-    assert_equals(trace1.stats.starttime,trace2.stats.starttime)
-    assert_equals(trace1.stats.endtime,trace2.stats.endtime)
+    edge_factory._clean_timeseries(
+        timeseries=timeseries,
+        starttime=trace1.stats.starttime,
+        endtime=trace1.stats.endtime)
+    assert_equals(len(trace1.data), len(trace2.data))
+    assert_equals(trace1.stats.starttime, trace2.stats.starttime)
+    assert_equals(trace1.stats.endtime, trace2.stats.endtime)
     # change starttime by less than 1 delta
     starttime = trace1.stats.starttime
     endtime = trace1.stats.endtime
-    edge_factory._clean_timeseries(timeseries,starttime-30,endtime+30)
-    assert_equals(trace1.stats.starttime,starttime)
+    edge_factory._clean_timeseries(timeseries, starttime - 30, endtime + 30)
+    assert_equals(trace1.stats.starttime, starttime)
     # Change starttime by more than 1 delta
-    edge_factory._clean_timeseries(timeseries,starttime-90,endtime+90)
-    assert_equals(trace1.stats.starttime,starttime-60)
-    assert_equals(np.isnan(trace1.data[0]),np.isnan(np.NaN))
+    edge_factory._clean_timeseries(timeseries, starttime - 90, endtime + 90)
+    assert_equals(trace1.stats.starttime, starttime - 60)
+    assert_equals(np.isnan(trace1.data[0]), np.isnan(np.NaN))
 
 
-def _create_trace(data,channel,starttime,delta=60.):
+def test_create_missing_channel():
+    """edge_test.EdgeFactory_test.test_create_missing_channel()
+    """
+    edge_factory = EdgeFactory()
+    trace1 = _create_trace([1, 1, 1, 1, 1], 'H', UTCDateTime("2018-01-01"))
+    trace2 = _create_trace([2, 2], 'E', UTCDateTime("2018-01-01"))
+    observatory = 'Test'
+    type = 'variation'
+    interval = 'minute'
+    network = 'NT'
+    location = 'R0'
+    trace3 = edge_factory._create_missing_channel(
+        starttime=trace1.stats.starttime,
+        endtime=trace1.stats.endtime,
+        observatory=observatory,
+        channel='F',
+        type=type,
+        interval=interval,
+        network=network,
+        station=trace1.stats.station,
+        location=location)
+    timeseries = Stream(traces=[trace1, trace2])
+    # For continuity set stats to be same for all traces
+    for trace in timeseries:
+        trace.stats.observatory = observatory
+        trace.stats.type = type
+        trace.stats.interval = interval
+        trace.stats.network = network
+        trace.stats.station = trace1.stats.station
+        trace.stats.location = location
+    timeseries += trace3
+    assert_equals(len(trace3[0].data), trace3[0].stats.npts)
+    assert_equals(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
+    edge_factory._clean_timeseries(
+        timeseries=timeseries,
+        starttime=trace1.stats.starttime,
+        endtime=trace1.stats.endtime)
+    assert_equals(len(trace3[0].data), trace3[0].stats.npts)
+    assert_equals(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
+    # Change starttime by more than 1 delta
+    starttime = trace1.stats.starttime
+    endtime = trace1.stats.endtime
+    edge_factory._clean_timeseries(timeseries, starttime - 90, endtime + 90)
+    assert_equals(len(trace3[0].data), trace3[0].stats.npts)
+    assert_equals(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
+
+
+def _create_trace(data, channel, starttime, delta=60.):
     stats = Stats()
     stats.channel = channel
     stats.delta = delta
     stats.starttime = starttime
     stats.npts = len(data)
-    data = np.array(data,dtype=np.float64)
-    return Trace(data,stats)
+    data = np.array(data, dtype=np.float64)
+    return Trace(data, stats)
