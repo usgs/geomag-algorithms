@@ -236,15 +236,16 @@ def merge_streams(*streams):
 =======
 =======
 
+<<<<<<< HEAD
 >>>>>>> fixed rebasing issues
     # print('\n masked trace \n')
     # print(masked_trace)
     # trim masked trace to the same size as other traces and add back to merged stream
+=======
+>>>>>>> Fixed linting and spacing errors and cleaned up code
     if masked_trace:
-        masked_trace.trim(merged[0].stats.starttime,merged[0].stats.endtime)
+        masked_trace.trim(merged[0].stats.starttime, merged[0].stats.endtime)
         merged += masked_trace
-    # print('\n after merging masked trace back in \n')
-    # print(merged)
 
 <<<<<<< HEAD
 
