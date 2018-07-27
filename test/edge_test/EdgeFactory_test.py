@@ -126,7 +126,6 @@ def test_create_missing_channel():
     trace1 = _create_trace([1, 1, 1, 1, 1], 'H', UTCDateTime("2018-01-01"))
     trace2 = _create_trace([2, 2], 'E', UTCDateTime("2018-01-01"))
     observatory = 'Test'
-    type = 'variation'
     interval = 'minute'
     network = 'NT'
     location = 'R0'
@@ -135,7 +134,7 @@ def test_create_missing_channel():
         endtime=trace1.stats.endtime,
         observatory=observatory,
         channel='F',
-        type=type,
+        type='variation',
         interval=interval,
         network=network,
         station=trace1.stats.station,
@@ -144,7 +143,7 @@ def test_create_missing_channel():
     # For continuity set stats to be same for all traces
     for trace in timeseries:
         trace.stats.observatory = observatory
-        trace.stats.type = type
+        trace.stats.type = 'variation'
         trace.stats.interval = interval
         trace.stats.network = network
         trace.stats.station = trace1.stats.station
