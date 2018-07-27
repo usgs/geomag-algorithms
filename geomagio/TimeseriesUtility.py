@@ -196,10 +196,18 @@ def merge_streams(*streams):
     """
     merged = obspy.core.Stream()
 <<<<<<< HEAD
+<<<<<<< HEAD
     # add unmasked, split traces to be merged
     for stream in streams:
         merged += mask_stream(stream)
 =======
+=======
+
+    # add unmasked, split traces to be merged
+    for stream in streams:
+        merged += mask_stream(stream)
+
+>>>>>>> fixed rebasing issues
     masked_trace = None
 
     # add unmasked, split traces to be merged
@@ -224,7 +232,11 @@ def merge_streams(*streams):
             # 1 = when there is overlap, use data from trace with last endtime
             method=1)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+
+>>>>>>> fixed rebasing issues
     # print('\n masked trace \n')
     # print(masked_trace)
     # trim masked trace to the same size as other traces and add back to merged stream
@@ -234,8 +246,11 @@ def merge_streams(*streams):
     # print('\n after merging masked trace back in \n')
     # print(merged)
 
+<<<<<<< HEAD
 
 >>>>>>> Merge stream issues with empty channels
+=======
+>>>>>>> fixed rebasing issues
     # convert back to NaN filled array
     merged = unmask_stream(merged)
     return merged
