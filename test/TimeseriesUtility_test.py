@@ -113,3 +113,41 @@ def test_get_merged_gaps():
     gap = merged[1]
     assert_equals(gap[0], UTCDateTime('2015-01-01T00:00:05Z'))
     assert_equals(gap[1], UTCDateTime('2015-01-01T00:00:07Z'))
+
+def test_merge_streams():
+    """TimeseriesUtility_test.test_merge_streams()
+
+    confirm merge streams treats empty channels correctly
+    """
+    trace1 = __create_trace('H', [1, 1, 1, 1])
+    trace2 = __create_trace('E', [2, numpy.nan, numpy.nan, 2])
+    trace3 = __create_trace('F', [numpy.nan, numpy.nan, numpy.nan, numpy.nan])
+    trace4 = __create_trace('H', [1, 1, 1, 1])
+    trace5 = __create_trace('E', [2, numpy.nan, numpy.nan, 2])
+    trace6 = __create_trace('F', [numpy.nan, numpy.nan, numpy.nan, numpy.nan])
+    npts1 = len(trace1.data)
+    npts2 = len(trace4.data)
+    timeseries1 = Stream(traces=[trace1, trace2, trace3])
+    timeseries2 = Stream(traces=[trace4, trace5, trace6])    
+    for trace in timeseries1:
+        trace.stats.starttime = UTCDateTime('2018-01-01T00:00:00Z')
+        trace.stats.npts = npts1
+    for trace in timeseries2:
+        trace.stats.starttime = UTCDateTime('2018-01-01T00:02:00Z')
+        trace.stats.npts = npts2
+    print(timeseries1)
+    Merged_streams1 = TimeseriesUtility.merge_streams(timeseries1)
+    print(Merged_streams1)
+    assert_equals(len(timeseries1),len(Merged_streams1))
+
+    # Merge multiple streams with overlapping timestamps
+
+
+    timeseries = timeseries1 + timeseries2
+    print(timeseries)    
+    Merged_streams = TimeseriesUtility.merge_streams(timeseries)
+    print('\n Merged Streams before clean \n')
+    print(Merged_streams)
+
+    assert_equals(len(Merged_streams),len(timeseries1))
+    assert_equals(Merged_streams[0])
