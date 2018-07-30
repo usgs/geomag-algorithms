@@ -195,31 +195,36 @@ def merge_streams(*streams):
         stream with contiguous traces merged, and gaps filled with numpy.nan
     """
     merged = obspy.core.Stream()
-    masked = obspy.core.Stream()
 
     # sort out empty
     for stream in streams:
-        for trace in stream:
-            if numpy.isnan(trace.data).all():
-                masked += trace
-            else:
-                merged += trace
+        merged += stream
 
-    merged = mask_stream(merged)
+    split = mask_stream(merged)
 
     # split traces that contain gaps
-    merged = merged.split()
+    split = split.split()
 
-    merged += masked
+    # Re-add any empty traces that were removed by split()
+    readd = obspy.core.Stream()
+    for trace in merged:
+        stats = trace.stats
+        split_stream = split.select(
+                channel=stats.channel,
+                station=stats.station,
+                network=stats.network,
+                location=stats.location)
+        if len(split_stream) == 0:
+            readd += trace
+    split += readd
 
     # merge data
-    merged.merge(
+    split.merge(
             # 1 = do not interpolate
-            interpolation_samples=1,
-            fill_value=numpy.NaN,
+            interpolation_samples=0,
             # 1 = when there is overlap, use data from trace with last endtime
             method=1)
 
     # convert back to NaN filled array
-    merged = unmask_stream(merged)
+    merged = unmask_stream(split)
     return merged
