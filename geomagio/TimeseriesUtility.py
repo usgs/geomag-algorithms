@@ -212,7 +212,6 @@ def merge_streams(*streams):
     # split traces that contain gaps
     merged = merged.split()
 
-
     # merge data
     merged.merge(
             # 1 = do not interpolate
@@ -220,7 +219,8 @@ def merge_streams(*streams):
             # 1 = when there is overlap, use data from trace with last endtime
             method=1)
 
-    # trim masked trace to the same size as other traces and add back to merged stream
+    # trim masked trace to the same size as other traces (not done in merge())
+    # and add back to merged stream
     if masked_trace:
         masked_trace.trim(merged[0].stats.starttime, merged[0].stats.endtime)
         merged += masked_trace
