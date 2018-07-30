@@ -136,12 +136,24 @@ def test_merge_streams():
     for trace in timeseries2:
         trace.stats.starttime = UTCDateTime('2018-01-01T00:02:00Z')
         trace.stats.npts = npts2
-    Merged_streams1 = TimeseriesUtility.merge_streams(timeseries1)
+    merged_streams1 = TimeseriesUtility.merge_streams(timeseries1)
     # Make sure the empty 'F' was not removed from stream
-    assert_equals(len(timeseries1), len(Merged_streams1))
+    assert_equals(1, len(merged_streams1.select(channel = 'F')))
     # Merge multiple streams with overlapping timestamps
     timeseries = timeseries1 + timeseries2
-    Merged_streams = TimeseriesUtility.merge_streams(timeseries)
-    assert_equals(len(Merged_streams), len(timeseries1))
-    assert_equals(len(Merged_streams[0].data), 6)
-    assert_equals(len(Merged_streams[2]), 6)
+    merged_streams = TimeseriesUtility.merge_streams(timeseries)
+    assert_equals(len(merged_streams), len(timeseries1))
+    assert_equals(len(merged_streams[0].data), 6)
+    assert_equals(len(merged_streams[2]), 6)
+
+    trace7 = __create_trace('H', [1,1,1,1])
+    trace8 = __create_trace('E', [numpy.nan, numpy.nan, numpy.nan, numpy.nan])
+    trace9 = __create_trace('F', [numpy.nan, numpy.nan, numpy.nan, numpy.nan])
+    timeseries3 = Stream(traces=[trace7,trace8,trace9])
+    npts3 = len(trace7.data)
+    for trace in timeseries3:
+        trace.stats.starttime = UTCDateTime('2018-01-01T00:00:00Z')
+        trace.stats.npts = npts3
+    merged_streams3 = TimeseriesUtility.merge_streams(timeseries3)
+    assert_equals(len(timeseries3),len(merged_streams3))
+
