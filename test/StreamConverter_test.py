@@ -305,7 +305,7 @@ def __create_trace(channel, data, decbase=0):
     """
     stats = obspy.core.Stats()
     stats.starttime = STARTTIME
-    stats.sampling_rate = 0.0166666666667
+    stats.delta = 60
     stats.declination_base = decbase
     stats.channel = channel
     numpy_data = numpy.array(data, dtype=numpy.float64)
