@@ -179,7 +179,7 @@ def test_merge_streams():
             True)
 
     trace10 = __create_trace('H', [1, 1, numpy.nan, numpy.nan, 1, 1])
-    trace11 = __create_trace('H', [1, 2, 2, 1])
+    trace11 = __create_trace('H', [2, 2, 2, 2])
     trace10.stats.starttime = UTCDateTime('2018-01-01T00:00:00Z')
     trace11.stats.starttime = UTCDateTime('2018-01-01T00:01:00Z')
     timeseries4 = Stream(traces=[trace10, trace11])
@@ -187,4 +187,4 @@ def test_merge_streams():
     assert_equals(len(merged4[0].data), 6)
     assert_almost_equal(
         merged4.select(channel='H')[0].data,
-        [1, 1, 2, 2, 1, 1])
+        [1, 2, 2, 2, 1, 1])
