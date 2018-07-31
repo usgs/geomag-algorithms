@@ -7,6 +7,8 @@ import numpy
 from geomagio import TimeseriesUtility
 from obspy.core import Stream, UTCDateTime
 
+assert_almost_equal = numpy.testing.assert_almost_equal
+
 
 def test_get_stream_gaps():
     """TimeseriesUtility_test.test_get_stream_gaps()
@@ -113,3 +115,76 @@ def test_get_merged_gaps():
     gap = merged[1]
     assert_equals(gap[0], UTCDateTime('2015-01-01T00:00:05Z'))
     assert_equals(gap[1], UTCDateTime('2015-01-01T00:00:07Z'))
+
+
+def test_merge_streams():
+    """TimeseriesUtility_test.test_merge_streams()
+
+    confirm merge streams treats empty channels correctly
+    """
+    trace1 = __create_trace('H', [1, 1, 1, 1])
+    trace2 = __create_trace('E', [2, numpy.nan, numpy.nan, 2])
+    trace3 = __create_trace('F', [numpy.nan, numpy.nan, numpy.nan, numpy.nan])
+    trace4 = __create_trace('H', [2, 2, 2, 2])
+    trace5 = __create_trace('E', [3, numpy.nan, numpy.nan, 3])
+    trace6 = __create_trace('F', [numpy.nan, numpy.nan, numpy.nan, numpy.nan])
+    npts1 = len(trace1.data)
+    npts2 = len(trace4.data)
+    timeseries1 = Stream(traces=[trace1, trace2, trace3])
+    timeseries2 = Stream(traces=[trace4, trace5, trace6])
+    for trace in timeseries1:
+        trace.stats.starttime = UTCDateTime('2018-01-01T00:00:00Z')
+        trace.stats.npts = npts1
+    for trace in timeseries2:
+        trace.stats.starttime = UTCDateTime('2018-01-01T00:02:00Z')
+        trace.stats.npts = npts2
+    merged_streams1 = TimeseriesUtility.merge_streams(timeseries1)
+    # Make sure the empty 'F' was not removed from stream
+    assert_equals(1, len(merged_streams1.select(channel='F')))
+    # Merge multiple streams with overlapping timestamps
+    timeseries = timeseries1 + timeseries2
+
+    merged_streams = TimeseriesUtility.merge_streams(timeseries)
+    assert_equals(len(merged_streams), len(timeseries1))
+    assert_equals(len(merged_streams[0]), 6)
+    assert_equals(len(merged_streams[2]), 6)
+    assert_almost_equal(
+            merged_streams.select(channel='H')[0].data,
+            [1, 1, 2, 2, 2, 2])
+    assert_almost_equal(
+            merged_streams.select(channel='E')[0].data,
+            [2, numpy.nan, 3, 2, numpy.nan, 3])
+    assert_almost_equal(
+            merged_streams.select(channel='F')[0].data,
+            [numpy.nan] * 6)
+
+    trace7 = __create_trace('H', [1, 1, 1, 1])
+    trace8 = __create_trace('E', [numpy.nan, numpy.nan, numpy.nan, numpy.nan])
+    trace9 = __create_trace('F', [numpy.nan, numpy.nan, numpy.nan, numpy.nan])
+    timeseries3 = Stream(traces=[trace7, trace8, trace9])
+    npts3 = len(trace7.data)
+    for trace in timeseries3:
+        trace.stats.starttime = UTCDateTime('2018-01-01T00:00:00Z')
+        trace.stats.npts = npts3
+    merged_streams3 = TimeseriesUtility.merge_streams(timeseries3)
+    assert_equals(len(timeseries3), len(merged_streams3))
+    assert_almost_equal(
+            timeseries3.select(channel='H')[0].data,
+            [1, 1, 1, 1])
+    assert_equals(
+            numpy.isnan(timeseries3.select(channel='E')[0].data).all(),
+            True)
+    assert_equals(
+            numpy.isnan(timeseries3.select(channel='F')[0].data).all(),
+            True)
+
+    trace10 = __create_trace('H', [1, 1, numpy.nan, numpy.nan, 1, 1])
+    trace11 = __create_trace('H', [2, 2, 2, 2])
+    trace10.stats.starttime = UTCDateTime('2018-01-01T00:00:00Z')
+    trace11.stats.starttime = UTCDateTime('2018-01-01T00:01:00Z')
+    timeseries4 = Stream(traces=[trace10, trace11])
+    merged4 = TimeseriesUtility.merge_streams(timeseries4)
+    assert_equals(len(merged4[0].data), 6)
+    assert_almost_equal(
+        merged4.select(channel='H')[0].data,
+        [1, 2, 2, 2, 1, 1])
