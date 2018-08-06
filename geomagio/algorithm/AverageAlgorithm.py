@@ -29,11 +29,12 @@ class AverageAlgorithm(Algorithm):
 
     """
 
-    def __init__(self, observatories=None, channel=None):
+    def __init__(self, observatories=None, channel=None, scales=[None,]):
         Algorithm.__init__(self)
         self._npts = -1
         self._stt = -1
         self._stats = None
+        self.scales = scales
         self.observatories = observatories
         self.outchannel = channel
         self.observatoryMetadata = ObservatoryMetadata()
@@ -72,6 +73,11 @@ class AverageAlgorithm(Algorithm):
                 raise AlgorithmException(
                     'Received timeseries have different lengths')
 
+            if numpy.isnan(ts.data).all():
+                raise AlgorithmException(
+                    'Trace for %s observatory is completely empty.'
+                    % (ts.stats.station))
+
             if ts.stats.starttime != self._stt:
                 raise AlgorithmException(
                     'Received timeseries have different starttimes')
@@ -92,6 +98,21 @@ class AverageAlgorithm(Algorithm):
         # input channel of the timeseries
         if not self.outchannel:
             self.outchannel = timeseries[0].stats.channel
+
+        if not self.observatories:
+            self.observatories = []
+            for trace in timeseries:
+                self.observatories += [trace.stats.station,]
+                
+        # Set Correction values if specified and add a dicitonary
+        # if observatory is not already set in CORR
+        if self.scales[0]:
+            for obs in self.observatories:
+                if obs not in CORR:
+                    new_obs = {str(obs): 1.0}
+                    CORR.update(new_obs)
+            for (i, obs) in enumerate(self.observatories):
+                CORR[obs] = self.scales[i]
 
         # Run checks on input timeseries
         self.check_stream(timeseries)
@@ -118,44 +139,8 @@ class AverageAlgorithm(Algorithm):
         stream = obspy.core.Stream((
                 get_trace(self.outchannel, self._stats, dst_tot), ))
 
-        # TODO: move this to a better place
-        interval = None
-        if 'data_interval' in timeseries[0].stats:
-            interval = timeseries[0].stats.data_interval
-        elif timeseries[0].stats.delta == 60:
-            interval = 'minute'
-        elif timeseries[0].stats.delta == 1:
-            interval = 'second'
-
-        # set the full metadata for the USGS station used for averaged
-        # data sets
-        self.set_metadata(
-            stream=stream,
-            observatory='USGS',
-            channel=self.outchannel,
-            type=stream[0].stats.data_type,
-            interval=interval)
-
         # return averaged values as a stream
         return stream
-
-    def set_metadata(self, stream, observatory, channel, type, interval):
-        """set metadata for a given stream/channel
-        Parameters
-        ----------
-        observatory : str
-            observatory code
-        channel : str
-            edge channel code {MVH, MVE, MVD, ...}
-        type : str
-            data type {definitive, quasi-definitive, variation}
-        interval : str
-            interval length {minute, second}
-        """
-
-        for trace in stream:
-            self.observatoryMetadata.set_metadata(trace.stats, observatory,
-                    channel, type, interval)
 
     @classmethod
     def add_arguments(cls, parser):
@@ -216,11 +201,19 @@ def get_trace(channel, stats, data):
     obspy.core.Trace
         trace containing data and metadata.
     """
-    stats = obspy.core.Stats(stats)
+    New_stats = obspy.core.Stats(stats)
 
-    stats.channel = channel
-    stats.station = 'USGS'
-    stats.network = 'NT'
-    stats.location = 'R0'
+    interval = None
+    if 'data_interval' in stats:
+        New_stats.data_interval = stats.data_interval
+    elif stats.delta == 60:
+        New_stats.data_interval = 'minute'
+    elif stats.delta == 1:
+        New_stats.data_interval = 'second'
 
-    return obspy.core.Trace(data, stats)
+    New_stats.channel = channel
+    New_stats.station = 'USGS'
+    New_stats.network = 'NT'
+    New_stats.location = stats.location
+
+    return obspy.core.Trace(data, New_stats)
