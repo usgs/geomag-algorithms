@@ -29,7 +29,7 @@ class AverageAlgorithm(Algorithm):
 
     """
 
-    def __init__(self, observatories=None, channel=None, scales=[None,]):
+    def __init__(self, observatories=None, channel=None, scales=[None, ]):
         Algorithm.__init__(self)
         self._npts = -1
         self._stt = -1
@@ -102,8 +102,8 @@ class AverageAlgorithm(Algorithm):
         if not self.observatories:
             self.observatories = []
             for trace in timeseries:
-                self.observatories += [trace.stats.station,]
-                
+                self.observatories += [trace.stats.station, ]
+
         # Set Correction values if specified and add a dicitonary
         # if observatory is not already set in CORR
         if self.scales[0]:
@@ -203,7 +203,6 @@ def get_trace(channel, stats, data):
     """
     New_stats = obspy.core.Stats(stats)
 
-    interval = None
     if 'data_interval' in stats:
         New_stats.data_interval = stats.data_interval
     elif stats.delta == 60:
