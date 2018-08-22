@@ -18,7 +18,13 @@ class AverageAlgorithm(Algorithm):
 
     """
 
-    def __init__(self, observatories=None, channel=None, scales=None):
+    def __init__(
+        self,
+        observatories=None,
+        channel=None,
+        location=None,
+        scales=None
+    ):
         Algorithm.__init__(self)
         self._npts = -1
         self._stt = -1
@@ -26,6 +32,7 @@ class AverageAlgorithm(Algorithm):
         self.scales = scales
         self.observatories = observatories
         self.outchannel = channel
+        self.outlocation = location
         self.observatoryMetadata = ObservatoryMetadata()
 
     def check_stream(self, timeseries):
@@ -82,12 +89,14 @@ class AverageAlgorithm(Algorithm):
         out_stream:
             new stream object containing the averaged values.
         """
-        if not self.observatories:
-            self.observatories = self.observatories or \
+        self.observatories = self.observatories or \
                     [t.stats.station for t in timeseries]
 
-        if not self.outchannel:
-            self.outchannel = timeseries[0].stats.channel
+        self.outchannel = self.outchannel or \
+            timeseries[0].stats.channel
+
+        self.outlocation = self.outlocation or \
+            timeseries[0].stats.location
 
         scale_values = self.scales or ([1] * len(timeseries))
         lat_corr = {}
@@ -122,7 +131,7 @@ class AverageAlgorithm(Algorithm):
         new_stats.station = 'USGS'
         new_stats.channel = self.outchannel
         new_stats.network = 'NT'
-        new_stats.location = 'RD'
+        new_stats.location = self.outlocation
         new_stats.starttime = timeseries[0].stats.starttime
         new_stats.npts = timeseries[0].stats.npts
         new_stats.delta = timeseries[0].stats.delta
@@ -169,3 +178,5 @@ class AverageAlgorithm(Algorithm):
             if len(self.observatories) != len(self.scales):
                 raise AlgorithmException(
                     'Mismatch between observatories and scale factors')
+
+        self.outlocation = arguments.outlocationcode or arguments.locationcode
