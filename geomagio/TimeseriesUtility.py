@@ -223,7 +223,9 @@ def merge_streams(*streams):
             # 1 = do not interpolate
             interpolation_samples=0,
             # 1 = when there is overlap, use data from trace with last endtime
-            method=1)
+            method=1,
+            # np.nan = work-around for (problematic) intermediate masked arrays
+            filled_value=numpy.nan)
 
     # convert back to NaN filled array
     merged = unmask_stream(split)
