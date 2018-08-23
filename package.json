@@ -1,6 +1,6 @@
 {
   "name": "geomag-algorithms",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "homepage": "http://geomag.usgs.gov/",
   "repository": "https://github.com/usgs/geomag-algorithms.git",
   "description": "Geomagnetism algorithms.",
