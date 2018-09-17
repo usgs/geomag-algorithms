@@ -1,0 +1,7 @@
+name: geomagenv
+channels:
+  - conda-forge
+dependencies:
+  - python=3
+  - obspy
+  - pycurl

@@ -7,10 +7,13 @@ Installation
 
     Using Anaconda is recommended ( https://conda.io/miniconda.html ).
 
-        conda config --add channels conda-forge
-        conda create --name geomagenv obspy pycurl
+        conda env create -f geomagenv.yml
         source activate geomagenv
 
+    or
+
+        conda create --name=geomagenv --channel conda-forge python=3 obspy pycurl
+        source activate geomagenv
 
 2) Install **geomagio**
 
