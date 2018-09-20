@@ -122,8 +122,11 @@ class IMFJSONWriter(object):
             coords[0] = float(stats.geodetic_longitude)
         if 'geodetic_latitude' in stats:
             coords[1] = float(stats.geodetic_latitude)
-        if 'elevation' in stats:
-            coords[2] = float(stats.elevation)
+        try:
+            if 'elevation' in stats:
+                coords[2] = float(stats.elevation)
+        except (KeyError, ValueError, TypeError):
+            pass
         imo['coordinates'] = coords
         intermag['imo'] = imo
         intermag['reported_orientation'] = ''.join(channels)
