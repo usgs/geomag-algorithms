@@ -607,7 +607,7 @@ def parse_args(args):
             default='variation',
             choices=['variation',
                      'reported',
-                     'provisional', 
+                     'provisional',
                      'adjusted',
                      'quasi-definitive',
                      'definitive'])

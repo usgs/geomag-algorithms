@@ -79,10 +79,10 @@ class IMFJSONWriter(object):
             metadata['channel'] = edge_channel
             if stats.location == "":
                 if (stats.data_type == 'variation' or
-                    stats.data_type == 'reported'):
+                  stats.data_type == 'reported'):
                     stats.location = 'R0'
                 elif (stats.data_type == 'adjusted' or
-                    stats.data_type == 'provisional'):
+                  stats.data_type == 'provisional'):
                     stats.location = 'A0'
                 elif stats.data_type == 'quasi-definitive':
                     stats.location = 'Q0'
