@@ -436,7 +436,7 @@ class TimeseriesFactory(object):
             type_abbr = 'p'
         elif type == 'quasi-definitive':
             type_abbr = 'q'
-        elif type == 'variation' or 'reported':
+        elif type == 'variation' or type == 'reported':
             type_abbr = 'v'
         else:
             raise TimeseriesFactoryException(
