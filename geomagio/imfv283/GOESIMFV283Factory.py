@@ -48,7 +48,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         self.server = server
         self.user = user
         self.password = password
-        self.javaerror = 'java.io.IOException: Socket closed'
+        self.javaerror = 'FATAL'
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
