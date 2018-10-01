@@ -605,7 +605,12 @@ def parse_args(args):
             help='Channels H, E, Z, etc')
     parser.add_argument('--type',
             default='variation',
-            choices=['variation', 'quasi-definitive', 'definitive'])
+            choices=['variation',
+                     'reported',
+                     'provisional', 
+                     'adjusted',
+                     'quasi-definitive',
+                     'definitive'])
     parser.add_argument('--rename-input-channel',
             action='append',
             help='Rename an input channel after it is read',

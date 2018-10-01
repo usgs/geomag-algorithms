@@ -308,7 +308,8 @@ class TimeseriesFactory(object):
             observatory code.
         date : obspy.core.UTCDateTime
             day to fetch (only year, month, day are used)
-        type : {'variation', 'quasi-definitive', 'definitive'}
+        type : {'variation', 'reported', 'provisional', 'adjusted',
+                'quasi-definitive', 'definitive'}
             data type.
         interval : {'minute', 'second', 'hourly', 'daily'}
             data interval.
@@ -431,11 +432,11 @@ class TimeseriesFactory(object):
         type_abbr = None
         if type == 'definitive':
             type_abbr = 'd'
-        elif type == 'provisional':
+        elif type == 'provisional' or type == 'adjusted':
             type_abbr = 'p'
         elif type == 'quasi-definitive':
             type_abbr = 'q'
-        elif type == 'variation':
+        elif type == 'variation' or 'reported':
             type_abbr = 'v'
         else:
             raise TimeseriesFactoryException(
@@ -449,7 +450,8 @@ class TimeseriesFactory(object):
 
         Parameters
         ----------
-        type : {'variation', 'quasi-definitive'}
+        type : {'variation', 'reported', 'provisional', 'adjusted',
+                'quasi-definitive', 'quasidefinitive', 'definitive' }
 
         Returns
         -------
@@ -461,10 +463,14 @@ class TimeseriesFactory(object):
             if ``type`` is not supported.
         """
         type_name = None
-        if type == 'variation':
+        if type == 'variation' or type == 'reported':
             type_name = ''
-        elif type == 'quasi-definitive':
+        elif type == 'provisional' or type == 'adjusted':
+            type_name = 'Provisional'
+        elif type == 'quasi-definitive' or type == 'quasidefinitive':
             type_name = 'QuasiDefinitive'
+        elif type == 'definitive':
+            type_name = 'Definitive'
         else:
             raise TimeseriesFactoryException(
                     'Unsupported type "%s"' % type)

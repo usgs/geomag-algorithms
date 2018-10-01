@@ -440,8 +440,10 @@ class EdgeFactory(TimeseriesFactory):
         if self.locationCode is not None:
             location = self.locationCode
         else:
-            if type == 'variation':
+            if type == 'variation' or type == 'reported':
                 location = 'R0'
+            elif type == 'adjusted' or type == 'provisional':
+                location = 'A0'
             elif type == 'quasi-definitive':
                 location = 'Q0'
             elif type == 'definitive':

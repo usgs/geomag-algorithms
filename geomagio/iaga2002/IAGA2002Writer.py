@@ -106,7 +106,9 @@ class IAGA2002Writer(object):
             an array containing formatted strings of header data.
         """
         comments = []
-        if 'declination_base' in stats and stats.declination_base is not None:
+        if ('declination_base' in stats and
+            stats.declination_base is not None and
+            (stats.data_type == 'variation' or stats.data_type == 'reported')):
             comments.append('DECBAS               {:<8d}'
                     '(Baseline declination value in tenths of minutes East'
                     ' (0-216,000)).'.format(stats.declination_base))
