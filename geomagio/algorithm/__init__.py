@@ -20,6 +20,7 @@ algorithms = {
     'adjusted': AdjustedAlgorithm,
     'average': AverageAlgorithm,
     'deltaf': DeltaFAlgorithm,
+    'filter': FilterAlgorithm,
     'sqdist': SqDistAlgorithm,
     'xyz': XYZAlgorithm
 }
@@ -33,6 +34,7 @@ __all__ = [
     'AdjustedAlgorithm',
     'AverageAlgorithm',
     'DeltaFAlgorithm',
+    'FilterAlgorithm',
     'SqDistAlgorithm',
     'XYZAlgorithm'
 ]

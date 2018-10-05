@@ -14,9 +14,9 @@ import sys
 
 
 class FilterAlgorithm(Algorithm):
-    """Adjusted Data Algorithm"""
+    """Filter Algorithm"""
 
-    def __init__(self, matrix=None, decimation=None, window=None,
+    def __init__(self, matrix=None, decimation=None, interval=None window=None,
             data_type=None, location=None, inchannels=None, outchannels=None):
         Algorithm.__init__(self, inchannels=inchannels,
             outchannels=outchannels)
@@ -27,6 +27,7 @@ class FilterAlgorithm(Algorithm):
         # normalize filter window
         self.window = self.window/np.sum(self.window)
         self.decimation = 60
+        self.interval = 1.0
         self.data_type = data_type
         self.location = location
 
@@ -81,43 +82,74 @@ class FilterAlgorithm(Algorithm):
             times = trace.times()
             half = (self.numtaps-1)/2
             step = self.decimation
+
+            # build view into data, with numtaps  chunks separated into 
+            # overlapping 'rows'
             shape = data.shape[:-1] + (data.shape[-1] - numtaps + 1, 
                                        numtaps)
             strides = data.strides + (data.strides[-1],)
             as_s = npls.as_strided(data, shape=shape, strides=strides, 
                                    writeable=False)
+            
+            # build masked array for invalid entries
+            as_masked = np.ma.masked_invalid(as_s[half:-half:step], copy=True)
+            as_weight_sums =  np.dot(self.window, (~as_masked.mask).T)
+            as_invalid_sums = np.sum(as_masked.mask, axis=1)
+            
+            as_invalid_masked = np.ma.masked_greater(as_invalid_sums, 
+                                                     np.floor(0.1*numtaps))
 
-            filtered = np.dot(self.window, as_s[half:-half:step].T)
+            filtered = np.ma.dot(self.window, as_masked.T)
+            filtered = filtered / as_weight_sums
+            filtered.mask = as_invalid_masked.mask
+            filtered_out = np.ma.filled(filtered, np.nan)
 
             stats=Stats(trace.stats)
-            stats.delta = delta*self.decimation
+            stats.delta = trace.delta*step
             stats.npts = len(filtered)
-            trace_out = self.create_trace('', trace.stats)
+            trace_out = self.create_trace('', trace.stats, filtered_out)
 
             out += trace_out
 
         return out
 
-    @classmethod
-    def add_arguments(cls, parser):
-        """Add command line arguments to argparse parser.
-        Parameters
-        ----------
-        parser: ArgumentParser
-            command line argument parser
+def get_input_interval(self, start, end, observatory=None, channels=None):
+        """Get Input Interval
+
+        start : UTCDateTime
+            start time of requested output.
+        end : UTCDateTime
+            end time of requested output.
+        observatory : string
+            observatory code.
+        channels : string
+            input channels.
+
+        Returns
+        -------
+        input_start : UTCDateTime
+            start of input required to generate requested output
+        input_end : UTCDateTime
+            end of input required to generate requested output.
         """
 
-        parser.add_argument('--adjusted-statefile',
-                default=None,
-                help='File to store state between calls to algorithm')
+        half = self.numtaps//2
+        step = self.decimation
+        start1 = int(round(start))
+        start2 = start1 % step
+        if (start2 < step - half):
+            start3 = start1 + step - half
+        else:
+            start3 = start1 - start2 - half
 
-    def configure(self, arguments):
-        """Configure algorithm using comand line arguments.
-        Parameters
-        ----------
-        arguments: Namespace
-            parsed command line arguments
-        """
-        Algorithm.configure(self, arguments)
-        self.statefile = arguments.adjusted_statefile
-        self.load_state()
+        end1 = int(round(end))
+        end2 = end1 % step
+        if (end2 - half > 0):
+            end3 = end1 - end2
+        else:
+            end3 = end1 - end2 - step
+
+        start = start3
+        end = end3
+
+        return (start, end)
