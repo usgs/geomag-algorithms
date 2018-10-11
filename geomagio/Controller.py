@@ -538,11 +538,13 @@ def _main(args):
         now = UTCDateTime()
         args.endtime = UTCDateTime(now.year, now.month, now.day,
                 now.hour, now.minute)
-        if args.interval == 'minute':
-            args.starttime = args.endtime - 3600
+        if args.realtime is True:
+            if args.interval == 'minute':
+                args.starttime = args.endtime - 3600
+            else:
+                args.starttime = args.endtime - 600
         else:
-            args.starttime = args.endtime - 600
-
+            args.starttime = args.endtime - args.realtime
     if args.update:
         controller.run_as_update(args)
     else:
@@ -673,11 +675,19 @@ def parse_args(args):
             default=False,
             help='Flag to force data into miniseed blocks. Should only ' +
                     'be used when certain the data is self contained.')
+    # parser.add_argument('--realtime',
+    #         action='store_true',
+    #         default=False,
+    #         help='Flag to run the last hour if interval is minute, ' +
+    #                 'or the last 10 minutes if interval is seconds')
     parser.add_argument('--realtime',
-            action='store_true',
             default=False,
+            const=True,
+            type=int,
+            nargs='?',
             help='Flag to run the last hour if interval is minute, ' +
-                    'or the last 10 minutes if interval is seconds')
+                 'the last 10 minutes if interval is seconds, ' +
+                 'or the last N seconds if integer N is specified.')
     parser.add_argument('--input-goes-directory',
             default='.',
             help='Directory for support files for goes input of imfv283 data')
