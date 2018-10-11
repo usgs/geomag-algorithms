@@ -16,8 +16,8 @@ import sys
 class FilterAlgorithm(Algorithm):
     """Filter Algorithm"""
 
-    def __init__(self, matrix=None, decimation=None, interval=None window=None,
-            data_type=None, location=None, inchannels=None, outchannels=None):
+    def __init__(self, decimation=None, window=None, interval=None, 
+                 location=None, inchannels=None, outchannels=None):
         Algorithm.__init__(self, inchannels=inchannels,
             outchannels=outchannels)
         self.numtaps=91
@@ -27,7 +27,7 @@ class FilterAlgorithm(Algorithm):
         # normalize filter window
         self.window = self.window/np.sum(self.window)
         self.decimation = 60
-        self.interval = 1.0
+        self.sample_period = 1.0
         self.data_type = data_type
         self.location = location
 
@@ -80,29 +80,10 @@ class FilterAlgorithm(Algorithm):
         for trace in stream:
             data = trace.data
             times = trace.times()
-            half = (self.numtaps-1)/2
+            half = self.numtaps//2
             step = self.decimation
 
-            # build view into data, with numtaps  chunks separated into 
-            # overlapping 'rows'
-            shape = data.shape[:-1] + (data.shape[-1] - numtaps + 1, 
-                                       numtaps)
-            strides = data.strides + (data.strides[-1],)
-            as_s = npls.as_strided(data, shape=shape, strides=strides, 
-                                   writeable=False)
-            
-            # build masked array for invalid entries
-            as_masked = np.ma.masked_invalid(as_s[half:-half:step], copy=True)
-            as_weight_sums =  np.dot(self.window, (~as_masked.mask).T)
-            as_invalid_sums = np.sum(as_masked.mask, axis=1)
-            
-            as_invalid_masked = np.ma.masked_greater(as_invalid_sums, 
-                                                     np.floor(0.1*numtaps))
-
-            filtered = np.ma.dot(self.window, as_masked.T)
-            filtered = filtered / as_weight_sums
-            filtered.mask = as_invalid_masked.mask
-            filtered_out = np.ma.filled(filtered, np.nan)
+            filtered = self.firfilter(data, self.window, half)
 
             stats=Stats(trace.stats)
             stats.delta = trace.delta*step
@@ -112,6 +93,57 @@ class FilterAlgorithm(Algorithm):
             out += trace_out
 
         return out
+    
+    @classmethod
+    def firfilter(cls, data, window, step, allowed_bad = 0.1):
+        """Run fir filter for a numpy array.
+        Processes all traces in the stream.
+        Parameters
+        ----------
+        data: numpy.ndarray
+            array of data to process
+        window: numpy.ndarray
+            array of filter coefficients
+        step: int
+            ratio of output sample period to input sample period
+            should always be an integer
+        allowed_bad: float
+            ratio of bad samples to total window size
+        Returns
+        -------
+        filtered_out : numpy.ndarray
+            stream containing filtered output
+        """
+        numtaps = len(window)
+        half = numtaps // 2
+
+        # build view into data, with numtaps  chunks separated into 
+        # overlapping 'rows'
+        shape = data.shape[:-1] + (data.shape[-1] - numtaps + 1, 
+                                   numtaps)
+        
+        strides = data.strides + (data.strides[-1],)
+        
+        as_s = npls.as_strided(data, shape=shape, strides=strides, 
+                               writeable=False)
+            
+        # build masked array for invalid entries
+        as_masked = np.ma.masked_invalid(as_s[half:-half:step], copy=True)
+        as_weight_sums =  np.dot(window, (~as_masked.mask).T)
+        as_invalid_sums = np.sum(as_masked.mask)
+            
+        as_invalid_masked = np.ma.masked_greater(as_invalid_sums, 
+                                                 np.floor(
+                                                    allowed_bad*numtaps))
+
+        # apply filter
+        filtered = np.ma.dot(window, as_masked.T)
+        # re-normalize, especially important for partially filled windows
+        filtered = np.divide(filtered, as_weight_sums)
+        filtered.mask = as_invalid_masked.mask
+        filtered_out = np.ma.filled(filtered, np.nan)
+
+        return filtered_out
 
 def get_input_interval(self, start, end, observatory=None, channels=None):
         """Get Input Interval
@@ -135,21 +167,7 @@ def get_input_interval(self, start, end, observatory=None, channels=None):
 
         half = self.numtaps//2
         step = self.decimation
-        start1 = int(round(start))
-        start2 = start1 % step
-        if (start2 < step - half):
-            start3 = start1 + step - half
-        else:
-            start3 = start1 - start2 - half
-
-        end1 = int(round(end))
-        end2 = end1 % step
-        if (end2 - half > 0):
-            end3 = end1 - end2
-        else:
-            end3 = end1 - end2 - step
-
-        start = start3
-        end = end3
+        start = start - half*self.interval
+        end = end + half*self.interval
 
         return (start, end)
