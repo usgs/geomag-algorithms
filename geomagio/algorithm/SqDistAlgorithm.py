@@ -18,6 +18,7 @@ from .Algorithm import Algorithm
 from .AlgorithmException import AlgorithmException
 import json
 import numpy as np
+import sys
 from obspy.core import Stream, UTCDateTime
 from scipy.optimize import fmin_l_bfgs_b
 
@@ -28,7 +29,7 @@ class SqDistAlgorithm(Algorithm):
     def __init__(self, alpha=None, beta=None, gamma=None, phi=1, m=1,
                  yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
                  zthresh=6, fc=0, hstep=0, statefile=None, mag=False,
-                 smooth=1):
+                 smooth=1, trim=False):
         Algorithm.__init__(self, inchannels=None, outchannels=None)
         self.alpha = alpha
         self.beta = beta
@@ -41,6 +42,7 @@ class SqDistAlgorithm(Algorithm):
         self.statefile = statefile
         self.mag = mag
         self.smooth = smooth
+        self.trim = trim
         # state variables
         self.yhat0 = yhat0
         self.s0 = s0
@@ -80,6 +82,8 @@ class SqDistAlgorithm(Algorithm):
             # state is up to date, only need new data
             return (start, end)
         # state not up to date, need to prime
+        print('WARNING: missing or incompatible state...' +
+              'reinitializing.', file=sys.stderr)
         return (start - 3 * 30 * 24 * 60 * 60, end)
 
     def load_state(self):
@@ -196,6 +200,10 @@ class SqDistAlgorithm(Algorithm):
                 self.l0 = None
                 self.b0 = None
                 self.sigma0 = None
+        # trim trailing NaNs if self.trim is set
+        if self.trim:
+            trace.stats['npts'] = np.argwhere(~np.isnan(trace.data))[-1][0] + 1
+            trace.data = trace.data[:trace.stats['npts']]
         # process
         yhat, shat, sigmahat, yhat0, s0, l0, b0, sigma0 = self.additive(
                 yobs=trace.data,
@@ -652,6 +660,11 @@ class SqDistAlgorithm(Algorithm):
         parser.add_argument('--sqdist-smooth',
                 default=1,
                 help='Local SQ smoothing parameter')
+        parser.add_argument('--sqdist-trim',
+                action='store_true',
+                default=False,
+                help='Trim gap since last observation prior ' +
+                     'to processing input timeseries.')
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.
@@ -670,4 +683,5 @@ class SqDistAlgorithm(Algorithm):
         self.statefile = arguments.sqdist_statefile
         self.zthresh = arguments.sqdist_zthresh
         self.smooth = arguments.sqdist_smooth
+        self.trim = arguments.sqdist_trim
         self.load_state()
