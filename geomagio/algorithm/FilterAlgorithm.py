@@ -17,7 +17,8 @@ class FilterAlgorithm(Algorithm):
     """Filter Algorithm"""
 
     def __init__(self, decimation=None, window=None, interval=None, 
-                 location=None, inchannels=None, outchannels=None):
+                 location=None, inchannels=None, outchannels=None, 
+                 data_type=None):
         Algorithm.__init__(self, inchannels=inchannels,
             outchannels=outchannels)
         self.numtaps=91
@@ -30,6 +31,8 @@ class FilterAlgorithm(Algorithm):
         self.sample_period = 1.0
         self.data_type = data_type
         self.location = location
+        self.inchannels = inchannels
+        self.outchannels = outchannels
 
     def create_trace(self, channel, stats, data):
         """Utility to create a new trace object.
@@ -77,18 +80,26 @@ class FilterAlgorithm(Algorithm):
 
         out = Stream()
 
+        trace_channels = []
+        
+        for trace in stream:
+            trace_channels += trace.stats.channel
+
+        trace_chan_dict = dict(zip(trace_channels, self.outchannels))
+
         for trace in stream:
             data = trace.data
-            times = trace.times()
-            half = self.numtaps//2
             step = self.decimation
-
-            filtered = self.firfilter(data, self.window, half)
+            
+            filtered = self.firfilter(data, self.window, step)
 
             stats=Stats(trace.stats)
+            stats.channel = trace_chan_dict[trace.stats.channels]
             stats.delta = trace.delta*step
-            stats.npts = len(filtered)
-            trace_out = self.create_trace('', trace.stats, filtered_out)
+            stats.pop('processing')
+            stats.npts = filtered.shape[0]
+            trace_out = self.create_trace(
+                stats.channel, stats, filtered)
 
             out += trace_out
 
@@ -128,7 +139,7 @@ class FilterAlgorithm(Algorithm):
                                writeable=False)
             
         # build masked array for invalid entries
-        as_masked = np.ma.masked_invalid(as_s[half:-half:step], copy=True)
+        as_masked = np.ma.masked_invalid(as_s[::step], copy=True)
         as_weight_sums =  np.dot(window, (~as_masked.mask).T)
         as_invalid_sums = np.sum(as_masked.mask)
             
@@ -166,7 +177,6 @@ def get_input_interval(self, start, end, observatory=None, channels=None):
         """
 
         half = self.numtaps//2
-        step = self.decimation
         start = start - half*self.interval
         end = end + half*self.interval
 
