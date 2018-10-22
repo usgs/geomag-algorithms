@@ -10,6 +10,7 @@ from .AlgorithmException import AlgorithmException
 from .AdjustedAlgorithm import AdjustedAlgorithm
 from .AverageAlgorithm import AverageAlgorithm
 from .DeltaFAlgorithm import DeltaFAlgorithm
+from .FilterAlgorithm import FilterAlgorithm
 from .SqDistAlgorithm import SqDistAlgorithm
 from .XYZAlgorithm import XYZAlgorithm
 

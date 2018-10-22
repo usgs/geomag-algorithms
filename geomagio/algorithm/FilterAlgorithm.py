@@ -126,7 +126,6 @@ class FilterAlgorithm(Algorithm):
             stream containing filtered output
         """
         numtaps = len(window)
-        half = numtaps // 2
 
         # build view into data, with numtaps  chunks separated into 
         # overlapping 'rows'
@@ -181,3 +180,25 @@ def get_input_interval(self, start, end, observatory=None, channels=None):
         end = end + half*self.interval
 
         return (start, end)
+
+@classmethod
+    def add_arguments(cls, parser):
+        """Add command line arguments to argparse parser.
+        Parameters
+        ----------
+        parser: ArgumentParser
+            command line argument parser
+        """
+
+        parser.add_argument('--filter-oneminute',
+                default=None,
+                help='Select one minute filter')
+
+    def configure(self, arguments):
+        """Configure algorithm using comand line arguments.
+        Parameters
+        ----------
+        arguments: Namespace
+            parsed command line arguments
+        """
+        pass
