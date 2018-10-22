@@ -1,7 +1,3 @@
-"""Algorithm that converts from one geomagnetic coordinate system to a
-    related geographic coordinate system, by using transformations generated
-    from absolute, baseline measurements.
-"""
 from __future__ import absolute_import
 
 from .Algorithm import Algorithm
@@ -14,7 +10,9 @@ import sys
 
 
 class FilterAlgorithm(Algorithm):
-    """Filter Algorithm"""
+    """
+        Filter Algorithm that filters and downsamples data from one second
+    """
 
     def __init__(self, decimation=None, window=None, interval=None, 
                  location=None, inchannels=None, outchannels=None, 
@@ -105,8 +103,8 @@ class FilterAlgorithm(Algorithm):
 
         return out
     
-    @classmethod
-    def firfilter(cls, data, window, step, allowed_bad = 0.1):
+    @staticmethod
+    def firfilter(data, window, step, allowed_bad = 0.1):
         """Run fir filter for a numpy array.
         Processes all traces in the stream.
         Parameters
@@ -131,31 +129,42 @@ class FilterAlgorithm(Algorithm):
         # overlapping 'rows'
         shape = data.shape[:-1] + (data.shape[-1] - numtaps + 1, 
                                    numtaps)
-        
         strides = data.strides + (data.strides[-1],)
-        
         as_s = npls.as_strided(data, shape=shape, strides=strides, 
                                writeable=False)
             
-        # build masked array for invalid entries
+        # build masked array for invalid entries, also 'decimate' by step
         as_masked = np.ma.masked_invalid(as_s[::step], copy=True)
+        # sums of the total 'weights' of the filter corresponding to 
+        # valid samples
         as_weight_sums =  np.dot(window, (~as_masked.mask).T)
+        # sums of total number of invalid entries for each appplication
+        # of the filter
         as_invalid_sums = np.sum(as_masked.mask)
-            
+        # mark the output locations as 'bad' that don't have the minimum
+        # number of samples
         as_invalid_masked = np.ma.masked_greater(as_invalid_sums, 
                                                  np.floor(
                                                     allowed_bad*numtaps))
 
-        # apply filter
+        # apply filter, using masked version of dot (in 3.5 and above, there
+        # seems to be a move toward np.matmul and/or @ operator as opposed to
+        # np.dot/np.ma.dot - haven't tested to see if the shape of first and 
+        # second argument need to be changed)
         filtered = np.ma.dot(window, as_masked.T)
         # re-normalize, especially important for partially filled windows
         filtered = np.divide(filtered, as_weight_sums)
+        # use the earlier marked output locations to mask the output data
+        # array
         filtered.mask = as_invalid_masked.mask
+        # convert masked array back to regular array, with nan as fill value
+        # (otherwise the type returned is not always the same, and can cause
+        # problems with factories, merge, etc.)
         filtered_out = np.ma.filled(filtered, np.nan)
 
         return filtered_out
 
-def get_input_interval(self, start, end, observatory=None, channels=None):
+    def get_input_interval(self, start, end, observatory=None, channels=None):
         """Get Input Interval
 
         start : UTCDateTime
@@ -181,7 +190,7 @@ def get_input_interval(self, start, end, observatory=None, channels=None):
 
         return (start, end)
 
-@classmethod
+    @classmethod
     def add_arguments(cls, parser):
         """Add command line arguments to argparse parser.
         Parameters
