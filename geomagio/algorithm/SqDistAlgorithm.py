@@ -199,12 +199,20 @@ class SqDistAlgorithm(Algorithm):
             if trace.stats.station != self.last_observatory \
                     or trace.stats.channel != self.last_channel \
                     or trace.stats.starttime != self.next_starttime:
+                # TODO: raise exception to prevent state from being cleared?
                 # state not correct, clear to be safe
                 self.yhat0 = None
                 self.s0 = None
                 self.l0 = None
                 self.b0 = None
                 self.sigma0 = None
+
+        # TODO: prepare data for processing
+        # - controller/get_starttime should ensure state is honored
+        # - based on a TBD argument (default 30 minutes)
+        #   project SQ/SV up to (default 30 minutes) behind realtime
+        #   by padding end with nan values for additive call.
+
         # trim trailing NaNs if self.trim is set
         if self.trim:
             trace.stats['npts'] = np.argwhere(~np.isnan(trace.data))[-1][0] + 1
@@ -234,6 +242,8 @@ class SqDistAlgorithm(Algorithm):
         self.sigma0 = sigma0
         self.last_observatory = trace.stats.station
         self.last_channel = trace.stats.channel
+        # TODO: double check next_starttime.  Does this work as expected when
+        # projecting into the future, as long as the inputs are set correctly?
         self.next_starttime = trace.stats.endtime + trace.stats.delta
         self.save_state()
         # create updated traces
