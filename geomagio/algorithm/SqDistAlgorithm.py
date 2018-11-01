@@ -86,6 +86,11 @@ class SqDistAlgorithm(Algorithm):
               'reinitializing.', file=sys.stderr)
         return (start - 3 * 30 * 24 * 60 * 60, end)
 
+    def get_starttime(self):
+        """Return the next_starttime from the state, if it is set.
+        """
+        return self.next_starttime
+
     def load_state(self):
         """Load algorithm state from a file.
 

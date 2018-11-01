@@ -111,6 +111,21 @@ class Algorithm(object):
                 return False
         return True
 
+    def get_starttime(self):
+        """Check whether algorithm has a stateful start time.
+
+        When an algorithm reports a start time, the Controller attempts to
+        only process data moving forward.
+
+        Returns
+        -------
+        UTCDateTime:
+            Time at which Controller should start processing,
+            or None (default) if algorithm is stateless.
+        """
+        return None
+
+
     @classmethod
     def add_arguments(cls, parser):
         """Add command line arguments to argparse parser.

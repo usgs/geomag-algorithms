@@ -84,6 +84,8 @@ class Controller(object):
                     end=endtime,
                     observatory=obs,
                     channels=channels)
+            if input_start is None or input_end is None:
+                continue
             timeseries += self._inputFactory.get_timeseries(
                     observatory=obs,
                     starttime=input_start,
@@ -158,11 +160,13 @@ class Controller(object):
                 algorithm.get_input_channels()
         output_channels = options.outchannels or \
                 algorithm.get_output_channels()
+        starttime = algorithm.get_starttime() or options.starttime
+        endtime = options.endtime
         # input
         timeseries = input_timeseries or self._get_input_timeseries(
                 observatory=options.observatory,
-                starttime=options.starttime,
-                endtime=options.endtime,
+                starttime=starttime,
+                endtime=endtime,
                 channels=input_channels)
         if timeseries.count() == 0:
             return
@@ -174,8 +178,8 @@ class Controller(object):
         processed = algorithm.process(timeseries)
         # trim if --no-trim is not set
         if not options.no_trim:
-            processed.trim(starttime=options.starttime,
-                    endtime=options.endtime)
+            processed.trim(starttime=starttime,
+                    endtime=endtime)
         if options.rename_output_channel:
             processed = self._rename_channels(
                     timeseries=processed,
@@ -183,8 +187,8 @@ class Controller(object):
         # output
         self._outputFactory.put_timeseries(
                 timeseries=processed,
-                starttime=options.starttime,
-                endtime=options.endtime,
+                starttime=starttime,
+                endtime=endtime,
                 channels=output_channels)
 
     def run_as_update(self, options, update_count=0):
@@ -211,6 +215,8 @@ class Controller(object):
             if update_count >= options.update_limit:
                 return
         algorithm = self._algorithm
+        if algorithm.get_starttime() is not None:
+            raise Error('Stateful algorithms should NOT use run_as_update')
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
         output_observatory = options.output_observatory
