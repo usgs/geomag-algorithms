@@ -110,6 +110,8 @@ class TimeseriesFactory(object):
             try:
                 data = Util.read_url(url)
             except IOError as e:
+                print("Error reading url: %s, continuing" % str(e),
+                        file=sys.stderr)
                 continue
             try:
                 timeseries += self.parse_string(data,

@@ -6,6 +6,7 @@ from cgi import escape, parse_qs
 from collections import OrderedDict
 from datetime import datetime
 from json import dumps
+import sys
 
 from geomagio.edge import EdgeFactory
 from geomagio.iaga2002 import IAGA2002Writer
@@ -109,6 +110,8 @@ class WebService(object):
             if isinstance(timeseries_string, str):
                 timeseries_string = timeseries_string.encode('utf8')
         except Exception as e:
+            print("Error processing request: %s" % str(e),
+                    file=sys.stderr)
             message = "Server error."
             error_body = self.error(500, message, environ, start_response)
             return [error_body]
