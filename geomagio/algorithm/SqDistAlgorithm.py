@@ -82,7 +82,7 @@ class SqDistAlgorithm(Algorithm):
             # state is up to date, only need new data
             return (start, end)
         # state not up to date, need to prime
-        print('WARNING: missing or incompatible state...' +
+        print('WARNING: missing or incompatible state...' + \
               'reinitializing.', file=sys.stderr)
         return (start - 3 * 30 * 24 * 60 * 60, end)
 
