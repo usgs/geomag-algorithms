@@ -6,7 +6,7 @@ import argparse
 import sys
 from io import BytesIO
 from obspy.core import Stream, UTCDateTime
-from .algorithm import algorithms
+from .algorithm import algorithms, AlgorithmException
 from .PlotTimeseriesFactory import PlotTimeseriesFactory
 from .StreamTimeseriesFactory import StreamTimeseriesFactory
 from . import TimeseriesUtility, Util
@@ -216,7 +216,8 @@ class Controller(object):
                 return
         algorithm = self._algorithm
         if algorithm.get_starttime() is not None:
-            raise Error('Stateful algorithms should NOT use run_as_update')
+            raise AlgorithmException(
+                    'Stateful algorithms cannot use run_as_update')
         input_channels = options.inchannels or \
                 algorithm.get_input_channels()
         output_observatory = options.output_observatory

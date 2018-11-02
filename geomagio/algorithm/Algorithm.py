@@ -125,7 +125,6 @@ class Algorithm(object):
         """
         return None
 
-
     @classmethod
     def add_arguments(cls, parser):
         """Add command line arguments to argparse parser.
