@@ -10,4 +10,7 @@ exclude = .git,__pycache,node_modules
 #   E131: continuation line unaligned for hanging indent
 # - short variables should be avoided, but not currently enforced
 #   E741: do not use variables named ‘l’, ‘O’, or ‘I’
-ignore = E122, E126, E127, E128, E131, E741
+# - both W503 and W504 are enabled, but contradictory.
+#   code currently appears to adhere to W503.
+#   W504: line break after binary operator
+ignore = E122, E126, E127, E128, E131, E741, W504
