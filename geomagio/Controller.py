@@ -160,7 +160,7 @@ class Controller(object):
                 algorithm.get_input_channels()
         output_channels = options.outchannels or \
                 algorithm.get_output_channels()
-        starttime = algorithm.get_starttime() or options.starttime
+        starttime = algorithm.get_next_starttime() or options.starttime
         endtime = options.endtime
         # input
         timeseries = input_timeseries or self._get_input_timeseries(
@@ -215,7 +215,7 @@ class Controller(object):
             if update_count >= options.update_limit:
                 return
         algorithm = self._algorithm
-        if algorithm.get_starttime() is not None:
+        if algorithm.get_next_starttime() is not None:
             raise AlgorithmException(
                     'Stateful algorithms cannot use run_as_update')
         input_channels = options.inchannels or \

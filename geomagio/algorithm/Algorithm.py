@@ -111,11 +111,12 @@ class Algorithm(object):
                 return False
         return True
 
-    def get_starttime(self):
+    def get_next_starttime(self):
         """Check whether algorithm has a stateful start time.
 
-        When an algorithm reports a start time, the Controller attempts to
-        only process data moving forward.
+        When an algorithm reports a next_starttime, the Controller attempts to
+        only process data moving forward.  This is typically the time of the
+        last processed sample, plus the delta between samples.
 
         Returns
         -------
