@@ -211,7 +211,7 @@ class SqDistAlgorithm(Algorithm):
         # - controller/get_starttime should ensure state is honored
         # - based on a TBD argument (default 30 minutes)
         #   project SQ/SV up to (default 30 minutes) behind realtime
-        #   by padding end with nan values for additive call.
+        #   by padding start/end with nan values for additive call.
 
         # trim trailing NaNs if self.trim is set
         if self.trim:
