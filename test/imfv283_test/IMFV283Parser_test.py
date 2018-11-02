@@ -7,9 +7,9 @@ from geomagio.imfv283 import IMFV283Parser, imfv283_codes
 
 
 IMFV283_EXAMPLE_VIC = '75C2A3A814023012741G43-1NN027EUP00191`A^P@RVxZ}|' + \
-    'D@@B_BEM@@@@@@@@@@@@@@@@@@@@@@@@@@@E|BxtTADVD@\\E\BxxT@tVCh\\E' + \
+    'D@@B_BEM@@@@@@@@@@@@@@@@@@@@@@@@@@@E|BxtTADVD@\\E\\BxxT@tVCh\\E' + \
     'lByDT@xVCp\\EdBy@T@tVCh\\EhByPT@xVCl\\EPBy@T@tVCd\\EdBxlTA@VCp\\Eh' + \
-    'BxTTA@VCp\\EdBGxTA@VCl\\EPBG`T@xVC\\\\DtBGHT@lVCD\DPBG@T@XVBh\\'
+    'BxTTA@VCp\\EdBGxTA@VCl\\EPBG`T@xVC\\\\DtBGHT@lVCD\\DPBG@T@XVBh\\'
 
 IMFV283_EXAMPLE_FRD = '75C2102614023012927G43-0NN027EUP00191bx@WyhD{' + \
     'aDB~@X@{Bb@@@@@@@@@@@@@@@@@@@@@@@@@@@@[DAV[@cUAjT@[EAVZ@cUAjT@[' + \
