@@ -191,7 +191,8 @@ class EdgeFactory(TimeseriesFactory):
         interval = interval or self.interval or stats.data_interval
 
         if (starttime is None or endtime is None):
-            starttime, endtime = self._get_stream_start_end_times(timeseries)
+            starttime, endtime = TimeseriesUtility.get_stream_start_end_times(
+                    timeseries)
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 raise TimeseriesFactoryException(
@@ -200,41 +201,6 @@ class EdgeFactory(TimeseriesFactory):
         for channel in channels:
             self._put_channel(timeseries, observatory, channel, type,
                     interval, starttime, endtime)
-
-    def _clean_timeseries(self, timeseries, starttime, endtime):
-        """Realigns timeseries data so the start and endtimes are the same
-            as what was originally asked for, even if the data was during
-            a gap.
-
-        Parameters
-        ----------
-        timeseries: obspy.core.stream
-            The timeseries stream as returned by the call to getWaveform
-        starttime: obspy.core.UTCDateTime
-            the starttime of the requested data
-        endtime: obspy.core.UTCDateTime
-            the endtime of the requested data
-
-        Notes: the original timeseries object is changed.
-        """
-        for trace in timeseries:
-            trace_starttime = obspy.core.UTCDateTime(trace.stats.starttime)
-            trace_endtime = obspy.core.UTCDateTime(trace.stats.endtime)
-            trace_delta = trace.stats.delta
-            if trace_starttime > starttime:
-                cnt = int((trace_starttime - starttime) / trace_delta)
-                if cnt > 0:
-                    trace.data = numpy.concatenate([
-                            numpy.full(cnt, numpy.nan, dtype=numpy.float64),
-                            trace.data])
-                    trace_starttime = trace_starttime - trace_delta * cnt
-                    trace.stats.starttime = trace_starttime
-            if trace_endtime < endtime:
-                cnt = int((endtime - trace_endtime) / trace.stats.delta)
-                if cnt > 0:
-                    trace.data = numpy.concatenate([
-                            trace.data,
-                            numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
 
     def _convert_timeseries_to_decimal(self, stream):
         """convert geomag edge timeseries data stored as ints, to decimal by
@@ -292,59 +258,6 @@ class EdgeFactory(TimeseriesFactory):
         for trace in stream.select(channel=channel):
             trace.data = numpy.ma.masked_invalid(trace.data)
         return stream
-
-    def _create_missing_channel(self, starttime, endtime, observatory,
-                channel, type, interval, network, station, location):
-        """fill a missing channel with nans.
-
-        Parameters
-        ----------
-        starttime: obspy.core.UTCDateTime
-            the starttime of the requested data
-        endtime: obspy.core.UTCDateTime
-            the endtime of the requested data
-        observatory : str
-            observatory code
-        channel : str
-            single character channel {H, E, D, Z, F}
-        type : str
-            data type {definitive, quasi-definitive, variation}
-        interval : str
-            interval length {minute, second}
-        network: str
-            the network code
-        station: str
-            the observatory station code
-        location: str
-            the location code
-        Returns
-        -------
-        obspy.core.Stream
-            stream of the requested channel data
-        """
-        if interval == 'second':
-            delta = 1.
-        elif interval == 'minute':
-            delta = 60.
-        elif interval == 'hourly':
-            delta = 3600.
-        elif interval == 'daily':
-            delta = 86400.
-        stats = obspy.core.Stats()
-        stats.network = network
-        stats.station = station
-        stats.location = location
-        stats.channel = channel
-        # Calculate first valid sample time based on interval
-        trace_starttime = obspy.core.UTCDateTime(
-            numpy.ceil(starttime.timestamp / delta) * delta)
-        stats.starttime = trace_starttime
-        stats.delta = delta
-        # Calculate number of valid samples up to or before endtime
-        length = int((endtime - trace_starttime) / delta)
-        stats.npts = length + 1
-        data = numpy.full(stats.npts, numpy.nan, dtype=numpy.float64)
-        return obspy.core.Stream(obspy.core.Trace(data, stats))
 
     def _get_edge_channel(self, observatory, channel, type, interval):
         """get edge channel.
@@ -563,42 +476,18 @@ class EdgeFactory(TimeseriesFactory):
                 edge_channel, starttime, endtime)
         data.merge()
         if data.count() == 0:
-            data = self._create_missing_channel(starttime, endtime,
-                observatory, channel, type, interval, network, station,
-                location)
+            data += TimeseriesUtility.create_empty_trace(
+                starttime, endtime, observatory, channel, type,
+                interval, network, station, location)
         self._set_metadata(data,
                 observatory, channel, type, interval)
         return data
-
-    def _get_stream_start_end_times(self, timeseries):
-        """get start and end times from a stream.
-                Traverses all traces, and find the earliest starttime, and
-                the latest endtime.
-        Parameters
-        ----------
-        timeseries: obspy.core.stream
-            The timeseries stream
-
-        Returns
-        -------
-        tuple: (starttime, endtime)
-            starttime: obspy.core.UTCDateTime
-            endtime: obspy.core.UTCDateTime
-        """
-        starttime = obspy.core.UTCDateTime(datetime.now())
-        endtime = obspy.core.UTCDateTime(0)
-        for trace in timeseries:
-            if trace.stats.starttime < starttime:
-                starttime = trace.stats.starttime
-            if trace.stats.endtime > endtime:
-                endtime = trace.stats.endtime
-        return (starttime, endtime)
 
     def _post_process(self, timeseries, starttime, endtime, channels):
         """Post process a timeseries stream after the raw data is
                 is fetched from a waveserver. Specifically changes
                 any MaskedArray to a ndarray with nans representing gaps.
-                Then calls _clean_timeseries to deal with gaps at the
+                Then calls pad_timeseries to deal with gaps at the
                 beggining or end of the streams.
 
         Parameters
@@ -625,7 +514,7 @@ class EdgeFactory(TimeseriesFactory):
                 trace.data = ChannelConverter.get_radians_from_minutes(
                     trace.data)
 
-        self._clean_timeseries(timeseries, starttime, endtime)
+        TimeseriesUtility.pad_timeseries(timeseries, starttime, endtime)
 
     def _put_channel(self, timeseries, observatory, channel, type, interval,
                 starttime, endtime):

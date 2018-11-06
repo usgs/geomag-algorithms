@@ -5,9 +5,54 @@ from nose.tools import assert_equals
 from .StreamConverter_test import __create_trace
 import numpy
 from geomagio import TimeseriesUtility
-from obspy.core import Stream, UTCDateTime
+from obspy.core import Stream, Stats, Trace, UTCDateTime
 
 assert_almost_equal = numpy.testing.assert_almost_equal
+
+
+def test_create_empty_trace():
+    """TimeseriesUtility_test.test_create_empty_trace()
+    """
+    trace1 = _create_trace([1, 1, 1, 1, 1], 'H', UTCDateTime("2018-01-01"))
+    trace2 = _create_trace([2, 2], 'E', UTCDateTime("2018-01-01"))
+    observatory = 'Test'
+    interval = 'minute'
+    network = 'NT'
+    location = 'R0'
+    trace3 = TimeseriesUtility.create_empty_trace(
+            starttime=trace1.stats.starttime,
+            endtime=trace1.stats.endtime,
+            observatory=observatory,
+            channel='F',
+            type='variation',
+            interval=interval,
+            network=network,
+            station=trace1.stats.station,
+            location=location)
+    timeseries = Stream(traces=[trace1, trace2])
+    # For continuity set stats to be same for all traces
+    for trace in timeseries:
+        trace.stats.observatory = observatory
+        trace.stats.type = 'variation'
+        trace.stats.interval = interval
+        trace.stats.network = network
+        trace.stats.station = trace1.stats.station
+        trace.stats.location = location
+    timeseries += trace3
+    assert_equals(len(trace3.data), trace3.stats.npts)
+    assert_equals(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
+    TimeseriesUtility.pad_timeseries(
+        timeseries=timeseries,
+        starttime=trace1.stats.starttime,
+        endtime=trace1.stats.endtime)
+    assert_equals(len(trace3.data), trace3.stats.npts)
+    assert_equals(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
+    # Change starttime by more than 1 delta
+    starttime = trace1.stats.starttime
+    endtime = trace1.stats.endtime
+    TimeseriesUtility.pad_timeseries(timeseries, starttime - 90, endtime + 90)
+    assert_equals(len(trace3.data), trace3.stats.npts)
+    assert_equals(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
 
 
 def test_get_stream_gaps():
@@ -188,3 +233,37 @@ def test_merge_streams():
     assert_almost_equal(
         merged4.select(channel='H')[0].data,
         [1, 2, 2, 2, 1, 1])
+
+
+def test_pad_timeseries():
+    """TimeseriesUtility_test.test_pad_timeseries()
+    """
+    trace1 = _create_trace([1, 1, 1, 1, 1], 'H', UTCDateTime("2018-01-01"))
+    trace2 = _create_trace([2, 2], 'E', UTCDateTime("2018-01-01"))
+    timeseries = Stream(traces=[trace1, trace2])
+    TimeseriesUtility.pad_timeseries(
+        timeseries=timeseries,
+        starttime=trace1.stats.starttime,
+        endtime=trace1.stats.endtime)
+    assert_equals(len(trace1.data), len(trace2.data))
+    assert_equals(trace1.stats.starttime, trace2.stats.starttime)
+    assert_equals(trace1.stats.endtime, trace2.stats.endtime)
+    # change starttime by less than 1 delta
+    starttime = trace1.stats.starttime
+    endtime = trace1.stats.endtime
+    TimeseriesUtility.pad_timeseries(timeseries, starttime - 30, endtime + 30)
+    assert_equals(trace1.stats.starttime, starttime)
+    # Change starttime by more than 1 delta
+    TimeseriesUtility.pad_timeseries(timeseries, starttime - 90, endtime + 90)
+    assert_equals(trace1.stats.starttime, starttime - 60)
+    assert_equals(numpy.isnan(trace1.data[0]), numpy.isnan(numpy.NaN))
+
+
+def _create_trace(data, channel, starttime, delta=60.):
+    stats = Stats()
+    stats.channel = channel
+    stats.delta = delta
+    stats.starttime = starttime
+    stats.npts = len(data)
+    data = numpy.array(data, dtype=numpy.float64)
+    return Trace(data, stats)

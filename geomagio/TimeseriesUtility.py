@@ -1,7 +1,87 @@
 """Timeseries Utilities"""
 from builtins import range
+from datetime import datetime
 import numpy
 import obspy.core
+
+
+def create_empty_trace(starttime, endtime, observatory,
+            channel, type, interval, network, station, location):
+    """create an empty trace filled with nans.
+
+    Parameters
+    ----------
+    starttime: obspy.core.UTCDateTime
+        the starttime of the requested data
+    endtime: obspy.core.UTCDateTime
+        the endtime of the requested data
+    observatory : str
+        observatory code
+    channel : str
+        single character channel {H, E, D, Z, F}
+    type : str
+        data type {definitive, quasi-definitive, variation}
+    interval : str
+        interval length {minute, second}
+    network: str
+        the network code
+    station: str
+        the observatory station code
+    location: str
+        the location code
+    Returns
+    -------
+    obspy.core.Trace
+        trace for the requested channel
+    """
+    if interval == 'second':
+        delta = 1.
+    elif interval == 'minute':
+        delta = 60.
+    elif interval == 'hourly':
+        delta = 3600.
+    elif interval == 'daily':
+        delta = 86400.
+    stats = obspy.core.Stats()
+    stats.network = network
+    stats.station = station
+    stats.location = location
+    stats.channel = channel
+    # Calculate first valid sample time based on interval
+    trace_starttime = obspy.core.UTCDateTime(
+        numpy.ceil(starttime.timestamp / delta) * delta)
+    stats.starttime = trace_starttime
+    stats.delta = delta
+    # Calculate number of valid samples up to or before endtime
+    length = int((endtime - trace_starttime) / delta)
+    stats.npts = length + 1
+    data = numpy.full(stats.npts, numpy.nan, dtype=numpy.float64)
+    return obspy.core.Trace(data, stats)
+
+
+def get_stream_start_end_times(timeseries):
+    """get start and end times from a stream.
+            Traverses all traces, and find the earliest starttime, and
+            the latest endtime.
+    Parameters
+    ----------
+    timeseries: obspy.core.stream
+        The timeseries stream
+
+    Returns
+    -------
+    tuple: (starttime, endtime)
+        starttime: obspy.core.UTCDateTime
+        endtime: obspy.core.UTCDateTime
+    """
+    starttime = obspy.core.UTCDateTime(datetime.now())
+    endtime = obspy.core.UTCDateTime(0)
+    for trace in timeseries:
+        if trace.stats.starttime < starttime:
+            starttime = trace.stats.starttime
+        if trace.stats.endtime > endtime:
+            endtime = trace.stats.endtime
+    return (starttime, endtime)
 
 
 def get_stream_gaps(stream, channels=None):
@@ -230,3 +310,39 @@ def merge_streams(*streams):
     # convert back to NaN filled array
     merged = unmask_stream(split)
     return merged
+
+
+def pad_timeseries(timeseries, starttime, endtime):
+    """Realigns timeseries data so the start and endtimes are the same
+        as what was originally asked for, even if the data was during
+        a gap.
+
+    Parameters
+    ----------
+    timeseries: obspy.core.stream
+        The timeseries stream as returned by the call to getWaveform
+    starttime: obspy.core.UTCDateTime
+        the starttime of the requested data
+    endtime: obspy.core.UTCDateTime
+        the endtime of the requested data
+
+    Notes: the original timeseries object is changed.
+    """
+    for trace in timeseries:
+        trace_starttime = obspy.core.UTCDateTime(trace.stats.starttime)
+        trace_endtime = obspy.core.UTCDateTime(trace.stats.endtime)
+        trace_delta = trace.stats.delta
+        if trace_starttime > starttime:
+            cnt = int((trace_starttime - starttime) / trace_delta)
+            if cnt > 0:
+                trace.data = numpy.concatenate([
+                        numpy.full(cnt, numpy.nan, dtype=numpy.float64),
+                        trace.data])
+                trace_starttime = trace_starttime - trace_delta * cnt
+                trace.stats.starttime = trace_starttime
+        if trace_endtime < endtime:
+            cnt = int((endtime - trace_endtime) / trace.stats.delta)
+            if cnt > 0:
+                trace.data = numpy.concatenate([
+                        trace.data,
+                        numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
