@@ -138,7 +138,7 @@ def test_requests():
     assert_equals(response.status, '200 OK')
     assert_equals(response.content_type, 'text/plain')
     # Test internal server error (use fake factory)
-    app = TestApp(WebService(ErrorFactory()))
+    app = TestApp(WebService(ErrorFactory(), error_stream=None))
     response = app.get('/?id=BOU', expect_errors=True)
     assert_equals(response.status_int, 500)
     assert_equals(response.status, '500 Internal Server Error')

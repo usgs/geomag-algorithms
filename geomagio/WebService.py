@@ -77,7 +77,8 @@ def _get_param(params, key, required=False):
 
 class WebService(object):
     def __init__(self, factory=None, version=None, metadata=None,
-            usage_documentation=None):
+            usage_documentation=None, error_stream=sys.stderr):
+        self.error_stream = error_stream
         self.factory = factory or EdgeFactory()
         self.metadata = metadata or ObservatoryMetadata().metadata
         self.version = version
@@ -110,8 +111,9 @@ class WebService(object):
             if isinstance(timeseries_string, str):
                 timeseries_string = timeseries_string.encode('utf8')
         except Exception as e:
-            print("Error processing request: %s" % str(e),
-                    file=sys.stderr)
+            if self.error_stream:
+                print("Error processing request: %s" % str(e),
+                        file=self.error_stream)
             message = "Server error."
             error_body = self.error(500, message, environ, start_response)
             return [error_body]
