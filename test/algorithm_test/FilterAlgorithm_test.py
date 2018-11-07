@@ -22,6 +22,7 @@ def test_process():
     # process hezf (raw) channels with loaded transform
     a = filt(inchannels=('SVH','SVE','SVZ','SSF'), 
                          outchannels=('MVH','MVE','MVZ','MSF'))
+                         
     filt_bou = a.process(sec)
 
     # unpack channels from loaded adjusted data file
