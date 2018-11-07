@@ -138,14 +138,12 @@ class FilterAlgorithm(Algorithm):
         # sums of the total 'weights' of the filter corresponding to 
         # valid samples
         as_weight_sums =  np.dot(window, (~as_masked.mask).T)
-        # sums of total number of invalid entries for each appplication
+        # sums of total number of invalid entries for each application
         # of the filter
         as_invalid_sums = np.sum(as_masked.mask)
         # mark the output locations as 'bad' that don't have the minimum
         # number of samples
-        as_invalid_masked = np.ma.masked_greater(as_invalid_sums, 
-                                                 np.floor(
-                                                    allowed_bad*numtaps))
+        as_invalid_masked = np.ma.masked_greater(as_weight_sums, allowed_bad)
 
         # apply filter, using masked version of dot (in 3.5 and above, there
         # seems to be a move toward np.matmul and/or @ operator as opposed to
@@ -185,8 +183,8 @@ class FilterAlgorithm(Algorithm):
         """
 
         half = self.numtaps//2
-        start = start - half*self.interval
-        end = end + half*self.interval
+        start = start - half*self.sample_period
+        end = end + half*self.sample_period
 
         return (start, end)
 
