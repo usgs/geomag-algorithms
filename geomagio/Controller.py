@@ -160,7 +160,8 @@ class Controller(object):
                 algorithm.get_input_channels()
         output_channels = options.outchannels or \
                 algorithm.get_output_channels()
-        starttime = algorithm.get_next_starttime() or options.starttime
+        next_starttime = algorithm.get_next_starttime()
+        starttime = next_starttime or options.starttime
         endtime = options.endtime
         # input
         timeseries = input_timeseries or self._get_input_timeseries(
@@ -169,7 +170,22 @@ class Controller(object):
                 endtime=endtime,
                 channels=input_channels)
         if timeseries.count() == 0:
+            # no data to process
             return
+        # pre-process
+        if next_starttime and options.realtime:
+            # when running a stateful algorithms with the realtime option
+            # pad/trim timeseries to the interval:
+            # [next_starttime, max(timeseries.endtime, now-options.realtime)]
+            input_start, input_end = \
+                    TimeseriesUtility.get_stream_start_end_times(
+                            timeseries, without_gaps=True)
+            realtime_gap = endtime - options.realtime
+            if input_end < realtime_gap:
+                input_end = realtime_gap
+            # pad to the start of the "realtime gap"
+            TimeseriesUtility.pad_timeseries(timeseries,
+                    next_starttime, input_end)
         # process
         if options.rename_input_channel:
             timeseries = self._rename_channels(
@@ -506,6 +522,20 @@ def main(args):
         raise Exception("Cannot specify" +
              " --output-observatory and --observatory-foreach")
 
+    # translate realtime into start/end times
+    if args.realtime:
+        if args.realtime is True:
+            # convert interval to number of seconds
+            if args.interval == 'minute':
+                args.realtime = 3600
+            else:
+                args.realtime = 600
+        # calculate endtime/starttime
+        now = UTCDateTime()
+        args.endtime = UTCDateTime(now.year, now.month, now.day,
+                now.hour, now.minute)
+        args.starttime = args.endtime - args.realtime
+
     if args.observatory_foreach:
         observatory = args.observatory
         observatory_exception = None
@@ -541,17 +571,6 @@ def _main(args):
     algorithm.configure(args)
     controller = Controller(input_factory, output_factory, algorithm)
 
-    if args.realtime:
-        now = UTCDateTime()
-        args.endtime = UTCDateTime(now.year, now.month, now.day,
-                now.hour, now.minute)
-        if args.realtime is True:
-            if args.interval == 'minute':
-                args.starttime = args.endtime - 3600
-            else:
-                args.starttime = args.endtime - 600
-        else:
-            args.starttime = args.endtime - args.realtime
     if args.update:
         controller.run_as_update(args)
     else:
