@@ -5,8 +5,7 @@ from nose.tools import assert_almost_equals
 
 
 def test_construct():
-    """
-    path to
+    """algorithm_test.AdjustedAlgorithm_test.test_construct()
     """
     matrix = None
     pier_correction = None
@@ -19,7 +18,8 @@ def test_construct():
 
 
 def test_process():
-    """
+    """algorithm_test.AdjustedAlgorithm_test.test_process()
+
     Check adjusted data processing versus files generated from
     original script
     """
