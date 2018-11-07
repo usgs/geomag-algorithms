@@ -18,11 +18,11 @@ def test_process():
     factory = i2.IAGA2002Factory()
     min = factory.parse_string(min_iaga2002_string)
     sec = factory.parse_string(sec_iaga2002_string)
-    a = filt()
 
     # process hezf (raw) channels with loaded transform
-    filt_bou = a.process(sec, inchannels=('SVH','SVE','SVZ','SSF'), 
+    a = filt(inchannels=('SVH','SVE','SVZ','SSF'), 
                          outchannels=('MVH','MVE','MVZ','MSF'))
+    filt_bou = a.process(sec)
 
     # unpack channels from loaded adjusted data file
     u = min.select(channel='MVH')[0]
