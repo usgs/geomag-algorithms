@@ -579,7 +579,7 @@ class SqDistAlgorithm(Algorithm):
         sigma0 : float
             initial standard-deviation estimate (len(sigma0) == hstep+1)
             (if None, default is [sqrt(var(yobs))] * (hstep+1) )
-        zthresh : int
+        zthresh : float
             z-score threshold to determine whether yhat is updated by
             smoothing observations, or by simulation alone; if exceeded,
             only sigma is updated to reflect latest observation
@@ -685,10 +685,12 @@ class SqDistAlgorithm(Algorithm):
                 help='File to store state between calls to algorithm')
         parser.add_argument('--sqdist-zthresh',
                 default=6,
-                help='Set Z-score threshold')
+                help='Set Z-score threshold',
+                type=float)
         parser.add_argument('--sqdist-smooth',
                 default=1,
-                help='Local SQ smoothing parameter')
+                help='Local SQ smoothing parameter',
+                type=int)
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.
