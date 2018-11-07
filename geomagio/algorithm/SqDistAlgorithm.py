@@ -29,7 +29,7 @@ class SqDistAlgorithm(Algorithm):
     def __init__(self, alpha=None, beta=None, gamma=None, phi=1, m=1,
                  yhat0=None, s0=None, l0=None, b0=None, sigma0=None,
                  zthresh=6, fc=0, hstep=0, statefile=None, mag=False,
-                 smooth=1, trim=False):
+                 smooth=1):
         Algorithm.__init__(self, inchannels=None, outchannels=None)
         self.alpha = alpha
         self.beta = beta
@@ -42,7 +42,6 @@ class SqDistAlgorithm(Algorithm):
         self.statefile = statefile
         self.mag = mag
         self.smooth = smooth
-        self.trim = trim
         # state variables
         self.yhat0 = yhat0
         self.s0 = s0
@@ -51,6 +50,7 @@ class SqDistAlgorithm(Algorithm):
         self.sigma0 = sigma0
         self.last_observatory = None
         self.last_channel = None
+        self.last_delta = None
         self.next_starttime = None
         self.load_state()
 
@@ -91,6 +91,21 @@ class SqDistAlgorithm(Algorithm):
         """
         return self.next_starttime
 
+    def clear_state(self):
+        """Clear in-memory state.
+
+        Call save_state() after this method to clear filesystem state.
+        """
+        self.yhat0 = None
+        self.s0 = None
+        self.l0 = None
+        self.b0 = None
+        self.sigma0 = None
+        self.last_observatory = None
+        self.last_channel = None
+        self.last_delta = None
+        self.next_starttime = None
+
     def load_state(self):
         """Load algorithm state from a file.
 
@@ -114,6 +129,7 @@ class SqDistAlgorithm(Algorithm):
         self.sigma0 = data['sigma0']
         self.last_observatory = data['last_observatory']
         self.last_channel = data['last_channel']
+        self.last_delta = 'last_delta' in data and data['last_delta'] or None
         self.next_starttime = UTCDateTime(data['next_starttime'])
 
     def save_state(self):
@@ -131,6 +147,7 @@ class SqDistAlgorithm(Algorithm):
             'sigma0': list(self.sigma0),
             'last_observatory': self.last_observatory,
             'last_channel': self.last_channel,
+            'last_delta': self.last_delta,
             'next_starttime': str(self.next_starttime)
         }
         with open(self.statefile, 'w') as f:
@@ -193,30 +210,26 @@ class SqDistAlgorithm(Algorithm):
         out = Stream()
         # check state
         if self.last_observatory is not None \
-                and self.last_channel is not None \
-                and self.next_starttime is not None:
+                or self.last_channel is not None \
+                or self.last_delta is not None \
+                or self.next_starttime is not None:
             # have state, verify okay to proceed
             if trace.stats.station != self.last_observatory \
                     or trace.stats.channel != self.last_channel \
+                    or trace.stats.delta != self.last_delta \
                     or trace.stats.starttime != self.next_starttime:
-                # TODO: raise exception to prevent state from being cleared?
-                # state not correct, clear to be safe
-                self.yhat0 = None
-                self.s0 = None
-                self.l0 = None
-                self.b0 = None
-                self.sigma0 = None
-
-        # TODO: prepare data for processing
-        # - controller/get_starttime should ensure state is honored
-        # - based on a TBD argument (default 30 minutes)
-        #   project SQ/SV up to (default 30 minutes) behind realtime
-        #   by padding start/end with nan values for additive call.
-
-        # trim trailing NaNs if self.trim is set
-        if self.trim:
-            trace.stats['npts'] = np.argwhere(~np.isnan(trace.data))[-1][0] + 1
-            trace.data = trace.data[:trace.stats['npts']]
+                # state not correct
+                raise AlgorithmException(
+                        'Inconsistent SQDist algorithm state' +
+                        ' state(%s, %s, %s, %s) <> process(%s, %s, %s, %s)' %
+                                (trace.stats.station,
+                                trace.stats.channel,
+                                trace.stats.delta,
+                                trace.stats.starttime,
+                                self.last_observatory,
+                                self.last_channel,
+                                self.last_delta,
+                                self.next_starttime))
         # process
         yhat, shat, sigmahat, yhat0, s0, l0, b0, sigma0 = self.additive(
                 yobs=trace.data,
@@ -242,6 +255,7 @@ class SqDistAlgorithm(Algorithm):
         self.sigma0 = sigma0
         self.last_observatory = trace.stats.station
         self.last_channel = trace.stats.channel
+        self.last_delta = trace.stats.delta
         # TODO: double check next_starttime.  Does this work as expected when
         # projecting into the future, as long as the inputs are set correctly?
         self.next_starttime = trace.stats.endtime + trace.stats.delta
@@ -675,11 +689,6 @@ class SqDistAlgorithm(Algorithm):
         parser.add_argument('--sqdist-smooth',
                 default=1,
                 help='Local SQ smoothing parameter')
-        parser.add_argument('--sqdist-trim',
-                action='store_true',
-                default=False,
-                help='Trim gap since last observation prior ' +
-                     'to processing input timeseries.')
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.
@@ -698,5 +707,4 @@ class SqDistAlgorithm(Algorithm):
         self.statefile = arguments.sqdist_statefile
         self.zthresh = arguments.sqdist_zthresh
         self.smooth = arguments.sqdist_smooth
-        self.trim = arguments.sqdist_trim
         self.load_state()
