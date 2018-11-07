@@ -59,7 +59,7 @@ def create_empty_trace(starttime, endtime, observatory,
     return obspy.core.Trace(data, stats)
 
 
-def get_stream_start_end_times(timeseries):
+def get_stream_start_end_times(timeseries, without_gaps=False):
     """get start and end times from a stream.
             Traverses all traces, and find the earliest starttime, and
             the latest endtime.
@@ -73,6 +73,9 @@ def get_stream_start_end_times(timeseries):
     tuple: (starttime, endtime)
         starttime: obspy.core.UTCDateTime
         endtime: obspy.core.UTCDateTime
+
+    NOTE: when the entire timeseries is a gap, and without_gaps is True,
+    the returned endtime will be one delta earlier than starttime.
     """
     starttime = obspy.core.UTCDateTime(datetime.now())
     endtime = obspy.core.UTCDateTime(0)
@@ -81,6 +84,15 @@ def get_stream_start_end_times(timeseries):
             starttime = trace.stats.starttime
         if trace.stats.endtime > endtime:
             endtime = trace.stats.endtime
+    if without_gaps:
+        gaps = get_merged_gaps(get_stream_gaps(timeseries))
+        for gap in gaps:
+            if gap[0] == starttime and gap[1] != endtime:
+                # gap at start of timeseries, move to first data point
+                starttime = gap[2]
+            elif gap[1] == endtime:
+                # gap at end of timeseries
+                endtime = gap[0] - timeseries[0].stats.delta
     return (starttime, endtime)
 
 
@@ -313,9 +325,9 @@ def merge_streams(*streams):
 
 
 def pad_timeseries(timeseries, starttime, endtime):
-    """Realigns timeseries data so the start and endtimes are the same
-        as what was originally asked for, even if the data was during
-        a gap.
+    """Calls pad_and_trim_trace for each trace in a stream.
+
+    Traces should be merged before calling this method.
 
     Parameters
     ----------
@@ -329,20 +341,55 @@ def pad_timeseries(timeseries, starttime, endtime):
     Notes: the original timeseries object is changed.
     """
     for trace in timeseries:
-        trace_starttime = obspy.core.UTCDateTime(trace.stats.starttime)
-        trace_endtime = obspy.core.UTCDateTime(trace.stats.endtime)
-        trace_delta = trace.stats.delta
-        if trace_starttime > starttime:
-            cnt = int((trace_starttime - starttime) / trace_delta)
-            if cnt > 0:
-                trace.data = numpy.concatenate([
-                        numpy.full(cnt, numpy.nan, dtype=numpy.float64),
-                        trace.data])
-                trace_starttime = trace_starttime - trace_delta * cnt
-                trace.stats.starttime = trace_starttime
-        if trace_endtime < endtime:
-            cnt = int((endtime - trace_endtime) / trace.stats.delta)
-            if cnt > 0:
-                trace.data = numpy.concatenate([
-                        trace.data,
-                        numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
+        pad_and_trim_trace(trace, starttime, endtime)
+
+
+def pad_and_trim_trace(trace, starttime, endtime):
+    """Pads and trims trace data so it is in the range [starttime, endtime].
+
+    Uses trace stats to compute start/end times that are consistent with
+    other trace data.  (starttime and endtime are not checked).
+
+    Parameters
+    ----------
+    trace: obspy.core.Trace
+        One trace to be processed
+    starttime: obspy.core.UTCDateTime
+        the starttime of the requested data
+    endtime: obspy.core.UTCDateTime
+        the endtime of the requested data
+
+    Notes: the original timeseries object is changed.
+    """
+    trace_starttime = obspy.core.UTCDateTime(trace.stats.starttime)
+    trace_endtime = obspy.core.UTCDateTime(trace.stats.endtime)
+    trace_delta = trace.stats.delta
+    if trace_starttime < starttime:
+        # trim to starttime
+        cnt = int((starttime - trace_starttime) / trace_delta) + 1
+        if cnt > 0:
+            trace.data = trace.data[cnt + 1:]
+            trace_starttime = trace_starttime + trace_delta * cnt
+            trace.stats.starttime = trace_starttime
+    elif trace_starttime > starttime:
+        # pad to starttime
+        cnt = int((trace_starttime - starttime) / trace_delta)
+        if cnt > 0:
+            trace.data = numpy.concatenate([
+                    numpy.full(cnt, numpy.nan, dtype=numpy.float64),
+                    trace.data])
+            trace_starttime = trace_starttime - trace_delta * cnt
+            trace.stats.starttime = trace_starttime
+    if trace_endtime > endtime:
+        # trim to endtime
+        cnt = int((trace_endtime - endtime) / trace_delta)
+        if cnt > 0:
+            trace.data = trace.data[:-cnt]
+            trace.stats.npts = len(trace.data)
+    elif trace_endtime < endtime:
+        # pad to endtime
+        cnt = int((endtime - trace_endtime) / trace.stats.delta)
+        if cnt > 0:
+            trace.data = numpy.concatenate([
+                    trace.data,
+                    numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
