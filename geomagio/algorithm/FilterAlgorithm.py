@@ -81,7 +81,7 @@ class FilterAlgorithm(Algorithm):
         trace_channels = []
 
         for trace in stream:
-            trace_channels += trace.stats.channel
+            trace_channels += [trace.stats.channel]
 
         trace_chan_dict = dict(zip(trace_channels, self.outchannels))
 
@@ -92,9 +92,10 @@ class FilterAlgorithm(Algorithm):
             filtered = self.firfilter(data, self.window, step)
 
             stats=Stats(trace.stats)
-            stats.channel = trace_chan_dict[trace.stats.channels]
-            stats.delta = trace.delta*step
-            stats.pop('processing')
+            stats.channel = trace_chan_dict[stats.channel]
+            stats.delta = stats.delta*step
+            if 'processing' in stats:
+                stats.pop('processing')
             stats.npts = filtered.shape[0]
             trace_out = self.create_trace(
                 stats.channel, stats, filtered)
@@ -140,7 +141,7 @@ class FilterAlgorithm(Algorithm):
         as_weight_sums =  np.dot(window, (~as_masked.mask).T)
         # mark the output locations as 'bad' that have missing input weights
         # that sum to greater than
-        as_invalid_masked = np.ma.masked_greater(as_weight_sums, allowed_bad)
+        as_invalid_masked = np.ma.masked_less(as_weight_sums, 1 - allowed_bad)
 
         # apply filter, using masked version of dot (in 3.5 and above, there
         # seems to be a move toward np.matmul and/or @ operator as opposed to
