@@ -367,7 +367,7 @@ def pad_and_trim_trace(trace, starttime, endtime):
     trace_delta = trace.stats.delta
     if trace_starttime < starttime:
         # trim to starttime
-        cnt = math.ceil((starttime - trace_starttime) / trace_delta)
+        cnt = int(math.ceil((starttime - trace_starttime) / trace_delta))
         if cnt > 0:
             trace.data = trace.data[cnt:]
             trace_starttime = trace_starttime + trace_delta * cnt
@@ -383,7 +383,7 @@ def pad_and_trim_trace(trace, starttime, endtime):
             trace.stats.starttime = trace_starttime
     if trace_endtime > endtime:
         # trim to endtime, at least 1 sample to remove
-        cnt = math.ceil((trace_endtime - endtime) / trace_delta)
+        cnt = int(math.ceil((trace_endtime - endtime) / trace_delta))
         trace.data = trace.data[:-cnt]
         trace.stats.npts = len(trace.data)
     elif trace_endtime < endtime:
