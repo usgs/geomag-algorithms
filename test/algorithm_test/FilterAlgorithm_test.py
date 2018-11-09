@@ -8,7 +8,7 @@ def test_process():
     Check one minute filter data processing versus files generated from
     original script
     """
-    
+
 
     # load boulder Jan 16 files from /etc/ directory
     min_iaga2002_file = open('etc/filter/BOU20180901vmin.min')
@@ -20,9 +20,9 @@ def test_process():
     sec = factory.parse_string(sec_iaga2002_string)
 
     # process hezf (raw) channels with loaded transform
-    a = filt(inchannels=('SVH','SVE','SVZ','SSF'), 
+    a = filt(inchannels=('SVH','SVE','SVZ','SSF'),
                          outchannels=('MVH','MVE','MVZ','MSF'))
-                         
+
     filt_bou = a.process(sec)
 
     # unpack channels from loaded adjusted data file

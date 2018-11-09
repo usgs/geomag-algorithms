@@ -14,14 +14,14 @@ class FilterAlgorithm(Algorithm):
         Filter Algorithm that filters and downsamples data from one second
     """
 
-    def __init__(self, decimation=None, window=None, interval=None, 
-                 location=None, inchannels=None, outchannels=None, 
+    def __init__(self, decimation=None, window=None, interval=None,
+                 location=None, inchannels=None, outchannels=None,
                  data_type=None):
         Algorithm.__init__(self, inchannels=inchannels,
             outchannels=outchannels)
         self.numtaps=91
         # get filter window (standard intermagnet one-minute filter)
-        self.window = sps.get_window(window=('gaussian', 15.8734), 
+        self.window = sps.get_window(window=('gaussian', 15.8734),
                                              Nx=self.numtaps)
         # normalize filter window
         self.window = self.window/np.sum(self.window)
@@ -79,7 +79,7 @@ class FilterAlgorithm(Algorithm):
         out = Stream()
 
         trace_channels = []
-        
+
         for trace in stream:
             trace_channels += trace.stats.channel
 
@@ -88,7 +88,7 @@ class FilterAlgorithm(Algorithm):
         for trace in stream:
             data = trace.data
             step = self.decimation
-            
+
             filtered = self.firfilter(data, self.window, step)
 
             stats=Stats(trace.stats)
@@ -102,7 +102,7 @@ class FilterAlgorithm(Algorithm):
             out += trace_out
 
         return out
-    
+
     @staticmethod
     def firfilter(data, window, step, allowed_bad = 0.1):
         """Run fir filter for a numpy array.
@@ -125,26 +125,26 @@ class FilterAlgorithm(Algorithm):
         """
         numtaps = len(window)
 
-        # build view into data, with numtaps  chunks separated into 
+        # build view into data, with numtaps  chunks separated into
         # overlapping 'rows'
-        shape = data.shape[:-1] + (data.shape[-1] - numtaps + 1, 
+        shape = data.shape[:-1] + (data.shape[-1] - numtaps + 1,
                                    numtaps)
         strides = data.strides + (data.strides[-1],)
-        as_s = npls.as_strided(data, shape=shape, strides=strides, 
+        as_s = npls.as_strided(data, shape=shape, strides=strides,
                                writeable=False)
-            
+
         # build masked array for invalid entries, also 'decimate' by step
         as_masked = np.ma.masked_invalid(as_s[::step], copy=True)
-        # sums of the total 'weights' of the filter corresponding to 
+        # sums of the total 'weights' of the filter corresponding to
         # valid samples
         as_weight_sums =  np.dot(window, (~as_masked.mask).T)
         # mark the output locations as 'bad' that have missing input weights
-        # that sum to greater than 
+        # that sum to greater than
         as_invalid_masked = np.ma.masked_greater(as_weight_sums, allowed_bad)
 
         # apply filter, using masked version of dot (in 3.5 and above, there
         # seems to be a move toward np.matmul and/or @ operator as opposed to
-        # np.dot/np.ma.dot - haven't tested to see if the shape of first and 
+        # np.dot/np.ma.dot - haven't tested to see if the shape of first and
         # second argument need to be changed)
         filtered = np.ma.dot(window, as_masked.T)
         # re-normalize, especially important for partially filled windows
