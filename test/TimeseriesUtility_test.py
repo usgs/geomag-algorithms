@@ -8,6 +8,7 @@ from geomagio import TimeseriesUtility
 from obspy.core import Stream, Stats, Trace, UTCDateTime
 
 assert_almost_equal = numpy.testing.assert_almost_equal
+assert_array_equal = numpy.testing.assert_array_equal
 
 
 def test_create_empty_trace():
@@ -257,6 +258,57 @@ def test_pad_timeseries():
     TimeseriesUtility.pad_timeseries(timeseries, starttime - 90, endtime + 90)
     assert_equals(trace1.stats.starttime, starttime - 60)
     assert_equals(numpy.isnan(trace1.data[0]), numpy.isnan(numpy.NaN))
+
+
+def test_pad_and_trim_trace():
+    """TimeseriesUtility_test.test_pad_and_trim_trace()
+    """
+    trace = _create_trace([0, 1, 2, 3, 4], 'X', UTCDateTime("2018-01-01"))
+    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
+    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
+    # starttime between first and second sample
+    # expect first sample to be removed, start at next sample, end at same
+    TimeseriesUtility.pad_and_trim_trace(trace,
+            starttime=UTCDateTime("2018-01-01T00:00:30Z"),
+            endtime=trace.stats.endtime)
+    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:01:00Z"))
+    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
+    assert_array_equal(trace.data, [1, 2, 3, 4])
+    # endtime between last and second to last samples
+    TimeseriesUtility.pad_and_trim_trace(trace,
+            starttime=UTCDateTime("2018-01-01T00:00:30Z"),
+            endtime=UTCDateTime("2018-01-01T00:03:50Z"))
+    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:01:00Z"))
+    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:03:00Z"))
+    assert_array_equal(trace.data, [1, 2, 3])
+    # pad outward
+    TimeseriesUtility.pad_and_trim_trace(trace,
+            starttime=UTCDateTime("2018-01-01T00:00:00Z"),
+            endtime=UTCDateTime("2018-01-01T00:05:00Z"))
+    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
+    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:05:00Z"))
+    assert_array_equal(trace.data, [numpy.nan, 1, 2, 3, numpy.nan, numpy.nan])
+    # remove exactly one sample
+    TimeseriesUtility.pad_and_trim_trace(trace,
+            starttime=UTCDateTime("2018-01-01T00:00:00Z"),
+            endtime=UTCDateTime("2018-01-01T00:04:00Z"))
+    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
+    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
+    assert_array_equal(trace.data, [numpy.nan, 1, 2, 3, numpy.nan])
+    # pad start and trim end
+    TimeseriesUtility.pad_and_trim_trace(trace,
+            starttime=UTCDateTime("2017-12-31T23:58:59Z"),
+            endtime=UTCDateTime("2018-01-01T00:03:00Z"))
+    assert_equals(trace.stats.starttime, UTCDateTime("2017-12-31T23:59:00Z"))
+    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:03:00Z"))
+    assert_array_equal(trace.data, [numpy.nan, numpy.nan, 1, 2, 3])
+    # pad end and trim start
+    TimeseriesUtility.pad_and_trim_trace(trace,
+            starttime=UTCDateTime("2018-01-01T00:00:00Z"),
+            endtime=UTCDateTime("2018-01-01T00:04:00Z"))
+    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
+    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
+    assert_array_equal(trace.data, [numpy.nan, 1, 2, 3, numpy.nan])
 
 
 def _create_trace(data, channel, starttime, delta=60.):

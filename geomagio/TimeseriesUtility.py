@@ -1,6 +1,7 @@
 """Timeseries Utilities"""
 from builtins import range
 from datetime import datetime
+import math
 import numpy
 import obspy.core
 
@@ -366,9 +367,9 @@ def pad_and_trim_trace(trace, starttime, endtime):
     trace_delta = trace.stats.delta
     if trace_starttime < starttime:
         # trim to starttime
-        cnt = int((starttime - trace_starttime) / trace_delta) + 1
+        cnt = math.ceil((starttime - trace_starttime) / trace_delta)
         if cnt > 0:
-            trace.data = trace.data[cnt + 1:]
+            trace.data = trace.data[cnt:]
             trace_starttime = trace_starttime + trace_delta * cnt
             trace.stats.starttime = trace_starttime
     elif trace_starttime > starttime:
@@ -381,11 +382,10 @@ def pad_and_trim_trace(trace, starttime, endtime):
             trace_starttime = trace_starttime - trace_delta * cnt
             trace.stats.starttime = trace_starttime
     if trace_endtime > endtime:
-        # trim to endtime
-        cnt = int((trace_endtime - endtime) / trace_delta)
-        if cnt > 0:
-            trace.data = trace.data[:-cnt]
-            trace.stats.npts = len(trace.data)
+        # trim to endtime, at least 1 sample to remove
+        cnt = math.ceil((trace_endtime - endtime) / trace_delta)
+        trace.data = trace.data[:-cnt]
+        trace.stats.npts = len(trace.data)
     elif trace_endtime < endtime:
         # pad to endtime
         cnt = int((endtime - trace_endtime) / trace.stats.delta)
