@@ -21,21 +21,21 @@ def test_process():
     sec = factory.parse_string(sec_iaga2002_string)
 
     # process hezf (raw) channels with loaded transform
-    a = filt(inchannels=('SVH','SVE','SVZ','SSF'),
-                         outchannels=('MVH','MVE','MVZ','MSF'))
+    a = filt(inchannels=('H','E','Z','F'),
+                         outchannels=('H','E','Z','F'))
 
     filt_bou = a.process(sec)
 
     # unpack channels from loaded minutes data file
-    u = mint.select(channel='MVH')[0]
-    v = mint.select(channel='MVE')[0]
-    w = mint.select(channel='MVZ')[0]
-    f = mint.select(channel='MSF')[0]
+    u = mint.select(channel='H')[0]
+    v = mint.select(channel='E')[0]
+    w = mint.select(channel='Z')[0]
+    f = mint.select(channel='F')[0]
     # unpack channels from filtered data
-    u_filt = filt_bou.select(channel='MVH')[0]
-    v_filt = filt_bou.select(channel='MVE')[0]
-    w_filt = filt_bou.select(channel='MVZ')[0]
-    f_filt = filt_bou.select(channel='MSF')[0]
+    u_filt = filt_bou.select(channel='H')[0]
+    v_filt = filt_bou.select(channel='E')[0]
+    w_filt = filt_bou.select(channel='Z')[0]
+    f_filt = filt_bou.select(channel='F')[0]
 
     for r in range(mint[0].data.size):
         assert_almost_equals(u.data[r], u_filt.data[r], 1)

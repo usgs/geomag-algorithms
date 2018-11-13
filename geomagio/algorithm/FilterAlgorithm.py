@@ -95,7 +95,7 @@ class FilterAlgorithm(Algorithm):
             filtered = self.firfilter(data, self.window, step)
 
             stats=Stats(trace.stats)
-            stats.channel = trace_chan_dict2[stats.channel]
+            #stats.channel = trace_chan_dict2[stats.channel]
             stats.delta = stats.delta*step
             if 'processing' in stats:
                 stats.pop('processing')
