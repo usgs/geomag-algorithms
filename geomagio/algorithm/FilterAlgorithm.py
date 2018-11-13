@@ -83,7 +83,10 @@ class FilterAlgorithm(Algorithm):
         for trace in stream:
             trace_channels += [trace.stats.channel]
 
-        trace_chan_dict = dict(zip(trace_channels, self.outchannels))
+        trace_chan_dict1 = dict(zip(self.inchannels, trace_channels))
+        print(trace_chan_dict1)
+        trace_chan_dict2 = dict(zip(trace_channels, self.outchannels))
+        print(trace_chan_dict2)
 
         for trace in stream:
             data = trace.data
@@ -92,7 +95,7 @@ class FilterAlgorithm(Algorithm):
             filtered = self.firfilter(data, self.window, step)
 
             stats=Stats(trace.stats)
-            stats.channel = trace_chan_dict[stats.channel]
+            stats.channel = trace_chan_dict2[stats.channel]
             stats.delta = stats.delta*step
             if 'processing' in stats:
                 stats.pop('processing')
@@ -140,7 +143,7 @@ class FilterAlgorithm(Algorithm):
         # valid samples
         as_weight_sums =  np.dot(window, (~as_masked.mask).T)
         # mark the output locations as 'bad' that have missing input weights
-        # that sum to greater than
+        # that sum to greater than the allowed_bad threshhold
         as_invalid_masked = np.ma.masked_less(as_weight_sums, 1 - allowed_bad)
 
         # apply filter, using masked version of dot (in 3.5 and above, there

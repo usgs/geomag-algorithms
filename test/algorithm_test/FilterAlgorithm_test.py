@@ -1,6 +1,5 @@
 from geomagio.algorithm import FilterAlgorithm as filt
 import geomagio.iaga2002 as i2
-from nose.tools import assert_equals
 from nose.tools import assert_almost_equals
 
 def test_process():
@@ -18,7 +17,7 @@ def test_process():
     sec_iaga2002_string = sec_iaga2002_file.read()
     sec_iaga2002_file.close()
     factory = i2.IAGA2002Factory()
-    min = factory.parse_string(min_iaga2002_string)
+    mint = factory.parse_string(min_iaga2002_string)
     sec = factory.parse_string(sec_iaga2002_string)
 
     # process hezf (raw) channels with loaded transform
@@ -28,17 +27,17 @@ def test_process():
     filt_bou = a.process(sec)
 
     # unpack channels from loaded minutes data file
-    u = min.select(channel='MVH')[0]
-    v = min.select(channel='MVE')[0]
-    w = min.select(channel='MVZ')[0]
-    f = min.select(channel='MSF')[0]
+    u = mint.select(channel='MVH')[0]
+    v = mint.select(channel='MVE')[0]
+    w = mint.select(channel='MVZ')[0]
+    f = mint.select(channel='MSF')[0]
     # unpack channels from filtered data
     u_filt = filt_bou.select(channel='MVH')[0]
     v_filt = filt_bou.select(channel='MVE')[0]
     w_filt = filt_bou.select(channel='MVZ')[0]
     f_filt = filt_bou.select(channel='MSF')[0]
 
-    for r in range(min[0].data.size):
+    for r in range(mint[0].data.size):
         assert_almost_equals(u.data[r], u_filt.data[r], 1)
         assert_almost_equals(v.data[r], v_filt.data[r], 1)
         assert_almost_equals(w.data[r], w_filt.data[r], 1)
