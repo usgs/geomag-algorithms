@@ -1,12 +1,10 @@
 from __future__ import absolute_import
 
 from .Algorithm import Algorithm
-import json
 import numpy as np
 from numpy.lib import stride_tricks as npls
 import scipy.signal as sps
 from obspy.core import Stream, Stats
-import sys
 
 
 class FilterAlgorithm(Algorithm):
@@ -19,12 +17,12 @@ class FilterAlgorithm(Algorithm):
                  data_type=None):
         Algorithm.__init__(self, inchannels=inchannels,
             outchannels=outchannels)
-        self.numtaps=91
+        self.numtaps = 91
         # get filter window (standard intermagnet one-minute filter)
         self.window = sps.get_window(window=('gaussian', 15.8734),
                                              Nx=self.numtaps)
         # normalize filter window
-        self.window = self.window/np.sum(self.window)
+        self.window = self.window / np.sum(self.window)
         self.decimation = 60
         self.sample_period = 1.0
         self.data_type = data_type
@@ -94,9 +92,9 @@ class FilterAlgorithm(Algorithm):
 
             filtered = self.firfilter(data, self.window, step)
 
-            stats=Stats(trace.stats)
-            #stats.channel = trace_chan_dict2[stats.channel]
-            stats.delta = stats.delta*step
+            stats = Stats(trace.stats)
+            # stats.channel = trace_chan_dict2[stats.channel]
+            stats.delta = stats.delta * step
             if 'processing' in stats:
                 stats.pop('processing')
             stats.npts = filtered.shape[0]
@@ -108,7 +106,7 @@ class FilterAlgorithm(Algorithm):
         return out
 
     @staticmethod
-    def firfilter(data, window, step, allowed_bad = 0.1):
+    def firfilter(data, window, step, allowed_bad=0.1):
         """Run fir filter for a numpy array.
         Processes all traces in the stream.
         Parameters
@@ -141,7 +139,7 @@ class FilterAlgorithm(Algorithm):
         as_masked = np.ma.masked_invalid(as_s[::step], copy=True)
         # sums of the total 'weights' of the filter corresponding to
         # valid samples
-        as_weight_sums =  np.dot(window, (~as_masked.mask).T)
+        as_weight_sums = np.dot(window, (~as_masked.mask).T)
         # mark the output locations as 'bad' that have missing input weights
         # that sum to greater than the allowed_bad threshhold
         as_invalid_masked = np.ma.masked_less(as_weight_sums, 1 - allowed_bad)
@@ -183,9 +181,9 @@ class FilterAlgorithm(Algorithm):
             end of input required to generate requested output.
         """
 
-        half = self.numtaps//2
-        start = start - half*self.sample_period
-        end = end + half*self.sample_period
+        half = self.numtaps // 2
+        start = start - half * self.sample_period
+        end = end + half * self.sample_period
 
         return (start, end)
 

@@ -2,13 +2,12 @@ from geomagio.algorithm import FilterAlgorithm as filt
 import geomagio.iaga2002 as i2
 from nose.tools import assert_almost_equals
 
+
 def test_process():
     """
     Check one minute filter data processing versus files generated from
     original script
     """
-
-
     # load boulder Jan 16 files from /etc/ directory
     min_iaga2002_file = open('etc/filter/BOU20180901vmin.min')
     min_iaga2002_string = min_iaga2002_file.read()
@@ -21,8 +20,8 @@ def test_process():
     sec = factory.parse_string(sec_iaga2002_string)
 
     # process hezf (raw) channels with loaded transform
-    a = filt(inchannels=('H','E','Z','F'),
-                         outchannels=('H','E','Z','F'))
+    a = filt(inchannels=('H', 'E', 'Z', 'F'),
+                         outchannels=('H', 'E', 'Z', 'F'))
 
     filt_bou = a.process(sec)
 
