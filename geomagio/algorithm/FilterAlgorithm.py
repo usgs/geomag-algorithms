@@ -76,16 +76,6 @@ class FilterAlgorithm(Algorithm):
 
         out = Stream()
 
-        trace_channels = []
-
-        for trace in stream:
-            trace_channels += [trace.stats.channel]
-
-        trace_chan_dict1 = dict(zip(self.inchannels, trace_channels))
-        print(trace_chan_dict1)
-        trace_chan_dict2 = dict(zip(trace_channels, self.outchannels))
-        print(trace_chan_dict2)
-
         for trace in stream:
             data = trace.data
             step = self.decimation
@@ -94,9 +84,10 @@ class FilterAlgorithm(Algorithm):
 
             stats = Stats(trace.stats)
             # stats.channel = trace_chan_dict2[stats.channel]
+            stats.starttime = trace.stats.starttime + \
+                    self.numtaps * self.sample_period // 2
             stats.delta = stats.delta * step
-            if 'processing' in stats:
-                stats.pop('processing')
+            # stats.processing.append('[Gaussian Filter]')
             stats.npts = filtered.shape[0]
             trace_out = self.create_trace(
                 stats.channel, stats, filtered)
@@ -129,8 +120,8 @@ class FilterAlgorithm(Algorithm):
 
         # build view into data, with numtaps  chunks separated into
         # overlapping 'rows'
-        shape = data.shape[:-1] + (data.shape[-1] - numtaps + 1,
-                                   numtaps)
+        shape = data.shape[:-1] + \
+                (data.shape[-1] - numtaps + 1, numtaps)
         strides = data.strides + (data.strides[-1],)
         as_s = npls.as_strided(data, shape=shape, strides=strides,
                                writeable=False)
