@@ -33,7 +33,7 @@ class WebServiceUsage(object):
             ids += "<code>" + obs_id + "</code>"
             if idx != len(observatories) - 1:
                 ids += ", "
-            if idx % 9 == 0 and idx is not 0:
+            if idx % 9 == 0 and idx != 0:
                 ids += "<br/>"
         usage_body = """
             <!doctype html>

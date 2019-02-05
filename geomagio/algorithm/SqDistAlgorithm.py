@@ -221,7 +221,7 @@ class SqDistAlgorithm(Algorithm):
                 # state not correct
                 raise AlgorithmException(
                         'Inconsistent SQDist algorithm state' +
-                        ' state(%s, %s, %s, %s) <> process(%s, %s, %s, %s)' %
+                        ' process(%s, %s, %s, %s) <> state(%s, %s, %s, %s)' %
                                 (trace.stats.station,
                                 trace.stats.channel,
                                 trace.stats.delta,
