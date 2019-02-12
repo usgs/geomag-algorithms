@@ -533,7 +533,7 @@ class SqDistAlgorithm(Algorithm):
             # endif (np.isnan(et) or np.abs(et) > zthresh * sigma[i])
 
             # freeze state with last input for reinitialization
-            if i == (len(yobs)-1):
+            if i == (len(yobs) - 1):
                 yhat0 = yhat[len(yobs):(len(yobs) + hstep)].copy()
                 s0 = s[len(yobs):(len(yobs) + m)].copy() - r[i + 1]
                 l0 = l + r[i + 1]
