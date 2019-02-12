@@ -256,18 +256,23 @@ class SqDistAlgorithm(Algorithm):
         self.last_observatory = trace.stats.station
         self.last_channel = trace.stats.channel
         self.last_delta = trace.stats.delta
-        # TODO: double check next_starttime.  Does this work as expected when
-        # projecting into the future, as long as the inputs are set correctly?
-        self.next_starttime = trace.stats.endtime + trace.stats.delta
+        self.next_starttime = trace.stats.starttime + \
+                (trace.stats.delta * trace.stats.npts)
         self.save_state()
         # create updated traces
         channel = trace.stats.channel
-        raw = trace.data
+        # TODO: consider trimming yhat instead of adding NaNs to raw, even if
+        # dist will have fewer samples than the other traces in out stream
+        raw = np.concatenate((trace.data, np.full(self.fc, np.nan)))
         yhat = np.array(yhat)
         shat = np.array(shat)
         dist = np.subtract(raw, yhat)
         sq = shat
         sv = np.subtract(yhat, shat)
+        # TODO: create_trace will add to stats.endtime and adjust stats.npts
+        # if the data array is longer than expected, as when self.fc is non-
+        # zero; HOWEVER, if self.hstep is non-zero, both stats.starttime and
+        # stats.endtime must be adjusted to accomadate the time-shift.
         out += self.create_trace(channel + '_Dist', trace.stats, dist)
         out += self.create_trace(channel + '_SQ', trace.stats, sq)
         out += self.create_trace(channel + '_SV', trace.stats, sv)
@@ -468,13 +473,14 @@ class SqDistAlgorithm(Algorithm):
             if i < len(yobs):
                 et = yobs[i] - yhat[i]
             else:
+                # fc>0, so simulate beyond last input
                 et = np.nan
 
             if (np.isnan(et) or np.abs(et) > zthresh * sigma[i]):
                 # forecast (i.e., update l, b, and s assuming et==0)
 
                 # no change in seasonal adjustments
-                r[i + 1] = 0
+                r[i + 1] = 0 + r[i]
                 s[i + m] = s[i]
 
                 # update l before b
@@ -498,10 +504,8 @@ class SqDistAlgorithm(Algorithm):
             else:
                 # smooth (i.e., update l, b, and s by filtering et)
 
-                # renormalization could occur inside loop, but we choose to
-                # integrate r, and adjust a and s outside the loop to improve
-                # performance.
-                r[i + 1] = gamma * (1 - alpha) * et / m
+                # r will be used to enforce zero-mean seasonal correction
+                r[i + 1] = gamma * (1 - alpha) * et / m + r[i]
 
                 # #update and append to s using equation-error formulation
                 # s[i + m] = s[i] + gamma * (1 - alpha) * et
@@ -525,22 +529,31 @@ class SqDistAlgorithm(Algorithm):
                 sumc2 = sumc2_H
                 phiJminus1 = phiHminus1
                 jstep = hstep
+
             # endif (np.isnan(et) or np.abs(et) > zthresh * sigma[i])
 
-        # endfor i in range(len(yobs) + fc - hstep)
+            # freeze state with last input for reinitialization
+            if i == (len(yobs)-1):
+                yhat0 = yhat[len(yobs):(len(yobs) + hstep)].copy()
+                s0 = s[len(yobs):(len(yobs) + m)].copy() - r[i + 1]
+                l0 = l + r[i + 1]
+                b0 = b
+                sigma0 = sigma[len(yobs):(len(yobs) + hstep + 1)].copy()
 
-        r = np.cumsum(r)
+        # endfor i in range(len(yobs) + fc)
+
+        # adjustments to enforce zero-mean seasonal corrections
         l = l + r[-1]
         s = np.array(s) - np.hstack((r, np.tile(r[-1], m - 1)))
 
         return (yhat[:len(yobs) + fc],
                 s[:len(yobs) + fc],
                 sigma[1:len(yobs) + fc + 1],
-                yhat[len(yobs) + fc:],
-                s[len(yobs) + fc:],
-                l,
-                b,
-                sigma[len(yobs) + fc:])
+                yhat0,
+                s0,
+                l0,
+                b0,
+                sigma0)
 
     @classmethod
     def estimate_parameters(cls, yobs, m, alpha=None, beta=None, gamma=None,
