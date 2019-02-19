@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='geomag-algorithms',
-    version='0.8.1',
+    version='0.8.4',
     description='USGS Geomag IO Library',
     url='https://github.com/usgs/geomag-algorithms',
     packages=[
