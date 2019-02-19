@@ -226,7 +226,7 @@ DEFAULT_METADATA = {
             'elevation': '10',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 100.0,
-            'declination_base': 12755,
+            'declination_base': 10755,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
@@ -256,7 +256,7 @@ DEFAULT_METADATA = {
             'elevation': '10',
             'sensor_orientation': 'HDZF',
             'sensor_sampling_rate': 10000.0,
-            'declination_base': 12755,
+            'declination_base': 10755,
             'is_gin': False,
             'is_intermagnet': False,
             'conditions_of_use': 'The Conditions of Use for data provided' +
