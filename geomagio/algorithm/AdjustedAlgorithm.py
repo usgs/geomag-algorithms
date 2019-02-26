@@ -154,6 +154,46 @@ class AdjustedAlgorithm(Algorithm):
 
         return out
 
+    def can_produce_data(self, starttime, endtime, stream):
+        """Can Product data
+        Parameters
+        ----------
+        starttime: UTCDateTime
+            start time of requested output
+        end : UTCDateTime
+            end time of requested output
+        stream: obspy.core.Stream
+            The input stream we want to make certain has data for the algorithm
+        """
+
+        # collect channels in stream
+        channels = []
+        for trace in stream:
+            channels += trace.stats['channel']
+
+        # if F is available, can produce at least adjusted F
+        if ('F' in channels and
+            super(AdjustedAlgorithm, self).can_produce_data(
+                starttime,
+                endtime,
+                stream.select(channel='F'))):
+            return True
+
+        # if HEZ are available, can produce at least adjusted XYZ
+        if ('H' in channels and
+            'E' in channels and
+            'Z' in channels and
+            np.all(
+                [super(AdjustedAlgorithm, self).can_produce_data(
+                     starttime,
+                     endtime,
+                     stream.select(channel=chan))
+                 for chan in ('H', 'E', 'Z')])):
+            return True
+
+        # return false if cannot produce adjustded F or XYZ
+        return False
+
     @classmethod
     def add_arguments(cls, parser):
         """Add command line arguments to argparse parser.
