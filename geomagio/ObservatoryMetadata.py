@@ -307,6 +307,36 @@ DEFAULT_METADATA = {
             }
         }
     },
+    'FDT': {
+        'metadata': {
+            'station_name': 'Fredericksburg Test',
+            'agency_name': 'United States Geological Survey (USGS)',
+            'geodetic_latitude': '38.205',
+            'geodetic_longitude': '282.627',
+            'elevation': '69',
+            'sensor_orientation': 'HDZF',
+            'sensor_sampling_rate': 100.0,
+            'declination_base': 209690,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45) ',
+                'filter_comments': ['Vector 1-minute values are computed' +
+                    ' from 1-second values using the INTERMAGNET gaussian' +
+                    ' filter centered on the minute. Scalar 1-minute values' +
+                    ' are computed from 1-second values using the' +
+                    ' INTERMAGNET gaussian filter centered on the minute. ']
+            },
+            'second': {
+                'data_interval_type': 'Average 1-Second'
+            }
+        }
+    },
     'FRN': {
         'metadata': {
             'station_name': 'Fresno',
