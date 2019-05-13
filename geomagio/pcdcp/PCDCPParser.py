@@ -29,7 +29,11 @@ class PCDCPParser(object):
     def __init__(self):
         """Create a new PCDCP parser."""
         # header fields
+        self.header_fields = ['station', 'year', 'yearday', 'date',
+                              'orientation', 'resolution',  'Version']
         self.header = {}
+        # resolution (float)
+        self.resolution = 0.0
         # array of channel names
         self.channels = []
         # timestamps of data (datetime.datetime)
@@ -64,11 +68,10 @@ class PCDCPParser(object):
 
         Adds value to ``self.header``.
         """
-        self.header['header'] = line
-        self.header['station'] = line[0:3]
-        self.header['year'] = line[5:9]
-        self.header['yearday'] = line[11:14]
-        self.header['date'] = line[16:25]
+        self.header = dict(zip(self.header_fields,
+                               line.split(None, len(self.header_fields))))
+
+        self.resolution = float(self.header['resolution'].split('nT')[0])
 
         return
 
@@ -78,13 +81,9 @@ class PCDCPParser(object):
         Adds time to ``self.times``.
         Adds channel values to ``self.data``.
         """
-        t, d1, d2, d3, d4 = self._parsedata
-
-        t.append(line[0:4])
-        d1.append(int(line[5:13]))
-        d2.append(int(line[14:22]))
-        d3.append(int(line[23:31]))
-        d4.append(int(line[32:40]))
+        values = line.split()
+        for (value, column) in zip(values, self._parsedata):
+            column.append(value)
 
     def _post_process(self):
         """Post processing after data is parsed.
@@ -98,7 +97,8 @@ class PCDCPParser(object):
             data = numpy.array(data, dtype=numpy.float64)
             # filter empty values
             data[data == NINES] = numpy.nan
-            data = numpy.divide(data, 100)
+            data[data == NINES_RAW] = numpy.nan
+            data = numpy.multiply(data, self.resolution)
             self.data[channel] = data
 
         self._parsedata = None
