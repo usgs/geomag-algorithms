@@ -10,6 +10,7 @@ from .AlgorithmException import AlgorithmException
 from .AdjustedAlgorithm import AdjustedAlgorithm
 from .AverageAlgorithm import AverageAlgorithm
 from .DeltaFAlgorithm import DeltaFAlgorithm
+from .FilterAlgorithm import FilterAlgorithm
 from .SqDistAlgorithm import SqDistAlgorithm
 from .XYZAlgorithm import XYZAlgorithm
 
@@ -20,6 +21,7 @@ algorithms = {
     'adjusted': AdjustedAlgorithm,
     'average': AverageAlgorithm,
     'deltaf': DeltaFAlgorithm,
+    'filter': FilterAlgorithm,
     'sqdist': SqDistAlgorithm,
     'xyz': XYZAlgorithm
 }
@@ -33,6 +35,7 @@ __all__ = [
     'AdjustedAlgorithm',
     'AverageAlgorithm',
     'DeltaFAlgorithm',
+    'FilterAlgorithm',
     'SqDistAlgorithm',
     'XYZAlgorithm'
 ]
