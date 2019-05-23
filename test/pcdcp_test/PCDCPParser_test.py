@@ -52,7 +52,7 @@ def test_parse_header():
     assert_equals(parser.header['resolution'], '0.01nT')
 
 def test_parse_header_sec():
-        """pcdcp_test.PCDCPParsser_test.test_parse_header_sec()
+        """pcdcp_test.PCDCPParser_test.test_parse_header_sec()
 
         Call the _parse_header method with a pcdcp seconds file '.raw'
         header.  Verify the header name and value are split correctly.
