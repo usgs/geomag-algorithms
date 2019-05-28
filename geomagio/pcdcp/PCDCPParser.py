@@ -30,7 +30,7 @@ class PCDCPParser(object):
         """Create a new PCDCP parser."""
         # header fields
         self.header_fields = ['station', 'year', 'yearday', 'date',
-                              'orientation', 'resolution',  'Version']
+                             'orientation', 'resolution', 'Version']
         self.header = {}
         # resolution (float)
         self.resolution = 0.0

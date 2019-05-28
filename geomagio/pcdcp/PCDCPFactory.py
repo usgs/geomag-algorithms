@@ -60,9 +60,9 @@ class PCDCPFactory(TimeseriesFactory):
         yr = parser.header['year']
         yrday = parser.header['yearday']
 
-        startday = obspy.core.UTCDateTime(yr+yrday)
-        starttime = startday + int(parser.times[0])*sample_period
-        endtime = startday + int(parser.times[-1])*sample_period
+        startday = obspy.core.UTCDateTime(yr + yrday)
+        starttime = startday + int(parser.times[0]) * sample_period
+        endtime = startday + int(parser.times[-1]) * sample_period
 
         data = parser.data
         length = len(data[list(data)[0]])

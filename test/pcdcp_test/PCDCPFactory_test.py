@@ -22,6 +22,7 @@ pcdcpString_seconds = \
 00004  20861600    -57068  47457384  52377660
 """
 
+
 def test_parse_string():
     """pcdcp_test.PCDCPFactory_test.test_parse_string()
 
@@ -42,13 +43,14 @@ def test_parse_string():
     z = stream.select(channel='Z')[0]
     assert_equals(z.data[-1], 47457.43)
 
+
 def test_parse_string_seconds():
     """pcdcp_test.PCDCPFactory_test.test_parse_string_seconds()
 
     Send a PCDCP seconds file string into parse_string to make sure a well
     formed stream is created with proper values
     """
-    stream=PCDCPFactory().parse_string(pcdcpString_seconds)
+    stream = PCDCPFactory().parse_string(pcdcpString_seconds)
 
     assert_equals(type(stream), Stream)
     assert_equals(stream[0].stats.network, 'NT')

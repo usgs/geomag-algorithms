@@ -51,6 +51,7 @@ def test_parse_header():
     assert_equals(parser.header['yearday'], '001')
     assert_equals(parser.header['resolution'], '0.01nT')
 
+
 def test_parse_header_sec():
         """pcdcp_test.PCDCPParser_test.test_parse_header_sec()
 
