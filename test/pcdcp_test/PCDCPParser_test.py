@@ -43,7 +43,7 @@ def test_parse_header():
     """
     parser = PCDCPParser()
     parser._parse_header('BOU  2015  001  01-Jan-15  HEZF  0.01nT' +
-            '  File Version 2.00')
+        '  File Version 2.00')
 
     assert_equals(parser.header['date'], '01-Jan-15')
     assert_equals(parser.header['station'], 'BOU')
@@ -53,17 +53,17 @@ def test_parse_header():
 
 
 def test_parse_header_sec():
-        """pcdcp_test.PCDCPParser_test.test_parse_header_sec()
+    """pcdcp_test.PCDCPParser_test.test_parse_header_sec()
 
-        Call the _parse_header method with a pcdcp seconds file '.raw'
-        header.  Verify the header name and value are split correctly.
-        """
-        parser = PCDCPParser()
-        parser._parse_header('BOU  2015  001  01-Jan-15  HEZF  0.001nT' +
-                ' File Version 2.00')
+    Call the _parse_header method with a pcdcp seconds file '.raw'
+    header.  Verify the header name and value are split correctly.
+    """
+    parser = PCDCPParser()
+    parser._parse_header('BOU  2015  001  01-Jan-15  HEZF  0.001nT' +
+        ' File Version 2.00')
 
-        assert_equals(parser.header['date'], '01-Jan-15')
-        assert_equals(parser.header['station'], 'BOU')
-        assert_equals(parser.header['year'], '2015')
-        assert_equals(parser.header['yearday'], '001')
-        assert_equals(parser.header['resolution'], '0.001nT')
+    assert_equals(parser.header['date'], '01-Jan-15')
+    assert_equals(parser.header['station'], 'BOU')
+    assert_equals(parser.header['year'], '2015')
+    assert_equals(parser.header['yearday'], '001')
+    assert_equals(parser.header['resolution'], '0.001nT')
