@@ -35,10 +35,12 @@ def test_parse_string():
     assert_equals(stream[0].stats.station, 'BOU')
     assert_equals(stream[0].stats.starttime,
                 UTCDateTime('2015-01-01T00:00:00.000000Z'))
-    assert_equals(stream[0].data[1], 20861.90)
+    h = stream.select(channel='H')[0]
+    assert_equals(h.data[1], 20861.90)
     assert_equals(stream[0].stats.endtime,
                 UTCDateTime('2015-01-01T00:04:00.000000Z'))
-    assert_equals(stream[2].data[-1], 47457.43)
+    z = stream.select(channel='Z')[0]
+    assert_equals(z.data[-1], 47457.43)
 
 def test_parse_string_seconds():
     """pcdcp_test.PCDCPFactory_test.test_parse_string_seconds()
@@ -53,7 +55,9 @@ def test_parse_string_seconds():
     assert_equals(stream[0].stats.station, 'BOU')
     assert_equals(stream[0].stats.starttime,
                 UTCDateTime('2015-01-01T00:00:00.000000Z'))
-    assert_equals(stream[0].data[0], 20861.520)
+    h = stream.select(channel='H')[0]
+    assert_equals(h.data[0], 20861.520)
     assert_equals(stream[0].stats.endtime,
                 UTCDateTime('2015-01-01T00:00:04.000000Z'))
-    assert_equals(stream[2].data[-1], 47457.384)
+    z = stream.select(channel='Z')[0]
+    assert_equals(z.data[-1], 47457.384)
