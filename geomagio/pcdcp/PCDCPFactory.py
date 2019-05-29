@@ -54,6 +54,8 @@ class PCDCPFactory(TimeseriesFactory):
         parser = PCDCPParser()
         parser.parse(data)
 
+        # minutes files times are 4 characters long (1440)
+        # seconds files times are 5 characters long (86400)
         sample_periods = {4: 60.0, 5: 1.0}
         sample_period = sample_periods[len(parser.times[0])]
 
