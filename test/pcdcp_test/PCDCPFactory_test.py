@@ -13,6 +13,15 @@ pcdcpString = \
 0003  2086239    -5632  4745739  5237796
 0004  2086198    -5626  4745743  5237786"""
 
+pcdcpString_seconds = \
+"""BOU  2015  001  01-Jan-15  HEZF  0.001nT  File Version 2.00
+00000  20861520    -57095  47457409  52377630
+00001  20861533    -57096  47457397  52377650
+00002  20861554    -57077  47457391  52377650
+00003  20861578    -57068  47457389  52377680
+00004  20861600    -57068  47457384  52377660
+"""
+
 
 def test_parse_string():
     """pcdcp_test.PCDCPFactory_test.test_parse_string()
@@ -27,3 +36,30 @@ def test_parse_string():
     assert_equals(stream[0].stats.station, 'BOU')
     assert_equals(stream[0].stats.starttime,
                 UTCDateTime('2015-01-01T00:00:00.000000Z'))
+    h = stream.select(channel='H')[0]
+    assert_equals(h.data[1], 20861.90)
+    assert_equals(stream[0].stats.endtime,
+                UTCDateTime('2015-01-01T00:04:00.000000Z'))
+    z = stream.select(channel='Z')[0]
+    assert_equals(z.data[-1], 47457.43)
+
+
+def test_parse_string_seconds():
+    """pcdcp_test.PCDCPFactory_test.test_parse_string_seconds()
+
+    Send a PCDCP seconds file string into parse_string to make sure a well
+    formed stream is created with proper values
+    """
+    stream = PCDCPFactory().parse_string(pcdcpString_seconds)
+
+    assert_equals(type(stream), Stream)
+    assert_equals(stream[0].stats.network, 'NT')
+    assert_equals(stream[0].stats.station, 'BOU')
+    assert_equals(stream[0].stats.starttime,
+                UTCDateTime('2015-01-01T00:00:00.000000Z'))
+    h = stream.select(channel='H')[0]
+    assert_equals(h.data[0], 20861.520)
+    assert_equals(stream[0].stats.endtime,
+                UTCDateTime('2015-01-01T00:00:04.000000Z'))
+    z = stream.select(channel='Z')[0]
+    assert_equals(z.data[-1], 47457.384)

@@ -10,6 +10,7 @@ from .PCDCPWriter import PCDCPWriter
 
 # pattern for pcdcp file names
 PCDCP_FILE_PATTERN = '%(obs)s%(y)s%(j)s.%(i)s'
+# note: seconds files end in .raw after 2008, .sec or .Sec on or before
 
 
 class PCDCPFactory(TimeseriesFactory):
@@ -53,20 +54,17 @@ class PCDCPFactory(TimeseriesFactory):
         parser = PCDCPParser()
         parser.parse(data)
 
-        yr = int(parser.header['year'])
-        yrday = int(parser.header['yearday'])
+        # minutes files times are 4 characters long (1440)
+        # seconds files times are 5 characters long (86400)
+        sample_periods = {4: 60.0, 5: 1.0}
+        sample_period = sample_periods[len(parser.times[0])]
 
-        begin = int(parser.times[0])
-        startHour = int(begin / 60.0)
-        startMinute = int(begin % 60.0)
-        ending = int(parser.times[-1])
-        endHour = int(ending / 60.0)
-        endMinute = int(ending % 60.0)
+        yr = parser.header['year']
+        yrday = parser.header['yearday']
 
-        starttime = obspy.core.UTCDateTime(year=yr, julday=yrday,
-                        hour=startHour, minute=startMinute)
-        endtime = obspy.core.UTCDateTime(year=yr, julday=yrday, hour=endHour,
-                        minute=endMinute)
+        startday = obspy.core.UTCDateTime(yr + yrday)
+        starttime = startday + int(parser.times[0]) * sample_period
+        endtime = startday + int(parser.times[-1]) * sample_period
 
         data = parser.data
         length = len(data[list(data)[0]])
