@@ -146,8 +146,6 @@ class TimeseriesFactory(object):
         data : str
             string containing parsable content.
             
-        
-
         Raises
         -------
         NotImplementedError
