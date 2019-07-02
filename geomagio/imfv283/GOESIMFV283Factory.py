@@ -5,7 +5,7 @@ from .IMFV283Factory import IMFV283Factory
 import subprocess
 import sys
 from obspy.core import Stream
-
+import os
 
 class GOESIMFV283Factory(IMFV283Factory):
     """Timeseries Factory for IMFV283 formatted files loaded from the goes
@@ -181,6 +181,8 @@ class GOESIMFV283Factory(IMFV283Factory):
         buf.append('RETRANSMITTED: N\n')
         buf.append('ASCENDING_TIME: false\n')
         buf.append('RT_SETTLE_DELAY: true\n')
+        
+        if os.path.exists(criteria_file) is not True: return
 
         with open(criteria_file, 'wb') as fh:
             fh.write(''.join(buf))
