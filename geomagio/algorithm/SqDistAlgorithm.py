@@ -18,7 +18,6 @@ from .Algorithm import Algorithm
 from .AlgorithmException import AlgorithmException
 import json
 import numpy as np
-import sys
 from obspy.core import Stream, UTCDateTime
 from scipy.optimize import fmin_l_bfgs_b
 
