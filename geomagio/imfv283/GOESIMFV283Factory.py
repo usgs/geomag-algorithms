@@ -3,7 +3,6 @@ from __future__ import absolute_import, print_function
 
 from .IMFV283Factory import IMFV283Factory
 import subprocess
-import sys
 from obspy.core import Stream
 import os
 
