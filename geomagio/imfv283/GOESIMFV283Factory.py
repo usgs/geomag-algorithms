@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 
 from .IMFV283Factory import IMFV283Factory
 import subprocess
+import sys
 from obspy.core import Stream
 import os
 
@@ -180,7 +181,11 @@ class GOESIMFV283Factory(IMFV283Factory):
         buf.append('RETRANSMITTED: N\n')
         buf.append('ASCENDING_TIME: false\n')
         buf.append('RT_SETTLE_DELAY: true\n')
-        if os.path.exists(criteria_file) is not True: return
+        
+        criteria_dir = os.path.dirname(criteria_file)
+        if not os.path.exists(criteria_dir):
+            os.makedirs(criteria_dir)
+
         with open(criteria_file, 'wb') as fh:
             fh.write(''.join(buf))
             fh.close()
