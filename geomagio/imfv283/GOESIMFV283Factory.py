@@ -181,11 +181,9 @@ class GOESIMFV283Factory(IMFV283Factory):
         buf.append('RETRANSMITTED: N\n')
         buf.append('ASCENDING_TIME: false\n')
         buf.append('RT_SETTLE_DELAY: true\n')
-        
         criteria_dir = os.path.dirname(criteria_file)
         if not os.path.exists(criteria_dir):
             os.makedirs(criteria_dir)
-
         with open(criteria_file, 'wb') as fh:
             fh.write(''.join(buf))
             fh.close()
