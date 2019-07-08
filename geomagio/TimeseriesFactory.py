@@ -139,7 +139,7 @@ class TimeseriesFactory(object):
         return timeseries
 
     def parse_string(self, data, **kwargs):
-        """Creates error message that this functions is not implemented by 
+        """Creates error message that this functions is not implemented by
         TimeseriesFactory.
 
         Parameters
