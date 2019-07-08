@@ -7,6 +7,7 @@ import sys
 from obspy.core import Stream
 import os
 
+
 class GOESIMFV283Factory(IMFV283Factory):
     """Timeseries Factory for IMFV283 formatted files loaded from the goes
         server.
