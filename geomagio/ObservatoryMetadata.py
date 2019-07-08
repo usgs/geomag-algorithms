@@ -426,7 +426,7 @@ DEFAULT_METADATA = {
                 'data_interval_type': 'Average 1-Second'
             }
         }
-    },xt
+    },
     'KAK': {
         'metadata': {
             'station_name': 'Kakioka',
