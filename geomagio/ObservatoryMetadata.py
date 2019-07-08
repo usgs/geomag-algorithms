@@ -427,6 +427,31 @@ DEFAULT_METADATA = {
             }
         }
     },
+    'KAK': {
+        'metadata': {
+            'station_name': 'Kakioka',
+            'agency_name': 'Japan Meteorological Agency',
+            'geodetic_latitude': '36.232',
+            'geodetic_longitude': '140.186',
+            'elevation': '36',
+            'sensor_orientation': 'HDZF',
+            'reported': 'HDZF',
+            'sensor_sampling_rate': 0.01,
+            'is_gin': False,
+            'is_intermagnet': False,
+            'conditions_of_use': 'The Conditions of Use for data provided' +
+                    ' through INTERMAGNET and acknowledgement templates' +
+                    ' can be found at www.intermagnet.org'
+        },
+        'interval_specific': {
+            'minute': {
+                'data_interval_type': 'filtered 1-minute (00:15-01:45)'
+            },
+            'second': {
+                'data_interval_type': ''
+            }
+        }
+    },
     'NEW': {
         'metadata': {
             'station_name': 'Newport',
