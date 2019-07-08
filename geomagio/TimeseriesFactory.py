@@ -139,17 +139,17 @@ class TimeseriesFactory(object):
         return timeseries
 
     def parse_string(self, data, **kwargs):
-        """Parse the contents of a string in the format of an IAGA2002 file.
+        """Creates error message that this functions is not implemented by
+        TimeseriesFactory.
 
         Parameters
         ----------
         data : str
             string containing parsable content.
-
-        Returns
+        Raises
         -------
-        obspy.core.Stream
-            parsed data.
+        NotImplementedError
+            if function is called
         """
         raise NotImplementedError('"parse_string" not implemented')
 
