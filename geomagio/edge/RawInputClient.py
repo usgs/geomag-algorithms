@@ -321,7 +321,8 @@ class RawInputClient():
         ratemantissa, ratedivisor = self._get_mantissa_divisor(rate)
 
         packStr = '%s%d%s' % (PACKSTR, nsamp, 'i')
-        buf = struct.pack(packStr, PACKETHEAD, nsamp, self.seedname, yr, doy,
+        bpackStr = str.encode(packStr)
+        buf = struct.pack(bpackStr, PACKETHEAD, nsamp, self.seedname, yr, doy,
                 ratemantissa, ratedivisor, self.activity, self.ioclock,
                 self.quality, self.timingquality, secs, usecs, self.sequence,
                 *samples)
