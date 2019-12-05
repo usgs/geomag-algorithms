@@ -307,7 +307,7 @@ def get_input_factory(args):
 
     # standard arguments
     input_factory_args = {}
-    input_factory_args['interval'] = args.interval
+    input_factory_args['interval'] = args.input_interval or args.interval
     input_factory_args['observatory'] = args.observatory
     input_factory_args['type'] = args.type
     # stream/url arguments
@@ -381,7 +381,7 @@ def get_output_factory(args):
 
     # standard arguments
     output_factory_args = {}
-    output_factory_args['interval'] = args.interval
+    output_factory_args['interval'] = args.output_interval or args.interval
     output_factory_args['observatory'] = args.output_observatory
     output_factory_args['type'] = args.type
     # stream/url arguments
@@ -664,7 +664,13 @@ def parse_args(args):
             type=edge.LocationCode)
     parser.add_argument('--interval',
             default='minute',
-            choices=['hourly', 'minute', 'second'])
+            choices=['day', 'hour', 'minute', 'second', 'tenhertz'])
+    parser.add_argument('--input-interval',
+            default=None,
+            choices=['day', 'hour', 'minute', 'second', 'tenhertz'])
+    parser.add_argument('--output-interval',
+            default=None,
+            choices=['day', 'hour', 'minute', 'second', 'tenhertz'])
     parser.add_argument('--update',
             action='store_true',
             default=False,
