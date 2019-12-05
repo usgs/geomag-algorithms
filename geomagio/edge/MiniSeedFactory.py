@@ -380,7 +380,7 @@ class MiniSeedFactory(TimeseriesFactory):
         # determine suffix
         location_suffix = '0'
         if channel.find('_') >= 0:
-            element, suffix = channel.split('_')
+            _, suffix = channel.split('_')
             if suffix == 'Dist':
                 location_suffix = 'D'
             elif suffix == 'SQ':
