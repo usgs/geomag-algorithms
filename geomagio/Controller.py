@@ -328,6 +328,12 @@ def get_input_factory(args):
                 port=args.input_port,
                 locationCode=args.locationcode,
                 **input_factory_args)
+    elif input_type == 'miniseed':
+        input_factory = edge.MiniSeedFactory(
+                host=args.input_host,
+                port=args.input_port,
+                locationCode=args.locationcode,
+                **input_factory_args)
     elif input_type == 'goes':
         # TODO: deal with other goes arguments
         input_factory = imfv283.GOESIMFV283Factory(
@@ -740,6 +746,7 @@ def parse_args(args):
                 'iaga2002',
                 'imfv122',
                 'imfv283',
+                'miniseed',
                 'pcdcp'))
 
     parser.add_argument('--input-file',
