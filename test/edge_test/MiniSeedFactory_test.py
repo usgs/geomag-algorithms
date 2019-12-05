@@ -9,14 +9,18 @@ def test__get_edge_network():
     """edge_test.EdgeFactory_test.test__get_edge_network()
     """
     # _get_edge_network should always return NT for use by USGS geomag
-    assert_equals(MiniSeedFactory()._get_edge_network(' ', ' ', ' ', ' '), 'NT')
+    assert_equals(
+            MiniSeedFactory()._get_edge_network(' ', ' ', ' ', ' '),
+            'NT')
 
 
 def test__get_edge_station():
     """edge_test.EdgeFactory_test.test__get_edge_station()
     """
     # _get_edge_station will return the observatory code passed in.
-    assert_equals(MiniSeedFactory()._get_edge_station('BOU', ' ', ' ', ' '), 'BOU')
+    assert_equals(
+            MiniSeedFactory()._get_edge_station('BOU', ' ', ' ', ' '),
+            'BOU')
 
 
 def test__get_edge_channel():
@@ -32,7 +36,8 @@ def test__get_edge_channel():
             'UFF')
     assert_equals(MiniSeedFactory()._get_edge_channel('', 'H', '', 'minute'),
             'UFH')
-    assert_equals(MiniSeedFactory()._get_edge_channel('', 'DIST', '', 'minute'),
+    assert_equals(
+            MiniSeedFactory()._get_edge_channel('', 'DIST', '', 'minute'),
             'UX4')
     assert_equals(MiniSeedFactory()._get_edge_channel('', 'DST', '', 'minute'),
             'UX3')
