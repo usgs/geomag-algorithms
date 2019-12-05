@@ -58,8 +58,8 @@ def test__get_edge_location():
 def test__get_interval_code():
     """edge_test.EdgeFactory_test.test__get_interval_code()
     """
-    assert_equals(EdgeFactory()._get_interval_code('daily'), 'D')
-    assert_equals(EdgeFactory()._get_interval_code('hourly'), 'H')
+    assert_equals(EdgeFactory()._get_interval_code('day'), 'D')
+    assert_equals(EdgeFactory()._get_interval_code('hour'), 'H')
     assert_equals(EdgeFactory()._get_interval_code('minute'), 'M')
     assert_equals(EdgeFactory()._get_interval_code('second'), 'S')
 

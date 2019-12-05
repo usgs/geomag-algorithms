@@ -51,7 +51,7 @@ class EdgeFactory(TimeseriesFactory):
     type: str
         the data type {variation, quasi-definitive, definitive}
     interval: str
-        the data interval {daily, hourly, minute, second}
+        the data interval {day, hour, minute, second}
     observatoryMetadata: ObservatoryMetadata object
         an ObservatoryMetadata object used to replace the default
         ObservatoryMetadata.
@@ -115,7 +115,7 @@ class EdgeFactory(TimeseriesFactory):
             list of channels to load
         type: {'variation', 'quasi-definitive', 'definitive'}
             data type.
-        interval: {'daily', 'hourly', 'minute', 'second'}
+        interval: {'day', 'hour', 'minute', 'second', 'tenhertz'}
             data interval.
 
         Returns
@@ -175,7 +175,7 @@ class EdgeFactory(TimeseriesFactory):
             list of channels to load
         type: {'variation', 'quasi-definitive', 'definitive'}
             data type.
-        interval: {'daily', 'hourly', 'minute', 'second'}
+        interval: {'day', 'hour', 'minute', 'second', 'tenhertz'}
             data interval.
 
         Notes
@@ -427,9 +427,9 @@ class EdgeFactory(TimeseriesFactory):
         interval type
         """
         interval_code = None
-        if interval == 'daily':
+        if interval == 'day':
             interval_code = 'D'
-        elif interval == 'hourly':
+        elif interval == 'hour':
             interval_code = 'H'
         elif interval == 'minute':
             interval_code = 'M'
@@ -530,7 +530,7 @@ class EdgeFactory(TimeseriesFactory):
             channel to load
         type: {'variation', 'quasi-definitive', 'definitive'}
             data type.
-        interval: {'daily', 'hourly', 'minute', 'second'}
+        interval: {'day', 'hour', 'minute', 'second', 'tenhertz'}
             data interval.
         starttime: obspy.core.UTCDateTime
         endtime: obspy.core.UTCDateTime
