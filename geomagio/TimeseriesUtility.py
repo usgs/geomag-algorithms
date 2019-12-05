@@ -35,13 +35,15 @@ def create_empty_trace(starttime, endtime, observatory,
     obspy.core.Trace
         trace for the requested channel
     """
-    if interval == 'second':
+    if interval == 'tenhertz':
+        delta = 0.1
+    elif interval == 'second':
         delta = 1.
     elif interval == 'minute':
         delta = 60.
-    elif interval == 'hourly':
+    elif interval == 'hour':
         delta = 3600.
-    elif interval == 'daily':
+    elif interval == 'day':
         delta = 86400.
     stats = obspy.core.Stats()
     stats.network = network
