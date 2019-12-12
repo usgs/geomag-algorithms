@@ -1,4 +1,4 @@
-"""Tests for EdgeFactory.py"""
+"""Tests for MiniSeedFactory.py"""
 
 from obspy.core import Stream, Trace, UTCDateTime
 from geomagio.edge import MiniSeedFactory
@@ -6,7 +6,7 @@ from nose.tools import assert_equals
 
 
 def test__get_edge_network():
-    """edge_test.EdgeFactory_test.test__get_edge_network()
+    """edge_test.MiniSeedFactory_test.test__get_edge_network()
     """
     # _get_edge_network should always return NT for use by USGS geomag
     assert_equals(
@@ -15,7 +15,7 @@ def test__get_edge_network():
 
 
 def test__get_edge_station():
-    """edge_test.EdgeFactory_test.test__get_edge_station()
+    """edge_test.MiniSeedFactory_test.test__get_edge_station()
     """
     # _get_edge_station will return the observatory code passed in.
     assert_equals(
@@ -24,7 +24,7 @@ def test__get_edge_station():
 
 
 def test__get_edge_channel():
-    """edge_test.EdgeFactory_test.test__get_edge_channel()
+    """edge_test.MiniSeedFactory_test.test__get_edge_channel()
     """
     # Call private function _get_edge_channel, make certain
     # it gets back the appropriate 2 character code.
@@ -36,6 +36,8 @@ def test__get_edge_channel():
             'UFF')
     assert_equals(MiniSeedFactory()._get_edge_channel('', 'H', '', 'minute'),
             'UFH')
+    assert_equals(MiniSeedFactory()._get_edge_channel('', 'BEU', '', 'minute'),
+            'BEU')
     assert_equals(
             MiniSeedFactory()._get_edge_channel('', 'DIST', '', 'minute'),
             'UX4')
@@ -48,7 +50,7 @@ def test__get_edge_channel():
 
 
 def test__get_edge_location():
-    """edge_test.EdgeFactory_test.test__get_edge_location()
+    """edge_test.MiniSeedFactory_test.test__get_edge_location()
     """
     # Call _get_edge_location, make certain it returns the correct edge
     # location code.
@@ -61,7 +63,7 @@ def test__get_edge_location():
 
 
 def test__get_interval_code():
-    """edge_test.EdgeFactory_test.test__get_interval_code()
+    """edge_test.MiniSeedFactory_test.test__get_interval_code()
     """
     assert_equals(MiniSeedFactory()._get_interval_code('day'), 'P')
     assert_equals(MiniSeedFactory()._get_interval_code('hour'), 'R')
@@ -71,7 +73,7 @@ def test__get_interval_code():
 
 
 def test__set_metadata():
-    """edge_test.EdgeFactory_test.test__set_metadata()
+    """edge_test.MiniSeedFactory_test.test__set_metadata()
     """
     # Call _set_metadata with 2 traces,  and make certain the stats get
     # set for both traces.
@@ -85,7 +87,7 @@ def test__set_metadata():
 
 # def test_get_timeseries():
 def dont_get_timeseries():
-    """edge_test.EdgeFactory_test.test_get_timeseries()"""
+    """edge_test.MiniSeedFactory_test.test_get_timeseries()"""
     # Call get_timeseries, and test stats for comfirmation that it came back.
     # TODO, need to pass in host and port from a config file, or manually
     #   change for a single test.
