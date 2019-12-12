@@ -277,9 +277,9 @@ class MiniSeedFactory(TimeseriesFactory):
             edge_channel = edge_interval_code + 'QE'
         elif channel == 'E-N':
             edge_channel = edge_interval_code + 'QN'
-        elif channel == 'DIST':
+        elif channel == 'Dst4':
             edge_channel = edge_interval_code + 'X4'
-        elif channel == 'DST':
+        elif channel == 'Dst3':
             edge_channel = edge_interval_code + 'X3'
         else:
             edge_channel = channel
