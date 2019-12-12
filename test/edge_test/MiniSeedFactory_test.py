@@ -28,25 +28,16 @@ def test__get_edge_channel():
     """
     # Call private function _get_edge_channel, make certain
     # it gets back the appropriate 2 character code.
-    assert_equals(MiniSeedFactory()._get_edge_channel('', 'D', '', 'minute'),
-            'UFD')
-    assert_equals(MiniSeedFactory()._get_edge_channel('', 'U', '', 'minute'),
-            'UFU')
-    assert_equals(MiniSeedFactory()._get_edge_channel('', 'F', '', 'minute'),
-            'UFF')
-    assert_equals(MiniSeedFactory()._get_edge_channel('', 'H', '', 'minute'),
-            'UFH')
-    assert_equals(MiniSeedFactory()._get_edge_channel('', 'BEU', '', 'minute'),
-            'BEU')
-    assert_equals(
-            MiniSeedFactory()._get_edge_channel('', 'DIST', '', 'minute'),
-            'UX4')
-    assert_equals(MiniSeedFactory()._get_edge_channel('', 'DST', '', 'minute'),
-            'UX3')
-    assert_equals(MiniSeedFactory()._get_edge_channel('', 'E-E', '', 'minute'),
-            'UQE')
-    assert_equals(MiniSeedFactory()._get_edge_channel('', 'E-N', '', 'minute'),
-            'UQN')
+    factory = MiniSeedFactory()
+    assert_equals(factory._get_edge_channel('', 'D', '', 'minute'), 'UFD')
+    assert_equals(factory._get_edge_channel('', 'U', '', 'minute'), 'UFU')
+    assert_equals(factory._get_edge_channel('', 'F', '', 'minute'), 'UFF')
+    assert_equals(factory._get_edge_channel('', 'H', '', 'minute'), 'UFH')
+    assert_equals(factory._get_edge_channel('', 'BEU', '', 'minute'), 'BEU')
+    assert_equals(factory._get_edge_channel('', 'Dst4', '', 'minute'), 'UX4')
+    assert_equals(factory._get_edge_channel('', 'Dst3', '', 'minute'), 'UX3')
+    assert_equals(factory._get_edge_channel('', 'E-E', '', 'minute'), 'UQE')
+    assert_equals(factory._get_edge_channel('', 'E-N', '', 'minute'), 'UQN')
 
 
 def test__get_edge_location():

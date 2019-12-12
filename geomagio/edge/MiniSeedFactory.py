@@ -14,24 +14,14 @@ import sys
 from io import BytesIO
 import numpy
 import numpy.ma
-import obspy.core
-from datetime import datetime
-# try:
-#     # obspy 1.x
-#     from obspy.clients import earthworm
-# except:
-#     # obspy 0.x
-#     from obspy import earthworm
 
+import obspy.core
 from obspy.clients.neic import client as miniseed
 
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..ObservatoryMetadata import ObservatoryMetadata
-
-# for now, still use RawInputClient
-from .RawInputClient import RawInputClient
 
 
 class MiniSeedFactory(TimeseriesFactory):
@@ -80,7 +70,6 @@ class MiniSeedFactory(TimeseriesFactory):
         self.client = miniseed.Client(host, port)
 
         self.observatoryMetadata = observatoryMetadata or ObservatoryMetadata()
-        self.tag = tag
         self.locationCode = locationCode
         self.interval = interval
         self.host = host
