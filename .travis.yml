@@ -1,5 +1,3 @@
-# sudo: false indicates travis should use container infrastructure
-sudo: false
 language: python
 python:
   - 2.7
@@ -8,9 +6,9 @@ python:
 before_install:
   ## courtesy of http://conda.pydata.org/docs/travis.html
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+    wget https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
     else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
@@ -20,7 +18,7 @@ before_install:
   - conda info -a
 install:
   - conda config --add channels conda-forge
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION obspy pycurl nose flake8 coverage webtest 'icu=58.*'
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION obspy pycurl nose flake8 coverage webtest
   - source activate test-environment
 script:
   - flake8 --config=.flake8 bin/ geomagio/ test/
