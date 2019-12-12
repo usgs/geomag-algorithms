@@ -59,16 +59,6 @@ class MiniSeedFactory(TimeseriesFactory):
     locationCode: str
         the location code for the given edge server, overrides type
         in get_timeseries/put_timeseries
-    cwbhost: str
-        a string represeting the IP number of the cwb host to connect to.
-    cwbport: int
-        the port number of the cwb host to connect to.
-    tag: str
-        A tag used by edge to log and associate a socket with a given data
-        source
-    forceout: bool
-        Tells edge to forceout a packet to miniseed.  Generally used when
-        the user knows no more data is coming.
 
     See Also
     --------
@@ -84,8 +74,7 @@ class MiniSeedFactory(TimeseriesFactory):
 
     def __init__(self, host='cwbpub.cr.usgs.gov', port=2061, write_port=7981,
             observatory=None, channels=None, type=None, interval=None,
-            observatoryMetadata=None, locationCode=None,
-            cwbhost=None, cwbport=0, tag='GeomagAlg', forceout=False):
+            observatoryMetadata=None, locationCode=None):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
 
         self.client = miniseed.Client(host, port)
@@ -97,9 +86,6 @@ class MiniSeedFactory(TimeseriesFactory):
         self.host = host
         self.port = port
         self.write_port = write_port
-        self.cwbhost = cwbhost or ''
-        self.cwbport = cwbport
-        self.forceout = forceout
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -203,44 +189,6 @@ class MiniSeedFactory(TimeseriesFactory):
         for channel in channels:
             self._put_channel(timeseries, observatory, channel, type,
                     interval, starttime, endtime)
-
-    def _convert_timeseries_to_decimal(self, stream):
-        """convert geomag edge timeseries data stored as ints, to decimal by
-            dividing by 1000.00
-        Parameters
-        ----------
-        stream : obspy.core.stream
-            a stream retrieved from a geomag edge representing one channel.
-        Notes
-        -----
-        This routine changes the values in the timeseries. The user should
-            make a copy before calling if they don't want that side effect.
-        """
-        for trace in stream:
-            trace.data = numpy.divide(trace.data, 1000.00)
-
-    def _convert_trace_to_int(self, trace_in):
-        """convert geomag edge traces stored as decimal, to ints by multiplying
-           by 1000
-
-        Parameters
-        ----------
-        trace : obspy.core.trace
-            a trace retrieved from a geomag edge representing one channel.
-        Returns
-        -------
-        obspy.core.trace
-            a trace converted to ints
-        Notes
-        -----
-        this doesn't work on ndarray with nan's in it.
-        the trace must be a masked array.
-        """
-        trace = trace_in.copy()
-        trace.data = numpy.multiply(trace.data, 1000.00)
-        trace.data = trace.data.astype(int)
-
-        return trace
 
     def _convert_stream_to_masked(self, timeseries, channel):
         """convert geomag edge traces in a timeseries stream to a MaskedArray
@@ -529,8 +477,6 @@ class MiniSeedFactory(TimeseriesFactory):
 
         Notes: the original timeseries object is changed.
         """
-        # miniseed uses floating point, and doesn't need conversion
-        # self._convert_timeseries_to_decimal(timeseries)
         for trace in timeseries:
             if isinstance(trace.data, numpy.ma.MaskedArray):
                 trace.data.set_fill_value(numpy.nan)
@@ -561,49 +507,8 @@ class MiniSeedFactory(TimeseriesFactory):
             data interval.
         starttime: obspy.core.UTCDateTime
         endtime: obspy.core.UTCDateTime
-
-        Notes
-        -----
-        RawInputClient seems to only work when sockets are
         """
-        station = self._get_edge_station(observatory, channel,
-                type, interval)
-        location = self._get_edge_location(observatory, channel,
-                type, interval)
-        network = self._get_edge_network(observatory, channel,
-                type, interval)
-        edge_channel = self._get_edge_channel(observatory, channel,
-                type, interval)
-
-        now = obspy.core.UTCDateTime(datetime.utcnow())
-        if ((now - endtime) > 864000) and (self.cwbport > 0):
-            host = self.cwbhost
-            port = self.cwbport
-        else:
-            host = self.host
-            port = self.write_port
-
-        ric = RawInputClient(self.tag, host, port, station,
-                edge_channel, location, network)
-
-        stream = self._convert_stream_to_masked(timeseries=timeseries,
-                channel=channel)
-
-        # Make certain there's actually data
-        if not numpy.ma.any(stream.select(channel=channel)[0].data):
-            return
-
-        for trace in stream.select(channel=channel).split():
-            trace_send = trace.copy()
-            trace_send.trim(starttime, endtime)
-            if channel == 'D':
-                trace_send.data = ChannelConverter.get_minutes_from_radians(
-                    trace_send.data)
-            trace_send = self._convert_trace_to_int(trace_send)
-            ric.send_trace(interval, trace_send)
-        if self.forceout:
-            ric.forceout()
-        ric.close()
+        raise NotImplementedError('"_put_channel" not implemented')
 
     def _set_metadata(self, stream, observatory, channel, type, interval):
         """set metadata for a given stream/channel
