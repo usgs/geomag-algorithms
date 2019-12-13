@@ -14,26 +14,17 @@ import sys
 from io import BytesIO
 import numpy
 import numpy.ma
-import obspy.core
-from datetime import datetime
-# try:
-#     # obspy 1.x
-#     from obspy.clients import earthworm
-# except:
-#     # obspy 0.x
-#     from obspy import earthworm
 
-# use local version of earthworm client to test memory leak fix
-from . import client as earthworm
+import obspy.core
+from obspy.clients.neic import client as miniseed
 
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..ObservatoryMetadata import ObservatoryMetadata
-from .RawInputClient import RawInputClient
 
 
-class EdgeFactory(TimeseriesFactory):
+class MiniSeedFactory(TimeseriesFactory):
     """TimeseriesFactory for Edge related data.
 
     Parameters
@@ -41,7 +32,7 @@ class EdgeFactory(TimeseriesFactory):
     host: str
         a string representing the IP number of the host to connect to.
     port: integer
-        the port number the waveserver is listening on.
+        the port number the miniseed query server is listening on.
     observatory: str
         the observatory code for the desired observatory.
     channels: array
@@ -51,23 +42,13 @@ class EdgeFactory(TimeseriesFactory):
     type: str
         the data type {variation, quasi-definitive, definitive}
     interval: str
-        the data interval {day, hour, minute, second}
+        the data interval {'day', 'hour', 'minute', 'second', 'tenhertz'}
     observatoryMetadata: ObservatoryMetadata object
         an ObservatoryMetadata object used to replace the default
         ObservatoryMetadata.
     locationCode: str
         the location code for the given edge server, overrides type
         in get_timeseries/put_timeseries
-    cwbhost: str
-        a string represeting the IP number of the cwb host to connect to.
-    cwbport: int
-        the port number of the cwb host to connect to.
-    tag: str
-        A tag used by edge to log and associate a socket with a given data
-        source
-    forceout: bool
-        Tells edge to forceout a packet to miniseed.  Generally used when
-        the user knows no more data is coming.
 
     See Also
     --------
@@ -81,23 +62,19 @@ class EdgeFactory(TimeseriesFactory):
         for reading.
     """
 
-    def __init__(self, host='cwbpub.cr.usgs.gov', port=2060, write_port=7981,
+    def __init__(self, host='cwbpub.cr.usgs.gov', port=2061, write_port=7981,
             observatory=None, channels=None, type=None, interval=None,
-            observatoryMetadata=None, locationCode=None,
-            cwbhost=None, cwbport=0, tag='GeomagAlg', forceout=False):
+            observatoryMetadata=None, locationCode=None):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
-        self.client = earthworm.Client(host, port)
+
+        self.client = miniseed.Client(host, port)
 
         self.observatoryMetadata = observatoryMetadata or ObservatoryMetadata()
-        self.tag = tag
         self.locationCode = locationCode
         self.interval = interval
         self.host = host
         self.port = port
         self.write_port = write_port
-        self.cwbhost = cwbhost or ''
-        self.cwbport = cwbport
-        self.forceout = forceout
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -202,44 +179,6 @@ class EdgeFactory(TimeseriesFactory):
             self._put_channel(timeseries, observatory, channel, type,
                     interval, starttime, endtime)
 
-    def _convert_timeseries_to_decimal(self, stream):
-        """convert geomag edge timeseries data stored as ints, to decimal by
-            dividing by 1000.00
-        Parameters
-        ----------
-        stream : obspy.core.stream
-            a stream retrieved from a geomag edge representing one channel.
-        Notes
-        -----
-        This routine changes the values in the timeseries. The user should
-            make a copy before calling if they don't want that side effect.
-        """
-        for trace in stream:
-            trace.data = numpy.divide(trace.data, 1000.00)
-
-    def _convert_trace_to_int(self, trace_in):
-        """convert geomag edge traces stored as decimal, to ints by multiplying
-           by 1000
-
-        Parameters
-        ----------
-        trace : obspy.core.trace
-            a trace retrieved from a geomag edge representing one channel.
-        Returns
-        -------
-        obspy.core.trace
-            a trace converted to ints
-        Notes
-        -----
-        this doesn't work on ndarray with nan's in it.
-        the trace must be a masked array.
-        """
-        trace = trace_in.copy()
-        trace.data = numpy.multiply(trace.data, 1000.00)
-        trace.data = trace.data.astype(int)
-
-        return trace
-
     def _convert_stream_to_masked(self, timeseries, channel):
         """convert geomag edge traces in a timeseries stream to a MaskedArray
             This allows for gaps and splitting.
@@ -272,7 +211,7 @@ class EdgeFactory(TimeseriesFactory):
         type : str
             data type {definitive, quasi-definitive, variation}
         interval : str
-            interval length {minute, second}
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
 
         Returns
         -------
@@ -288,39 +227,54 @@ class EdgeFactory(TimeseriesFactory):
             tmplist = channel.split('.')
             return tmplist[0].strip()
 
-        if channel == 'D':
-            edge_channel = edge_interval_code + 'VD'
-        elif channel == 'E':
-            edge_channel = edge_interval_code + 'VE'
-        elif channel == 'F':
-            edge_channel = edge_interval_code + 'SF'
-        elif channel == 'H':
-            edge_channel = edge_interval_code + 'VH'
-        elif channel == 'Z':
-            edge_channel = edge_interval_code + 'VZ'
-        elif channel == 'G':
-            edge_channel = edge_interval_code + 'SG'
-        elif channel == 'X':
-            edge_channel = edge_interval_code + 'VX'
-        elif channel == 'Y':
-            edge_channel = edge_interval_code + 'VY'
+        # see if channel name uses _ for ELEMENT_SUFFIX
+        element = None
+        suffix = None
+        if channel.find('_') >= 0:
+            element, suffix = channel.split('_')
+
+        # 10Hz should be bin/volt
+        if interval == 'tenhertz':
+            middle = None
+            if suffix == 'Bin':
+                middle = 'Y'
+            elif suffix == 'Volt':
+                middle = 'E'
+            elif suffix is not None:
+                raise TimeseriesFactoryException(
+                        'bad channel suffix "%s", wanted "Bin" or "Volt"'
+                        % suffix)
+            # check for expected channels
+            if element in ('U', 'V', 'W') and middle is not None:
+                return edge_interval_code + middle + element
+            else:
+                # unknown, assume advanced user
+                return channel
+
+        if suffix is not None:
+            if suffix == 'Dist' or suffix == 'SQ' or suffix == 'SV':
+                # these suffixes modify location code, but use element channel
+                channel = element
+            else:
+                raise TimeseriesFactoryException(
+                        'bad channel suffix "%s", wanted "Dist", "SQ", or "SV"'
+                        % suffix)
+        if channel in ('D', 'F', 'G', 'H', 'U', 'V', 'W', 'X', 'Y', 'Z'):
+            # normal elements
+            edge_channel = edge_interval_code + 'F' + channel
         elif channel == 'E-E':
             edge_channel = edge_interval_code + 'QE'
         elif channel == 'E-N':
             edge_channel = edge_interval_code + 'QN'
-        elif channel == 'DIST':
-            edge_channel = edge_interval_code + 'DT'
-        elif channel == 'DST':
-            edge_channel = edge_interval_code + 'GD'
-        elif channel == 'SQ':
-            edge_channel = edge_interval_code + 'SQ'
-        elif channel == 'SV':
-            edge_channel = edge_interval_code + 'SV'
+        elif channel == 'Dst4':
+            edge_channel = edge_interval_code + 'X4'
+        elif channel == 'Dst3':
+            edge_channel = edge_interval_code + 'X3'
         else:
             edge_channel = channel
         return edge_channel
 
-    def _get_edge_location(self, observatory, channel, type, interval):
+    def _get_edge_location(self, observatory, channel, data_type, interval):
         """get edge location.
 
         The edge location code is currently determined by the type
@@ -332,36 +286,49 @@ class EdgeFactory(TimeseriesFactory):
             observatory code
         channel : str
             single character channel {H, E, D, Z, F}
-        type : str
+        data_type : str
             data type {definitive, quasi-definitive, variation}
         interval : str
-            interval length {minute, second}
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
 
         Returns
         -------
         location
             returns an edge location code
         """
-        location = None
-
         # If form is chan.loc, return loc (right) portion
         # Allows specific chan/loc selection.
         if channel.find('.') >= 0:
             tmplist = channel.split('.')
             return tmplist[1].strip()
-
+        # factory override
         if self.locationCode is not None:
-            location = self.locationCode
-        else:
-            if type == 'variation' or type == 'reported':
-                location = 'R0'
-            elif type == 'adjusted' or type == 'provisional':
-                location = 'A0'
-            elif type == 'quasi-definitive':
-                location = 'Q0'
-            elif type == 'definitive':
-                location = 'D0'
-        return location
+            return self.locationCode
+        # determine prefix
+        location_prefix = 'R'
+        if data_type == 'variation' or data_type == 'reported':
+            location_prefix = 'R'
+        elif data_type == 'adjusted' or data_type == 'provisional':
+            location_prefix = 'A'
+        elif data_type == 'quasi-definitive':
+            location_prefix = 'Q'
+        elif data_type == 'definitive':
+            location_prefix = 'D'
+        # determine suffix
+        location_suffix = '0'
+        if channel.find('_') >= 0:
+            _, suffix = channel.split('_')
+            if suffix == 'Dist':
+                location_suffix = 'D'
+            elif suffix == 'SQ':
+                location_suffix = 'Q'
+            elif suffix == 'SV':
+                location_suffix = 'V'
+            elif suffix not in ('Bin', 'Volt'):
+                raise TimeseriesFactoryException(
+                        'bad channel suffix "%s", wanted "Dist", "SQ", or "SV"'
+                        % suffix)
+        return location_prefix + location_suffix
 
     def _get_edge_network(self, observatory, channel, type, interval):
         """get edge network code.
@@ -375,7 +342,7 @@ class EdgeFactory(TimeseriesFactory):
         type : str
             data type {definitive, quasi-definitive, variation}
         interval : str
-            interval length {minute, second}
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
 
         Returns
         -------
@@ -396,7 +363,7 @@ class EdgeFactory(TimeseriesFactory):
         type : str
             data type {definitive, quasi-definitive, variation}
         interval : str
-            interval length {minute, second}
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
 
         Returns
         -------
@@ -413,14 +380,8 @@ class EdgeFactory(TimeseriesFactory):
 
         Parameters
         ----------
-        observatory : str
-            observatory code
-        channel : str
-            single character channel {H, E, D, Z, F}
-        type : str
-            data type {definitive, quasi-definitive, variation}
         interval : str
-            interval length {minute, second}
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
 
         Returns
         -------
@@ -428,13 +389,15 @@ class EdgeFactory(TimeseriesFactory):
         """
         interval_code = None
         if interval == 'day':
-            interval_code = 'D'
+            interval_code = 'P'
         elif interval == 'hour':
-            interval_code = 'H'
+            interval_code = 'R'
         elif interval == 'minute':
-            interval_code = 'M'
+            interval_code = 'U'
         elif interval == 'second':
-            interval_code = 'S'
+            interval_code = 'L'
+        elif interval == 'tenhertz':
+            interval_code = 'B'
         else:
             raise TimeseriesFactoryException(
                     'Unexpected interval "%s"' % interval)
@@ -457,7 +420,7 @@ class EdgeFactory(TimeseriesFactory):
         type : str
             data type {definitive, quasi-definitive, variation}
         interval : str
-            interval length {minute, second}
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
 
         Returns
         -------
@@ -485,7 +448,7 @@ class EdgeFactory(TimeseriesFactory):
 
     def _post_process(self, timeseries, starttime, endtime, channels):
         """Post process a timeseries stream after the raw data is
-                is fetched from a waveserver. Specifically changes
+                is fetched from querymom. Specifically changes
                 any MaskedArray to a ndarray with nans representing gaps.
                 Then calls pad_timeseries to deal with gaps at the
                 beggining or end of the streams.
@@ -503,7 +466,6 @@ class EdgeFactory(TimeseriesFactory):
 
         Notes: the original timeseries object is changed.
         """
-        self._convert_timeseries_to_decimal(timeseries)
         for trace in timeseries:
             if isinstance(trace.data, numpy.ma.MaskedArray):
                 trace.data.set_fill_value(numpy.nan)
@@ -534,49 +496,8 @@ class EdgeFactory(TimeseriesFactory):
             data interval.
         starttime: obspy.core.UTCDateTime
         endtime: obspy.core.UTCDateTime
-
-        Notes
-        -----
-        RawInputClient seems to only work when sockets are
         """
-        station = self._get_edge_station(observatory, channel,
-                type, interval)
-        location = self._get_edge_location(observatory, channel,
-                type, interval)
-        network = self._get_edge_network(observatory, channel,
-                type, interval)
-        edge_channel = self._get_edge_channel(observatory, channel,
-                type, interval)
-
-        now = obspy.core.UTCDateTime(datetime.utcnow())
-        if ((now - endtime) > 864000) and (self.cwbport > 0):
-            host = self.cwbhost
-            port = self.cwbport
-        else:
-            host = self.host
-            port = self.write_port
-
-        ric = RawInputClient(self.tag, host, port, station,
-                edge_channel, location, network)
-
-        stream = self._convert_stream_to_masked(timeseries=timeseries,
-                channel=channel)
-
-        # Make certain there's actually data
-        if not numpy.ma.any(stream.select(channel=channel)[0].data):
-            return
-
-        for trace in stream.select(channel=channel).split():
-            trace_send = trace.copy()
-            trace_send.trim(starttime, endtime)
-            if channel == 'D':
-                trace_send.data = ChannelConverter.get_minutes_from_radians(
-                    trace_send.data)
-            trace_send = self._convert_trace_to_int(trace_send)
-            ric.send_trace(interval, trace_send)
-        if self.forceout:
-            ric.forceout()
-        ric.close()
+        raise NotImplementedError('"_put_channel" not implemented')
 
     def _set_metadata(self, stream, observatory, channel, type, interval):
         """set metadata for a given stream/channel
@@ -589,7 +510,7 @@ class EdgeFactory(TimeseriesFactory):
         type : str
             data type {definitive, quasi-definitive, variation}
         interval : str
-            interval length {minute, second}
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
         """
 
         for trace in stream:

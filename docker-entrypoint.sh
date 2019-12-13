@@ -10,6 +10,8 @@ _term () {
 }
 trap _term SIGTERM
 
+# add geomagio to notebook path
+export PYTHONPATH=/geomag-algorithms
 
 # run jupyter notebook server
 jupyter notebook \

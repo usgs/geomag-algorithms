@@ -1,5 +1,6 @@
 .coverage
 .DS_Store
+.git
 node_modules
 *.pyc
 coverage.xml
