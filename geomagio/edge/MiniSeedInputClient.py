@@ -31,20 +31,27 @@ class MiniSeedInputClient(object):
             finally:
                 self.socket = None
 
-    def connect(self, connect_attempts=2):
+    def connect(self, max_attempts=2):
         """Connect to socket if not already open.
+
+        Parameters
+        ----------
+        max_attempts: int
+            number of times to try connecting when there are failures.
+            default 2.
         """
         if self.socket is not None:
             return
         s = None
         attempts = 0
         while True:
+            attempts += 1
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(self.host, self.port)
                 break
             except socket.error as e:
-                if ++attempts >= connect_attempts:
+                if attempts >= max_attempts:
                     raise
                 print('Unable to connect (%s), trying again' % e,
                         file=sys.stderr)
