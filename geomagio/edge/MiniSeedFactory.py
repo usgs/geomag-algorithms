@@ -178,6 +178,8 @@ class MiniSeedFactory(TimeseriesFactory):
         for channel in channels:
             self._put_channel(timeseries, observatory, channel, type,
                     interval, starttime, endtime)
+        # close socket
+        self.write_client.close()
 
     def _convert_stream_to_masked(self, timeseries, channel):
         """convert geomag edge traces in a timeseries stream to a MaskedArray
@@ -497,7 +499,27 @@ class MiniSeedFactory(TimeseriesFactory):
         starttime: obspy.core.UTCDateTime
         endtime: obspy.core.UTCDateTime
         """
-        raise NotImplementedError('"_put_channel" not implemented')
+        # use separate traces when there are gaps
+        to_write = timeseries.select(channel=channel)
+        to_write = TimeseriesUtility.mask_stream(to_write)
+        to_write = to_write.split()
+        to_write = TimeseriesUtility.unmask_stream(to_write)
+        # relabel channels from internal to edge conventions
+        station = self._get_edge_station(observatory, channel,
+                type, interval)
+        location = self._get_edge_location(observatory, channel,
+                type, interval)
+        network = self._get_edge_network(observatory, channel,
+                type, interval)
+        edge_channel = self._get_edge_channel(observatory, channel,
+                type, interval)
+        for trace in to_write:
+            trace.stats.station = station
+            trace.stats.location = location
+            trace.stats.network = network
+            trace.stats.channel = edge_channel
+        # finally, send to edge
+        self.write_client.send(to_write)
 
     def _set_metadata(self, stream, observatory, channel, type, interval):
         """set metadata for a given stream/channel
