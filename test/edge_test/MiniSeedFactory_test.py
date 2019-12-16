@@ -1,8 +1,10 @@
 """Tests for MiniSeedFactory.py"""
 
-from obspy.core import Stream, Trace, UTCDateTime
-from geomagio.edge import MiniSeedFactory
 from nose.tools import assert_equals
+import numpy
+from obspy.core import Stats, Stream, Trace, UTCDateTime
+from geomagio import TimeseriesUtility
+from geomagio.edge import MiniSeedFactory
 
 
 def test__get_edge_network():
@@ -63,6 +65,43 @@ def test__get_interval_code():
     assert_equals(MiniSeedFactory()._get_interval_code('tenhertz'), 'B')
 
 
+class TestMiniSeedInputClient(object):
+    def __init__(self):
+        self.close_called = False
+        self.last_sent = None
+
+    def close(self):
+        self.close_called = True
+
+    def send(self, stream):
+        self.last_sent = stream
+
+
+def test__put_timeseries():
+    """edge_test.MiniSeedFactory_test.test__put_timeseries()
+    """
+    trace1 = __create_trace([0, 1, 2, 3, numpy.nan, 5, 6, 7, 8, 9],
+            channel='H')
+    client = TestMiniSeedInputClient()
+    factory = MiniSeedFactory()
+    factory.write_client = client
+    factory.put_timeseries(Stream(trace1), channels=('H'))
+    # put timeseries should call close when done
+    assert_equals(client.close_called, True)
+    # trace should be split in 2 blocks at gap
+    sent = client.last_sent
+    assert_equals(len(sent), 2)
+    # first trace includes [0...4]
+    assert_equals(sent[0].stats.channel, 'LFH')
+    assert_equals(len(sent[0]), 4)
+    assert_equals(sent[0].stats.endtime, trace1.stats.starttime + 3)
+    # second trace includes [5...9]
+    assert_equals(sent[1].stats.channel, 'LFH')
+    assert_equals(len(sent[1]), 5)
+    assert_equals(sent[1].stats.starttime, trace1.stats.starttime + 5)
+    assert_equals(sent[1].stats.endtime, trace1.stats.endtime)
+
+
 def test__set_metadata():
     """edge_test.MiniSeedFactory_test.test__set_metadata()
     """
@@ -90,3 +129,34 @@ def dont_get_timeseries():
         'BOU', 'Expect timeseries to have stats')
     assert_equals(timeseries.select(channel='H')[0].stats.channel,
         'H', 'Expect timeseries stats channel to be equal to H')
+
+
+def __create_trace(data,
+        network='NT',
+        station='BOU',
+        channel='H',
+        location='R0',
+        data_interval='second',
+        data_type='interval'):
+    """
+    Utility to create a trace containing the given numpy array.
+
+    Parameters
+    ----------
+    data: array
+        The array to be inserted into the trace.
+
+    Returns
+    -------
+    obspy.core.Stream
+        Stream containing the channel.
+    """
+    stats = Stats()
+    stats.starttime = UTCDateTime('2019-12-01')
+    stats.delta = TimeseriesUtility.get_delta_from_interval(data_interval)
+    stats.channel = channel
+    stats.npts = len(data)
+    stats.data_interval = data_interval
+    stats.data_type = data_type
+    numpy_data = numpy.array(data, dtype=numpy.float64)
+    return Trace(numpy_data, stats)
