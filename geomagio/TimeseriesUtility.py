@@ -35,16 +35,7 @@ def create_empty_trace(starttime, endtime, observatory,
     obspy.core.Trace
         trace for the requested channel
     """
-    if interval == 'tenhertz':
-        delta = 0.1
-    elif interval == 'second':
-        delta = 1.
-    elif interval == 'minute':
-        delta = 60.
-    elif interval == 'hour':
-        delta = 3600.
-    elif interval == 'day':
-        delta = 86400.
+    delta = get_delta_from_interval(interval)
     stats = obspy.core.Stats()
     stats.network = network
     stats.station = station
@@ -60,6 +51,34 @@ def create_empty_trace(starttime, endtime, observatory,
     stats.npts = length + 1
     data = numpy.full(stats.npts, numpy.nan, dtype=numpy.float64)
     return obspy.core.Trace(data, stats)
+
+
+def get_delta_from_interval(data_interval):
+    """convert interval name to number of seconds
+
+    Parameters
+    ----------
+    interval : str
+        interval length {day, hour, minute, second, tenhertz}
+
+    Returns
+    -------
+    int
+        number of seconds for interval, or None if unknown
+    """
+    if data_interval == 'tenhertz':
+        delta = 0.1
+    elif data_interval == 'second':
+        delta = 1.
+    elif data_interval == 'minute':
+        delta = 60.
+    elif data_interval == 'hour':
+        delta = 3600.
+    elif data_interval == 'day':
+        delta = 86400.
+    else:
+        delta = None
+    return delta
 
 
 def get_stream_start_end_times(timeseries, without_gaps=False):
