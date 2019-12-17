@@ -1,6 +1,5 @@
 """Tests for the IMFV283 Parser class."""
 from __future__ import unicode_literals
-from builtins import str
 
 from nose.tools import assert_equals
 from obspy import UTCDateTime
