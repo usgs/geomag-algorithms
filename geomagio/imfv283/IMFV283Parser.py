@@ -368,7 +368,7 @@ class IMFV283Parser(object):
             byte3 = msg[offset + ness_byte + 2]
             byte2 = msg[offset + ness_byte + 1]
             byte1 = msg[offset + ness_byte]
-            if isinstance(byte1, str):
+            if not isinstance(byte1, int):
                 # in python 3, these are already ints
                 # python 2 returns characters, which need to be converted
                 byte3 = ord(byte3)
