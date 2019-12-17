@@ -1,5 +1,5 @@
 """Factory to load IMFV283 files from an input StreamIMFV283Factory."""
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, print_function, unicode_literals
 
 from .IMFV283Factory import IMFV283Factory
 import subprocess
@@ -186,5 +186,5 @@ class GOESIMFV283Factory(IMFV283Factory):
         if not os.path.exists(criteria_dir):
             os.makedirs(criteria_dir)
         with open(criteria_file, 'wb') as fh:
-            fh.write(''.join(buf))
+            fh.write(''.join(buf).encode())
             fh.close()
