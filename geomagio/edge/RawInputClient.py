@@ -375,7 +375,7 @@ class RawInputClient():
         The Packet is right padded with zeros
         The Packet must be 40 Bytes long.
         """
-        tg = self.tag + '            '
+        tg = str(self.tag + '            ').encode()
         tb = struct.pack(TAGSTR, PACKETHEAD, TAG, tg[:12],
                 0, 0, 0, 0, 0, 0)
         return tb

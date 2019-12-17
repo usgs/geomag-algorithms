@@ -1,4 +1,4 @@
-"""Tests for RawInputFactory.py"""
+"""Tests for RawInputClient.py"""
 
 import numpy
 from obspy.core import Stats, Trace, UTCDateTime
@@ -45,3 +45,17 @@ def test_raw_input_client():
     client.send_trace('minute', trace_send)
     # verify data was sent
     assert_equals(len(client.last_send), 1)
+
+
+def test__get_tag():
+    """edge_test.RawInputClient_test.test_raw_input_client()
+    """
+    network = 'NT'
+    station = 'BOU'
+    channel = 'MVH'
+    location = 'R0'
+    client = TestRawInputClient(tag='tag', host='host', port='port',
+            station=station, channel=channel,
+            location=location, network=network)
+    tag_send = client._get_tag()
+    assert_equals(tag_send is not None, True)
