@@ -1,5 +1,5 @@
 """Parsing methods for the IMFV283 Format."""
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from builtins import range
 
 import numpy
@@ -97,7 +97,7 @@ class IMFV283Parser(object):
                 self._post_process(data, msg_header, goes_header)
             except (KeyError, IndexError, ValueError):
                 sys.stderr.write("Incorrect data line ")
-                sys.stderr.write(line)
+                sys.stderr.write(str(line))
 
     def _estimate_data_time(self, transmission, doy, minute,
             max_transmit_delay=1800):
@@ -281,7 +281,8 @@ class IMFV283Parser(object):
         header = {}
 
         header['daps_platform'] = msg[0:8]
-        header['obs'] = imfv283_codes.PLATFORMS[header['daps_platform']]
+        platform = str(header['daps_platform'])
+        header['obs'] = imfv283_codes.PLATFORMS[platform]
         # if it's not in the observatory dictionary, we ignore it.
         if header['obs'] is None:
             return header

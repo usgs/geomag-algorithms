@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """Dictionary of observatory codes and ness block byte orders"""
 OBSERVATORIES = {
     # USGS
