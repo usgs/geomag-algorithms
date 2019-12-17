@@ -1,4 +1,5 @@
-from builtins import range
+from __future__ import unicode_literals
+from builtins import range, str
 
 import socket  # noqa
 import struct
@@ -132,7 +133,10 @@ class RawInputClient():
         the correct length.  We only expect observatory to ever be of an
         incorrect length.
         """
-        return str(network + observatory.ljust(5) + channel + location)
+        return str.encode(network +
+                observatory.ljust(5) +
+                channel +
+                location)
 
     def forceout(self):
         """ force edge to recognize data
