@@ -49,7 +49,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         self.server = server
         self.user = user
         self.password = password
-        self.javaerror = 'FATAL'
+        self.javaerror = b'FATAL'
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
