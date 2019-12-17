@@ -1,6 +1,6 @@
 """Parsing methods for the IMFV283 Format."""
 from __future__ import absolute_import, unicode_literals
-from builtins import range
+from builtins import range, str
 
 import numpy
 import sys
@@ -132,7 +132,7 @@ class IMFV283Parser(object):
         """
         # convert to datetime
         transmit_time = UTCDateTime(
-                '20' + transmission[0:5] + 'T' + transmission[5:])
+                b'20' + transmission[0:5] + b'T' + transmission[5:])
         transmit_year = transmit_time.year
         # delta should not include first day of year
         data_time_delta = timedelta(days=doy - 1, minutes=minute)
@@ -281,7 +281,7 @@ class IMFV283Parser(object):
         header = {}
 
         header['daps_platform'] = msg[0:8]
-        platform = str(header['daps_platform'])
+        platform = header['daps_platform'].decode()
         header['obs'] = imfv283_codes.PLATFORMS[platform]
         # if it's not in the observatory dictionary, we ignore it.
         if header['obs'] is None:
@@ -365,9 +365,9 @@ class IMFV283Parser(object):
 
         for cnt in range(0, 63):
             # Convert 3 byte "pair" into ordinal values for manipulation.
-            byte3 = ord(msg[offset + ness_byte + 2])
-            byte2 = ord(msg[offset + ness_byte + 1])
-            byte1 = ord(msg[offset + ness_byte])
+            byte3 = msg[offset + ness_byte + 2]
+            byte2 = msg[offset + ness_byte + 1]
+            byte1 = msg[offset + ness_byte]
 
             goes_value1 = (byte3 & 0x3F) + ((byte2 & 0x3) * 0x40)
             goes_value2 = ((byte2 // 0x4) & 0xF) + ((byte1 & 0xF) * 0x10)
