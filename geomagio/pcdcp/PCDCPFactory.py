@@ -71,7 +71,7 @@ class PCDCPFactory(TimeseriesFactory):
         rate = (length - 1) / (endtime - starttime)
         stream = obspy.core.Stream()
 
-        for channel in data.keys():
+        for channel in list(data.keys()):
             stats = obspy.core.Stats()
             stats.network = 'NT'
             stats.station = parser.header['station']
