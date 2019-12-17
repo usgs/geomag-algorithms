@@ -365,9 +365,15 @@ class IMFV283Parser(object):
 
         for cnt in range(0, 63):
             # Convert 3 byte "pair" into ordinal values for manipulation.
-            byte3 = int(msg[offset + ness_byte + 2])
-            byte2 = int(msg[offset + ness_byte + 1])
-            byte1 = int(msg[offset + ness_byte])
+            byte3 = msg[offset + ness_byte + 2]
+            byte2 = msg[offset + ness_byte + 1]
+            byte1 = msg[offset + ness_byte]
+            if isinstance(byte1, str):
+                # in python 3, these are already ints
+                # python 2 returns characters, which need to be converted
+                byte3 = ord(byte3)
+                byte2 = ord(byte2)
+                byte1 = ord(byte1)
 
             goes_value1 = (byte3 & 0x3F) + ((byte2 & 0x3) * 0x40)
             goes_value2 = ((byte2 // 0x4) & 0xF) + ((byte1 & 0xF) * 0x10)
