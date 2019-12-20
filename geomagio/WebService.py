@@ -282,11 +282,11 @@ class WebService(object):
         else:
             output_format = output_format.lower()
         observatory_id = observatory_id.upper()
-        if observatory_id not in self.metadata.keys():
+        if observatory_id not in list(self.metadata.keys()):
             raise WebServiceException(
                    'Bad id value "%s".'
                    ' Valid values are: %s'
-                   % (observatory_id, self.metadata.keys()))
+                   % (observatory_id, list(self.metadata.keys())))
         if not starttime:
             now = datetime.now()
             today = UTCDateTime(

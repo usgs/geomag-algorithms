@@ -43,10 +43,10 @@ class IMFV122Factory(TimeseriesFactory):
         starttime = obspy.core.UTCDateTime(parser.times[0])
         endtime = obspy.core.UTCDateTime(parser.times[-1])
         data = parser.data
-        length = len(data[data.keys()[0]])
+        length = len(data[list(data.keys())[0]])
         rate = (length - 1) / (endtime - starttime)
         stream = obspy.core.Stream()
-        for channel in data.keys():
+        for channel in list(data.keys()):
             stats = obspy.core.Stats(metadata)
             stats.starttime = starttime
             stats.sampling_rate = rate

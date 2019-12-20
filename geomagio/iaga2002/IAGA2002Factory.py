@@ -72,7 +72,7 @@ class IAGA2002Factory(TimeseriesFactory):
                 rate = 1
             else:
                 raise Exception('one sample, and unable to guess rate')
-        for channel in data.keys():
+        for channel in list(data.keys()):
             stats = obspy.core.Stats(metadata)
             stats.starttime = starttime
             stats.sampling_rate = rate

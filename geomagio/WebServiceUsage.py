@@ -5,7 +5,7 @@ from geomagio.ObservatoryMetadata import ObservatoryMetadata
 
 class WebServiceUsage(object):
     def __init__(self, metadata=None, mount_path=None, host_prefix=None):
-        metadata = metadata or ObservatoryMetadata().metadata.keys()
+        metadata = metadata or list(ObservatoryMetadata().metadata.keys())
         self.date = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         self.metadata = ', '.join(sorted(metadata))
         self.mount_path = mount_path

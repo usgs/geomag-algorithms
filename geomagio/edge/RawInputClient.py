@@ -1,4 +1,5 @@
-from builtins import range
+from __future__ import unicode_literals
+from builtins import range, str
 
 import socket  # noqa
 import struct
@@ -132,7 +133,10 @@ class RawInputClient():
         the correct length.  We only expect observatory to ever be of an
         incorrect length.
         """
-        return str(network + observatory.ljust(5) + channel + location)
+        return str(network +
+                observatory.ljust(5) +
+                channel +
+                location).encode()
 
     def forceout(self):
         """ force edge to recognize data
@@ -321,7 +325,7 @@ class RawInputClient():
         ratemantissa, ratedivisor = self._get_mantissa_divisor(rate)
 
         packStr = '%s%d%s' % (PACKSTR, nsamp, 'i')
-        bpackStr = str.encode(packStr)
+        bpackStr = str(packStr).encode()
         buf = struct.pack(bpackStr, PACKETHEAD, nsamp, self.seedname, yr, doy,
                 ratemantissa, ratedivisor, self.activity, self.ioclock,
                 self.quality, self.timingquality, secs, usecs, self.sequence,
@@ -371,7 +375,7 @@ class RawInputClient():
         The Packet is right padded with zeros
         The Packet must be 40 Bytes long.
         """
-        tg = self.tag + '            '
+        tg = str(self.tag + '            ').encode()
         tb = struct.pack(TAGSTR, PACKETHEAD, TAG, tg[:12],
                 0, 0, 0, 0, 0, 0)
         return tb

@@ -1,6 +1,6 @@
 """Parsing methods for the IMFV283 Format."""
-from __future__ import absolute_import
-from builtins import range
+from __future__ import absolute_import, unicode_literals
+from builtins import range, str
 
 import numpy
 import sys
@@ -97,7 +97,7 @@ class IMFV283Parser(object):
                 self._post_process(data, msg_header, goes_header)
             except (KeyError, IndexError, ValueError):
                 sys.stderr.write("Incorrect data line ")
-                sys.stderr.write(line)
+                sys.stderr.write(str(line))
 
     def _estimate_data_time(self, transmission, doy, minute,
             max_transmit_delay=1800):
@@ -132,7 +132,7 @@ class IMFV283Parser(object):
         """
         # convert to datetime
         transmit_time = UTCDateTime(
-                '20' + transmission[0:5] + 'T' + transmission[5:])
+                b'20' + transmission[0:5] + b'T' + transmission[5:])
         transmit_year = transmit_time.year
         # delta should not include first day of year
         data_time_delta = timedelta(days=doy - 1, minutes=minute)
@@ -281,7 +281,8 @@ class IMFV283Parser(object):
         header = {}
 
         header['daps_platform'] = msg[0:8]
-        header['obs'] = imfv283_codes.PLATFORMS[header['daps_platform']]
+        platform = header['daps_platform'].decode()
+        header['obs'] = imfv283_codes.PLATFORMS[platform]
         # if it's not in the observatory dictionary, we ignore it.
         if header['obs'] is None:
             return header
@@ -364,9 +365,15 @@ class IMFV283Parser(object):
 
         for cnt in range(0, 63):
             # Convert 3 byte "pair" into ordinal values for manipulation.
-            byte3 = ord(msg[offset + ness_byte + 2])
-            byte2 = ord(msg[offset + ness_byte + 1])
-            byte1 = ord(msg[offset + ness_byte])
+            byte3 = msg[offset + ness_byte + 2]
+            byte2 = msg[offset + ness_byte + 1]
+            byte1 = msg[offset + ness_byte]
+            if not isinstance(byte1, int):
+                # in python 3, these are already ints
+                # python 2 returns characters, which need to be converted
+                byte3 = ord(byte3)
+                byte2 = ord(byte2)
+                byte1 = ord(byte1)
 
             goes_value1 = (byte3 & 0x3F) + ((byte2 & 0x3) * 0x40)
             goes_value2 = ((byte2 // 0x4) & 0xF) + ((byte1 & 0xF) * 0x10)
