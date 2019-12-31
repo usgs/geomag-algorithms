@@ -8,10 +8,18 @@ coverage = "*"
 flake8 = "*"
 nose = "*"
 webtest = "*"
+black = "*"
 
 [packages]
 numpy = "*"
 scipy = "*"
 obspy = "*"
 pycurl = "*"
+authlib = "*"
+flask = "*"
+flask-login = "*"
+flask-migrate = "*"
+flask-session = "*"
+flask-sqlalchemy = "*"
+psycopg2-binary = "*"
 

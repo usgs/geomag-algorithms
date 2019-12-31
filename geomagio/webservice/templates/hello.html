@@ -1,0 +1,12 @@
+{% extends '_template.html' %}
+
+{% block header %}
+<h1>{% block title %}Hello{% endblock %}</h1>
+{% endblock %}
+
+
+{% block content %}
+<p>This is the page when logged in</p>
+{{ current_user.to_dict() | tojson }}
+
+{% endblock %}
