@@ -4,8 +4,11 @@ python:
   - 3.5
   - 3.6
   - 3.7
+before_install:
+  # used to build pycurl
+  - sudo apt-get -y install libgnutls-dev
 install:
-  - pipenv install --dev
+  - pipenv install --dev --skip-lock
 script:
   - flake8 --config=.flake8 bin/ geomagio/ test/
   - nosetests -v .
