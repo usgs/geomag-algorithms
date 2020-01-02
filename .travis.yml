@@ -18,7 +18,7 @@ before_install:
   - conda info -a
 install:
   - conda config --add channels conda-forge
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION obspy pycurl nose flake8 coverage webtest
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION obspy pycurl nose flake8 coverage webtest authlib flask flask-login flask-migrate flask-session flask-sqlalchemy psycopg2-binary
   - source activate test-environment
 script:
   - flake8 --config=.flake8 bin/ geomagio/ test/
