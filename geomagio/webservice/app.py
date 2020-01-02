@@ -23,10 +23,4 @@ def create_app():
     def index():
         return flask.render_template('index.html')
 
-    # add commands
-    #@app.cli.command('create_db')
-    #def create_db():
-    #    # create database tables
-    #    database.db.create_all()
-
     return app

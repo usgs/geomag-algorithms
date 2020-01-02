@@ -4,7 +4,6 @@ import flask
 import flask_login
 import os
 from authlib.integrations.flask_client import OAuth
-from functools import wraps
 
 from .database import db
 
@@ -65,6 +64,7 @@ class User(db.Model, flask_login.UserMixin):
 def _load_user(user_id):
     return User.query.filter_by(openid=user_id).first()
 
+
 @blueprint.route('/hello')
 @flask_login.login_required
 def hello():
@@ -79,9 +79,8 @@ def login():
 
 @blueprint.route('/login/callback')
 def authorize():
-    token = oauth.openid.authorize_access_token()
+    oauth.openid.authorize_access_token()
     userinfo = oauth.openid.userinfo()
-    print(userinfo)
     # check if existing user
     user = User.query.filter_by(openid=userinfo.sub).first()
     if not user:

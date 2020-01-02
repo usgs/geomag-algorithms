@@ -10,5 +10,4 @@ db = flask_sqlalchemy.SQLAlchemy()
 
 def init_app(app: flask.Flask):
     db.init_app(app)
-    migrate = flask_migrate.Migrate(app, db)
-
+    flask_migrate.Migrate(app, db)
