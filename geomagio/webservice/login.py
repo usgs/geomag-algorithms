@@ -45,7 +45,6 @@ class User(db.Model, flask_login.UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     openid = db.Column(db.Text, unique=True, nullable=False)
     email = db.Column(db.Text, unique=True, nullable=False)
-    is_active = db.Column(db.Boolean, default=False)
     groups = db.Column(db.Text)
 
     def get_id(self) -> str:
