@@ -1,4 +1,5 @@
 from __future__ import absolute_import, unicode_literals, print_function
+from builtins import str
 
 import flask
 import flask_login
@@ -60,7 +61,7 @@ class User(db.Model, flask_login.UserMixin):
 
 
 @login_manager.user_loader
-def _load_user(user_id):
+def _load_user(user_id: str):
     return User.query.filter_by(openid=user_id).first()
 
 
