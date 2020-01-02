@@ -6,7 +6,7 @@ import os
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
 
-from .database import db, User
+from .database import db
 
 
 # Blueprint for auth routes
@@ -37,6 +37,28 @@ def init_app(app: flask.Flask):
     )
     # register blueprint routes
     app.register_blueprint(blueprint)
+
+
+class User(db.Model, flask_login.UserMixin):
+    """User database model.
+    """
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    openid = db.Column(db.Text, unique=True, nullable=False)
+    email = db.Column(db.Text, unique=True, nullable=False)
+    is_active = db.Column(db.Boolean, default=False)
+    groups = db.Column(db.Text)
+
+    def get_id(self) -> str:
+        return str(self.openid)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'openid': self.openid,
+            'email': self.email,
+            'groups': self.groups
+        }
 
 
 @login_manager.user_loader
