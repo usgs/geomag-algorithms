@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from builtins import range
+from builtins import range, str
 
 import numpy
 from . import PCDCPParser
@@ -40,9 +40,9 @@ class PCDCPWriter(object):
         if stats.delta == 1:
             self.empty_value = PCDCPParser.NINES_RAW
 
-        out.write(self._format_header(stats))
+        out.write(str(self._format_header(stats)).encode())
 
-        out.write(self._format_data(timeseries, channels, stats))
+        out.write(str(self._format_data(timeseries, channels, stats)).encode())
 
     def _format_header(self, stats):
         """format headers for PCDCP file
