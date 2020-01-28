@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from geomagio.algorithm import Algorithm
+from .Algorithm import Algorithm
 import numpy as np
 from numpy.lib import stride_tricks as npls
 import scipy.signal as sps
