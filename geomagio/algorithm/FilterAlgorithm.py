@@ -5,6 +5,7 @@ from numpy.lib import stride_tricks as npls
 import scipy.signal as sps
 from obspy.core import Stream, Stats
 import json
+from .. import TimeseriesUtility as tu
 
 
 class FilterAlgorithm(Algorithm):
@@ -31,8 +32,6 @@ class FilterAlgorithm(Algorithm):
         # Initialize filter to execute filtering step with custom coefficients
         if self.filtertype == 'custom':
             self.load_state()
-            self.decimation = int(self.output_sample_period /
-                    self.input_sample_period)
             self.numtaps = len(self.window)
         # initialize filter to execute cascading filtering steps
         else:
@@ -125,7 +124,7 @@ class FilterAlgorithm(Algorithm):
         if self.filtertype == 'custom':
             for trace in stream:
                 data = trace.data
-                step = self.decimation
+                step = int(output_sample_period / input_sample_period)
                 filtered = self.firfilter(data, self.window, step)
                 stats = Stats(trace.stats)
                 stats.starttime = trace.stats.starttime + \
@@ -141,7 +140,7 @@ class FilterAlgorithm(Algorithm):
 
         # set stop index to where the sampling period in steparr
         # equals the desired output sample period
-        stop_idx = np.argwhere(self.steparr == self.output_sample_period)[0][0]
+        stop_idx = np.argwhere(self.steparr == output_sample_period)[0][0]
         for trace in stream:
             # reinitialize input sample period
             input_sample_period = self.input_sample_period
@@ -311,7 +310,8 @@ class FilterAlgorithm(Algorithm):
         parser: ArgumentParser
             command line argument parser
         """
-        # input and output time intervals are managed by Controller
+        # input and output time intervals are managed
+        # by Controller and TimeriesUtility
 
         parser.add_argument('--filter-type',
                 help='Specify default filters or custom filter',
@@ -342,21 +342,7 @@ class FilterAlgorithm(Algorithm):
         self.volt_conv = arguments.volt_conversion
         self.bin_conv = arguments.bin_conversion
         self.coeff_filename = arguments.filter_coefficients
-
-        if arguments.input_interval in ['tenhertz']:
-            self.input_sample_period = 0.1
-        elif arguments.input_interval in ['second']:
-            self.input_sample_period = 1.0
-        elif arguments.input_interval in ['minute']:
-            self.input_sample_period = 60.0
-        elif arguments.input_interval in ['hour', 'hourly']:
-            self.input_sample_period = 3600.0
-
-        if arguments.output_interval in ['tenhertz']:
-            self.output_sample_period = 0.1
-        elif arguments.output_interval in ['second']:
-            self.output_sample_period = 1.0
-        elif arguments.output_interval in ['minute']:
-            self.output_sample_period = 60.0
-        elif arguments.output_interval in ['hour', 'hourly']:
-            self.output_sample_period = 3600.0
+        input_interval = arguments.input_interval
+        output_interval = arguments.output_interval
+        self.input_sample_period = tu.get_delta_from_interval(input_interval)
+        self.output_sample_period = tu.get_delta_from_interval(output_interval)
