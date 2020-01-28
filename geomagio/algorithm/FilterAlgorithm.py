@@ -1,38 +1,73 @@
 from __future__ import absolute_import
-
-from .Algorithm import Algorithm
+from geomagio.algorithm import Algorithm
 import numpy as np
 from numpy.lib import stride_tricks as npls
 import scipy.signal as sps
 from obspy.core import Stream, Stats
+import json
 
 
 class FilterAlgorithm(Algorithm):
     """
-        Filter Algorithm that filters and downsamples data from one second
+        Filter Algorithm that filters and downsamples data
     """
 
-    def __init__(self, decimation=None, window=None, interval=None,
-                 location=None, inchannels=None, outchannels=None,
-                 data_type=None):
-        Algorithm.__init__(self, inchannels=inchannels,
-            outchannels=outchannels)
-        self.numtaps = 91
-        # get filter window (standard intermagnet one-minute filter)
-        self.window = sps.get_window(window=('gaussian', 15.8734),
-                                             Nx=self.numtaps)
-        # normalize filter window
-        self.window = self.window / np.sum(self.window)
-        self.decimation = 60
-        self.sample_period = 1.0
-        self.data_type = data_type
-        self.location = location
-        self.inchannels = inchannels
-        self.outchannels = outchannels
+    def __init__(self, window=None, coeff_filename=None, filtertype=None,
+            input_sample_period=None, output_sample_period=None, numtaps=None,
+            decimation=None, steparr=None, volt_conv=None, bin_conv=None,
+            inchannels=None, outchannels=None):
+
+        Algorithm.__init__(self, inchannels=None, outchannels=None)
+        self.window = window
+        self.coeff_filename = coeff_filename
+        self.filtertype = filtertype
+        self.numtaps = numtaps
+        self.volt_conv = volt_conv
+        self.bin_conv = bin_conv
+        self.input_sample_period = input_sample_period
+        self.output_sample_period = output_sample_period
+        # Set volt/bin conversions to defaults if using Python
+        if self.volt_conv is None:
+            self.volt_conv = 100
+        if self.bin_conv is None:
+            self.bin_conv = 500
+        self.steparr = np.array([0.1, 1, 60, 3600])
+
+    def load_state(self):
+        """Load algorithm state from a file.
+        File name is self.statefile.
+        """
+        if self.coeff_filename is None:
+            return
+
+        data = None
+
+        with open(self.coeff_filename, 'r') as f:
+            data = f.read()
+            data = json.loads(data)
+
+        if data is None or data == '':
+            return
+
+        self.window = np.array(data['window'])
+
+    def save_state(self):
+        """Save algorithm state to a file.
+        File name is self.statefile.
+        """
+        if self.coeff_filename is None:
+            return
+        data = {
+            'window': list(self.window)
+        }
+        with open(self.coeff_filename, 'w') as f:
+            f.write(json.dumps(data))
 
     def create_trace(self, channel, stats, data):
         """Utility to create a new trace object.
-
+        This may be necessary for more sophisticated metadata
+        modifications, but for now it simply passes inputs back
+        to parent Algorithm class.
         Parameters
         ----------
         channel : str
@@ -41,21 +76,11 @@ class FilterAlgorithm(Algorithm):
             channel metadata to clone.
         data : numpy.array
             channel data.
-
         Returns
         -------
         obspy.core.Trace
             trace containing data and metadata.
         """
-        stats = Stats(stats)
-        if self.data_type is None:
-            stats.data_type = 'variation'
-        else:
-            stats.data_type = self.data_type
-        if self.data_type is None:
-            stats.location = 'R0'
-        else:
-            stats.location = self.location
 
         trace = super(FilterAlgorithm, self).create_trace(channel, stats,
             data)
@@ -73,27 +98,78 @@ class FilterAlgorithm(Algorithm):
         out : obspy.core.Stream
             stream containing 1 trace per original trace.
         """
-
+        # if input stream is 10 Hz, convert data to nT
+        if self.input_sample_period == 0.1:
+            stream = self.convert_miniseed(stream)
+        output_sample_period = self.output_sample_period
+        input_sample_period = self.input_sample_period
         out = Stream()
+        # perform one filter operation for custom type filter
+        if self.filtertype == 'custom':
+            self.decimation = int(output_sample_period /
+                input_sample_period)
+            self.load_state()
+            self.numtaps = len(self.window)
+            for trace in stream:
+                data = trace.data
+                step = int(output_sample_period /
+                    input_sample_period)
+                filtered = self.firfilter(data, self.window, step)
+                stats = Stats(trace.stats)
+                self.numtaps = len(self.window)
+                stats.starttime = trace.stats.starttime + \
+                self.numtaps * self.input_sample_period // \
+                2 + self.input_sample_period
+                stats.delta = stats.delta * step
+                stats.npts = filtered.shape[0]
+                trace_out = self.create_trace(
+                    stats.channel, stats, filtered)
 
+                out += trace_out
+            return out
+        # initialize filter to execute cascading filtering steps
+        self.window = [sps.firwin(123, 0.45 / 5.0, window='blackman'),
+        sps.get_window(window=('gaussian', 15.8734), Nx=91),
+        sps.windows.boxcar(91)]
+
+        self.decimation = np.array([1, 10, 60, 60])
+        self.numtaps = np.array([123, 91, 91])
+        # set stop index to where the sampling period in steparr
+        # equals the desired output sample period
+        stop_idx = np.argwhere(self.steparr == self.output_sample_period)[0][0]
         for trace in stream:
-            data = trace.data
-            step = self.decimation
-
-            filtered = self.firfilter(data, self.window, step)
-
-            stats = Stats(trace.stats)
-            # stats.channel = trace_chan_dict2[stats.channel]
-            stats.starttime = trace.stats.starttime + \
-                    self.numtaps * self.sample_period // 2
-            stats.delta = stats.delta * step
-            # stats.processing.append('[Gaussian Filter]')
-            stats.npts = filtered.shape[0]
-            trace_out = self.create_trace(
-                stats.channel, stats, filtered)
-
+            # reinitialize input sample period
+            input_sample_period = self.input_sample_period
+            # set start index to where the sampling period in steparr
+            # equals the desired input sample period
+            start_idx = np.argwhere(self.steparr == input_sample_period)[0][0]
+            trace_out = trace
+            filtered = trace_out.data
+            # timeshift value summing all shift to the starttime required in
+            # each step to receive desired timeseries
+            timeshift = sum(np.array(self.steparr[start_idx:stop_idx]) *
+                (np.array(self.numtaps[start_idx:stop_idx]) // 2))
+            while start_idx != stop_idx:
+                # set input_sample_period to next filtering step
+                input_sample_period = self.steparr[start_idx]
+                # set output_sample_period to next filtering step
+                output_sample_period = self.steparr[start_idx + 1]
+                start_idx += 1
+                # select filtering information according to timestep
+                step = self.decimation[start_idx]
+                window = self.window[start_idx - 1]
+                filtered = self.firfilter(filtered, window / sum(window), step)
+                stats = Stats(trace.stats)
+                # add timeshift value to starttime
+                stats.starttime = trace.stats.starttime + timeshift
+                # Set delta according to decimation in current time step
+                stats.delta = stats.delta * step
+                # Set sampling rate according to time step
+                stats.sampling_rate = 1 / output_sample_period
+                stats.npts = filtered.shape[0]
+                # Treat filtered output as new trace
+                trace_out = self.create_trace(stats.channel, stats, filtered)
             out += trace_out
-
         return out
 
     @staticmethod
@@ -125,7 +201,6 @@ class FilterAlgorithm(Algorithm):
         strides = data.strides + (data.strides[-1],)
         as_s = npls.as_strided(data, shape=shape, strides=strides,
                                writeable=False)
-
         # build masked array for invalid entries, also 'decimate' by step
         as_masked = np.ma.masked_invalid(as_s[::step], copy=True)
         # sums of the total 'weights' of the filter corresponding to
@@ -134,7 +209,6 @@ class FilterAlgorithm(Algorithm):
         # mark the output locations as 'bad' that have missing input weights
         # that sum to greater than the allowed_bad threshhold
         as_invalid_masked = np.ma.masked_less(as_weight_sums, 1 - allowed_bad)
-
         # apply filter, using masked version of dot (in 3.5 and above, there
         # seems to be a move toward np.matmul and/or @ operator as opposed to
         # np.dot/np.ma.dot - haven't tested to see if the shape of first and
@@ -149,12 +223,41 @@ class FilterAlgorithm(Algorithm):
         # (otherwise the type returned is not always the same, and can cause
         # problems with factories, merge, etc.)
         filtered_out = np.ma.filled(filtered, np.nan)
-
         return filtered_out
+
+    def convert_miniseed(self, stream):
+        """Convert miniseed data from bins and volts to nT.
+        Converts all traces in stream.
+        Parameters
+        ----------
+        stream: obspy.core.Stream
+            stream of data to convert
+        Returns
+        -------
+        out : obspy.core.Stream
+            stream containing 1 trace per 2 original traces.
+        """
+        out = Stream()  # output stream
+        # selects volts from input Stream and sorts by channel name
+        volts = stream.select(channel="?*V*").sort(['channel'])
+        # selects bins from input Stream and sorts by channel name
+        bins = stream.select(channel="?*B*").sort(['channel'])
+        for i in range(0, len(volts)):
+            # copy stats from input trace
+            stats = Stats(stream[i].stats)
+            # set output trace's channel to U, V, or W
+            stats.channel = str(volts[i].stats.channel)[0]
+            # convert volts and bins readings into nT data
+            data = int(self.volt_conv) * \
+            volts[i].data + int(self.bin_conv) * bins[i].data
+            # create output trace with adapted channel and data
+            trace_out = self.create_trace(stats.channel, stats, data)
+            out += trace_out
+
+        return out
 
     def get_input_interval(self, start, end, observatory=None, channels=None):
         """Get Input Interval
-
         start : UTCDateTime
             start time of requested output.
         end : UTCDateTime
@@ -163,7 +266,6 @@ class FilterAlgorithm(Algorithm):
             observatory code.
         channels : string
             input channels.
-
         Returns
         -------
         input_start : UTCDateTime
@@ -172,9 +274,27 @@ class FilterAlgorithm(Algorithm):
             end of input required to generate requested output.
         """
 
-        half = self.numtaps // 2
-        start = start - half * self.sample_period
-        end = end + half * self.sample_period
+        if self.filtertype == 'custom':
+            self.load_state()
+            self.numtaps = len(self.window)
+            half = self.numtaps // 2
+            start = start - half * self.input_sample_period
+            end = end + half * self.input_sample_period
+            return (start, end)
+
+        # set start and stop indeces in arrays, which correlate to numtaps
+        # and sampling period at each step
+        stop_idx = np.argwhere(self.steparr == self.output_sample_period)[0][0]
+        start_idx = np.argwhere(self.steparr == self.input_sample_period)[0][0]
+        self.numtaps = np.array([123, 91, 91])
+        # loop for all time intervals until output interval is reached
+        for i in range(start_idx, stop_idx):
+            # establish half of the timestep occurs
+            half = self.numtaps[i] // 2
+            # subtract half the current time step from starttime
+            start = start - half * self.steparr[i]
+            # add half the current time step from endtime
+            end = end + half * self.steparr[i]
 
         return (start, end)
 
@@ -186,10 +306,23 @@ class FilterAlgorithm(Algorithm):
         parser: ArgumentParser
             command line argument parser
         """
+        # input and output time intervals are managed by Controller
 
-        parser.add_argument('--filter-oneminute',
-                default=None,
-                help='Select one minute filter')
+        parser.add_argument('--filter-type',
+            help='Specify default filters or custom filter',
+            choices=['default', 'custom'])
+
+        parser.add_argument('--filter-coefficients',
+                help='File storing custom filter coefficients')
+
+        # conversion factors for volts/bins
+        parser.add_argument('--volt-conversion',
+                default=100,
+                help='Conversion factor for volts')
+
+        parser.add_argument('--bin-conversion',
+                default=500,
+                help='Conversion factor for bins')
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.
@@ -198,4 +331,27 @@ class FilterAlgorithm(Algorithm):
         arguments: Namespace
             parsed command line arguments
         """
-        pass
+        Algorithm.configure(self, arguments)
+
+        self.filtertype = arguments.filter_type
+        self.volt_conv = arguments.volt_conversion
+        self.bin_conv = arguments.bin_conversion
+        self.coeff_filename = arguments.filter_coefficients
+
+        if arguments.input_interval in ['tenhertz']:
+            self.input_sample_period = 0.1
+        elif arguments.input_interval in ['second']:
+            self.input_sample_period = 1.0
+        elif arguments.input_interval in ['minute']:
+            self.input_sample_period = 60.0
+        elif arguments.input_interval in ['hour', 'hourly']:
+            self.input_sample_period = 3600.0
+
+        if arguments.output_interval in ['tenhertz']:
+            self.output_sample_period = 0.1
+        elif arguments.output_interval in ['second']:
+            self.output_sample_period = 1.0
+        elif arguments.output_interval in ['minute']:
+            self.output_sample_period = 60.0
+        elif arguments.output_interval in ['hour', 'hourly']:
+            self.output_sample_period = 3600.0
