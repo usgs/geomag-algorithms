@@ -19,6 +19,7 @@ class FilterAlgorithm(Algorithm):
 
         Algorithm.__init__(self, inchannels=None, outchannels=None)
         self.window = window
+        self.steparr = steparr
         self.coeff_filename = coeff_filename
         self.filtertype = filtertype
         self.numtaps = numtaps
@@ -26,12 +27,27 @@ class FilterAlgorithm(Algorithm):
         self.bin_conv = bin_conv
         self.input_sample_period = input_sample_period
         self.output_sample_period = output_sample_period
+
+        # Initialize filter to execute filtering step with custom coefficients
+        if self.filtertype == 'custom':
+            self.load_state()
+            self.decimation = int(self.output_sample_period /
+                    self.input_sample_period)
+            self.numtaps = len(self.window)
+        # initialize filter to execute cascading filtering steps
+        else:
+            self.steparr = np.array([0.1, 1, 60, 3600])
+            self.window = [sps.firwin(123, 0.45 / 5.0, window='blackman'),
+                    sps.get_window(window=('gaussian', 15.8734), Nx=91),
+                    sps.windows.boxcar(91)]
+            self.decimation = np.array([1, 10, 60, 60])
+            self.numtaps = np.array([123, 91, 91])
+
         # Set volt/bin conversions to defaults if using Python
         if self.volt_conv is None:
             self.volt_conv = 100
         if self.bin_conv is None:
             self.bin_conv = 500
-        self.steparr = np.array([0.1, 1, 60, 3600])
 
     def load_state(self):
         """Load algorithm state from a file.
@@ -101,39 +117,28 @@ class FilterAlgorithm(Algorithm):
         # if input stream is 10 Hz, convert data to nT
         if self.input_sample_period == 0.1:
             stream = self.convert_miniseed(stream)
+
         output_sample_period = self.output_sample_period
         input_sample_period = self.input_sample_period
         out = Stream()
         # perform one filter operation for custom type filter
         if self.filtertype == 'custom':
-            self.decimation = int(output_sample_period /
-                input_sample_period)
-            self.load_state()
-            self.numtaps = len(self.window)
             for trace in stream:
                 data = trace.data
-                step = int(output_sample_period /
-                    input_sample_period)
+                step = self.decimation
                 filtered = self.firfilter(data, self.window, step)
                 stats = Stats(trace.stats)
-                self.numtaps = len(self.window)
                 stats.starttime = trace.stats.starttime + \
-                self.numtaps * self.input_sample_period // \
-                2 + self.input_sample_period
+                        + self.numtaps * self.input_sample_period // 2 + \
+                        + self.input_sample_period
                 stats.delta = stats.delta * step
                 stats.npts = filtered.shape[0]
                 trace_out = self.create_trace(
-                    stats.channel, stats, filtered)
+                        stats.channel, stats, filtered)
 
                 out += trace_out
             return out
-        # initialize filter to execute cascading filtering steps
-        self.window = [sps.firwin(123, 0.45 / 5.0, window='blackman'),
-        sps.get_window(window=('gaussian', 15.8734), Nx=91),
-        sps.windows.boxcar(91)]
 
-        self.decimation = np.array([1, 10, 60, 60])
-        self.numtaps = np.array([123, 91, 91])
         # set stop index to where the sampling period in steparr
         # equals the desired output sample period
         stop_idx = np.argwhere(self.steparr == self.output_sample_period)[0][0]
@@ -148,7 +153,7 @@ class FilterAlgorithm(Algorithm):
             # timeshift value summing all shift to the starttime required in
             # each step to receive desired timeseries
             timeshift = sum(np.array(self.steparr[start_idx:stop_idx]) *
-                (np.array(self.numtaps[start_idx:stop_idx]) // 2))
+                    (np.array(self.numtaps[start_idx:stop_idx]) // 2))
             while start_idx != stop_idx:
                 # set input_sample_period to next filtering step
                 input_sample_period = self.steparr[start_idx]
@@ -309,8 +314,8 @@ class FilterAlgorithm(Algorithm):
         # input and output time intervals are managed by Controller
 
         parser.add_argument('--filter-type',
-            help='Specify default filters or custom filter',
-            choices=['default', 'custom'])
+                help='Specify default filters or custom filter',
+                choices=['default', 'custom'])
 
         parser.add_argument('--filter-coefficients',
                 help='File storing custom filter coefficients')
