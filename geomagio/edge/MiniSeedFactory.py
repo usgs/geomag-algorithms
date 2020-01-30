@@ -141,7 +141,7 @@ class MiniSeedFactory(TimeseriesFactory):
             temp_stdout.close()
             sys.stdout = original_stdout
 
-        if len(self.convert_channels) != 0:
+        if self.convert_channels is not None:
             out = obspy.core.Stream()
             for i in range(1, len(timeseries), 2):
                 _in_ = obspy.core.Stream()
