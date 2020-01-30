@@ -113,10 +113,6 @@ class FilterAlgorithm(Algorithm):
         out : obspy.core.Stream
             stream containing 1 trace per original trace.
         """
-        # # if input stream is 10 Hz, convert data to nT
-        # if self.input_sample_period == 0.1:
-        #     stream = self.convert_voltbin(stream)
-
         output_sample_period = self.output_sample_period
         input_sample_period = self.input_sample_period
         out = Stream()
