@@ -17,7 +17,8 @@ def test_process():
     # starttime = UTCDateTime('2020-01-06T00:00:00Z')
     # endtime = UTCDateTime('2020-01-07T04:00:00Z')
     # starttime, endtime = f.get_input_interval(starttime, endtime)
-    # m = MiniSeedFactory(port=2061, host='...')
+    # m = MiniSeedFactory(port=2061, host='...',
+    # convert_channels=['U', 'V', 'W'], volt_conv=100, bin_conv=500)
     # llo_for_filter = m.get_timeseries(observatory='LLO',
     #         channels=['U_Bin', 'U_Volt', 'V_Bin',
     #                  'V_Volt', 'W_Bin', 'W_Volt'],
@@ -25,7 +26,7 @@ def test_process():
     #         interval= 'tenhertz',
     #         starttime=starttime,
     #         endtime=endtime)
-    # filtered_sec = f.process(llo_for_filter)
+    # llo_for_filter.write('/Users/pcain/geomag-algorithms/etc/filter/10HZ_filter_sec.mseed',format='MSEED')
     llo_sec = read('etc/filter/10HZ_filter_sec.mseed')
     filtered_sec = f.process(llo_sec)
 
@@ -36,15 +37,16 @@ def test_process():
     # starttime = UTCDateTime('2020-01-06T00:00:00Z')
     # endtime = UTCDateTime('2020-01-07T04:00:00Z')
     # starttime, endtime = f.get_input_interval(starttime, endtime)
-    # m = MiniSeedFactory(port=2061, host='...')
+    # m = MiniSeedFactory(port=2061, host='...',
+    # convert_channels=['U', 'V', 'W'], volt_conv=100, bin_conv=500)
     # llo_for_filter = m.get_timeseries(observatory='LLO',
     #         channels=['U_Bin', 'U_Volt', 'V_Bin',
     #                  'V_Volt', 'W_Bin', 'W_Volt'],
-    #         type='variation',
-    #         interval='tenhertz',
+    #         type= 'variation',
+    #         interval= 'tenhertz',
     #         starttime=starttime,
     #         endtime=endtime)
-    # filtered_minute = f.process(llo_for_filter)
+    # llo_for_filter.write('/Users/pcain/geomag-algorithms/etc/filter/10HZ_filter_min.mseed',format='MSEED')
 
     llo_min = read('etc/filter/10HZ_filter_min.mseed')
     f = FilterAlgorithm(filtertype='default',
@@ -52,22 +54,21 @@ def test_process():
                         output_sample_period=60)
     filtered_min = f.process(llo_min)
 
-    # # generation of etc/filter/10HZ_filter_min.mseed
+    # # generation of etc/filter/10HZ_filter_hor.mseed
     # f = FilterAlgorithm(filtertype='default',
-    #                     input_sample_period=0.1,
+    #                     input_sample_period=60,
     #                     output_sample_period=3600)
     # starttime = UTCDateTime('2020-01-06T00:00:00Z')
     # endtime = UTCDateTime('2020-01-07T04:00:00Z')
     # starttime, endtime = f.get_input_interval(starttime, endtime)
-    # m = MiniSeedFactory(port=2061, host='...')
-    # llo_for_filter = m.get_timeseries(observatory='LLO',
-    #         channels=['U_Bin', 'U_Volt', 'V_Bin',
-    #                  'V_Volt', 'W_Bin', 'W_Volt'],
-    #         type='variation',
-    #         interval='tenhertz',
+    # e = EdgeFactory()
+    # bou_for_filter = e.get_timeseries(observatory='BOU',
+    #         channels=['H','E','Z'],
+    #         type= 'variation',
+    #         interval= 'minute',
     #         starttime=starttime,
     #         endtime=endtime)
-    # filtered_hour = f.process(llo_for_filter)
+    # bou_for_filter.write('/Users/pcain/geomag-algorithms/etc/filter/10HZ_filter_hor.mseed',format='MSEED')
 
     llo_hor = read('etc/filter/10HZ_filter_hor.mseed')
     f = FilterAlgorithm(filtertype='default',

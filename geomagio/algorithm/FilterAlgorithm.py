@@ -113,9 +113,9 @@ class FilterAlgorithm(Algorithm):
         out : obspy.core.Stream
             stream containing 1 trace per original trace.
         """
-        # if input stream is 10 Hz, convert data to nT
-        if self.input_sample_period == 0.1:
-            stream = self.convert_miniseed(stream)
+        # # if input stream is 10 Hz, convert data to nT
+        # if self.input_sample_period == 0.1:
+        #     stream = self.convert_voltbin(stream)
 
         output_sample_period = self.output_sample_period
         input_sample_period = self.input_sample_period
@@ -229,37 +229,6 @@ class FilterAlgorithm(Algorithm):
         filtered_out = np.ma.filled(filtered, np.nan)
         return filtered_out
 
-    def convert_miniseed(self, stream):
-        """Convert miniseed data from bins and volts to nT.
-        Converts all traces in stream.
-        Parameters
-        ----------
-        stream: obspy.core.Stream
-            stream of data to convert
-        Returns
-        -------
-        out : obspy.core.Stream
-            stream containing 1 trace per 2 original traces.
-        """
-        out = Stream()  # output stream
-        # selects volts from input Stream and sorts by channel name
-        volts = stream.select(channel="?*V*").sort(['channel'])
-        # selects bins from input Stream and sorts by channel name
-        bins = stream.select(channel="?*B*").sort(['channel'])
-        for i in range(0, len(volts)):
-            # copy stats from input trace
-            stats = Stats(stream[i].stats)
-            # set output trace's channel to U, V, or W
-            stats.channel = str(volts[i].stats.channel)[0]
-            # convert volts and bins readings into nT data
-            data = int(self.volt_conv) * \
-            volts[i].data + int(self.bin_conv) * bins[i].data
-            # create output trace with adapted channel and data
-            trace_out = self.create_trace(stats.channel, stats, data)
-            out += trace_out
-
-        return out
-
     def get_input_interval(self, start, end, observatory=None, channels=None):
         """Get Input Interval
         start : UTCDateTime
@@ -319,15 +288,6 @@ class FilterAlgorithm(Algorithm):
 
         parser.add_argument('--filter-coefficients',
                 help='File storing custom filter coefficients')
-
-        # conversion factors for volts/bins
-        parser.add_argument('--volt-conversion',
-                default=100,
-                help='Conversion factor for volts')
-
-        parser.add_argument('--bin-conversion',
-                default=500,
-                help='Conversion factor for bins')
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.

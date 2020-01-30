@@ -64,7 +64,8 @@ class MiniSeedFactory(TimeseriesFactory):
 
     def __init__(self, host='cwbpub.cr.usgs.gov', port=2061, write_port=7981,
             observatory=None, channels=None, type=None, interval=None,
-            observatoryMetadata=None, locationCode=None):
+            observatoryMetadata=None, locationCode=None,
+            convert_channels=None, volt_conv=100, bin_conv=500):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
 
         self.client = miniseed.Client(host, port)
@@ -75,6 +76,9 @@ class MiniSeedFactory(TimeseriesFactory):
         self.host = host
         self.port = port
         self.write_port = write_port
+        self.convert_channels = convert_channels
+        self.volt_conv = volt_conv
+        self.bin_conv = bin_conv
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -108,6 +112,7 @@ class MiniSeedFactory(TimeseriesFactory):
         """
         observatory = observatory or self.observatory
         channels = channels or self.channels
+        convert_channels = self.convert_channels
         type = type or self.type
         interval = interval or self.interval
 
@@ -127,6 +132,7 @@ class MiniSeedFactory(TimeseriesFactory):
                 data = self._get_timeseries(starttime, endtime, observatory,
                         channel, type, interval)
                 timeseries += data
+
         # restore stdout
         finally:
             output = temp_stdout.getvalue()
@@ -134,8 +140,19 @@ class MiniSeedFactory(TimeseriesFactory):
                 sys.stderr.write(str(output))
             temp_stdout.close()
             sys.stdout = original_stdout
-        self._post_process(timeseries, starttime, endtime, channels)
 
+        if len(self.convert_channels) != 0:
+            out = obspy.core.Stream()
+            for i in range(1, len(timeseries), 2):
+                _in_ = obspy.core.Stream()
+                if timeseries[i].stats.channel[0] in convert_channels:
+                    if timeseries[i - 1].stats.channel[0] in convert_channels:
+                        _in_ += timeseries[i]
+                        _in_ += timeseries[i - 1]
+                        out += self.convert_voltbin(_in_)
+            timeseries = out
+
+        self._post_process(timeseries, starttime, endtime, channels)
         return timeseries
 
     def put_timeseries(self, timeseries, starttime=None, endtime=None,
@@ -447,6 +464,39 @@ class MiniSeedFactory(TimeseriesFactory):
         self._set_metadata(data,
                 observatory, channel, type, interval)
         return data
+
+    def convert_voltbin(self, stream):
+        """Convert miniseed data from bins and volts to nT.
+        Converts all traces in stream.
+        Parameters
+        ----------
+        stream: obspy.core.Stream
+            stream of data to convert
+        Returns
+        -------
+        out : obspy.core.Trace
+            Trace containing 1 trace per 2 original traces.
+        """
+        out = obspy.core.Trace()
+        # selects volts from input Trace
+        volts = stream.select(channel="*V*")
+        # selects bins from input Trace
+        bins = stream.select(channel="*B*")
+        # copy stats from original Trace
+        stats = obspy.core.Stats(volts[0].stats)
+        # set channel parameter to U, V, or W
+        stats.channel = volts[0].stats.channel[0]
+        # conversion from bins/volts to nT
+        data = int(self.volt_conv) * \
+            volts[0].data + int(self.bin_conv) * bins[0].data
+        # create empty trace with adapted stats
+        out = TimeseriesUtility.create_empty_trace(stats.starttime,
+                stats.endtime, stats.station, stats.channel,
+                stats.data_type, stats.data_interval,
+                stats.network, stats.station, stats.location)
+        # set data for empty trace as nT converted data
+        out.data = data
+        return out
 
     def _post_process(self, timeseries, starttime, endtime, channels):
         """Post process a timeseries stream after the raw data is
