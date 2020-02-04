@@ -1,7 +1,6 @@
  Format                 IAGA-2002                                    |
  IAGA CODE              LLO                                          |
  Reported               UVWNUL                                       |
- Data Type              variation                                    |
 DATE       TIME         DOY     LLOU      LLOV      LLOW      LLONUL |
 2020-01-06 00:00:00.000 006      8330.27 -18968.24  39293.10  99999.00
 2020-01-06 00:00:01.000 006      8330.30 -18968.27  39293.12  99999.00

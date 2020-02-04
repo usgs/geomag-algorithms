@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from .Algorithm import Algorithm
 import numpy as np
 from numpy.lib import stride_tricks as npls
-import scipy.signal as sps
 from obspy.core import Stream, Stats
 import json
 from .. import TimeseriesUtility as tu
@@ -13,58 +12,82 @@ class FilterAlgorithm(Algorithm):
         Filter Algorithm that filters and downsamples data
     """
 
-    def __init__(self, window=None, coeff_filename=None, filtertype=None,
-            input_sample_period=None, output_sample_period=None, numtaps=None,
-            decimation=None, steparr=None, volt_conv=None, bin_conv=None,
+    def __init__(self, coeff_filename=None, filtertype=None,
+            steps=None, input_sample_period=None, output_sample_period=None,
             inchannels=None, outchannels=None):
 
         Algorithm.__init__(self, inchannels=None, outchannels=None)
-        self.window = window
-        self.steparr = steparr
         self.coeff_filename = coeff_filename
         self.filtertype = filtertype
-        self.numtaps = numtaps
-        self.volt_conv = volt_conv
-        self.bin_conv = bin_conv
         self.input_sample_period = input_sample_period
         self.output_sample_period = output_sample_period
 
-        # Initialize filter to execute filtering step with custom coefficients
-        if self.filtertype == 'custom':
-            self.load_state()
-            self.numtaps = len(self.window)
-        # initialize filter to execute cascading filtering steps
-        else:
-            self.steparr = np.array([0.1, 1, 60, 3600])
-            self.window = [sps.firwin(123, 0.45 / 5.0, window='blackman'),
-                    sps.get_window(window=('gaussian', 15.8734), Nx=91),
-                    sps.windows.boxcar(91)]
-            self.decimation = np.array([1, 10, 60, 60])
-            self.numtaps = np.array([123, 91, 91])
-
-        # Set volt/bin conversions to defaults if using Python
-        if self.volt_conv is None:
-            self.volt_conv = 100
-        if self.bin_conv is None:
-            self.bin_conv = 500
-
     def load_state(self):
-        """Load algorithm state from a file.
-        File name is self.statefile.
+        """Load algorithm state from json file if default steps are used.
+        Create dictionary object if custom filter is used.
+        File name is steps.json.
         """
-        if self.coeff_filename is None:
-            return
+        input_sample_period = self.input_sample_period
+        output_sample_period = self.output_sample_period
 
-        data = None
+        if self.filtertype == 'default' or self.filtertype is None:
+            # load json file holding step information
+            data = json.load(open('geomagio/algorithm/steps.json'))
+            # match input interval to string
+            if input_sample_period == 0.1:
+                start_string = 'tenhertz'
+            elif input_sample_period == 1.0:
+                start_string = 'second'
+            elif input_sample_period == 60.0:
+                start_string = 'minute'
+            # match output interval to string
+            if output_sample_period == 1.0:
+                stop_string = 'second'
+            elif output_sample_period == 60.0:
+                stop_string = 'minute'
+            elif output_sample_period == 3600:
+                stop_string = 'hour'
 
-        with open(self.coeff_filename, 'r') as f:
-            data = f.read()
-            data = json.loads(data)
+            # make keys from dictionary iterable
+            keys = np.array(list(data.keys()))
 
-        if data is None or data == '':
-            return
+            for i in range(len(keys)):
+                # split step name into input and output sample periods
+                first, second = keys[i].split('_')
+                # get matching step indeces to access from dictionary
+                if second == stop_string:
+                    start_idx = i
+                if first == start_string:
+                    stop_idx = i
 
-        self.window = np.array(data['window'])
+            steps = dict()
+            # gather timesteps needed for filter
+            for i in keys[start_idx:stop_idx + 1]:
+                first, second = i.split('_')
+                json_string_first = first
+                json_string_second = second
+                load_string = json_string_first + '_' + json_string_second
+                steps[load_string] = data[load_string]
+        # initialize dictionary for custom filter
+        if self.filtertype == 'custom':
+            steps = dict()
+            steps["input_sample_period"] = input_sample_period
+            steps["output_sample_period"] = output_sample_period
+            decimation = output_sample_period // input_sample_period
+            steps["decimation"] = int(decimation)
+            # loads coeffs from json file
+            if self.coeff_filename is None:
+                return
+
+            with open(self.coeff_filename, 'r') as f:
+                data = f.read()
+                data = json.loads(data)
+
+            if data is None or data == '':
+                return
+
+            steps["window"] = list(data["window"])
+        self.steps = steps
 
     def save_state(self):
         """Save algorithm state to a file.
@@ -113,63 +136,43 @@ class FilterAlgorithm(Algorithm):
         out : obspy.core.Stream
             stream containing 1 trace per original trace.
         """
-        output_sample_period = self.output_sample_period
-        input_sample_period = self.input_sample_period
-        out = Stream()
-        # perform one filter operation for custom type filter
-        if self.filtertype == 'custom':
-            for trace in stream:
+        # intitialize dictionary object for default or custom filter
+        self.load_state()
+        steps = self.steps
+        out_stream = Stream()
+        out_stream = stream.copy()
+        # while dictionary is not empty
+        while steps:
+            # removes filtering step from dictionary for one step
+            if self.filtertype == 'default' or self.filtertype is None:
+                step = steps.popitem()[1]
+            # custom filter uses a one element dictionary
+            # sets dictionary to empty to exit loop after one step
+            if self.filtertype == 'custom':
+                step = steps
+                steps = dict()
+            # gather variables from single step
+            window = np.array(step["window"])
+            numtaps = len(window)
+            input_sample_period = step["input_sample_period"]
+            output_sample_period = step["output_sample_period"]
+            decimation = step["decimation"]
+            out = Stream()
+            # from original algorithm
+            for trace in out_stream:
                 data = trace.data
-                step = int(output_sample_period / input_sample_period)
-                filtered = self.firfilter(data, self.window, step)
+                filtered = self.firfilter(data,
+                        window / sum(window), decimation)
                 stats = Stats(trace.stats)
-                stats.starttime = trace.stats.starttime + \
-                        + self.numtaps * self.input_sample_period // 2 + \
-                        + self.input_sample_period
-                stats.delta = stats.delta * step
-                stats.npts = filtered.shape[0]
-                trace_out = self.create_trace(
-                        stats.channel, stats, filtered)
-
-                out += trace_out
-            return out
-
-        # set stop index to where the sampling period in steparr
-        # equals the desired output sample period
-        stop_idx = np.argwhere(self.steparr == output_sample_period)[0][0]
-        for trace in stream:
-            # reinitialize input sample period
-            input_sample_period = self.input_sample_period
-            # set start index to where the sampling period in steparr
-            # equals the desired input sample period
-            start_idx = np.argwhere(self.steparr == input_sample_period)[0][0]
-            trace_out = trace
-            filtered = trace_out.data
-            # timeshift value summing all shift to the starttime required in
-            # each step to receive desired timeseries
-            timeshift = sum(np.array(self.steparr[start_idx:stop_idx]) *
-                    (np.array(self.numtaps[start_idx:stop_idx]) // 2))
-            while start_idx != stop_idx:
-                # set input_sample_period to next filtering step
-                input_sample_period = self.steparr[start_idx]
-                # set output_sample_period to next filtering step
-                output_sample_period = self.steparr[start_idx + 1]
-                start_idx += 1
-                # select filtering information according to timestep
-                step = self.decimation[start_idx]
-                window = self.window[start_idx - 1]
-                filtered = self.firfilter(filtered, window / sum(window), step)
-                stats = Stats(trace.stats)
-                # add timeshift value to starttime
-                stats.starttime = trace.stats.starttime + timeshift
-                # Set delta according to decimation in current time step
-                stats.delta = stats.delta * step
-                # Set sampling rate according to time step
+                stats.starttime = stats.starttime + \
+                        input_sample_period * (numtaps // 2)
                 stats.sampling_rate = 1 / output_sample_period
+                stats.delta = output_sample_period
                 stats.npts = filtered.shape[0]
-                # Treat filtered output as new trace
                 trace_out = self.create_trace(stats.channel, stats, filtered)
-            out += trace_out
+                out += trace_out
+            # set out_stream to filtered output and continue while loop
+            out_stream = out.copy()
         return out
 
     @staticmethod
@@ -242,29 +245,21 @@ class FilterAlgorithm(Algorithm):
         input_end : UTCDateTime
             end of input required to generate requested output.
         """
-
+        self.load_state()
+        steps = self.steps
+        # if custom filter is used, calculate start/end
+        # from single element dictionary
         if self.filtertype == 'custom':
-            self.load_state()
-            self.numtaps = len(self.window)
-            half = self.numtaps // 2
-            start = start - half * self.input_sample_period
-            end = end + half * self.input_sample_period
+            half = len(steps["window"]) // 2
+            start = start - half * steps["input_sample_period"]
+            end = end + half * steps["input_sample_period"]
             return (start, end)
-
-        # set start and stop indeces in arrays, which correlate to numtaps
-        # and sampling period at each step
-        stop_idx = np.argwhere(self.steparr == self.output_sample_period)[0][0]
-        start_idx = np.argwhere(self.steparr == self.input_sample_period)[0][0]
-        self.numtaps = np.array([123, 91, 91])
-        # loop for all time intervals until output interval is reached
-        for i in range(start_idx, stop_idx):
-            # establish half of the timestep occurs
-            half = self.numtaps[i] // 2
-            # subtract half the current time step from starttime
-            start = start - half * self.steparr[i]
-            # add half the current time step from endtime
-            end = end + half * self.steparr[i]
-
+        # if default filter is used, calculate start/end
+        # from multiple-element dictionary
+        for i in sorted(steps.keys(), reverse=True):
+            half = len(steps[i]["window"]) // 2
+            start = start - half * steps[i]["input_sample_period"]
+            end = end + half * steps[i]["input_sample_period"]
         return (start, end)
 
     @classmethod
@@ -279,10 +274,12 @@ class FilterAlgorithm(Algorithm):
         # by Controller and TimeriesUtility
 
         parser.add_argument('--filter-type',
+                default=None,
                 help='Specify default filters or custom filter',
                 choices=['default', 'custom'])
 
         parser.add_argument('--filter-coefficients',
+                default=None,
                 help='File storing custom filter coefficients')
 
     def configure(self, arguments):
@@ -293,10 +290,8 @@ class FilterAlgorithm(Algorithm):
             parsed command line arguments
         """
         Algorithm.configure(self, arguments)
-
+        # intialize filter with command line arguments
         self.filtertype = arguments.filter_type
-        self.volt_conv = arguments.volt_conversion
-        self.bin_conv = arguments.bin_conversion
         self.coeff_filename = arguments.filter_coefficients
         input_interval = arguments.input_interval
         output_interval = arguments.output_interval

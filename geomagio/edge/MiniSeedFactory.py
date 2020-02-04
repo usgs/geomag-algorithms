@@ -479,7 +479,7 @@ class MiniSeedFactory(TimeseriesFactory):
         """
         out = obspy.core.Trace()
         # selects volts from input Trace
-        volts = stream.select(channel="*V*")
+        volts = stream.select(channel="?*V*")
         # selects bins from input Trace
         bins = stream.select(channel="*B*")
         # copy stats from original Trace
