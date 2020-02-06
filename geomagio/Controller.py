@@ -333,6 +333,9 @@ def get_input_factory(args):
                 host=args.input_host,
                 port=args.input_port,
                 locationCode=args.locationcode,
+                convert_channels=args.convert_voltbin,
+                volt_conv=args.volt_conversion,
+                bin_conv=args.bin_conversion,
                 **input_factory_args)
     elif input_type == 'goes':
         # TODO: deal with other goes arguments
@@ -763,6 +766,21 @@ def parse_args(args):
                 'imfv283',
                 'miniseed',
                 'pcdcp'))
+
+    # conversion factors for volts/bins
+    parser.add_argument('--volt-conversion',
+            default=100,
+            help='Conversion factor for volts')
+
+    parser.add_argument('--bin-conversion',
+            default=500,
+            help='Conversion factor for bins')
+
+    # conversion from bins/volts to nT
+    parser.add_argument('--convert-voltbin',
+            nargs='*',
+            default=None,
+            help='Convert channels from bins/volts to nT')
 
     parser.add_argument('--input-file',
             help='Read from specified file')

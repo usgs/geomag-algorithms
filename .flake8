@@ -1,6 +1,6 @@
 [flake8]
 count = True
-exclude = .git,__pycache,node_modules
+exclude = .git,__pycache,node_modules,.ipynb_checkpoints
 # This project uses PEP8 with the following exceptions:
 # - continuation lines should use 2 levels of indentation (8 spaces)
 #   E122: continuation line missing indentation or outdented

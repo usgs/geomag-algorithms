@@ -1,43 +1,182 @@
-from geomagio.algorithm import FilterAlgorithm as filt
+from geomagio.algorithm import FilterAlgorithm
+from obspy.core import read
 import geomagio.iaga2002 as i2
 from nose.tools import assert_almost_equals
 
 
-def test_process():
+def test_second():
+    """algorithm_test.FilterAlgorithm_test.test_second()
+    Tests algorithm for 10Hz to second.
     """
-    Check one minute filter data processing versus files generated from
-    original script
+    f = FilterAlgorithm(input_sample_period=0.1,
+                        output_sample_period=1)
+
+    # generation of 10HZ_filter_sec.mseed
+    # starttime = UTCDateTime('2020-01-06T00:00:00Z')
+    # endtime = UTCDateTime('2020-01-06T04:00:00Z')
+    # m = MiniSeedFactory(port=2061, host='...',
+    #       convert_channels=['U', 'V', 'W'],
+    #       bin_conv=500, volt_conv=100)
+    # f = FilterAlgorithm(input_sample_period=0.1,
+    #       output_sample_period=1.0)
+    # starttime, endtime = f.get_input_interval(starttime,endtime)
+    # LLO_raw = m.get_timeseries(observatory='LLO',
+    #       starttime=starttime,endtime=endtime,
+    #       channels=['U_Volt', 'U_Bin', 'V_Volt',
+    #                 'V_Bin', 'W_Volt', 'W_Bin'],
+    #       interval='tenhertz', type='variaton')
+    # LLO_raw.write('10HZ_filter_sec.mseed')
+
+    llo = read('etc/filter/10HZ_filter_sec.mseed')
+    filtered = f.process(llo)
+
+    with open('etc/filter/LLO20200106vsec.sec', 'r') as f:
+        iaga = i2.StreamIAGA2002Factory(stream=f)
+        LLO = iaga.get_timeseries(starttime=None,
+                    endtime=None, observatory='LLO')
+
+    u = LLO.select(channel='U')[0]
+    v = LLO.select(channel='V')[0]
+    w = LLO.select(channel='W')[0]
+
+    u_filt = filtered.select(channel='U')[0]
+    v_filt = filtered.select(channel='V')[0]
+    w_filt = filtered.select(channel='W')[0]
+
+    for r in range(u.data.size):
+        assert_almost_equals(u_filt.data[r], u.data[r], 1)
+        assert_almost_equals(v_filt.data[r], v.data[r], 1)
+        assert_almost_equals(w_filt.data[r], w.data[r], 1)
+
+
+def test_minute():
+    """algorithm_test.FilterAlgorithm_test.test_minute()
+    Tests algorithm for 10Hz to minute.
     """
-    # load boulder Jan 16 files from /etc/ directory
-    min_iaga2002_file = open('etc/filter/BOU20180901vmin.min')
-    min_iaga2002_string = min_iaga2002_file.read()
-    min_iaga2002_file.close()
-    sec_iaga2002_file = open('etc/filter/BOU20180901vsec.sec')
-    sec_iaga2002_string = sec_iaga2002_file.read()
-    sec_iaga2002_file.close()
-    factory = i2.IAGA2002Factory()
-    mint = factory.parse_string(min_iaga2002_string)
-    sec = factory.parse_string(sec_iaga2002_string)
+    f = FilterAlgorithm(input_sample_period=0.1,
+                        output_sample_period=60.0)
 
-    # process hezf (raw) channels with loaded transform
-    a = filt(inchannels=('H', 'E', 'Z', 'F'),
-                         outchannels=('H', 'E', 'Z', 'F'))
+    # generation of 10HZ_filter_min.mseed
+    # starttime = UTCDateTime('2020-01-06T00:00:00Z')
+    # endtime = UTCDateTime('2020-01-06T04:00:00Z')
+    # m = MiniSeedFactory(port=2061, host='...',
+    #       convert_channels=['U', 'V', 'W'])
+    # f = FilterAlgorithm(input_sample_period=0.1,
+    #       output_sample_period=60.0)
+    # starttime, endtime = f.get_input_interval(starttime,endtime)
+    # LLO = m.get_timeseries(observatory='LLO',
+    #       starttime=starttime,endtime=endtime,
+    #       channels=['U_Volt', 'U_Bin', 'V_Volt',
+    #                 'V_Bin', 'W_Volt', 'W_Bin'],
+    #       interval='tenhertz', type='variaton')
+    # LLO.write('10HZ_filter_min.mseed')
 
-    filt_bou = a.process(sec)
+    llo = read('etc/filter/10HZ_filter_min.mseed')
+    filtered = f.process(llo)
 
-    # unpack channels from loaded minutes data file
-    u = mint.select(channel='H')[0]
-    v = mint.select(channel='E')[0]
-    w = mint.select(channel='Z')[0]
-    f = mint.select(channel='F')[0]
-    # unpack channels from filtered data
-    u_filt = filt_bou.select(channel='H')[0]
-    v_filt = filt_bou.select(channel='E')[0]
-    w_filt = filt_bou.select(channel='Z')[0]
-    f_filt = filt_bou.select(channel='F')[0]
+    with open('etc/filter/LLO20200106vmin.min', 'r') as f:
+        iaga = i2.StreamIAGA2002Factory(stream=f)
+        LLO = iaga.get_timeseries(starttime=None,
+                    endtime=None, observatory='LLO')
 
-    for r in range(mint[0].data.size):
-        assert_almost_equals(u.data[r], u_filt.data[r], 1)
-        assert_almost_equals(v.data[r], v_filt.data[r], 1)
-        assert_almost_equals(w.data[r], w_filt.data[r], 1)
-        assert_almost_equals(f.data[r], f_filt.data[r], 1)
+    u = LLO.select(channel='U')[0]
+    v = LLO.select(channel='V')[0]
+    w = LLO.select(channel='W')[0]
+
+    u_filt = filtered.select(channel='U')[0]
+    v_filt = filtered.select(channel='V')[0]
+    w_filt = filtered.select(channel='W')[0]
+
+    for r in range(u.data.size):
+        assert_almost_equals(u_filt.data[r], u.data[r], 1)
+        assert_almost_equals(v_filt.data[r], v.data[r], 1)
+        assert_almost_equals(w_filt.data[r], w.data[r], 1)
+
+
+def test_hour():
+    """algorithm_test.FilterAlgorithm_test.test_hour()
+    Tests algorithm for 10Hz to hour.
+    """
+    f = FilterAlgorithm(input_sample_period=0.1,
+                        output_sample_period=3600.0)
+
+    # generation of 10HZ_filter_hor.mseed
+    # starttime = UTCDateTime('2020-01-06T00:00:00Z')
+    # endtime = UTCDateTime('2020-01-06T04:00:00Z')
+    # m = MiniSeedFactory(port=2061, host='...',
+    #       convert_channels=['U', 'V', 'W'])
+    # f = FilterAlgorithm(input_sample_period=0.1,
+    #       output_sample_period=3600.0)
+    # starttime, endtime = f.get_input_interval(starttime,endtime)
+    # LLO = m.get_timeseries(observatory='LLO',
+    #       starttime=starttime,endtime=endtime,
+    #       channels=['U_Volt', 'U_Bin', 'V_Volt',
+    #                 'V_Bin', 'W_Volt', 'W_Bin'],
+    #       interval='tenhertz', type='variaton')
+    # LLO.write('10HZ_filter_hor.mseed')
+
+    llo = read('etc/filter/10HZ_filter_hor.mseed')
+    filtered = f.process(llo)
+
+    with open('etc/filter/LLO20200106vhor.hor', 'r') as f:
+        iaga = i2.StreamIAGA2002Factory(stream=f)
+        LLO = iaga.get_timeseries(starttime=None,
+                    endtime=None, observatory='LLO')
+
+    u = LLO.select(channel='U')[0]
+    v = LLO.select(channel='V')[0]
+    w = LLO.select(channel='W')[0]
+
+    u_filt = filtered.select(channel='U')[0]
+    v_filt = filtered.select(channel='V')[0]
+    w_filt = filtered.select(channel='W')[0]
+
+    for r in range(u.data.size):
+        assert_almost_equals(u_filt.data[r], u.data[r], 1)
+        assert_almost_equals(v_filt.data[r], v.data[r], 1)
+        assert_almost_equals(w_filt.data[r], w.data[r], 1)
+
+
+def test_custom():
+    """algorithm_test.FilterAlgorithm_test.test_custom()
+    Tests algorithm for 10Hz to second with custom filter coefficients.
+    """
+    f = FilterAlgorithm(input_sample_period=0.1,
+                        output_sample_period=1.0,
+                        coeff_filename='etc/filter/coeffs.json')
+
+    # generation of 10HZ_filter_sec.mseed
+    # starttime = UTCDateTime('2020-01-06T00:00:00Z')
+    # endtime = UTCDateTime('2020-01-06T04:00:00Z')
+    # m = MiniSeedFactory(port=2061, host='...',
+    #       convert_channels=['U', 'V', 'W'])
+    # f = FilterAlgorithm(input_sample_period=0.1,
+    #       output_sample_period=1.0)
+    # starttime, endtime = f.get_input_interval(starttime,endtime)
+    # LLO = m.get_timeseries(observatory='LLO',
+    #       starttime=starttime,endtime=endtime,
+    #       channels=['U_Volt', 'U_Bin', 'V_Volt',
+    #                 'V_Bin', 'W_Volt', 'W_Bin'],
+    #       interval='tenhertz', type='variaton')
+    # LLO.write('10HZ_filter_sec.mseed')
+
+    llo = read('etc/filter/10HZ_filter_sec.mseed')
+    filtered = f.process(llo)
+
+    with open('etc/filter/LLO20200106_custom_vsec.sec', 'r') as f:
+        iaga = i2.StreamIAGA2002Factory(stream=f)
+        LLO = iaga.get_timeseries(starttime=None,
+                    endtime=None, observatory='LLO')
+
+    u = LLO.select(channel='U')[0]
+    v = LLO.select(channel='V')[0]
+    w = LLO.select(channel='W')[0]
+
+    u_filt = filtered.select(channel='U')[0]
+    v_filt = filtered.select(channel='V')[0]
+    w_filt = filtered.select(channel='W')[0]
+
+    for r in range(u.data.size):
+        assert_almost_equals(u_filt.data[r], u.data[r], 1)
+        assert_almost_equals(v_filt.data[r], v.data[r], 1)
+        assert_almost_equals(w_filt.data[r], w.data[r], 1)
