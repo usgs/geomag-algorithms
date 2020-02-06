@@ -136,34 +136,46 @@ class FilterAlgorithm(Algorithm):
         out : obspy.core.Stream
             stream containing 1 trace per original trace.
         """
-        # intitialize dictionary object for filter
+        # intitialize step array for filter
         steps = self.get_filter_steps()
-        out_stream = Stream()
-        out_stream = stream.copy()
-        # while dictionary is not empty
         for step in steps:
-            # gather variables from single step
-            window = np.array(step['window'])
-            numtaps = len(window)
-            input_sample_period = step['input_sample_period']
-            output_sample_period = step['output_sample_period']
-            decimation = int(output_sample_period / input_sample_period)
-            out = Stream()
-            # from original algorithm
-            for trace in out_stream:
-                data = trace.data
-                filtered = self.firfilter(data,
-                        window / sum(window), decimation)
-                stats = Stats(trace.stats)
-                stats.starttime = stats.starttime + \
-                        input_sample_period * (numtaps // 2)
-                stats.sampling_rate = 1 / output_sample_period
-                stats.delta = output_sample_period
-                stats.npts = filtered.shape[0]
-                trace_out = self.create_trace(stats.channel, stats, filtered)
-                out += trace_out
-            # set out_stream to filtered output and continue while loop
-            out_stream = out.copy()
+            stream = self.process_step(step, stream.copy())
+
+        return stream
+
+    def process_step(self, step, stream):
+        """Filters stream for one step.
+        Filters all traces in stream.
+        Parameters
+        ----------
+        step : array element
+            step holding variables for one filtering operation
+        stream : obspy.core.Stream
+            stream of data to filter
+        Returns
+        -------
+        out : obspy.core.Stream
+            stream containing 1 trace per original trace.
+        """
+        # gather variables from step
+        input_sample_period = step['input_sample_period']
+        output_sample_period = step['output_sample_period']
+        window = np.array(step['window'])
+        decimation = int(output_sample_period / input_sample_period)
+        numtaps = len(window)
+        window = window / sum(window)
+
+        out = Stream()
+        for trace in stream:
+            filtered = self.firfilter(trace.data,
+                    window, decimation)
+            stats = Stats(trace.stats)
+            stats.starttime = stats.starttime + \
+                    input_sample_period * (numtaps // 2)
+            stats.delta = output_sample_period
+            stats.npts = len(filtered)
+            trace_out = self.create_trace(stats.channel, stats, filtered)
+            out += trace_out
         return out
 
     @staticmethod
@@ -240,8 +252,9 @@ class FilterAlgorithm(Algorithm):
         # calculate start/end from step array
         for step in steps:
             half = len(step["window"]) // 2
-            start = start - half * step["input_sample_period"]
-            end = end + half * step["input_sample_period"]
+            half_step = half * step["input_sample_period"]
+            start = start - half_step
+            end = end + half_step
         return (start, end)
 
     @classmethod

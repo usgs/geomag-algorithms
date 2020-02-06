@@ -477,16 +477,16 @@ class MiniSeedFactory(TimeseriesFactory):
         """
         out = obspy.core.Trace()
         # selects volts from input Trace
-        volts = stream.select(channel=channel + "_Volt")
+        volts = stream.select(channel=channel + "_Volt")[0]
         # selects bins from input Trace
-        bins = stream.select(channel=channel + "_Bin")
+        bins = stream.select(channel=channel + "_Bin")[0]
         # copy stats from original Trace
-        stats = obspy.core.Stats(volts[0].stats)
+        stats = obspy.core.Stats(volts.stats)
         # set channel parameter to U, V, or W
-        stats.channel = channel[0]
+        stats.channel = channel
         # conversion from bins/volts to nT
-        data = self.volt_conv * \
-            volts[0].data + self.bin_conv * bins[0].data
+        data = self.volt_conv * volts.data \
+                + self.bin_conv * bins.data
         # create empty trace with adapted stats
         out = TimeseriesUtility.create_empty_trace(stats.starttime,
                 stats.endtime, stats.station, stats.channel,
