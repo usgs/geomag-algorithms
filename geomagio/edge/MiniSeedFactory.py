@@ -112,7 +112,6 @@ class MiniSeedFactory(TimeseriesFactory):
         """
         observatory = observatory or self.observatory
         channels = channels or self.channels
-        convert_channels = self.convert_channels
         type = type or self.type
         interval = interval or self.interval
 
@@ -143,13 +142,10 @@ class MiniSeedFactory(TimeseriesFactory):
 
         if self.convert_channels is not None:
             out = obspy.core.Stream()
-            for i in range(1, len(timeseries), 2):
-                _in_ = obspy.core.Stream()
-                if timeseries[i].stats.channel[0] in convert_channels:
-                    if timeseries[i - 1].stats.channel[0] in convert_channels:
-                        _in_ += timeseries[i]
-                        _in_ += timeseries[i - 1]
-                        out += self.convert_voltbin(_in_)
+            for channel in self.convert_channels:
+                _in_ = timeseries.select(channel=channel + '_Bin') \
+                        + timeseries.select(channel=channel + '_Volt')
+                out += self.convert_voltbin(channel, _in_)
             timeseries = out
 
         self._post_process(timeseries, starttime, endtime, channels)
@@ -465,13 +461,15 @@ class MiniSeedFactory(TimeseriesFactory):
                 observatory, channel, type, interval)
         return data
 
-    def convert_voltbin(self, stream):
+    def convert_voltbin(self, channel, stream):
         """Convert miniseed data from bins and volts to nT.
         Converts all traces in stream.
         Parameters
         ----------
         stream: obspy.core.Stream
             stream of data to convert
+        channel: string
+            channel string(U ,V ,W)
         Returns
         -------
         out : obspy.core.Trace
@@ -479,16 +477,16 @@ class MiniSeedFactory(TimeseriesFactory):
         """
         out = obspy.core.Trace()
         # selects volts from input Trace
-        volts = stream.select(channel="?*V*")
+        volts = stream.select(channel=channel + "_Volt")
         # selects bins from input Trace
-        bins = stream.select(channel="*B*")
+        bins = stream.select(channel=channel + "_Bin")
         # copy stats from original Trace
         stats = obspy.core.Stats(volts[0].stats)
         # set channel parameter to U, V, or W
-        stats.channel = volts[0].stats.channel[0]
+        stats.channel = channel[0]
         # conversion from bins/volts to nT
-        data = int(self.volt_conv) * \
-            volts[0].data + int(self.bin_conv) * bins[0].data
+        data = self.volt_conv * \
+            volts[0].data + self.bin_conv * bins[0].data
         # create empty trace with adapted stats
         out = TimeseriesUtility.create_empty_trace(stats.starttime,
                 stats.endtime, stats.station, stats.channel,
