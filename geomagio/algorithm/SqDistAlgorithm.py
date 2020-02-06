@@ -421,7 +421,9 @@ class SqDistAlgorithm(Algorithm):
         sig = np.sqrt(-2 * np.log(fom) / omg**2) + np.finfo(float).eps  # sig>0
         ts = np.linspace(np.max((-m, -3 * np.round(sig))),
                          np.min((m, 3 * np.round(sig))),
-                         np.min((2 * m, 6 * np.round(sig))) + 1)
+                         np.int(np.round(
+                                 np.min((2 * m, 6 * np.round(sig))) + 1
+                         )))
         nts = ts.size
         weights = np.exp(-0.5 * (ts / sig)**2)
         weights = weights / np.sum(weights)
