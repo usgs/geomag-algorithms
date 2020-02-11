@@ -8,11 +8,11 @@ code for this project, and may also be used to run a local copy of the code.
 Begin Developing
 ----------------
 
-1. Install `obspy`, `pycurl`, `flake8`, `nose`, `webtest`.
+1. Install `obspy`, `pycurl`, `flake8`, `pytest`, `pytest-cov`, `webtest`.
 > Using Anaconda is recommended ( https://conda.io/miniconda.html ).
 
         conda config --add channels conda-forge
-        conda create --name geomagenv obspy pycurl flake8 nose coverage webtest
+        conda create --name geomagenv obspy pycurl flake8 pytest pytest-cov webtest
         source activate geomagenv
 
 2. Fork this project on Github ( https://guides.github.com/activities/forking/ ).
@@ -38,15 +38,15 @@ Check for linting errors using Flake8
         flake8
 
 - **Unit tests**
-Run unit tests using Nose
+Run unit tests using PyTest
 
         cd geomag-algorithms
-        nosetests
+        pytest
 
 - **Unit test coverage**
 
         cd geomag-algorithms
-        nosetests --with-coverage --cover-package geomagio
+        pytest --cov=geomagio
 
 - **Automatically run linting and tests while developing**
 (Requires NodeJS)

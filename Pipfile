@@ -4,11 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-coverage = "*"
 flake8 = "*"
-nose = "*"
+pytest = "*"
+pytest-cov = "*"
 webtest = "*"
-black = "*"
 
 [packages]
 numpy = "*"
