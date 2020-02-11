@@ -41,8 +41,8 @@ class Metadata(db.Model):
         comment = 'automatic adjusted matrix',
         priority = 1,
         value = {
-            'parameters' => {'x': 1, 'y': 2, 'z': 3}
-            'matrix' => [ ... ]
+            'parameters': {'x': 1, 'y': 2, 'z': 3}
+            'matrix': [ ... ]
         }
     )
     ```
