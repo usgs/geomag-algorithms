@@ -1,7 +1,7 @@
 from geomagio.algorithm import AdjustedAlgorithm as adj
 import geomagio.iaga2002 as i2
 from nose.tools import assert_equals
-from nose.tools import assert_almost_equals
+from numpy.testing import assert_almost_equal
 
 
 def test_construct():
@@ -12,7 +12,7 @@ def test_construct():
     # load adjusted data transform matrix and pier correction
     a = adj(matrix, pier_correction, 'etc/adjusted/adjbou_state_.json')
 
-    assert_almost_equals(a.matrix[0, 0], 9.83427577e-01, 6)
+    assert_almost_equal(a.matrix[0, 0], 9.83427577e-01, 6)
 
     assert_equals(a.pier_correction, -22)
 
@@ -51,8 +51,7 @@ def test_process():
     z_adj = adj_bou.select(channel='Z')[0]
     f_adj = adj_bou.select(channel='F')[0]
 
-    for r in range(hezf[0].data.size):
-        assert_almost_equals(x.data[r], x_adj.data[r], 1)
-        assert_almost_equals(y.data[r], y_adj.data[r], 1)
-        assert_almost_equals(z.data[r], z_adj.data[r], 1)
-        assert_almost_equals(f.data[r], f_adj.data[r], 1)
+    assert_almost_equal(x.data, x_adj.data, 2)
+    assert_almost_equal(y.data, y_adj.data, 2)
+    assert_almost_equal(z.data, z_adj.data, 2)
+    assert_almost_equal(f.data, f_adj.data, 2)

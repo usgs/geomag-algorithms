@@ -1,7 +1,7 @@
 from geomagio.algorithm import FilterAlgorithm
 from obspy.core import read
 import geomagio.iaga2002 as i2
-from nose.tools import assert_almost_equals
+from numpy.testing import assert_almost_equal
 
 
 def test_second():
@@ -43,10 +43,9 @@ def test_second():
     v_filt = filtered.select(channel='V')[0]
     w_filt = filtered.select(channel='W')[0]
 
-    for r in range(u.data.size):
-        assert_almost_equals(u_filt.data[r], u.data[r], 1)
-        assert_almost_equals(v_filt.data[r], v.data[r], 1)
-        assert_almost_equals(w_filt.data[r], w.data[r], 1)
+    assert_almost_equal(u_filt.data, u.data, 2)
+    assert_almost_equal(v_filt.data, v.data, 2)
+    assert_almost_equal(w_filt.data, w.data, 2)
 
 
 def test_minute():
@@ -87,10 +86,9 @@ def test_minute():
     v_filt = filtered.select(channel='V')[0]
     w_filt = filtered.select(channel='W')[0]
 
-    for r in range(u.data.size):
-        assert_almost_equals(u_filt.data[r], u.data[r], 1)
-        assert_almost_equals(v_filt.data[r], v.data[r], 1)
-        assert_almost_equals(w_filt.data[r], w.data[r], 1)
+    assert_almost_equal(u_filt.data, u.data, 2)
+    assert_almost_equal(v_filt.data, v.data, 2)
+    assert_almost_equal(w_filt.data, w.data, 2)
 
 
 def test_hour():
@@ -131,10 +129,9 @@ def test_hour():
     v_filt = filtered.select(channel='V')[0]
     w_filt = filtered.select(channel='W')[0]
 
-    for r in range(u.data.size):
-        assert_almost_equals(u_filt.data[r], u.data[r], 1)
-        assert_almost_equals(v_filt.data[r], v.data[r], 1)
-        assert_almost_equals(w_filt.data[r], w.data[r], 1)
+    assert_almost_equal(u_filt.data, u.data, 2)
+    assert_almost_equal(v_filt.data, v.data, 2)
+    assert_almost_equal(w_filt.data, w.data, 2)
 
 
 def test_custom():
@@ -176,7 +173,6 @@ def test_custom():
     v_filt = filtered.select(channel='V')[0]
     w_filt = filtered.select(channel='W')[0]
 
-    for r in range(u.data.size):
-        assert_almost_equals(u_filt.data[r], u.data[r], 1)
-        assert_almost_equals(v_filt.data[r], v.data[r], 1)
-        assert_almost_equals(w_filt.data[r], w.data[r], 1)
+    assert_almost_equal(u_filt.data, u.data, 2)
+    assert_almost_equal(v_filt.data, v.data, 2)
+    assert_almost_equal(w_filt.data, w.data, 2)
