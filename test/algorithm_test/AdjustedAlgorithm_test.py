@@ -1,7 +1,6 @@
 from geomagio.algorithm import AdjustedAlgorithm as adj
 import geomagio.iaga2002 as i2
-from nose.tools import assert_equals
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_equal
 
 
 def test_construct():
@@ -14,7 +13,7 @@ def test_construct():
 
     assert_almost_equal(a.matrix[0, 0], 9.83427577e-01, 6)
 
-    assert_equals(a.pier_correction, -22)
+    assert_equal(a.pier_correction, -22)
 
 
 def test_process():

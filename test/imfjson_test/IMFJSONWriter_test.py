@@ -1,6 +1,6 @@
 """Tests for the IMFJSON Writer class."""
 
-from nose.tools import assert_equals
+from numpy.testing import assert_equal
 from geomagio.iaga2002 import IAGA2002Factory
 from geomagio.imfjson import IMFJSONWriter
 import numpy as np
@@ -24,19 +24,19 @@ def test_metadata():
     """
     writer = IMFJSONWriter()
     metadata = writer._format_metadata(EXAMPLE_STATS, EXAMPLE_CHANNELS)
-    assert_equals(metadata['status'], 200)
+    assert_equal(metadata['status'], 200)
     # Test intermagnet parameters
     intermag = metadata['intermagnet']
-    assert_equals(intermag['reported_orientation'], "HDZF")
-    assert_equals(intermag['sensor_orientation'], "HDZF")
-    assert_equals(intermag['data_type'], "variation")
-    assert_equals(intermag['sampling_period'], 60)
-    assert_equals(intermag['digital_sampling_rate'], 0.01)
+    assert_equal(intermag['reported_orientation'], "HDZF")
+    assert_equal(intermag['sensor_orientation'], "HDZF")
+    assert_equal(intermag['data_type'], "variation")
+    assert_equal(intermag['sampling_period'], 60)
+    assert_equal(intermag['digital_sampling_rate'], 0.01)
     # Test intermagnet-imo parameters
     imo = metadata['intermagnet']['imo']
-    assert_equals(imo['iaga_code'], "BOU")
-    assert_equals(imo['name'], "Boulder")
-    assert_equals(imo['coordinates'], [254.764, 40.137, 1682])
+    assert_equal(imo['iaga_code'], "BOU")
+    assert_equal(imo['name'], "Boulder")
+    assert_equal(imo['coordinates'], [254.764, 40.137, 1682])
 
 
 def test_times():
@@ -54,7 +54,7 @@ def test_times():
     test_date_times = []
     for idx in range(test_day.shape[0]):
         test_date_times += [test_day[idx] + "T" + test_time[idx] + "Z"]
-    assert_equals(times, test_date_times)
+    assert_equal(times, test_date_times)
 
 
 def test_values():
@@ -71,23 +71,23 @@ def test_values():
     test_val_keys = ["id", "metadata", "values"]
     for val in values:
         for key, test in zip(val, test_val_keys):
-            assert_equals(key, test)
-    assert_equals(values[0]['id'], "H")
-    assert_equals(values[1]['id'], "D")
-    assert_equals(values[2]['id'], "Z")
-    assert_equals(values[3]['id'], "F")
+            assert_equal(key, test)
+    assert_equal(values[0]['id'], "H")
+    assert_equal(values[1]['id'], "D")
+    assert_equal(values[2]['id'], "Z")
+    assert_equal(values[3]['id'], "F")
     # Test values-metadata (need to add flags)
     metadata = values[0]['metadata']
     test_metadata_keys = ["element", "network", "station",
             "channel", "location"]
     for key, test in zip(metadata, test_metadata_keys):
-        assert_equals(key, test)
-    assert_equals(metadata['element'], "H")
-    assert_equals(metadata['network'], "NT")
-    assert_equals(metadata['station'], "BOU")
+        assert_equal(key, test)
+    assert_equal(metadata['element'], "H")
+    assert_equal(metadata['network'], "NT")
+    assert_equal(metadata['station'], "BOU")
     # channels do not match H v MVH
-    # assert_equals(metadata['channel'], "MVH")
-    assert_equals(metadata['location'], "R0")
+    # assert_equal(metadata['channel'], "MVH")
+    assert_equal(metadata['location'], "R0")
     # Test values-values
     #  Round to match iaga format
     vals_H = np.around(values[0]['values'], 2)
@@ -95,5 +95,5 @@ def test_values():
     test_val_H, test_val_D = np.loadtxt(EXAMPLE_FILE, skiprows=25,
         usecols=(3, 4), unpack=True, dtype=float)
     #  tolist required to prevent ValueError in comparison
-    assert_equals(vals_H.tolist(), test_val_H.tolist())
-    assert_equals(vals_D.tolist(), test_val_D.tolist())
+    assert_equal(vals_H.tolist(), test_val_H.tolist())
+    assert_equal(vals_D.tolist(), test_val_D.tolist())

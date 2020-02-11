@@ -1,7 +1,7 @@
 """Tests for MiniSeedFactory.py"""
 
-from nose.tools import assert_equals
 import numpy
+from numpy.testing import assert_equal
 from obspy.core import Stats, Stream, Trace, UTCDateTime
 from geomagio import TimeseriesUtility
 from geomagio.edge import MiniSeedFactory
@@ -11,7 +11,7 @@ def test__get_edge_network():
     """edge_test.MiniSeedFactory_test.test__get_edge_network()
     """
     # _get_edge_network should always return NT for use by USGS geomag
-    assert_equals(
+    assert_equal(
             MiniSeedFactory()._get_edge_network(' ', ' ', ' ', ' '),
             'NT')
 
@@ -20,7 +20,7 @@ def test__get_edge_station():
     """edge_test.MiniSeedFactory_test.test__get_edge_station()
     """
     # _get_edge_station will return the observatory code passed in.
-    assert_equals(
+    assert_equal(
             MiniSeedFactory()._get_edge_station('BOU', ' ', ' ', ' '),
             'BOU')
 
@@ -31,15 +31,15 @@ def test__get_edge_channel():
     # Call private function _get_edge_channel, make certain
     # it gets back the appropriate 2 character code.
     factory = MiniSeedFactory()
-    assert_equals(factory._get_edge_channel('', 'D', '', 'minute'), 'UFD')
-    assert_equals(factory._get_edge_channel('', 'U', '', 'minute'), 'UFU')
-    assert_equals(factory._get_edge_channel('', 'F', '', 'minute'), 'UFF')
-    assert_equals(factory._get_edge_channel('', 'H', '', 'minute'), 'UFH')
-    assert_equals(factory._get_edge_channel('', 'BEU', '', 'minute'), 'BEU')
-    assert_equals(factory._get_edge_channel('', 'Dst4', '', 'minute'), 'UX4')
-    assert_equals(factory._get_edge_channel('', 'Dst3', '', 'minute'), 'UX3')
-    assert_equals(factory._get_edge_channel('', 'E-E', '', 'minute'), 'UQE')
-    assert_equals(factory._get_edge_channel('', 'E-N', '', 'minute'), 'UQN')
+    assert_equal(factory._get_edge_channel('', 'D', '', 'minute'), 'UFD')
+    assert_equal(factory._get_edge_channel('', 'U', '', 'minute'), 'UFU')
+    assert_equal(factory._get_edge_channel('', 'F', '', 'minute'), 'UFF')
+    assert_equal(factory._get_edge_channel('', 'H', '', 'minute'), 'UFH')
+    assert_equal(factory._get_edge_channel('', 'BEU', '', 'minute'), 'BEU')
+    assert_equal(factory._get_edge_channel('', 'Dst4', '', 'minute'), 'UX4')
+    assert_equal(factory._get_edge_channel('', 'Dst3', '', 'minute'), 'UX3')
+    assert_equal(factory._get_edge_channel('', 'E-E', '', 'minute'), 'UQE')
+    assert_equal(factory._get_edge_channel('', 'E-N', '', 'minute'), 'UQN')
 
 
 def test__get_edge_location():
@@ -47,22 +47,22 @@ def test__get_edge_location():
     """
     # Call _get_edge_location, make certain it returns the correct edge
     # location code.
-    assert_equals(MiniSeedFactory()._get_edge_location(
+    assert_equal(MiniSeedFactory()._get_edge_location(
             '', '', 'variation', ''), 'R0')
-    assert_equals(MiniSeedFactory()._get_edge_location(
+    assert_equal(MiniSeedFactory()._get_edge_location(
             '', '', 'quasi-definitive', ''), 'Q0')
-    assert_equals(MiniSeedFactory()._get_edge_location(
+    assert_equal(MiniSeedFactory()._get_edge_location(
             '', '', 'definitive', ''), 'D0')
 
 
 def test__get_interval_code():
     """edge_test.MiniSeedFactory_test.test__get_interval_code()
     """
-    assert_equals(MiniSeedFactory()._get_interval_code('day'), 'P')
-    assert_equals(MiniSeedFactory()._get_interval_code('hour'), 'R')
-    assert_equals(MiniSeedFactory()._get_interval_code('minute'), 'U')
-    assert_equals(MiniSeedFactory()._get_interval_code('second'), 'L')
-    assert_equals(MiniSeedFactory()._get_interval_code('tenhertz'), 'B')
+    assert_equal(MiniSeedFactory()._get_interval_code('day'), 'P')
+    assert_equal(MiniSeedFactory()._get_interval_code('hour'), 'R')
+    assert_equal(MiniSeedFactory()._get_interval_code('minute'), 'U')
+    assert_equal(MiniSeedFactory()._get_interval_code('second'), 'L')
+    assert_equal(MiniSeedFactory()._get_interval_code('tenhertz'), 'B')
 
 
 class MockMiniSeedInputClient(object):
@@ -87,19 +87,19 @@ def test__put_timeseries():
     factory.write_client = client
     factory.put_timeseries(Stream(trace1), channels=('H'))
     # put timeseries should call close when done
-    assert_equals(client.close_called, True)
+    assert_equal(client.close_called, True)
     # trace should be split in 2 blocks at gap
     sent = client.last_sent
-    assert_equals(len(sent), 2)
+    assert_equal(len(sent), 2)
     # first trace includes [0...4]
-    assert_equals(sent[0].stats.channel, 'LFH')
-    assert_equals(len(sent[0]), 4)
-    assert_equals(sent[0].stats.endtime, trace1.stats.starttime + 3)
+    assert_equal(sent[0].stats.channel, 'LFH')
+    assert_equal(len(sent[0]), 4)
+    assert_equal(sent[0].stats.endtime, trace1.stats.starttime + 3)
     # second trace includes [5...9]
-    assert_equals(sent[1].stats.channel, 'LFH')
-    assert_equals(len(sent[1]), 5)
-    assert_equals(sent[1].stats.starttime, trace1.stats.starttime + 5)
-    assert_equals(sent[1].stats.endtime, trace1.stats.endtime)
+    assert_equal(sent[1].stats.channel, 'LFH')
+    assert_equal(len(sent[1]), 5)
+    assert_equal(sent[1].stats.starttime, trace1.stats.starttime + 5)
+    assert_equal(sent[1].stats.endtime, trace1.stats.endtime)
 
 
 def test__set_metadata():
@@ -111,8 +111,8 @@ def test__set_metadata():
     trace2 = Trace()
     stream = Stream(traces=[trace1, trace2])
     MiniSeedFactory()._set_metadata(stream, 'BOU', 'H', 'variation', 'minute')
-    assert_equals(stream[0].stats['channel'], 'H')
-    assert_equals(stream[1].stats['channel'], 'H')
+    assert_equal(stream[0].stats['channel'], 'H')
+    assert_equal(stream[1].stats['channel'], 'H')
 
 
 # def test_get_timeseries():
@@ -125,9 +125,9 @@ def dont_get_timeseries():
     timeseries = edge_factory.get_timeseries(
         UTCDateTime(2015, 3, 1, 0, 0, 0), UTCDateTime(2015, 3, 1, 1, 0, 0),
         'BOU', ('H'), 'variation', 'minute')
-    assert_equals(timeseries.select(channel='H')[0].stats.station,
+    assert_equal(timeseries.select(channel='H')[0].stats.station,
         'BOU', 'Expect timeseries to have stats')
-    assert_equals(timeseries.select(channel='H')[0].stats.channel,
+    assert_equal(timeseries.select(channel='H')[0].stats.channel,
         'H', 'Expect timeseries stats channel to be equal to H')
 
 

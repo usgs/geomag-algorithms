@@ -1,6 +1,6 @@
 """Tests for IAGA2002Factory class"""
 
-from nose.tools import assert_equals
+from numpy.testing import assert_equal
 from geomagio.iaga2002 import IAGA2002Factory
 
 
@@ -12,4 +12,4 @@ def test_parse_empty():
     """
     parser = IAGA2002Factory()
     stream = parser.parse_string('')
-    assert_equals(len(stream), 0)
+    assert_equal(len(stream), 0)

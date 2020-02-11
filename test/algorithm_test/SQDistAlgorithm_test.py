@@ -1,10 +1,10 @@
 from geomagio.algorithm import SqDistAlgorithm as sq
-from nose.tools import assert_equals
 import numpy as np
-
-assert_allclose = np.testing.assert_allclose
-assert_almost_equal = np.testing.assert_almost_equal
-assert_array_less = np.testing.assert_array_less
+from numpy.testing import (
+    assert_allclose,
+    assert_almost_equal,
+    assert_array_less,
+    assert_equal)
 
 
 def test_sqdistalgorithm_additive1():
@@ -158,7 +158,7 @@ def test_sqdistalgorithm_additive2():
         yhat0=None, s0=s0, l0=l0, b0=b0, sigma0=sigma0)
 
     # The output should track the input exactly on this simple series
-    assert_equals(synHat000to050.all(), syn000to050.all(),
+    assert_equal(synHat000to050.all(), syn000to050.all(),
         'Output of additive should match simple sinusoid exactly')
 
     # Check max, min and average

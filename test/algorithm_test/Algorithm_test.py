@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 from obspy.core.stream import Stream
-from nose.tools import assert_equals
-from nose.tools import assert_is_instance
+from numpy.testing import assert_equal
 from geomagio.algorithm import Algorithm
 
 
@@ -13,7 +12,7 @@ def test_algorithm_process():
     algorithm = Algorithm()
     timeseries = Stream()
     outputstream = algorithm.process(timeseries)
-    assert_is_instance(outputstream, Stream)
+    assert_equal(isinstance(outputstream, Stream), True)
 
 
 def test_algorithm_channels():
@@ -26,5 +25,5 @@ def test_algorithm_channels():
     outchannels = ['H', 'D', 'Z', 'F']
     algorithm = Algorithm(inchannels=inchannels,
             outchannels=outchannels)
-    assert_equals(algorithm.get_input_channels(), inchannels)
-    assert_equals(algorithm.get_output_channels(), outchannels)
+    assert_equal(algorithm.get_input_channels(), inchannels)
+    assert_equal(algorithm.get_output_channels(), outchannels)

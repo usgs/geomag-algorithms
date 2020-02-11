@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 from __future__ import absolute_import
 
-from nose.tools import assert_equals
+from numpy.testing import assert_equal
 from .StreamConverter_test import __create_trace
 import numpy
 from geomagio import TimeseriesUtility
@@ -40,20 +40,20 @@ def test_create_empty_trace():
         trace.stats.station = trace1.stats.station
         trace.stats.location = location
     timeseries += trace3
-    assert_equals(len(trace3.data), trace3.stats.npts)
-    assert_equals(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
+    assert_equal(len(trace3.data), trace3.stats.npts)
+    assert_equal(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
     TimeseriesUtility.pad_timeseries(
         timeseries=timeseries,
         starttime=trace1.stats.starttime,
         endtime=trace1.stats.endtime)
-    assert_equals(len(trace3.data), trace3.stats.npts)
-    assert_equals(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
+    assert_equal(len(trace3.data), trace3.stats.npts)
+    assert_equal(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
     # Change starttime by more than 1 delta
     starttime = trace1.stats.starttime
     endtime = trace1.stats.endtime
     TimeseriesUtility.pad_timeseries(timeseries, starttime - 90, endtime + 90)
-    assert_equals(len(trace3.data), trace3.stats.npts)
-    assert_equals(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
+    assert_equal(len(trace3.data), trace3.stats.npts)
+    assert_equal(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
 
 
 def test_get_stream_gaps():
@@ -72,17 +72,17 @@ def test_get_stream_gaps():
         trace.stats.delta = 1
     # find gaps
     gaps = TimeseriesUtility.get_stream_gaps(stream)
-    assert_equals(len(gaps['H']), 2)
+    assert_equal(len(gaps['H']), 2)
     # gap at start of H
     gap = gaps['H'][0]
-    assert_equals(gap[0], UTCDateTime('2015-01-01T00:00:00Z'))
-    assert_equals(gap[1], UTCDateTime('2015-01-01T00:00:00Z'))
+    assert_equal(gap[0], UTCDateTime('2015-01-01T00:00:00Z'))
+    assert_equal(gap[1], UTCDateTime('2015-01-01T00:00:00Z'))
     # gap at end of H
     gap = gaps['H'][1]
-    assert_equals(gap[0], UTCDateTime('2015-01-01T00:00:03Z'))
-    assert_equals(gap[1], UTCDateTime('2015-01-01T00:00:04Z'))
+    assert_equal(gap[0], UTCDateTime('2015-01-01T00:00:03Z'))
+    assert_equal(gap[1], UTCDateTime('2015-01-01T00:00:04Z'))
     # no gaps in Z channel
-    assert_equals(len(gaps['Z']), 0)
+    assert_equal(len(gaps['Z']), 0)
 
 
 def test_get_stream_gaps_channels():
@@ -102,8 +102,8 @@ def test_get_stream_gaps_channels():
         trace.stats.delta = 1
     # find gaps
     gaps = TimeseriesUtility.get_stream_gaps(stream, ['Z'])
-    assert_equals('H' in gaps, False)
-    assert_equals(len(gaps['Z']), 0)
+    assert_equal('H' in gaps, False)
+    assert_equal(len(gaps['Z']), 0)
 
 
 def test_get_trace_gaps():
@@ -118,10 +118,10 @@ def test_get_trace_gaps():
     trace.stats.delta = 60
     # find gap
     gaps = TimeseriesUtility.get_trace_gaps(trace)
-    assert_equals(len(gaps), 1)
+    assert_equal(len(gaps), 1)
     gap = gaps[0]
-    assert_equals(gap[0], UTCDateTime('2015-01-01T00:02:00Z'))
-    assert_equals(gap[1], UTCDateTime('2015-01-01T00:03:00Z'))
+    assert_equal(gap[0], UTCDateTime('2015-01-01T00:02:00Z'))
+    assert_equal(gap[1], UTCDateTime('2015-01-01T00:03:00Z'))
 
 
 def test_get_merged_gaps():
@@ -152,15 +152,15 @@ def test_get_merged_gaps():
             ],
         ]
     })
-    assert_equals(len(merged), 2)
+    assert_equal(len(merged), 2)
     # first gap combines H and Z gaps
     gap = merged[0]
-    assert_equals(gap[0], UTCDateTime('2015-01-01T00:00:00Z'))
-    assert_equals(gap[1], UTCDateTime('2015-01-01T00:00:03Z'))
+    assert_equal(gap[0], UTCDateTime('2015-01-01T00:00:00Z'))
+    assert_equal(gap[1], UTCDateTime('2015-01-01T00:00:03Z'))
     # second gap is second Z gap
     gap = merged[1]
-    assert_equals(gap[0], UTCDateTime('2015-01-01T00:00:05Z'))
-    assert_equals(gap[1], UTCDateTime('2015-01-01T00:00:07Z'))
+    assert_equal(gap[0], UTCDateTime('2015-01-01T00:00:05Z'))
+    assert_equal(gap[1], UTCDateTime('2015-01-01T00:00:07Z'))
 
 
 def test_merge_streams():
@@ -186,14 +186,14 @@ def test_merge_streams():
         trace.stats.npts = npts2
     merged_streams1 = TimeseriesUtility.merge_streams(timeseries1)
     # Make sure the empty 'F' was not removed from stream
-    assert_equals(1, len(merged_streams1.select(channel='F')))
+    assert_equal(1, len(merged_streams1.select(channel='F')))
     # Merge multiple streams with overlapping timestamps
     timeseries = timeseries1 + timeseries2
 
     merged_streams = TimeseriesUtility.merge_streams(timeseries)
-    assert_equals(len(merged_streams), len(timeseries1))
-    assert_equals(len(merged_streams[0]), 6)
-    assert_equals(len(merged_streams[2]), 6)
+    assert_equal(len(merged_streams), len(timeseries1))
+    assert_equal(len(merged_streams[0]), 6)
+    assert_equal(len(merged_streams[2]), 6)
     assert_almost_equal(
             merged_streams.select(channel='H')[0].data,
             [1, 1, 2, 2, 2, 2])
@@ -213,14 +213,14 @@ def test_merge_streams():
         trace.stats.starttime = UTCDateTime('2018-01-01T00:00:00Z')
         trace.stats.npts = npts3
     merged_streams3 = TimeseriesUtility.merge_streams(timeseries3)
-    assert_equals(len(timeseries3), len(merged_streams3))
+    assert_equal(len(timeseries3), len(merged_streams3))
     assert_almost_equal(
             timeseries3.select(channel='H')[0].data,
             [1, 1, 1, 1])
-    assert_equals(
+    assert_equal(
             numpy.isnan(timeseries3.select(channel='E')[0].data).all(),
             True)
-    assert_equals(
+    assert_equal(
             numpy.isnan(timeseries3.select(channel='F')[0].data).all(),
             True)
 
@@ -230,7 +230,7 @@ def test_merge_streams():
     trace11.stats.starttime = UTCDateTime('2018-01-01T00:01:00Z')
     timeseries4 = Stream(traces=[trace10, trace11])
     merged4 = TimeseriesUtility.merge_streams(timeseries4)
-    assert_equals(len(merged4[0].data), 6)
+    assert_equal(len(merged4[0].data), 6)
     assert_almost_equal(
         merged4.select(channel='H')[0].data,
         [1, 2, 2, 2, 1, 1])
@@ -246,68 +246,68 @@ def test_pad_timeseries():
         timeseries=timeseries,
         starttime=trace1.stats.starttime,
         endtime=trace1.stats.endtime)
-    assert_equals(len(trace1.data), len(trace2.data))
-    assert_equals(trace1.stats.starttime, trace2.stats.starttime)
-    assert_equals(trace1.stats.endtime, trace2.stats.endtime)
+    assert_equal(len(trace1.data), len(trace2.data))
+    assert_equal(trace1.stats.starttime, trace2.stats.starttime)
+    assert_equal(trace1.stats.endtime, trace2.stats.endtime)
     # change starttime by less than 1 delta
     starttime = trace1.stats.starttime
     endtime = trace1.stats.endtime
     TimeseriesUtility.pad_timeseries(timeseries, starttime - 30, endtime + 30)
-    assert_equals(trace1.stats.starttime, starttime)
+    assert_equal(trace1.stats.starttime, starttime)
     # Change starttime by more than 1 delta
     TimeseriesUtility.pad_timeseries(timeseries, starttime - 90, endtime + 90)
-    assert_equals(trace1.stats.starttime, starttime - 60)
-    assert_equals(numpy.isnan(trace1.data[0]), numpy.isnan(numpy.NaN))
+    assert_equal(trace1.stats.starttime, starttime - 60)
+    assert_equal(numpy.isnan(trace1.data[0]), numpy.isnan(numpy.NaN))
 
 
 def test_pad_and_trim_trace():
     """TimeseriesUtility_test.test_pad_and_trim_trace()
     """
     trace = _create_trace([0, 1, 2, 3, 4], 'X', UTCDateTime("2018-01-01"))
-    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
-    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
+    assert_equal(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
+    assert_equal(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
     # starttime between first and second sample
     # expect first sample to be removed, start at next sample, end at same
     TimeseriesUtility.pad_and_trim_trace(trace,
             starttime=UTCDateTime("2018-01-01T00:00:30Z"),
             endtime=trace.stats.endtime)
-    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:01:00Z"))
-    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
+    assert_equal(trace.stats.starttime, UTCDateTime("2018-01-01T00:01:00Z"))
+    assert_equal(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
     assert_array_equal(trace.data, [1, 2, 3, 4])
     # endtime between last and second to last samples
     TimeseriesUtility.pad_and_trim_trace(trace,
             starttime=UTCDateTime("2018-01-01T00:00:30Z"),
             endtime=UTCDateTime("2018-01-01T00:03:50Z"))
-    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:01:00Z"))
-    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:03:00Z"))
+    assert_equal(trace.stats.starttime, UTCDateTime("2018-01-01T00:01:00Z"))
+    assert_equal(trace.stats.endtime, UTCDateTime("2018-01-01T00:03:00Z"))
     assert_array_equal(trace.data, [1, 2, 3])
     # pad outward
     TimeseriesUtility.pad_and_trim_trace(trace,
             starttime=UTCDateTime("2018-01-01T00:00:00Z"),
             endtime=UTCDateTime("2018-01-01T00:05:00Z"))
-    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
-    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:05:00Z"))
+    assert_equal(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
+    assert_equal(trace.stats.endtime, UTCDateTime("2018-01-01T00:05:00Z"))
     assert_array_equal(trace.data, [numpy.nan, 1, 2, 3, numpy.nan, numpy.nan])
     # remove exactly one sample
     TimeseriesUtility.pad_and_trim_trace(trace,
             starttime=UTCDateTime("2018-01-01T00:00:00Z"),
             endtime=UTCDateTime("2018-01-01T00:04:00Z"))
-    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
-    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
+    assert_equal(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
+    assert_equal(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
     assert_array_equal(trace.data, [numpy.nan, 1, 2, 3, numpy.nan])
     # pad start and trim end
     TimeseriesUtility.pad_and_trim_trace(trace,
             starttime=UTCDateTime("2017-12-31T23:58:59Z"),
             endtime=UTCDateTime("2018-01-01T00:03:00Z"))
-    assert_equals(trace.stats.starttime, UTCDateTime("2017-12-31T23:59:00Z"))
-    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:03:00Z"))
+    assert_equal(trace.stats.starttime, UTCDateTime("2017-12-31T23:59:00Z"))
+    assert_equal(trace.stats.endtime, UTCDateTime("2018-01-01T00:03:00Z"))
     assert_array_equal(trace.data, [numpy.nan, numpy.nan, 1, 2, 3])
     # pad end and trim start
     TimeseriesUtility.pad_and_trim_trace(trace,
             starttime=UTCDateTime("2018-01-01T00:00:00Z"),
             endtime=UTCDateTime("2018-01-01T00:04:00Z"))
-    assert_equals(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
-    assert_equals(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
+    assert_equal(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
+    assert_equal(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
     assert_array_equal(trace.data, [numpy.nan, 1, 2, 3, numpy.nan])
 
 

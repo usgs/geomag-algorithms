@@ -1,6 +1,6 @@
 """Tests for the IAGA2002 Parser class."""
 
-from nose.tools import assert_equals
+from numpy.testing import assert_equal
 from geomagio.iaga2002 import IAGA2002Parser
 
 
@@ -50,7 +50,7 @@ def test__merge_comments():
     Verify, the first and second line are merged.
     """
     comments = ['line 1', 'line 2.', 'line 3']
-    assert_equals(
+    assert_equal(
         IAGA2002Parser()._merge_comments(comments),
         ['line 1 line 2.', 'line 3'])
 
@@ -64,7 +64,7 @@ def test__parse_header():
     parser = IAGA2002Parser()
     parser._parse_header(' Format                 ' +
             'IAGA-2002                                    |')
-    assert_equals(parser.headers['Format'], 'IAGA-2002')
+    assert_equal(parser.headers['Format'], 'IAGA-2002')
 
 
 def test__parse_comment():
@@ -76,7 +76,7 @@ def test__parse_comment():
     parser = IAGA2002Parser()
     parser._parse_comment(' # Go to www.intermagnet.org for details on' +
             ' obtaining this product.  |')
-    assert_equals(parser.comments[-1],
+    assert_equal(parser.comments[-1],
             'Go to www.intermagnet.org for details on' +
                     ' obtaining this product.')
 
@@ -93,7 +93,7 @@ def test__parse_channels():
             'BDT                                          |')
     parser._parse_channels('DATE       TIME         DOY     ' +
             'BDTH      BDTD      BDTZ      BDTF   |')
-    assert_equals(parser.channels, ['H', 'D', 'Z', 'F'])
+    assert_equal(parser.channels, ['H', 'D', 'Z', 'F'])
 
 
 def test_parse_decbas():
@@ -105,4 +105,4 @@ def test_parse_decbas():
     """
     parser = IAGA2002Parser()
     parser.parse(IAGA2002_EXAMPLE)
-    assert_equals(parser.metadata['declination_base'], 5527)
+    assert_equal(parser.metadata['declination_base'], 5527)

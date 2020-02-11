@@ -1,7 +1,7 @@
 """Tests for the IMFV283 Parser class."""
 from __future__ import unicode_literals
 
-from nose.tools import assert_equals
+from numpy.testing import assert_equal
 from obspy import UTCDateTime
 
 from geomagio.imfv283 import IMFV283Parser, imfv283_codes
@@ -25,7 +25,7 @@ def test_parse_msg_header():
     Verify the header name and value are split at the correct column.
     """
     header = IMFV283Parser()._parse_msg_header(IMFV283_EXAMPLE_VIC)
-    assert_equals(header['obs'], 'VIC')
+    assert_equal(header['obs'], 'VIC')
 
 
 def test_parse_goes_header():
@@ -35,7 +35,7 @@ def test_parse_goes_header():
         imfv283_codes.OBSERVATORIES['VIC'],
         191)
     goes_header = IMFV283Parser()._parse_goes_header(goes_data)
-    assert_equals(goes_header['day'], 23)
+    assert_equal(goes_header['day'], 23)
 
 
 def test_estimate_data_time__correct_doy():
@@ -50,9 +50,9 @@ def test_estimate_data_time__correct_doy():
     minute = 72
     (data_time, transmit_time, corrected) = \
             parser._estimate_data_time(transmission, day, minute)
-    assert_equals(data_time, UTCDateTime('2017-10-01T01:12:00Z'))
-    assert_equals(transmit_time, UTCDateTime('2017-10-01T01:31:21Z'))
-    assert_equals(corrected, False)
+    assert_equal(data_time, UTCDateTime('2017-10-01T01:12:00Z'))
+    assert_equal(transmit_time, UTCDateTime('2017-10-01T01:31:21Z'))
+    assert_equal(corrected, False)
 
 
 def test_estimate_data_time__incorrect_doy():
@@ -67,6 +67,6 @@ def test_estimate_data_time__incorrect_doy():
     minute = 78
     (data_time, transmit_time, corrected) = \
             parser._estimate_data_time(transmission, day, minute)
-    assert_equals(data_time, UTCDateTime('2017-10-01T01:18:00Z'))
-    assert_equals(transmit_time, UTCDateTime('2017-10-01T01:32:41Z'))
-    assert_equals(corrected, True)
+    assert_equal(data_time, UTCDateTime('2017-10-01T01:18:00Z'))
+    assert_equal(transmit_time, UTCDateTime('2017-10-01T01:32:41Z'))
+    assert_equal(corrected, True)

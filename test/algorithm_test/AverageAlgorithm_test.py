@@ -2,10 +2,8 @@ from geomagio.algorithm import AverageAlgorithm
 from obspy.core.stream import Stream
 from ..StreamConverter_test import __create_trace
 from obspy.core import UTCDateTime
-from nose.tools import assert_equals
 import numpy as np
-from numpy.testing import assert_array_equal
-# from nose.tools import assert_almost_equals
+from numpy.testing import assert_array_equal, assert_equal
 
 
 def test_process():
@@ -119,6 +117,6 @@ def test_metadata():
     outstream = alg.process(timeseries)
 
     # The station name should be changed to 'USGS'
-    assert_equals(outstream[0].stats.station, 'USGS')
+    assert_equal(outstream[0].stats.station, 'USGS')
     # The channel should be changed to 'Hdt'
-    assert_equals(outstream[0].stats.channel, 'Hdt')
+    assert_equal(outstream[0].stats.channel, 'Hdt')

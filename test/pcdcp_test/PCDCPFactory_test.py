@@ -3,7 +3,7 @@
 from geomagio.pcdcp import PCDCPFactory
 from obspy.core.utcdatetime import UTCDateTime
 from obspy.core.stream import Stream
-from nose.tools import assert_equals
+from numpy.testing import assert_equal
 
 pcdcpString = \
 """BOU  2015  001  01-Jan-15  HEZF  0.01nT  File Version 2.00
@@ -31,17 +31,17 @@ def test_parse_string():
     """
     stream = PCDCPFactory().parse_string(pcdcpString)
 
-    assert_equals(type(stream), Stream)
-    assert_equals(stream[0].stats.network, 'NT')
-    assert_equals(stream[0].stats.station, 'BOU')
-    assert_equals(stream[0].stats.starttime,
+    assert_equal(type(stream), Stream)
+    assert_equal(stream[0].stats.network, 'NT')
+    assert_equal(stream[0].stats.station, 'BOU')
+    assert_equal(stream[0].stats.starttime,
                 UTCDateTime('2015-01-01T00:00:00.000000Z'))
     h = stream.select(channel='H')[0]
-    assert_equals(h.data[1], 20861.90)
-    assert_equals(stream[0].stats.endtime,
+    assert_equal(h.data[1], 20861.90)
+    assert_equal(stream[0].stats.endtime,
                 UTCDateTime('2015-01-01T00:04:00.000000Z'))
     z = stream.select(channel='Z')[0]
-    assert_equals(z.data[-1], 47457.43)
+    assert_equal(z.data[-1], 47457.43)
 
 
 def test_parse_string_seconds():
@@ -52,14 +52,14 @@ def test_parse_string_seconds():
     """
     stream = PCDCPFactory().parse_string(pcdcpString_seconds)
 
-    assert_equals(type(stream), Stream)
-    assert_equals(stream[0].stats.network, 'NT')
-    assert_equals(stream[0].stats.station, 'BOU')
-    assert_equals(stream[0].stats.starttime,
+    assert_equal(type(stream), Stream)
+    assert_equal(stream[0].stats.network, 'NT')
+    assert_equal(stream[0].stats.station, 'BOU')
+    assert_equal(stream[0].stats.starttime,
                 UTCDateTime('2015-01-01T00:00:00.000000Z'))
     h = stream.select(channel='H')[0]
-    assert_equals(h.data[0], 20861.520)
-    assert_equals(stream[0].stats.endtime,
+    assert_equal(h.data[0], 20861.520)
+    assert_equal(stream[0].stats.endtime,
                 UTCDateTime('2015-01-01T00:00:04.000000Z'))
     z = stream.select(channel='Z')[0]
-    assert_equals(z.data[-1], 47457.384)
+    assert_equal(z.data[-1], 47457.384)

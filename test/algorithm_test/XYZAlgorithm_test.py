@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 from obspy.core.stream import Stream
-from nose.tools import assert_equals
-from nose.tools import assert_is
+from numpy.testing import assert_equal
 from geomagio.algorithm import XYZAlgorithm
 from ..StreamConverter_test import __create_trace
 import numpy as np
@@ -19,7 +18,7 @@ def test_xyzalgorithm_process():
     timeseries += __create_trace('Z', [1, 1])
     timeseries += __create_trace('F', [1, 1])
     outputstream = algorithm.process(timeseries)
-    assert_is(outputstream[0].stats.channel, 'X')
+    assert_equal(outputstream[0].stats.channel, 'X')
 
 
 def test_xyzalgorithm_channels():
@@ -31,8 +30,8 @@ def test_xyzalgorithm_channels():
     algorithm = XYZAlgorithm('obs', 'geo')
     inchannels = ['H', 'E', 'Z', 'F']
     outchannels = ['X', 'Y', 'Z', 'F']
-    assert_equals(algorithm.get_input_channels(), inchannels)
-    assert_equals(algorithm.get_output_channels(), outchannels)
+    assert_equal(algorithm.get_input_channels(), inchannels)
+    assert_equal(algorithm.get_output_channels(), outchannels)
 
 
 def test_xyzalgorithm_limited_channels():
@@ -49,12 +48,12 @@ def test_xyzalgorithm_limited_channels():
     outstream = algorithm.process(timeseries)
     ds = outstream.select(channel='D')
     # there is 1 trace
-    assert_equals(len(ds), 1)
+    assert_equal(len(ds), 1)
     d = ds[0]
     # d has `count` values (same as input)
-    assert_equals(len(d.data), count)
+    assert_equal(len(d.data), count)
     # d has no NaN values
-    assert_equals(np.isnan(d).any(), False)
+    assert_equal(np.isnan(d).any(), False)
 
 
 def test_xyzalgorithm_uneccesary_channel_empty():
@@ -72,15 +71,15 @@ def test_xyzalgorithm_uneccesary_channel_empty():
     timeseries += __create_trace('Z', [1, np.NaN])
     timeseries += __create_trace('F', [np.NaN, np.NaN])
     outstream = algorithm.process(timeseries)
-    assert_equals(outstream.select(channel='Z')[0].data.all(),
+    assert_equal(outstream.select(channel='Z')[0].data.all(),
         timeseries.select(channel='Z')[0].data.all())
-    assert_equals(outstream.select(channel='F')[0].data.all(),
+    assert_equal(outstream.select(channel='F')[0].data.all(),
         timeseries.select(channel='F')[0].data.all())
     ds = outstream.select(channel='D')
     # there is 1 trace
-    assert_equals(len(ds), 1)
+    assert_equal(len(ds), 1)
     d = ds[0]
     # d has 2 values (same as input)
-    assert_equals(len(d.data), 2)
+    assert_equal(len(d.data), 2)
     # d has no NaN values
-    assert_equals(np.isnan(d).any(), False)
+    assert_equal(np.isnan(d).any(), False)

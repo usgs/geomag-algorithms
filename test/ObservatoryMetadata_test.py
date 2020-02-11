@@ -1,7 +1,7 @@
 """Tests for ObservatoryMetadata.py"""
 
 from geomagio import ObservatoryMetadata
-from nose.tools import assert_equals
+from numpy.testing import assert_equal
 import obspy.core
 
 
@@ -59,13 +59,13 @@ def test_set_metadata():
     stats.data_type = 'quasi-definitive'
     observatorymetadata.set_metadata(stats, 'BOU', 'MVH',
             'quasi-definitive', 'second')
-    assert_equals(stats['declination_base'], 5527)
+    assert_equal(stats['declination_base'], 5527)
 
     # Test custom metadata
     stats = obspy.core.Stats()
     observatorymetadata = ObservatoryMetadata(METADATA, DATA_INTERVAL_TYPE)
     observatorymetadata.set_metadata(stats, 'BOU', 'MVH',
             'quasi-definitive', 'second')
-    assert_equals(stats['declination_base'], 20000)
+    assert_equal(stats['declination_base'], 20000)
     print(stats)
-    assert_equals(stats['data_interval_type'], 'Average 1-Second')
+    assert_equal(stats['data_interval_type'], 'Average 1-Second')

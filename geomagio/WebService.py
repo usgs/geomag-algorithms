@@ -2,7 +2,9 @@
 """
 
 from __future__ import print_function
-from cgi import escape, parse_qs
+from html import escape
+from urllib.parse import parse_qs
+
 from collections import OrderedDict
 from datetime import datetime
 from json import dumps

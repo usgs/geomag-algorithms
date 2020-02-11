@@ -1,6 +1,6 @@
 """Tests for the PCDCP Parser class."""
 
-from nose.tools import assert_equals
+from numpy.testing import assert_equal
 from geomagio.pcdcp import PCDCPParser
 
 
@@ -45,11 +45,11 @@ def test_parse_header():
     parser._parse_header('BOU  2015  001  01-Jan-15  HEZF  0.01nT' +
         '  File Version 2.00')
 
-    assert_equals(parser.header['date'], '01-Jan-15')
-    assert_equals(parser.header['station'], 'BOU')
-    assert_equals(parser.header['year'], '2015')
-    assert_equals(parser.header['yearday'], '001')
-    assert_equals(parser.header['resolution'], '0.01nT')
+    assert_equal(parser.header['date'], '01-Jan-15')
+    assert_equal(parser.header['station'], 'BOU')
+    assert_equal(parser.header['year'], '2015')
+    assert_equal(parser.header['yearday'], '001')
+    assert_equal(parser.header['resolution'], '0.01nT')
 
 
 def test_parse_header_sec():
@@ -62,8 +62,8 @@ def test_parse_header_sec():
     parser._parse_header('BOU  2015  001  01-Jan-15  HEZF  0.001nT' +
         ' File Version 2.00')
 
-    assert_equals(parser.header['date'], '01-Jan-15')
-    assert_equals(parser.header['station'], 'BOU')
-    assert_equals(parser.header['year'], '2015')
-    assert_equals(parser.header['yearday'], '001')
-    assert_equals(parser.header['resolution'], '0.001nT')
+    assert_equal(parser.header['date'], '01-Jan-15')
+    assert_equal(parser.header['station'], 'BOU')
+    assert_equal(parser.header['year'], '2015')
+    assert_equal(parser.header['yearday'], '001')
+    assert_equal(parser.header['resolution'], '0.001nT')

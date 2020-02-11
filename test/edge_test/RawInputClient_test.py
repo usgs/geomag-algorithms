@@ -3,7 +3,7 @@
 import numpy
 from obspy.core import Stats, Trace, UTCDateTime
 from geomagio.edge import EdgeFactory, RawInputClient
-from nose.tools import assert_equals
+from numpy.testing import assert_equal
 
 
 class MockRawInputClient(RawInputClient):
@@ -44,7 +44,7 @@ def test_raw_input_client():
     trace_send = EdgeFactory()._convert_trace_to_int(trace.copy())
     client.send_trace('minute', trace_send)
     # verify data was sent
-    assert_equals(len(client.last_send), 1)
+    assert_equal(len(client.last_send), 1)
 
 
 def test__get_tag():
@@ -58,4 +58,4 @@ def test__get_tag():
             station=station, channel=channel,
             location=location, network=network)
     tag_send = client._get_tag()
-    assert_equals(tag_send is not None, True)
+    assert_equal(tag_send is not None, True)

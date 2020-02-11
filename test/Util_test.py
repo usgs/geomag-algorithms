@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import os.path
 import shutil
-from nose.tools import assert_equals, assert_false
+from numpy.testing import assert_equal
 from geomagio import Util
 from obspy.core import UTCDateTime
 
@@ -12,7 +12,7 @@ def test_get_file_for_url__throws_exception():
     # throws exception for non "file://" urls
     try:
         Util.get_file_from_url('http://someserver/path')
-        assert_false('expected exception')
+        assert False, ('expected exception')
     except Exception:
         pass
 
@@ -22,7 +22,7 @@ def test_get_file_for_url__parses_file_urls():
     """
     # parses file urls
     f = Util.get_file_from_url('file://./somefile')
-    assert_equals(f, './somefile')
+    assert_equal(f, './somefile')
 
 
 def test_get_file_for_url__creates_directories():
@@ -34,9 +34,9 @@ def test_get_file_for_url__creates_directories():
     f = Util.get_file_from_url('file:///tmp/_geomag_algorithms_test_/somefile',
             createParentDirectory=True)
     if not os.path.isdir('/tmp/_geomag_algorithms_test_'):
-        assert_false('directory not created')
+        assert False, ('directory not created')
     shutil.rmtree('/tmp/_geomag_algorithms_test_')
-    assert_equals(f, '/tmp/_geomag_algorithms_test_/somefile')
+    assert_equal(f, '/tmp/_geomag_algorithms_test_/somefile')
 
 
 def test_get_interval__defaults():
@@ -45,7 +45,7 @@ def test_get_interval__defaults():
     starttime = UTCDateTime('2015-01-01T00:00:00Z')
     endtime = UTCDateTime('2015-02-01T00:00:00Z')
     intervals = Util.get_intervals(starttime, endtime)
-    assert_equals(len(intervals), 31)
+    assert_equal(len(intervals), 31)
 
 
 def test_get_interval__custom_size():
@@ -54,7 +54,7 @@ def test_get_interval__custom_size():
     starttime = UTCDateTime('2015-01-01T00:00:00Z')
     endtime = UTCDateTime('2015-01-02T00:00:00Z')
     intervals = Util.get_intervals(starttime, endtime, size=3600)
-    assert_equals(len(intervals), 24)
+    assert_equal(len(intervals), 24)
 
 
 def test_get_interval__negative_size():
@@ -63,9 +63,9 @@ def test_get_interval__negative_size():
     starttime = UTCDateTime('2015-01-01T00:00:00Z')
     endtime = UTCDateTime('2015-01-02T00:00:00Z')
     intervals = Util.get_intervals(starttime, endtime, size=-1)
-    assert_equals(len(intervals), 1)
-    assert_equals(intervals[0]['start'], starttime)
-    assert_equals(intervals[0]['end'], endtime)
+    assert_equal(len(intervals), 1)
+    assert_equal(intervals[0]['start'], starttime)
+    assert_equal(intervals[0]['end'], endtime)
 
 
 def test_get_interval__trim():
@@ -74,4 +74,4 @@ def test_get_interval__trim():
     starttime = UTCDateTime('2015-01-01T01:00:00Z')
     endtime = UTCDateTime('2015-01-02T00:00:00Z')
     intervals = Util.get_intervals(starttime, endtime, trim=True)
-    assert_equals(intervals[0]['start'], starttime)
+    assert_equal(intervals[0]['start'], starttime)
