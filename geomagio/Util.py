@@ -1,4 +1,3 @@
-import pycurl
 import numpy
 import os
 from obspy.core import Stats, Trace
@@ -160,6 +159,8 @@ def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
         raise e
     except Exception:
         pass
+    # wait to import pycurl until it is needed
+    import pycurl
     content = None
     out = BytesIO()
     curl = pycurl.Curl()
