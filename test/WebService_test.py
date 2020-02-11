@@ -3,7 +3,7 @@ from cgi import parse_qs
 from datetime import datetime
 from nose.tools import assert_equals, assert_is_instance, assert_raises
 import numpy
-from webtest import TestApp
+import webtest
 
 from geomagio.WebService import _get_param
 from geomagio.WebService import WebService
@@ -121,7 +121,7 @@ def test_requests():
     Use TestApp to confirm correct response status, status int,
     and content-type.
     """
-    app = TestApp(WebService(TestFactory()))
+    app = webtest.TestApp(WebService(TestFactory()))
     # Check invalid request (bad values)
     response = app.get('/?id=bad', expect_errors=True)
     assert_equals(response.status_int, 400)
@@ -138,7 +138,7 @@ def test_requests():
     assert_equals(response.status, '200 OK')
     assert_equals(response.content_type, 'text/plain')
     # Test internal server error (use fake factory)
-    app = TestApp(WebService(ErrorFactory(), error_stream=None))
+    app = webtest.TestApp(WebService(ErrorFactory(), error_stream=None))
     response = app.get('/?id=BOU', expect_errors=True)
     assert_equals(response.status_int, 500)
     assert_equals(response.status, '500 Internal Server Error')

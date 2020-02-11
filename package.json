@@ -21,9 +21,9 @@
   ],
   "scripts": {
     "clean": "rimraf '**/*.pyc'",
-    "coverage": "nosetests --with-coverage --cover-package=geomagio --cover-xml",
+    "coverage": "pytest --cov=geomagio --cov-report xml",
     "lint": "flake8 && echo \"No linting errors found\"",
-    "test": "nosetests -q test",
+    "test": "pytest test",
     "watch": "npm-watch"
   },
   "watch": {

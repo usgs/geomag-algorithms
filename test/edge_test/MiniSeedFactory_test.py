@@ -65,7 +65,7 @@ def test__get_interval_code():
     assert_equals(MiniSeedFactory()._get_interval_code('tenhertz'), 'B')
 
 
-class TestMiniSeedInputClient(object):
+class MockMiniSeedInputClient(object):
     def __init__(self):
         self.close_called = False
         self.last_sent = None
@@ -82,7 +82,7 @@ def test__put_timeseries():
     """
     trace1 = __create_trace([0, 1, 2, 3, numpy.nan, 5, 6, 7, 8, 9],
             channel='H')
-    client = TestMiniSeedInputClient()
+    client = MockMiniSeedInputClient()
     factory = MiniSeedFactory()
     factory.write_client = client
     factory.put_timeseries(Stream(trace1), channels=('H'))

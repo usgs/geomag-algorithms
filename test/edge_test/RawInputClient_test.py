@@ -6,7 +6,7 @@ from geomagio.edge import EdgeFactory, RawInputClient
 from nose.tools import assert_equals
 
 
-class TestRawInputClient(RawInputClient):
+class MockRawInputClient(RawInputClient):
     def __init__(self, **kwargs):
         RawInputClient.__init__(self, **kwargs)
         self.last_send = []
@@ -38,7 +38,7 @@ def test_raw_input_client():
                 'station': station
             }))
 
-    client = TestRawInputClient(tag='tag', host='host', port='port',
+    client = MockRawInputClient(tag='tag', host='host', port='port',
             station=station, channel=channel,
             location=location, network=network)
     trace_send = EdgeFactory()._convert_trace_to_int(trace.copy())
@@ -54,7 +54,7 @@ def test__get_tag():
     station = 'BOU'
     channel = 'MVH'
     location = 'R0'
-    client = TestRawInputClient(tag='tag', host='host', port='port',
+    client = MockRawInputClient(tag='tag', host='host', port='port',
             station=station, channel=channel,
             location=location, network=network)
     tag_send = client._get_tag()
