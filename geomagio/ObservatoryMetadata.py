@@ -1063,5 +1063,6 @@ class ObservatoryMetadata(object):
             interval_specific = \
                 self.metadata[observatory]['interval_specific']
         # stats['data_interval_type'] = data_interval_type[interval]
-        for key in interval_specific[interval]:
-            stats[key] = interval_specific[interval][key]
+        if interval in interval_specific:
+            for key in interval_specific[interval]:
+                stats[key] = interval_specific[interval][key]
