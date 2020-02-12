@@ -460,6 +460,9 @@ class EdgeFactory(TimeseriesFactory):
                 type, interval)
         data = self.client.get_waveforms(network, station, location,
                 edge_channel, starttime, endtime)
+        # make sure data is 32bit int
+        for trace in data:
+            trace.data = trace.data.astype('i4')
         data.merge()
         if data.count() == 0:
             data += TimeseriesUtility.create_empty_trace(
