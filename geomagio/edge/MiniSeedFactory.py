@@ -79,6 +79,8 @@ class MiniSeedFactory(TimeseriesFactory):
         self.volt_conv = volt_conv
         self.bin_conv = bin_conv
         self.write_client = MiniSeedInputClient(self.host, self.write_port)
+        if isinstance(self.observatory, list) is True:
+            self.observatory = self.observatory[0]
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -134,11 +136,20 @@ class MiniSeedFactory(TimeseriesFactory):
             # restore stdout
             sys.stdout = original_stdout
 
+        mdata = self.observatoryMetadata.metadata
+        # check for presence of observatory in metadata
+        if self.observatory not in mdata.keys():
+            fge = False
+
+        else:
+            fge = mdata[self.observatory]['metadata']['fge']
+
         if self.convert_channels is not None:
             out = obspy.core.Stream()
             for channel in self.convert_channels:
-                _in_ = timeseries.select(channel=channel + '_Bin') \
-                        + timeseries.select(channel=channel + '_Volt')
+                _in_ = timeseries.select(channel=channel + "_Volt")
+                if fge is not True:
+                    _in_ += timeseries.select(channel=channel + '_Bin')
                 out += self.convert_voltbin(channel, _in_)
             timeseries = out
 
@@ -470,17 +481,29 @@ class MiniSeedFactory(TimeseriesFactory):
             Trace containing 1 trace per 2 original traces.
         """
         out = obspy.core.Trace()
-        # selects volts from input Trace
-        volts = stream.select(channel=channel + "_Volt")[0]
-        # selects bins from input Trace
-        bins = stream.select(channel=channel + "_Bin")[0]
+        mdata = self.observatoryMetadata.metadata
+        # Checks for presence of observatory in metadata
+        if self.observatory not in mdata.keys():
+            # selects volts from input Trace
+            volts = stream.select(channel=channel + "_Volt")[0]
+            # selects bins from input Trace
+            bins = stream.select(channel=channel + "_Bin")[0]
+            # conversion from bins/volts to nT
+            data = self.volt_conv * volts.data \
+                    + self.bin_conv * bins.data
+        else:
+            mdata = mdata[self.observatory]['metadata']
+            # get scaling factor from observatory metadata
+            scale = mdata[channel + '_scale']
+            # selects volts from input Trace
+            volts = stream.select(channel=channel + "_Volt")[0]
+            # conversion from bins/volts to nT
+            data = 150 * (volts.data + scale)
+
         # copy stats from original Trace
         stats = obspy.core.Stats(volts.stats)
         # set channel parameter to U, V, or W
         stats.channel = channel
-        # conversion from bins/volts to nT
-        data = self.volt_conv * volts.data \
-                + self.bin_conv * bins.data
         # create empty trace with adapted stats
         out = TimeseriesUtility.create_empty_trace(stats.starttime,
                 stats.endtime, stats.station, stats.channel,
