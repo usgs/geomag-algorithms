@@ -11,20 +11,11 @@ Edge is the USGS earthquake hazard centers replacement for earthworm.
 from __future__ import absolute_import
 
 import sys
-from io import BytesIO
 import numpy
 import numpy.ma
 import obspy.core
 from datetime import datetime
-# try:
-#     # obspy 1.x
-#     from obspy.clients import earthworm
-# except:
-#     # obspy 0.x
-#     from obspy import earthworm
-
-# use local version of earthworm client to test memory leak fix
-from . import client as earthworm
+from obspy.clients import earthworm
 
 from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
@@ -138,24 +129,19 @@ class EdgeFactory(TimeseriesFactory):
             raise TimeseriesFactoryException(
                 'Starttime before endtime "%s" "%s"' % (starttime, endtime))
 
-        # need this until https://github.com/obspy/obspy/pull/1179
-        # replace stdout
+        # obspy factories sometimes write to stdout, instead of stderr
         original_stdout = sys.stdout
-        temp_stdout = BytesIO()
         try:
-            sys.stdout = temp_stdout
+            # send stdout to stderr
+            sys.stdout = sys.stderr
             # get the timeseries
             timeseries = obspy.core.Stream()
             for channel in channels:
                 data = self._get_timeseries(starttime, endtime, observatory,
                         channel, type, interval)
                 timeseries += data
-        # restore stdout
         finally:
-            output = temp_stdout.getvalue()
-            if output:
-                sys.stderr.write(str(output))
-            temp_stdout.close()
+            # restore stdout
             sys.stdout = original_stdout
         self._post_process(timeseries, starttime, endtime, channels)
 
@@ -474,6 +460,9 @@ class EdgeFactory(TimeseriesFactory):
                 type, interval)
         data = self.client.get_waveforms(network, station, location,
                 edge_channel, starttime, endtime)
+        # make sure data is 32bit int
+        for trace in data:
+            trace.data = trace.data.astype('i4')
         data.merge()
         if data.count() == 0:
             data += TimeseriesUtility.create_empty_trace(

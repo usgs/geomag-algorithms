@@ -460,75 +460,9 @@ def main(args):
     with instantiated I/O factories, and algorithm(s)
     """
 
-    # TODO: remove argument mapping in future version
-    # map legacy input arguments
-    usingDeprecated = False
-    if args.input_edge is not None:
-        args.input = 'edge'
-        args.input_host = args.input_edge
-        args.input_port = args.input_edge_port
-        usingDeprecated = True
-    elif args.input_iaga_file is not None:
-        args.input = 'iaga2002'
-        args.input_file = args.input_iaga_file
-        usingDeprecated = True
-    elif args.input_iaga_stdin:
-        args.input = 'iaga2002'
-        args.input_stdin = True
-        usingDeprecated = True
-    elif args.input_iaga_url is not None:
-        args.input = 'iaga2002'
-        args.input_url = args.input_iaga_url
-        usingDeprecated = True
-    elif args.input_imfv283_file is not None:
-        args.input = 'imfv283'
-        args.input_file = args.input_imfv283_file
-        usingDeprecated = True
-    elif args.input_imfv283_url is not None:
-        args.input = 'imfv283'
-        args.input_url = args.input_imfv283_url
-        usingDeprecated = True
-    elif args.input_imfv283_goes:
-        args.input = 'goes'
-        usingDeprecated = True
-    # map legacy output arguments
-    if args.output_edge is not None:
-        args.output = 'edge'
-        args.output_host = args.output_edge
-        args.output_port = args.edge_write_port
-        usingDeprecated = True
-    elif args.output_iaga_file is not None:
-        args.output = 'iaga2002'
-        args.output_file = args.output_iaga_file
-        usingDeprecated = True
-    elif args.output_iaga_stdout:
-        args.output = 'iaga2002'
-        args.output_stdout = True
-        usingDeprecated = True
-    elif args.output_iaga_url is not None:
-        args.output = 'iaga2002'
-        args.output_url = args.output_iaga_url
-        usingDeprecated = True
-    elif args.output_pcdcp_file is not None:
-        args.output = 'pcdcp'
-        args.output_file = args.output_pcdcp_file
-        usingDeprecated = True
-    elif args.output_pcdcp_stdout:
-        args.output = 'pcdcp'
-        args.output_stdout = True
-        usingDeprecated = True
-    elif args.output_pcdcp_url is not None:
-        args.output = 'pcdcp'
-        args.output_url = args.output_pcdcp_url
-        usingDeprecated = True
-    elif args.output_plot:
-        args.output = 'plot'
-        usingDeprecated = True
-
-    if usingDeprecated:
-        print('WARNING: you are using deprecated arguments,' +
-              ' please update your usage', file=sys.stderr)
-    # TODO check for unused arguments.
+    # only try to parse deprecated arguments if they've been enabled
+    if args.enable_deprecated_arguments:
+        parse_deprecated_arguments(args)
 
     # make sure observatory is a tuple
     if isinstance(args.observatory, (str, unicode)):
@@ -537,8 +471,12 @@ def main(args):
     if args.output_observatory is None:
         args.output_observatory = args.observatory
     elif args.observatory_foreach:
-        raise Exception("Cannot specify" +
+        raise Exception("Cannot combine" +
              " --output-observatory and --observatory-foreach")
+
+    if args.output_stdout and args.update:
+        raise Exception("Cannot combine" +
+            " --output-stdout and --update")
 
     # translate realtime into start/end times
     if args.realtime:
@@ -608,156 +546,16 @@ def parse_args(args):
         dictionary like object containing arguments.
     """
     parser = argparse.ArgumentParser(
-        description='Use @ to read commands from a file.',
+        description="""
+            Read, optionally process, and Write Geomag Timeseries data.
+            Use @ to read arguments from a file.""",
         fromfile_prefix_chars='@',)
 
-    parser.add_argument('--starttime',
-            type=UTCDateTime,
-            default=None,
-            help='UTC date YYYY-MM-DD HH:MM:SS')
-    parser.add_argument('--endtime',
-            type=UTCDateTime,
-            default=None,
-            help='UTC date YYYY-MM-DD HH:MM:SS')
-
-    parser.add_argument('--observatory',
-            default=(None,),
-            help='Observatory code ie BOU, CMO, etc.' +
-                    ' CAUTION: Using multiple observatories is not' +
-                    ' recommended in most cases; especially with' +
-                    ' single observatory formats like IAGA and PCDCP.',
-            nargs='*',
-            type=str)
-    parser.add_argument('--output-observatory',
-            default=None,
-            help='Defaults to valur of --observatory argument.' +
-                    ' Observatory code ie BOU, CMO, etc.' +
-                    ' CAUTION: Using multiple observatories is not' +
-                    ' recommended in most cases; especially with' +
-                    ' single observatory formats like IAGA and PCDCP.',
-            nargs='*',
-            type=str)
-    parser.add_argument('--observatory-foreach',
-            action='store_true',
-            default=False,
-            help='When specifying multiple observatories, process'
-                    ' each observatory separately')
-    parser.add_argument('--inchannels',
-            nargs='*',
-            help='Channels H, E, Z, etc')
-    parser.add_argument('--outchannels',
-            nargs='*',
-            default=None,
-            help='Channels H, E, Z, etc')
-    parser.add_argument('--type',
-            default='variation',
-            choices=['variation',
-                     'reported',
-                     'provisional',
-                     'adjusted',
-                     'quasi-definitive',
-                     'definitive'])
-    parser.add_argument('--rename-input-channel',
-            action='append',
-            help='Rename an input channel after it is read',
-            metavar=('FROM', 'TO'),
-            nargs=2)
-    parser.add_argument('--rename-output-channel',
-            action='append',
-            help='Rename an output channel before it is written',
-            metavar=('FROM', 'TO'),
-            nargs=2)
-    parser.add_argument('--locationcode',
-            help='EDGE location code, e.g. "R0", "R1"',
-            type=edge.LocationCode)
-    parser.add_argument('--outlocationcode',
-            help='EDGE output location code'
-                    ' (if different from --locationcode)',
-            type=edge.LocationCode)
-    parser.add_argument('--interval',
-            default='minute',
-            choices=['day', 'hour', 'minute', 'second', 'tenhertz'])
-    parser.add_argument('--input-interval',
-            default=None,
-            choices=['day', 'hour', 'minute', 'second', 'tenhertz'])
-    parser.add_argument('--output-interval',
-            default=None,
-            choices=['day', 'hour', 'minute', 'second', 'tenhertz'])
-    parser.add_argument('--update',
-            action='store_true',
-            default=False,
-            help='Used to update data')
-    parser.add_argument('--update-limit',
-            type=int,
-            default=0,
-            help='Used to limit the number of iterations update will recurse')
-    parser.add_argument('--no-trim',
-            action='store_true',
-            default=False,
-            help='Ensures output data will not be trimmed down'),
-    parser.add_argument('--input-edge-port',
-            type=int,
-            default=2060,
-            help='deprecated. \
-                Input port # for edge input, defaults to 2060')
-    parser.add_argument('--output-edge-port',
-            type=int,
-            dest='edge_write_port',
-            default=7981,
-            help='deprecated. \
-                Edge port for writing realtime data, defaults to 7981')
-    parser.add_argument('--output-edge-cwb-port',
-            type=int,
-            dest='edge_write_port',
-            default='7981',
-            help='deprecated. \
-                Edge port for writing older data. Not used by geomag.')
-    parser.add_argument('--output-edge-read-port',
-            type=int,
-            default=2060,
-            help='deprecated. \
-                Edge port for reading output data, defaults to 2060')
-    parser.add_argument('--output-edge-tag',
-            default='GEOMAG',
-            help='ID Tag for edge connections, defaults to GEOMAG')
-    parser.add_argument('--output-edge-forceout',
-            action='store_true',
-            default=False,
-            help='Flag to force data into miniseed blocks. Should only ' +
-                    'be used when certain the data is self contained.')
-    # parser.add_argument('--realtime',
-    #         action='store_true',
-    #         default=False,
-    #         help='Flag to run the last hour if interval is minute, ' +
-    #                 'or the last 10 minutes if interval is seconds')
-    parser.add_argument('--realtime',
-            default=False,
-            const=True,
-            type=int,
-            nargs='?',
-            help='Flag to run the last hour if interval is minute, ' +
-                 'the last 10 minutes if interval is seconds, ' +
-                 'or the last N seconds if integer N is specified.')
-    parser.add_argument('--input-goes-directory',
-            default='.',
-            help='Directory for support files for goes input of imfv283 data')
-    parser.add_argument('--input-goes-getdcpmessages',
-            default='',
-            help='Location of getDcpMessages.')
-    parser.add_argument('--input-goes-password',
-            default='',
-            help='Password for goes user')
-    parser.add_argument('--input-goes-server',
-            nargs='*',
-            help='The server name(s) to retrieve the GOES data from')
-    parser.add_argument('--input-goes-user',
-            default='GEOMAG',
-            help='The user name to use to retrieve data from GOES')
-
     # Input group
-    input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument('--input',
-            help='Input format',
+    input_group = parser.add_argument_group('Input', 'How data is read.')
+
+    input_type_group = input_group.add_mutually_exclusive_group(required=True)
+    input_type_group.add_argument('--input',
             choices=(
                 'edge',
                 'goes',
@@ -765,108 +563,149 @@ def parse_args(args):
                 'imfv122',
                 'imfv283',
                 'miniseed',
-                'pcdcp'))
+                'pcdcp'
+            ),
+            default='edge',
+            help='Input format (Default "edge")')
 
-    # conversion factors for volts/bins
-    parser.add_argument('--volt-conversion',
-            default=100,
-            help='Conversion factor for volts')
-
-    parser.add_argument('--bin-conversion',
-            default=500,
-            help='Conversion factor for bins')
-
-    # conversion from bins/volts to nT
-    parser.add_argument('--convert-voltbin',
-            nargs='*',
-            default=None,
-            help='Convert channels from bins/volts to nT')
-
-    parser.add_argument('--input-file',
-            help='Read from specified file')
-    parser.add_argument('--input-host',
+    input_group.add_argument('--input-file',
+            help='Read from specified file',
+            metavar='FILE')
+    input_group.add_argument('--input-host',
             default='cwbpub.cr.usgs.gov',
-            help='Hostname or IP address')
-    parser.add_argument('--input-port',
+            help='Hostname or IP address (Default "cwbpub.cr.usgs.gov")',
+            metavar='HOST')
+    input_group.add_argument('--input-interval',
+        default=None,
+        choices=['day', 'hour', 'minute', 'second', 'tenhertz'],
+        help="Default same as --interval",
+        metavar='INTERVAL')
+    input_group.add_argument('--input-port',
             default=2060,
-            help='Port number',
+            help='Port number (Default 2060)',
+            metavar='PORT',
             type=int)
-    parser.add_argument('--input-stdin',
+    input_group.add_argument('--input-stdin',
             action='store_true',
             default=False,
             help='Read from standard input')
-    parser.add_argument('--input-url',
-            help='Read from a url pattern')
-    parser.add_argument('--input-url-interval',
+    input_group.add_argument('--input-url',
+            help='Read from a url or url pattern.',
+            metavar='URL')
+    input_group.add_argument('--input-url-interval',
             default=86400,
-            help='Read url interval in seconds',
+            help="""
+                Seconds of data each url request should return
+                (default 86400) used to map requests across multiple files
+                or make multiple requests for chunks of data.
+                """,
+            metavar='N',
             type=int)
 
-    input_group.add_argument('--input-edge',
-            help='deprecated. \
-                Host IP #, see --input-edge-port for optional args')
-    input_group.add_argument('--input-iaga-file',
-            help='deprecated. Reads from the specified file.')
-    input_group.add_argument('--input-iaga-stdin',
+    input_group.add_argument('--inchannels',
+            nargs='*',
+            help='Channels H, E, Z, etc',
+            metavar='CHANNEL')
+    input_group.add_argument('--interval',
+            default='minute',
+            choices=['day', 'hour', 'minute', 'second', 'tenhertz'],
+            help='Data interval, default "minute"',
+            metavar='INTERVAL')
+    input_group.add_argument('--locationcode',
+            help="""
+                Use explicit location code, e.g. "R0", "R1",
+                instead of "--type"
+                """,
+            metavar='CODE',
+            type=edge.LocationCode)
+    input_group.add_argument('--observatory',
+            default=(None,),
+            help="""
+                Observatory code ie BOU, CMO, etc.
+                CAUTION: Using multiple observatories is not
+                recommended in most cases; especially with
+                single observatory formats like IAGA and PCDCP.
+                """,
+            metavar='OBS',
+            nargs='*',
+            type=str,
+            required=True)
+    input_group.add_argument('--observatory-foreach',
             action='store_true',
             default=False,
-            help='deprecated. \
-                Pass in an iaga file using redirection from stdin.')
-    input_group.add_argument('--input-iaga-url',
-            help='deprecated. \
-                Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
-    input_group.add_argument('--input-imfv283-file',
-            help='deprecated. Reads from the specified file.')
-    input_group.add_argument('--input-imfv283-stdin',
-            action='store_true',
+            help='When specifying multiple observatories, process'
+                    ' each observatory separately')
+    input_group.add_argument('--rename-input-channel',
+            action='append',
+            help="""
+                Rename an input channel after it is read,
+                before it is processed
+                """,
+            metavar=('FROM', 'TO'),
+            nargs=2)
+    input_group.add_argument('--type',
+            default='variation',
+            choices=['variation',
+                     'reported',
+                     'provisional',
+                     'adjusted',
+                     'quasi-definitive',
+                     'definitive'],
+            help='Data type, default "variation"')
+    # time range
+    input_group.add_argument('--starttime',
+            type=UTCDateTime,
+            default=None,
+            help='UTC date time YYYY-MM-DD HH:MM:SS',
+            metavar='ISO8601')
+    input_group.add_argument('--endtime',
+            type=UTCDateTime,
+            default=None,
+            help='UTC date time YYYY-MM-DD HH:MM:SS',
+            metavar='ISO8601')
+    input_group.add_argument('--realtime',
             default=False,
-            help='deprecated. \
-                Pass in a file using redirection from stdin')
-    input_group.add_argument('--input-imfv283-url',
-            help='deprecated. Example file://./')
-    input_group.add_argument('--input-imfv283-goes',
-            action='store_true',
-            default=False,
-            help='deprecated. \
-                Retrieves data directly from a goes server to read')
-    input_group.add_argument('--input-pcdcp-file',
-            help='deprecated. Reads from the specified file.')
-    input_group.add_argument('--input-pcdcp-stdin',
-            action='store_true',
-            default=False,
-            help='deprecated. \
-                Pass in an pcdcp file using redirection from stdin.')
-    input_group.add_argument('--input-pcdcp-url',
-            help='deprecated. Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
+            const=True,
+            help="""
+                Run the last N seconds.
+                Default 3600 (last hour) when interval is minute,
+                Default 600 (last 10 minutes) otherwise.
+                """,
+            metavar='N',
+            nargs='?',
+            type=int)
+
+    # conversion from bins/volts to nT
+    input_group.add_argument('--convert-voltbin',
+            nargs='*',
+            default=None,
+            metavar='CHANNEL',
+            help="""
+                Convert channels from bins/volts to nT.
+                Example: "
+                    --inchannels U_Bin U_Volt
+                    --interval tenhertz
+                    --type variation
+                    --convert-voltbin U
+                    --outchannels U
+                    "
+                """)
+    input_group.add_argument('--volt-conversion',
+            default=100.0,
+            metavar='NT',
+            help='Conversion factor (nT/V) for volts')
+    input_group.add_argument('--bin-conversion',
+            default=500.0,
+            metavar='NT',
+            help='Conversion factor (nT/bin) for bins')
 
     # Output group
-    output_group = parser.add_mutually_exclusive_group(required=True)
-
-    output_group.add_argument('--output-iaga-file',
-            help='deprecated. Write to a single iaga file.')
-    output_group.add_argument('--output-iaga-stdout',
-            action='store_true', default=False,
-            help='deprecated. Write to stdout.')
-    output_group.add_argument('--output-iaga-url',
-            help='deprecated. \
-                Example: file://./%%(obs)s%%(ymd)s%%(t)s%%(i)s.%%(i)s')
-    output_group.add_argument('--output-pcdcp-file',
-            help='deprecated. Write to a single pcdcp file.')
-    output_group.add_argument('--output-pcdcp-stdout',
-            action='store_true', default=False,
-            help='deprecated. Write to stdout.')
-    output_group.add_argument('--output-pcdcp-url',
-            help='deprecated. Example: file://./%%(obs)s%%(Y)s%%(j)s.%%(i)s')
-    output_group.add_argument('--output-edge',
-            help='deprecated. \
-                Edge IP #. See --output-edge-* for other optional arguments')
-    output_group.add_argument('--output-plot',
-            action='store_true',
-            default=False,
-            help='deprecated. Plot the algorithm output using matplotlib')
+    output_group = parser.add_argument_group('Output', 'How data is written.')
+    output_type_group = output_group.add_mutually_exclusive_group(
+            required=True)
 
     # output arguments
-    output_group.add_argument('--output',
+    output_type_group.add_argument('--output',
             choices=(
                 'binlog',
                 'edge',
@@ -881,36 +720,323 @@ def parse_args(args):
             # TODO: set default to 'iaga2002'
             help='Output format')
 
-    parser.add_argument('--output-file',
-            help='Write to specified file')
-    parser.add_argument('--output-host',
+    output_group.add_argument('--outchannels',
+            nargs='*',
+            default=None,
+            help='Defaults to --inchannels',
+            metavar='CHANNEL')
+    output_group.add_argument('--output-file',
+            help='Write to specified file',
+            metavar='FILE')
+    output_group.add_argument('--output-host',
             default='cwbpub.cr.usgs.gov',
-            help='Write to specified host')
-    parser.add_argument('--output-port',
+            help='Write to specified host',
+            metavar='HOST')
+    output_group.add_argument('--output-interval',
+            default=None,
+            choices=['day', 'hour', 'minute', 'second', 'tenhertz'],
+            help="Default same as --interval",
+            metavar='INTERVAL')
+    output_group.add_argument('--output-observatory',
+            default=None,
+            help='Defaults to value of --observatory argument.',
+            metavar='OBS',
+            nargs='*',
+            type=str)
+    output_group.add_argument('--output-port',
             default=7981,
             help='Write to specified port',
+            metavar='PORT',
             type=int)
-    parser.add_argument('--output-read-port',
-            default=2061,
+    output_group.add_argument('--output-read-port',
+            default=2060,
             help='Read from specified port',
+            metavar='PORT',
             type=int)
-    parser.add_argument('--output-stdout',
+    output_group.add_argument('--output-stdout',
             action='store_true',
             default=False,
             help='Write to standard output')
-    parser.add_argument('--output-url',
-            help='Write to a file:// url pattern')
-    parser.add_argument('--output-url-interval',
+    output_group.add_argument('--output-url',
+            help='Write to a file:// url pattern',
+            metavar='URL')
+    output_group.add_argument('--output-url-interval',
             default=86400,
             help='Output interval in seconds',
+            metavar='INTERVAL',
             type=int)
+    output_group.add_argument('--rename-output-channel',
+            action='append',
+            help='Rename an output channel before it is written',
+            metavar=('FROM', 'TO'),
+            nargs=2)
+    output_group.add_argument('--outlocationcode',
+            help='Defaults to --locationcode',
+            metavar='CODE',
+            type=edge.LocationCode)
+    output_group.add_argument('--output-edge-forceout',
+            action='store_true',
+            default=False,
+            help='Used when writing to EDGE, to close miniseed immediately.')
+    output_group.add_argument('--output-edge-tag',
+            default='GEOMAG',
+            help='Used when writing to EDGE, to identify source of data.',
+            metavar='TAG')
 
-    # Algorithms group
-    parser.add_argument('--algorithm',
+    # Processing group
+    processing_group = parser.add_argument_group(
+            'Processing',
+            'How data is processed.')
+    processing_group.add_argument('--algorithm',
             choices=[k for k in algorithms],
-            default='identity')
-
+            default='identity',
+            help='Default is "identity", which skips processing')
     for k in algorithms:
-        algorithms[k].add_arguments(parser)
+        algorithms[k].add_arguments(processing_group)
+    processing_group.add_argument('--update',
+            action='store_true',
+            default=False,
+            help="""
+                Check for gaps in output,
+                and merge new data into existing.
+                """)
+    processing_group.add_argument('--update-limit',
+            type=int,
+            default=0,
+            help="""
+                Update mode checks for gaps and will step backwards
+                to gap fill, if the start of the current interval is a gap,
+                when limit is set to more than 0.
+                """,
+            metavar='N')
+    processing_group.add_argument('--no-trim',
+            action='store_true',
+            default=False,
+            help='Ensures output data will not be trimmed down')
+
+    # GOES parameters
+    goes_group = parser.add_argument_group(
+            'GOES parameters',
+            'Used to configure "--input goes"')
+    goes_group.add_argument('--input-goes-directory',
+            default='.',
+            help='Directory for support files for goes input of imfv283 data',
+            metavar='PATH')
+    goes_group.add_argument('--input-goes-getdcpmessages',
+            default='',
+            help='Location of getDcpMessages.',
+            metavar='PATH')
+    goes_group.add_argument('--input-goes-password',
+            default='',
+            help='Password for goes user',
+            metavar='PASSWORD')
+    goes_group.add_argument('--input-goes-server',
+            nargs='*',
+            help='The server name(s) to retrieve the GOES data from',
+            metavar='HOST')
+    goes_group.add_argument('--input-goes-user',
+            default='GEOMAG',
+            help='The user name to use to retrieve data from GOES',
+            metavar='USER')
+
+    # still allow deprecated arguments for now, but hide behind opt in flag
+    deprecated = parser.add_argument_group('Deprecated')
+    deprecated.add_argument('--enable-deprecated-arguments',
+            action='store_true',
+            default=False,
+            help="enable support for deprecated arguments")
+    # check for this argument before adding deprecated args to usage
+    if '--enable-deprecated-arguments' in args:
+        add_deprecated_args(deprecated, input_type_group, output_type_group)
 
     return parser.parse_args(args)
+
+
+def add_deprecated_args(parser, input_group, output_group):
+    print('WARNING: you are enabling deprecated arguments,' +
+            ' please update your usage', file=sys.stderr)
+
+    # argument options for inputs and outputs,
+    # replaced with less TYPE specific options
+    parser.add_argument('--input-edge-port',
+            type=int,
+            default=2060,
+            help='(Deprecated) \
+                Use "--input-port".',
+            metavar='PORT')
+    parser.add_argument('--output-edge-port',
+            type=int,
+            dest='edge_write_port',
+            default=7981,
+            help='(Deprecated) \
+                Use "--output-port".',
+            metavar='PORT')
+    parser.add_argument('--output-edge-cwb-port',
+            type=int,
+            dest='edge_write_port',
+            default=7981,
+            help='(Deprecated) \
+                Use "--output miniseed" and "--output-port PORT".',
+            metavar='PORT')
+    parser.add_argument('--output-edge-read-port',
+            type=int,
+            default=2060,
+            help='(Deprecated) \
+                Use "--output-read-port".',
+            metavar='PORT')
+
+    # input arguments (generally use "--input TYPE")
+    input_group.add_argument('--input-edge',
+            help='(Deprecated) \
+                Use "--input edge" and "--input-host HOST".',
+            metavar='HOST')
+    input_group.add_argument('--input-iaga-file',
+            help='(Deprecated) \
+                Use "--input iaga2002" and "--input-file FILE".',
+            metavar='FILE')
+    input_group.add_argument('--input-iaga-stdin',
+            action='store_true',
+            default=False,
+            help='(Deprecated) \
+                Use "--input iaga2002" and "--input-stdin".')
+    input_group.add_argument('--input-iaga-url',
+            help='(Deprecated) \
+                Use "--input iaga2002" and "--input-url URL".',
+            metavar='URL')
+    input_group.add_argument('--input-imfv283-file',
+            help='(Deprecated) \
+                Use "--input imfv283" and "--input-file FILE".',
+            metavar='FILE')
+    input_group.add_argument('--input-imfv283-stdin',
+            action='store_true',
+            default=False,
+            help='(Deprecated) \
+                Use "--input imfv283" and "--input-stdin"')
+    input_group.add_argument('--input-imfv283-url',
+            help='(Deprecated) \
+                Use "--input iaga2002" and "--input-url URL".',
+            metavar='URL')
+    input_group.add_argument('--input-imfv283-goes',
+            action='store_true',
+            default=False,
+            help='(Deprecated) \
+                Use "--input goes".')
+    input_group.add_argument('--input-pcdcp-file',
+            help='(Deprecated) \
+                Use "--input pcdcp" and "--input-file FILE".',
+            metavar='FILE')
+    input_group.add_argument('--input-pcdcp-stdin',
+            action='store_true',
+            default=False,
+            help='(Deprecated) \
+                Use "--input pcddp" and "--input-stdin".')
+    input_group.add_argument('--input-pcdcp-url',
+            help='(Deprecated) \
+                Use "--input pcdcp" and "--input-url URL".',
+            metavar='URL')
+
+    # output arguments (generally use "--output TYPE")
+    output_group.add_argument('--output-iaga-file',
+            help='(Deprecated) \
+                Use "--output iaga2002" and "--output-file FILE".',
+            metavar='FILE')
+    output_group.add_argument('--output-iaga-stdout',
+            action='store_true', default=False,
+            help='(Deprecated) \
+                Use "--output iaga2002" and "--output-stdout".')
+    output_group.add_argument('--output-iaga-url',
+            help='(Deprecated) \
+                Use "--output iaga2002" and "--output-url URL".',
+            metavar='URL')
+    output_group.add_argument('--output-pcdcp-file',
+            help='(Deprecated) \
+                Use "--output pcdcp" and "--output-file FILE".',
+            metavar='FILE')
+    output_group.add_argument('--output-pcdcp-stdout',
+            action='store_true', default=False,
+            help='(Deprecated) \
+                Use "--output pcdcp" and "--output-stdout".')
+    output_group.add_argument('--output-pcdcp-url',
+            help='(Deprecated) \
+                Use "--output pcdcp" and "--output-url URL".',
+            metavar='URL')
+    output_group.add_argument('--output-edge',
+            help='(Deprecated) \
+                Use "--output edge" and "--output-host HOST".',
+            metavar='HOST')
+    output_group.add_argument('--output-plot',
+            action='store_true',
+            default=False,
+            help='(Deprecated) \
+                Use "--output plot".')
+
+
+def parse_deprecated_arguments(args):
+    # TODO: remove argument mapping in future version
+    # map legacy input arguments
+    usingDeprecated = False
+    if args.input_edge is not None:
+        args.input = 'edge'
+        args.input_host = args.input_edge
+        args.input_port = args.input_edge_port
+        usingDeprecated = True
+    elif args.input_iaga_file is not None:
+        args.input = 'iaga2002'
+        args.input_file = args.input_iaga_file
+        usingDeprecated = True
+    elif args.input_iaga_stdin:
+        args.input = 'iaga2002'
+        args.input_stdin = True
+        usingDeprecated = True
+    elif args.input_iaga_url is not None:
+        args.input = 'iaga2002'
+        args.input_url = args.input_iaga_url
+        usingDeprecated = True
+    elif args.input_imfv283_file is not None:
+        args.input = 'imfv283'
+        args.input_file = args.input_imfv283_file
+        usingDeprecated = True
+    elif args.input_imfv283_url is not None:
+        args.input = 'imfv283'
+        args.input_url = args.input_imfv283_url
+        usingDeprecated = True
+    elif args.input_imfv283_goes:
+        args.input = 'goes'
+        usingDeprecated = True
+    # map legacy output arguments
+    if args.output_edge is not None:
+        args.output = 'edge'
+        args.output_host = args.output_edge
+        args.output_port = args.edge_write_port
+        usingDeprecated = True
+    elif args.output_iaga_file is not None:
+        args.output = 'iaga2002'
+        args.output_file = args.output_iaga_file
+        usingDeprecated = True
+    elif args.output_iaga_stdout:
+        args.output = 'iaga2002'
+        args.output_stdout = True
+        usingDeprecated = True
+    elif args.output_iaga_url is not None:
+        args.output = 'iaga2002'
+        args.output_url = args.output_iaga_url
+        usingDeprecated = True
+    elif args.output_pcdcp_file is not None:
+        args.output = 'pcdcp'
+        args.output_file = args.output_pcdcp_file
+        usingDeprecated = True
+    elif args.output_pcdcp_stdout:
+        args.output = 'pcdcp'
+        args.output_stdout = True
+        usingDeprecated = True
+    elif args.output_pcdcp_url is not None:
+        args.output = 'pcdcp'
+        args.output_url = args.output_pcdcp_url
+        usingDeprecated = True
+    elif args.output_plot:
+        args.output = 'plot'
+        usingDeprecated = True
+
+    if usingDeprecated:
+        print('WARNING: you are using deprecated arguments,' +
+              ' please update your usage', file=sys.stderr)

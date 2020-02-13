@@ -11,7 +11,6 @@ Edge is the USGS earthquake hazard centers replacement for earthworm.
 from __future__ import absolute_import
 
 import sys
-from io import BytesIO
 import numpy
 import numpy.ma
 
@@ -22,6 +21,7 @@ from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..ObservatoryMetadata import ObservatoryMetadata
+from .MiniSeedInputClient import MiniSeedInputClient
 
 
 class MiniSeedFactory(TimeseriesFactory):
@@ -69,7 +69,6 @@ class MiniSeedFactory(TimeseriesFactory):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
 
         self.client = miniseed.Client(host, port)
-
         self.observatoryMetadata = observatoryMetadata or ObservatoryMetadata()
         self.locationCode = locationCode
         self.interval = interval
@@ -79,6 +78,7 @@ class MiniSeedFactory(TimeseriesFactory):
         self.convert_channels = convert_channels
         self.volt_conv = volt_conv
         self.bin_conv = bin_conv
+        self.write_client = MiniSeedInputClient(self.host, self.write_port)
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -119,25 +119,19 @@ class MiniSeedFactory(TimeseriesFactory):
             raise TimeseriesFactoryException(
                 'Starttime before endtime "%s" "%s"' % (starttime, endtime))
 
-        # need this until https://github.com/obspy/obspy/pull/1179
-        # replace stdout
+        # obspy factories sometimes write to stdout, instead of stderr
         original_stdout = sys.stdout
-        temp_stdout = BytesIO()
         try:
-            sys.stdout = temp_stdout
+            # send stdout to stderr
+            sys.stdout = sys.stderr
             # get the timeseries
             timeseries = obspy.core.Stream()
             for channel in channels:
                 data = self._get_timeseries(starttime, endtime, observatory,
                         channel, type, interval)
                 timeseries += data
-
-        # restore stdout
         finally:
-            output = temp_stdout.getvalue()
-            if output:
-                sys.stderr.write(str(output))
-            temp_stdout.close()
+            # restore stdout
             sys.stdout = original_stdout
 
         if self.convert_channels is not None:
