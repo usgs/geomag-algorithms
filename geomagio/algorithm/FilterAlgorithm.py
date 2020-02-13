@@ -13,7 +13,7 @@ STEPS = [
         'name': '10Hz',
         'input_sample_period': 0.1,
         'output_sample_period': 1.0,
-        'window': sps.window.blackman(123),
+        'window': sps.firwin(123, 0.45 / 5.0, window='blackman'),
     },
 
     {  # one second to one minute filter
