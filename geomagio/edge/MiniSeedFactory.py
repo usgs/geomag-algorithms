@@ -21,6 +21,7 @@ from .. import ChannelConverter, TimeseriesUtility
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..ObservatoryMetadata import ObservatoryMetadata
+from .MiniSeedInputClient import MiniSeedInputClient
 
 
 class MiniSeedFactory(TimeseriesFactory):
@@ -68,7 +69,6 @@ class MiniSeedFactory(TimeseriesFactory):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
 
         self.client = miniseed.Client(host, port)
-
         self.observatoryMetadata = observatoryMetadata or ObservatoryMetadata()
         self.locationCode = locationCode
         self.interval = interval
@@ -78,6 +78,7 @@ class MiniSeedFactory(TimeseriesFactory):
         self.convert_channels = convert_channels
         self.volt_conv = volt_conv
         self.bin_conv = bin_conv
+        self.write_client = MiniSeedInputClient(self.host, self.write_port)
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
