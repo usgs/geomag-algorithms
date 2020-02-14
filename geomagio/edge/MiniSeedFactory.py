@@ -66,7 +66,7 @@ class MiniSeedFactory(TimeseriesFactory):
     def __init__(self, host='cwbpub.cr.usgs.gov', port=2061, write_port=7981,
             observatory=None, channels=None, type=None, interval=None,
             observatoryMetadata=None, locationCode=None,
-            convert_channels=None, volt_conv=100, bin_conv=500):
+            convert_channels=None):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
 
         self.client = miniseed.Client(host, port)
@@ -77,8 +77,6 @@ class MiniSeedFactory(TimeseriesFactory):
         self.port = port
         self.write_port = write_port
         self.convert_channels = convert_channels
-        self.volt_conv = volt_conv
-        self.bin_conv = bin_conv
         self.write_client = MiniSeedInputClient(self.host, self.write_port)
 
     def get_timeseries(self, starttime, endtime, observatory=None,
@@ -184,6 +182,64 @@ class MiniSeedFactory(TimeseriesFactory):
                     interval, starttime, endtime)
         # close socket
         self.write_client.close()
+
+    def get_calculated_timeseries(self, starttime, endtime, observatory,
+            channel, type, interval, components):
+        """Calculate a single channel using multiple component channels.
+
+        Parameters
+        ----------
+        starttime: obspy.core.UTCDateTime
+            the starttime of the requested data
+        endtime: obspy.core.UTCDateTime
+            the endtime of the requested data
+        observatory : str
+            observatory code
+        channel : str
+            single character channel {H, E, D, Z, F}
+        type : str
+            data type {definitive, quasi-definitive, variation}
+        interval : str
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
+        components: list
+            each component is a dictionary with the following keys:
+                channel: str
+                offset: float
+                scale: float
+
+        Returns
+        -------
+        obspy.core.trace
+            timeseries trace of the converted channel data
+        """
+        # sum channels
+        print(channel)
+        print(components)
+        stats = None
+        converted = None
+        for component in components:
+            # load component
+            data = self._get_timeseries(starttime, endtime, observatory,
+                        component["channel"], type, interval)[0]
+            print(data)
+            # convert to nT
+            nt = data.data * component["scale"] + component["offset"]
+            print(nt)
+            # add to converted
+            if converted is None:
+                converted = nt
+                stats = obspy.core.Stats(data.stats)
+            else:
+                converted += nt
+        # set channel parameter to U, V, or W
+        stats.channel = channel
+        # create empty trace with adapted stats
+        out = TimeseriesUtility.create_empty_trace(stats.starttime,
+                stats.endtime, stats.station, stats.channel,
+                stats.data_type, stats.data_interval,
+                stats.network, stats.station, stats.location)
+        out.data = converted
+        return out
 
     def _convert_stream_to_masked(self, timeseries, channel):
         """convert geomag edge traces in a timeseries stream to a MaskedArray
@@ -482,78 +538,27 @@ class MiniSeedFactory(TimeseriesFactory):
         out = obspy.core.Stream()
         metadata = get_instrument(observatory, starttime, endtime)
         # loop in case request spans different configurations
-        for instrument in metadata:
+        for entry in metadata:
+            entry_endtime = entry["end_time"]
+            entry_starttime = entry["start_time"]
+            instrument = entry["instrument"]
             instrument_channels = instrument["channels"]
-            instrument_endtime = instrument["end_time"]
-            instrument_starttime = instrument["start_time"]
             if channel not in instrument_channels:
                 # no idea how to convert
                 continue
             # determine metadata overlap with request
             start = (starttime
-                    if instrument_starttime is None or
-                        instrument_starttime < starttime
-                    else instrument_starttime)
+                    if entry_starttime is None or
+                        entry_starttime < starttime
+                    else entry_starttime)
             end = (endtime
-                    if instrument_endtime is None or
-                        instrument_endtime > endtime
-                    else instrument_endtime)
+                    if entry_endtime is None or
+                        entry_endtime > endtime
+                    else entry_endtime)
             # now convert
-            out += self._get_converted_timeseries(start, end,
+            out += self.get_calculated_timeseries(start, end,
                     observatory, channel, type, interval,
                     instrument_channels[channel])
-        return out
-
-    def _get_converted_timeseries(self, starttime, endtime, observatory,
-            channel, type, interval, components):
-        """Generate a single channel using multiple components.
-
-        Parameters
-        ----------
-        starttime: obspy.core.UTCDateTime
-            the starttime of the requested data
-        endtime: obspy.core.UTCDateTime
-            the endtime of the requested data
-        observatory : str
-            observatory code
-        channel : str
-            single character channel {H, E, D, Z, F}
-        type : str
-            data type {definitive, quasi-definitive, variation}
-        interval : str
-            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
-        components: list
-            each component is a dictionary with the following keys:
-                channel: str
-                offset: float
-                scale: float
-
-        Returns
-        -------
-        obspy.core.trace
-            timeseries trace of the converted channel data
-        """
-        # sum channels
-        stats = None
-        converted = None
-        for component in components:
-            # load component
-            data = self._get_timeseries(starttime, endtime, observatory,
-                        component["channel"], type, interval)
-            # save stats from first component
-            stats = stats or obspy.core.Stats(data.stats)
-            # convert to nT
-            nt = data.data * component["scale"] + component["offset"]
-            # add to converted
-            converted = converted and converted + nt or nt
-        # set channel parameter to U, V, or W
-        stats.channel = channel
-        # create empty trace with adapted stats
-        out = TimeseriesUtility.create_empty_trace(stats.starttime,
-                stats.endtime, stats.station, stats.channel,
-                stats.data_type, stats.data_interval,
-                stats.network, stats.station, stats.location)
-        out.data = converted
         return out
 
     def _post_process(self, timeseries, starttime, endtime, channels):

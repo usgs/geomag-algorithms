@@ -334,8 +334,6 @@ def get_input_factory(args):
                 port=args.input_port,
                 locationCode=args.locationcode,
                 convert_channels=args.convert_voltbin,
-                volt_conv=args.volt_conversion,
-                bin_conv=args.bin_conversion,
                 **input_factory_args)
     elif input_type == 'goes':
         # TODO: deal with other goes arguments
@@ -690,14 +688,6 @@ def parse_args(args):
                     --outchannels U
                     "
                 """)
-    input_group.add_argument('--volt-conversion',
-            default=100.0,
-            metavar='NT',
-            help='Conversion factor (nT/V) for volts')
-    input_group.add_argument('--bin-conversion',
-            default=500.0,
-            metavar='NT',
-            help='Conversion factor (nT/bin) for bins')
 
     # Output group
     output_group = parser.add_argument_group('Output', 'How data is written.')
@@ -848,6 +838,15 @@ def parse_args(args):
     # check for this argument before adding deprecated args to usage
     if '--enable-deprecated-arguments' in args:
         add_deprecated_args(deprecated, input_type_group, output_type_group)
+
+    deprecated.add_argument('--volt-conversion',
+            default=100.0,
+            metavar='NT',
+            help='(Deprecated, Unused) Conversion factor (nT/V) for volts')
+    deprecated.add_argument('--bin-conversion',
+            default=500.0,
+            metavar='NT',
+            help='(Deprecated, Unused) Conversion factor (nT/bin) for bins')
 
     return parser.parse_args(args)
 
