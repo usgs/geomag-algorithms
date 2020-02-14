@@ -18,6 +18,7 @@ import obspy.core
 from obspy.clients.neic import client as miniseed
 
 from .. import ChannelConverter, TimeseriesUtility
+from ..Metadata import get_instrument
 from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..ObservatoryMetadata import ObservatoryMetadata
@@ -79,8 +80,6 @@ class MiniSeedFactory(TimeseriesFactory):
         self.volt_conv = volt_conv
         self.bin_conv = bin_conv
         self.write_client = MiniSeedInputClient(self.host, self.write_port)
-        if isinstance(self.observatory, list) is True:
-            self.observatory = self.observatory[0]
 
     def get_timeseries(self, starttime, endtime, observatory=None,
             channels=None, type=None, interval=None):
@@ -129,29 +128,16 @@ class MiniSeedFactory(TimeseriesFactory):
             # get the timeseries
             timeseries = obspy.core.Stream()
             for channel in channels:
-                data = self._get_timeseries(starttime, endtime, observatory,
-                        channel, type, interval)
+                if channel in self.convert_channels:
+                    data = self._convert_timeseries(starttime, endtime,
+                            observatory, channel, type, interval)
+                else:
+                    data = self._get_timeseries(starttime, endtime,
+                            observatory, channel, type, interval)
                 timeseries += data
         finally:
             # restore stdout
             sys.stdout = original_stdout
-
-        mdata = self.observatoryMetadata.metadata
-        # check for presence of observatory in metadata
-        if self.observatory not in mdata.keys():
-            fge = False
-
-        else:
-            fge = mdata[self.observatory]['metadata']['fge']
-
-        if self.convert_channels is not None:
-            out = obspy.core.Stream()
-            for channel in self.convert_channels:
-                _in_ = timeseries.select(channel=channel + "_Volt")
-                if fge is not True:
-                    _in_ += timeseries.select(channel=channel + '_Bin')
-                out += self.convert_voltbin(channel, _in_)
-            timeseries = out
 
         self._post_process(timeseries, starttime, endtime, channels)
         return timeseries
@@ -466,42 +452,100 @@ class MiniSeedFactory(TimeseriesFactory):
                 observatory, channel, type, interval)
         return data
 
-    def convert_voltbin(self, channel, stream):
-        """Convert miniseed data from bins and volts to nT.
-        Converts all traces in stream.
+    def _convert_timeseries(self, starttime, endtime, observatory,
+                channel, type, interval):
+        """Generate a single channel using multiple components.
+
+        Finds metadata, then calls _get_converted_timeseries for actual
+        conversion.
+
         Parameters
         ----------
-        stream: obspy.core.Stream
-            stream of data to convert
-        channel: string
-            channel string(U ,V ,W)
+        starttime: obspy.core.UTCDateTime
+            the starttime of the requested data
+        endtime: obspy.core.UTCDateTime
+            the endtime of the requested data
+        observatory : str
+            observatory code
+        channel : str
+            single character channel {H, E, D, Z, F}
+        type : str
+            data type {definitive, quasi-definitive, variation}
+        interval : str
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
+
         Returns
         -------
-        out : obspy.core.Trace
-            Trace containing 1 trace per 2 original traces.
+        obspy.core.trace
+            timeseries trace of the requested channel data
         """
-        out = obspy.core.Trace()
-        mdata = self.observatoryMetadata.metadata
-        # Checks for presence of observatory in metadata
-        if self.observatory not in mdata.keys():
-            # selects volts from input Trace
-            volts = stream.select(channel=channel + "_Volt")[0]
-            # selects bins from input Trace
-            bins = stream.select(channel=channel + "_Bin")[0]
-            # conversion from bins/volts to nT
-            data = self.volt_conv * volts.data \
-                    + self.bin_conv * bins.data
-        else:
-            mdata = mdata[self.observatory]['metadata']
-            # get scaling factor from observatory metadata
-            scale = mdata[channel + '_scale']
-            # selects volts from input Trace
-            volts = stream.select(channel=channel + "_Volt")[0]
-            # conversion from bins/volts to nT
-            data = 150 * (volts.data + scale)
+        out = obspy.core.Stream()
+        metadata = get_instrument(observatory, starttime, endtime)
+        # loop in case request spans different configurations
+        for instrument in metadata:
+            instrument_channels = instrument["channels"]
+            instrument_endtime = instrument["end_time"]
+            instrument_starttime = instrument["start_time"]
+            if channel not in instrument_channels:
+                # no idea how to convert
+                continue
+            # determine metadata overlap with request
+            start = (starttime
+                    if instrument_starttime is None or
+                        instrument_starttime < starttime
+                    else instrument_starttime)
+            end = (endtime
+                    if instrument_endtime is None or
+                        instrument_endtime > endtime
+                    else instrument_endtime)
+            # now convert
+            out += self._get_converted_timeseries(start, end,
+                    observatory, channel, type, interval,
+                    instrument_channels[channel])
+        return out
 
-        # copy stats from original Trace
-        stats = obspy.core.Stats(volts.stats)
+    def _get_converted_timeseries(self, starttime, endtime, observatory,
+            channel, type, interval, components):
+        """Generate a single channel using multiple components.
+
+        Parameters
+        ----------
+        starttime: obspy.core.UTCDateTime
+            the starttime of the requested data
+        endtime: obspy.core.UTCDateTime
+            the endtime of the requested data
+        observatory : str
+            observatory code
+        channel : str
+            single character channel {H, E, D, Z, F}
+        type : str
+            data type {definitive, quasi-definitive, variation}
+        interval : str
+            interval length {'day', 'hour', 'minute', 'second', 'tenhertz'}
+        components: list
+            each component is a dictionary with the following keys:
+                channel: str
+                offset: float
+                scale: float
+
+        Returns
+        -------
+        obspy.core.trace
+            timeseries trace of the converted channel data
+        """
+        # sum channels
+        stats = None
+        converted = None
+        for component in components:
+            # load component
+            data = self._get_timeseries(starttime, endtime, observatory,
+                        component["channel"], type, interval)
+            # save stats from first component
+            stats = stats or obspy.core.Stats(data.stats)
+            # convert to nT
+            nt = data.data * component["scale"] + component["offset"]
+            # add to converted
+            converted = converted and converted + nt or nt
         # set channel parameter to U, V, or W
         stats.channel = channel
         # create empty trace with adapted stats
@@ -509,8 +553,7 @@ class MiniSeedFactory(TimeseriesFactory):
                 stats.endtime, stats.station, stats.channel,
                 stats.data_type, stats.data_interval,
                 stats.network, stats.station, stats.location)
-        # set data for empty trace as nT converted data
-        out.data = data
+        out.data = converted
         return out
 
     def _post_process(self, timeseries, starttime, endtime, channels):
