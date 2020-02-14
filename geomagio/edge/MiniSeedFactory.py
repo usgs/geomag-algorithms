@@ -213,8 +213,6 @@ class MiniSeedFactory(TimeseriesFactory):
             timeseries trace of the converted channel data
         """
         # sum channels
-        print(channel)
-        print(components)
         stats = None
         converted = None
         for component in components:
