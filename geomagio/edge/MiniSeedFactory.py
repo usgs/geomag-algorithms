@@ -219,10 +219,8 @@ class MiniSeedFactory(TimeseriesFactory):
             # load component
             data = self._get_timeseries(starttime, endtime, observatory,
                         component["channel"], type, interval)[0]
-            print(data)
             # convert to nT
             nt = data.data * component["scale"] + component["offset"]
-            print(nt)
             # add to converted
             if converted is None:
                 converted = nt
