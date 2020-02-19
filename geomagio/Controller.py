@@ -408,7 +408,7 @@ def get_output_factory(args):
         locationcode = args.outlocationcode or args.locationcode or None
         output_factory = edge.EdgeFactory(
                 host=args.output_host,
-                port=args.output_edge_read_port,
+                port=args.output_read_port,
                 write_port=args.output_port,
                 locationCode=locationcode,
                 tag=args.output_edge_tag,
