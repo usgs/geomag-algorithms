@@ -10,8 +10,8 @@
   </head>
   <body>
     <nav>
-      {% if current_user.is_authenticated %}
-      Logged in as {{ current_user.email }}
+      {% if current_user.is_authenticated %} Logged in as {{ current_user.email
+      }}
       <a href="{{ url_for('login.logout') }}">Log Out</a>
       {% else %}
       <a href="{{ url_for('login.login') }}">Log In</a>

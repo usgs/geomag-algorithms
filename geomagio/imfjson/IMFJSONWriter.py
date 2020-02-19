@@ -48,7 +48,7 @@ class IMFJSONWriter(object):
         formatted_timeseries = json.dumps(
             file_dict, ensure_ascii=True, separators=(",", ":")
         ).encode("utf8")
-        out.write(str(formatted_timeseries))
+        out.write(formatted_timeseries)
 
     def _format_data(self, timeseries, channels, stats):
         """Format all data lines.

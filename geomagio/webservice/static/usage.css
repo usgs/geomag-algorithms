@@ -1,0 +1,149 @@
+p {
+  font-weight: bold;
+}
+
+/* Import your custom theme */
+.hazdev-site-header {
+  background-color: #1b3c43;
+  height: 100px;
+  position: relative;
+}
+/* position usgs logo over background. */
+.hazdev-site-header > .hazdev-site-logo {
+  /* bottom padding of 0 + overflow: hidden + image height 140% = hide "science for a changing world" on small screens. */
+  display: block;
+  height: 30px;
+  left: 0;
+  overflow: hidden;
+  padding: 14px 14px 0;
+  position: absolute;
+  top: 0;
+}
+.hazdev-site-header > .hazdev-site-logo > img {
+  height: 140%;
+  border: none;
+}
+hazdev-template-cooperator {
+  display: none;
+  height: 100%;
+  left: 136px;
+  overflow: hidden;
+  padding-left: 1em;
+  position: absolute;
+}
+/* visually hide navigation jumplink. */
+.hazdev-jumplink-navigation {
+  display: block;
+  left: -9999px;
+  position: absolute;
+  top: 0;
+}
+@media screen and (min-width: 768px) {
+  /* make banner larger on large screens. */
+  /* also adjust size of usgs logo */
+  /*width: 157px;
+	*/
+  .hazdev-site-header {
+    background-color: #1b3c43;
+    background-position: 186px 0;
+    background-repeat: no-repeat;
+    background-size: auto 100%;
+    height: 90px;
+    /* 1.5 line-height on 1em text, with 0.25em padding top/bottom */
+    margin-bottom: 1em;
+  }
+  .hazdev-site-header > .hazdev-site-logo {
+    height: 100%;
+    padding: 0;
+  }
+  .hazdev-site-header > .hazdev-site-logo > img {
+    height: 100%;
+    padding: 1em;
+  }
+  hazdev-template-cooperator {
+    background-image: none;
+    display: block;
+    left: 186px;
+    padding-left: 0;
+  }
+}
+@media print {
+  /** Only show USGS logo when printing, requires background colors... */
+  [role='banner'] {
+    background-color: #fff;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    visibility: hidden;
+    width: 100%;
+  }
+  [role='banner']:after {
+    color: #333;
+    content: 'U.S. Geological Survey - National Geomagnetism Program';
+    display: block;
+    visibility: visible;
+  }
+  [role='main'] {
+    padding: 1em 0 0 !important;
+  }
+}
+
+.site-commonnav {
+  display: block;
+  font-size: 0.88em;
+  margin: 4em 0 0;
+  padding: 2em 1em;
+  position: relative;
+}
+.site-commonnav > .hazdev-site-logo {
+  display: block;
+  height: 56px;
+  margin-bottom: 2em;
+  width: 152px;
+}
+.site-commonnav > .hazdev-site-logo > img {
+  height: 100%;
+  border: none;
+}
+.interior-nav,
+.common-nav,
+.social-nav,
+.space-between {
+  margin: 1em 0 0;
+}
+.interior-nav > a,
+.common-nav > a,
+.social-nav > a,
+.space-between > a {
+  color: #fff;
+  display: inline-block;
+  margin: 0.5em 1em 0.5em 0;
+}
+.interior-nav > a:hover,
+.common-nav > a:hover,
+.social-nav > a:hover,
+.space-between > a:hover,
+.interior-nav > a:visited,
+.common-nav > a:visited,
+.social-nav > a:visited,
+.space-between > a:visited,
+.interior-nav > a:active,
+.common-nav > a:active,
+.social-nav > a:active,
+.space-between > a:active {
+  color: #fff;
+}
+@media print {
+  .site-commonnav {
+    display: none;
+  }
+}
+.space-between {
+  border-top: 1px solid #eee;
+}
+@media screen and (min-width: 1000px) {
+  .space-between {
+    display: flex;
+    justify-content: space-between;
+  }
+}
