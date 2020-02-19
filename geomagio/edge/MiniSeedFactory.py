@@ -76,7 +76,7 @@ class MiniSeedFactory(TimeseriesFactory):
         self.host = host
         self.port = port
         self.write_port = write_port
-        self.convert_channels = convert_channels
+        self.convert_channels = convert_channels or []
         self.write_client = MiniSeedInputClient(self.host, self.write_port)
 
     def get_timeseries(self, starttime, endtime, observatory=None,
