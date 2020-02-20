@@ -5,8 +5,7 @@ import scipy.signal as sps
 from numpy.lib import stride_tricks as npls
 from obspy.core import Stream, Stats
 import json
-from ..TimeseriesUtility import get_delta_from_interval
-
+from .. import TimeseriesUtility
 
 STEPS = [
     {  # 10 Hz to one second filter
@@ -100,6 +99,26 @@ class FilterAlgorithm(Algorithm):
                 if self.output_sample_period >= step['output_sample_period']:
                     steps.append(step)
         return steps
+
+    def can_produce_data(self, starttime, endtime, stream):
+        """Can Produce data
+
+        The FilterAlgorithm can produce data for each channel independently.
+
+        Parameters
+        ----------
+        starttime: UTCDateTime
+            start time of requested output
+        end : UTCDateTime
+            end time of requested output
+        stream: obspy.core.Stream
+            The input stream we want to make certain has data for the algorithm
+        """
+        return TimeseriesUtility.has_any_channels(
+                stream,
+                self.get_required_channels(),
+                starttime,
+                endtime)
 
     def create_trace(self, channel, stats, data):
         """Utility to create a new trace object.
@@ -282,8 +301,8 @@ class FilterAlgorithm(Algorithm):
         Algorithm.configure(self, arguments)
         # intialize filter with command line arguments
         self.coeff_filename = arguments.filter_coefficients
-        input_interval = arguments.input_interval
-        output_interval = arguments.output_interval
-        self.input_sample_period = get_delta_from_interval(input_interval)
-        self.output_sample_period = get_delta_from_interval(output_interval)
+        self.input_sample_period = TimeseriesUtility.get_delta_from_interval(
+                arguments.input_interval or arguments.interval)
+        self.output_sample_period = TimeseriesUtility.get_delta_from_interval(
+                arguments.output_interval or arguments.interval)
         self.load_state()

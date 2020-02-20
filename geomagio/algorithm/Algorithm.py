@@ -88,7 +88,9 @@ class Algorithm(object):
         return (start, end)
 
     def can_produce_data(self, starttime, endtime, stream):
-        """Can Product data
+        """Can Produce data
+
+        By default require all channels to have data at the same time.
 
         Parameters
         ----------
@@ -99,17 +101,11 @@ class Algorithm(object):
         stream: obspy.core.Stream
             The input stream we want to make certain has data for the algorithm
         """
-        input_gaps = TimeseriesUtility.get_merged_gaps(
-                TimeseriesUtility.get_stream_gaps(
-                    stream=stream,
-                    channels=self.get_required_channels()))
-        for input_gap in input_gaps:
-            # Check for gaps that include the entire range
-            if (starttime >= input_gap[0] and
-                    starttime <= input_gap[1] and
-                    endtime < input_gap[2]):
-                return False
-        return True
+        return TimeseriesUtility.has_all_channels(
+                stream,
+                self.get_required_channels(),
+                starttime,
+                endtime)
 
     def get_next_starttime(self):
         """Check whether algorithm has a stateful start time.
