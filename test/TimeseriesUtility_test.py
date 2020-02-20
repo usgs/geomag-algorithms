@@ -90,7 +90,6 @@ def test_get_stream_gaps_channels():
 
     test that gaps are only checked in specified channels.
     """
-    stream = Stream
     stream = Stream([
         __create_trace('H', [numpy.nan, 1, 1, numpy.nan, numpy.nan]),
         __create_trace('Z', [0, 0, 0, 1, 1, 1])
@@ -161,6 +160,58 @@ def test_get_merged_gaps():
     gap = merged[1]
     assert_equal(gap[0], UTCDateTime('2015-01-01T00:00:05Z'))
     assert_equal(gap[1], UTCDateTime('2015-01-01T00:00:07Z'))
+
+
+def test_has_all_channels():
+    """TimeseriesUtility_test.test_has_all_channels():
+    """
+    nan = numpy.nan
+    stream = Stream([
+        __create_trace('H', [nan, 1, 1, nan, nan]),
+        __create_trace('Z', [0, 0, 0, 1, 1]),
+        __create_trace('E', [nan, nan, nan, nan, nan])
+    ])
+    for trace in stream:
+        # set time of first sample
+        trace.stats.starttime = UTCDateTime('2015-01-01T00:00:00Z')
+        # set sample rate to 1 second
+        trace.stats.delta = 1
+        trace.stats.npts = len(trace.data)
+    # check for channels
+    starttime = stream[0].stats.starttime
+    endtime = stream[0].stats.endtime
+    assert_equal(TimeseriesUtility.has_all_channels(
+            stream, ['H', 'Z'], starttime, endtime), True)
+    assert_equal(TimeseriesUtility.has_all_channels(
+            stream, ['H', 'Z', 'E'], starttime, endtime), False)
+    assert_equal(TimeseriesUtility.has_all_channels(
+            stream, ['E'], starttime, endtime), False)
+
+
+def test_has_any_channels():
+    """TimeseriesUtility_test.test_has_any_channels():
+    """
+    nan = numpy.nan
+    stream = Stream([
+        __create_trace('H', [nan, 1, 1, nan, nan]),
+        __create_trace('Z', [0, 0, 0, 1, 1, 1]),
+        __create_trace('E', [nan, nan, nan, nan, nan])
+    ])
+    for trace in stream:
+        # set time of first sample
+        trace.stats.starttime = UTCDateTime('2015-01-01T00:00:00Z')
+        # set sample rate to 1 second
+        trace.stats.delta = 1
+        trace.stats.npts = len(trace.data)
+    # check for channels
+    starttime = stream[0].stats.starttime
+    endtime = stream[0].stats.endtime
+    assert_equal(TimeseriesUtility.has_any_channels(
+            stream, ['H', 'Z'], starttime, endtime), True)
+    assert_equal(TimeseriesUtility.has_any_channels(
+            stream, ['H', 'Z', 'E'], starttime, endtime), True)
+    assert_equal(TimeseriesUtility.has_any_channels(
+            stream, ['E'], starttime, endtime), False)
 
 
 def test_merge_streams():
