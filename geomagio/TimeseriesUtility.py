@@ -270,8 +270,6 @@ def has_all_channels(stream, channels, starttime, endtime):
     """
     input_gaps = get_merged_gaps(
             get_stream_gaps(stream=stream, channels=channels))
-    print(starttime, endtime)
-    print(input_gaps)
     for input_gap in input_gaps:
         # Check for gaps that include the entire range
         if (starttime >= input_gap[0] and
