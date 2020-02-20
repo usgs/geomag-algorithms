@@ -250,6 +250,74 @@ def get_channels(stream):
     return [ch for ch in channels]
 
 
+def has_all_channels(stream, channels, starttime, endtime):
+    """Check whether all channels have any data within time range.
+
+    Parameters
+    ----------
+    stream: obspy.core.Stream
+        The input stream we want to make certain has data
+    channels: array_like
+        The list of channels that we want to have concurrent data
+    starttime: UTCDateTime
+        start time of requested output
+    end : UTCDateTime
+        end time of requested output
+
+    Returns
+    -------
+    bool: True if data found across all channels between starttime/endtime
+    """
+    input_gaps = get_merged_gaps(
+            get_stream_gaps(stream=stream, channels=channels))
+    print(starttime, endtime)
+    print(input_gaps)
+    for input_gap in input_gaps:
+        # Check for gaps that include the entire range
+        if (starttime >= input_gap[0] and
+                starttime <= input_gap[1] and
+                endtime < input_gap[2]):
+            return False
+    return True
+
+
+def has_any_channels(stream, channels, starttime, endtime):
+    """Check whether any channel has data within time range.
+
+    Parameters
+    ----------
+    stream: obspy.core.Stream
+        The input stream we want to make certain has data
+    channels: array_like
+        The list of channels that we want to have concurrent data
+    starttime: UTCDateTime
+        start time of requested output
+    end : UTCDateTime
+        end time of requested output
+
+    Returns
+    -------
+    bool: True if any data found between starttime/endtime
+    """
+    # process if any channels have data not covering the time range
+    input_gaps = get_stream_gaps(stream=stream, channels=channels)
+    for channel in channels:
+        if channel not in input_gaps:
+            continue
+        channel_gaps = input_gaps[channel]
+        if len(channel_gaps) == 0:
+            # no gaps in channel
+            return True
+        for gap in channel_gaps:
+            if not (starttime >= gap[0] and
+                    starttime <= gap[1] and
+                    endtime < gap[2]):
+                # gap doesn't span channel
+                return True
+    # didn't find any data
+    return False
+
+
 def mask_stream(stream):
     """Convert stream traces to masked arrays.
 
