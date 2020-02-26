@@ -8,6 +8,7 @@ import os
 from geomagio.edge import EdgeFactory
 from geomagio.iaga2002 import IAGA2002Writer
 from geomagio.imfjson import IMFJSONWriter
+from geomagio.TimeseriesUtility import get_interval_from_delta
 
 
 ERROR_CODE_MESSAGES = {
@@ -24,22 +25,40 @@ VALID_OBSERVATORIES = ["BRT", "BRW", "DED", "DHT", "CMO", "CMT", "SIT", "SHU", "
 "BDT", "BOU", "TST", "USGS", "FDT", "FRD", "FRN", "TUC", "BSL", "HON", "SJG",
 "GUA", "SJT"]
 VALID_OUTPUT_FORMATS = ["iaga2002", "json"]
-VALID_SAMPLING_PERIODS = ["1", "60"]
+VALID_SAMPLING_PERIODS = [0.1, 1, 60, 3600, 86400]
 
 
 blueprint = Blueprint("data", __name__)
-edge_factory = EdgeFactory(
-    host=os.getenv('host', 'cwbpub.cr.usgs.gov'),
-    port=os.getenv('port', 2060),
-    write_port=os.getenv('write_port', 7981)
-   )
 
 
 def init_app(app: Flask):
     global blueprint
-    global edge_factory
 
     app.register_blueprint(blueprint)
+
+
+@blueprint.route("/data", methods=["GET"])
+def get_data():
+    query_params = request.args
+
+    if not query_params:
+        return render_template("data/usage.html")
+
+    try:
+        parsed_query = parse_query(query_params)
+        validate_query(parsed_query)
+    except Exception as e:
+        exception = str(e)
+        error_body = format_error(400, exception, parsed_query, request)
+        return error_body
+
+    try:
+        timeseries = get_timeseries(parsed_query)
+        return format_timeseries(timeseries, parsed_query)
+    except Exception as e:
+        exception = str(e)
+        error_body = format_error(500, exception, parsed_query, request)
+        return error_body
 
 
 class WebServiceException(Exception):
@@ -87,73 +106,13 @@ class WebServiceQuery(object):
         self.data_type = data_type
         self.output_format = output_format
 
-    def _verify_parameters(self):
-        """Verify that parameters are valid.
-        Raises
-        ------
-        WebServiceException
-            if any parameters are not supported.
-        """
-        if len(self.elements) > 4 and self.output_format == "iaga2002":
-            raise WebServiceException(
-                "No more than four elements allowed for iaga2002 format."
-            )
-        if self.observatory_id not in VALID_OBSERVATORIES:
-            raise WebServiceException(
-                'Bad observatory ID "%s".'
-                " Valid values are: %s" % (self.observatory_id, ', '.join(VALID_OBSERVATORIES) + '.')
-            )
-        if self.starttime > self.endtime:
-            raise WebServiceException("Starttime must be before endtime.")
-        if self.data_type not in VALID_DATA_TYPES:
-            raise WebServiceException(
-                'Bad type value "%s".'
-                " Valid values are: %s" % (self.data_type, ', '.join(VALID_DATA_TYPES) + '.')
-            )
-        if self.sampling_period not in VALID_SAMPLING_PERIODS:
-            raise WebServiceException(
-                'Bad sampling_period value "%s".'
-                " Valid values are: %s" % (self.sampling_period, ', '.join(VALID_SAMPLING_PERIODS) + '.')
-            )
-        if self.output_format not in VALID_OUTPUT_FORMATS:
-            raise WebServiceException(
-                'Bad format value "%s".'
-                " Valid values are: %s" % (self.output_format, ', '.join(VALID_OUTPUT_FORMATS) + '.')
-            )
 
-
-@blueprint.route("/data", methods=["GET"])
-def get_data():
-    query_params = request.args
-
-    if not query_params:
-        return render_template("data/usage.html")
-
-    try:
-        parsed_query = parse_query(query_params)
-        parsed_query._verify_parameters()
-    except Exception as e:
-        message = str(e)
-        error_body = error(400, message, parsed_query, request)
-        return error_body
-
-    try:
-        timeseries = get_timeseries(parsed_query)
-        return format_timeseries(timeseries, parsed_query)
-    except Exception as e:
-        message = str(e)
-        error_body = error(500, message, parsed_query, request)
-        return error_body
-
-
-def error(code, message, query, url):
+def format_error(status_code, exception, query, url):
     """Assign error_body value based on error format."""
-    error_body = http_error(code, message, query, url)
-    status = str(code) + ' ' + ERROR_CODE_MESSAGES[code]
+    error_body = http_error(status_code, exception, query, url)
+    status = str(status_code) + ' ' + ERROR_CODE_MESSAGES[status_code]
 
-    Response(error_body, mimetype="text/plain")
-
-    return error_body
+    return Response(error_body, mimetype="text/plain")
 
 
 def format_timeseries(timeseries, query):
@@ -173,37 +132,24 @@ def format_timeseries(timeseries, query):
         IAGA2002 or JSON formatted string.
     """
     if query.output_format == "json":
-        json_output = IMFJSONWriter.format(timeseries, query.elements)
-        json_output = Response(json_output, mimetype="application/json")
-
-        return json_output
-
+        return Response(
+            IMFJSONWriter.format(timeseries, query.elements),
+            mimetype="application/json")
     else:
-        iaga_output = IAGA2002Writer.format(timeseries, query.elements)
-        iaga_output = Response(iaga_output, mimetype="text/plain")
+        return Response(
+            IAGA2002Writer.format(timeseries, query.elements),
+            mimetype="text/plain")
 
-        return iaga_output
 
+def get_input_factory():
+    DATA_TYPE = os.getenv('Type', 'edge')
 
-def get_interval(query):
-    """
-    Parameters
-    ----------
-     WebServiceQuery
-        parsed query object
-
-    Returns
-    -------
-    WebServiceQuery
-        with sampling period converted to interval
-    """
-    if query.sampling_period == "1":
-        query.sampling_period = "second"
-
-    if query.sampling_period == "60":
-        query.sampling_period = "minute"
-
-    return query
+    if DATA_TYPE == 'edge':
+        input_factory = EdgeFactory(
+        host=os.getenv('DATA_HOST', 'cwbpub.cr.usgs.gov'),
+        port=os.getenv('DATA_PORT', 2060)
+        )
+        return input_factory
 
 
 def get_timeseries(query):
@@ -218,9 +164,12 @@ def get_timeseries(query):
     obspy.core.Stream
         timeseries object with requested data
     """
-    get_interval(query)
+    data_interval = get_interval_from_delta(query.sampling_period)
+    query.sampling_period = data_interval
+    print(data_interval)
+    input_factory = get_input_factory()
 
-    timeseries = edge_factory.get_timeseries(
+    timeseries = input_factory.get_timeseries(
         query.starttime,
         query.endtime,
         query.observatory_id,
@@ -314,20 +263,22 @@ def parse_query(query):
     params = WebServiceQuery()
 
     # Get and assign values
+    if not query.get("starttime"):
+        start_time = UTCDateTime(query.get("endtime")) - (24 * 60 * 60 - 1)
+    else:
+        start_time = UTCDateTime(query.get("starttime"))
+    params.starttime = start_time
+
     if not query.get("endtime"):
         now = datetime.now()
         today = UTCDateTime(now.year, now.month, now.day, 0)
         end_time = today
     else:
         end_time = UTCDateTime(query.get("endtime"))
-
-    if not query.get("starttime"):
-        start_time = UTCDateTime(query.get("endtime")) - (24 * 60 * 60 - 1)
-    else:
-        start_time = UTCDateTime(query.get("starttime"))
+    params.endtime = end_time
 
     if query.get("sampling_period"):
-        sampling_period = query.get("sampling_period")
+        sampling_period = int(query.get("sampling_period"))
         params.sampling_period =  sampling_period
 
     if query.get("format"):
@@ -335,6 +286,7 @@ def parse_query(query):
         params.output_format = format
 
     observatory = query.get("observatory")
+    params.observatory_id = observatory
 
     if query.get("channels"):
         channels = query.get("channels").split(",")
@@ -344,8 +296,45 @@ def parse_query(query):
         type = query.get("type")
         params.data_type = type
 
-    params.observatory_id = observatory
-    params.starttime = start_time
-    params.endtime = end_time
-
     return params
+
+
+def validate_query(query):
+    """Verify that parameters are valid.
+
+    Parameters
+    ----------
+    query: Immutable Dict
+        request.args object
+
+    Raises
+    ------
+    WebServiceException
+        if any parameters are not supported.
+    """
+    if len(query.elements) > 4 and query.output_format == "iaga2002":
+        raise WebServiceException(
+            "No more than four elements allowed for iaga2002 format."
+        )
+    if query.observatory_id not in VALID_OBSERVATORIES:
+        raise WebServiceException(
+            'Bad observatory ID "%s".'
+            " Valid values are: %s" % (query.observatory_id, ', '.join(VALID_OBSERVATORIES) + '.')
+            )
+    if query.starttime > query.endtime:
+        raise WebServiceException("Starttime must be before endtime.")
+    if query.data_type not in VALID_DATA_TYPES:
+        raise WebServiceException(
+            'Bad type value "%s".'
+            " Valid values are: %s" % (query.data_type, ', '.join(VALID_DATA_TYPES) + '.')
+            )
+    if query.sampling_period not in VALID_SAMPLING_PERIODS:
+        raise WebServiceException(
+            'Bad sampling_period value "%s".'
+            " Valid values are: %s" % (query.sampling_period, ', '.join(VALID_SAMPLING_PERIODS) + '.')
+            )
+    if query.output_format not in VALID_OUTPUT_FORMATS:
+        raise WebServiceException(
+            'Bad format value "%s".'
+            " Valid values are: %s" % (query.output_format, ', '.join(VALID_OUTPUT_FORMATS) + '.')
+            )

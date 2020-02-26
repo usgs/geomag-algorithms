@@ -56,7 +56,7 @@ def create_empty_trace(
 
 
 def get_delta_from_interval(data_interval):
-    """convert interval name to number of seconds
+    """Convert interval name to number of seconds
 
     Parameters
     ----------
@@ -81,6 +81,33 @@ def get_delta_from_interval(data_interval):
     else:
         delta = None
     return delta
+
+def get_interval_from_delta(delta):
+    """Convert delta to an interval name
+
+    Parameters
+    ----------
+    int
+        number of seconds for interval, or None if unknown
+
+    Returns
+    -------
+    interval : str
+        interval length {day, hour, minute, second, tenhertz}
+    """
+    if delta == 0.1:
+        data_interval = "tenhertz"
+    elif delta == 1:
+       data_interval = "second"
+    elif delta == 60:
+        data_interval = "minute"
+    elif delta == 3600:
+        data_interval = "hour"
+    elif delta == 86400:
+        data_interval = "day"
+    else:
+        data_interval = None
+    return data_interval
 
 
 def get_stream_start_end_times(timeseries, without_gaps=False):
