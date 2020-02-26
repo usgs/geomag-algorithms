@@ -142,6 +142,13 @@ def format_timeseries(timeseries, query):
 
 
 def get_input_factory():
+    """Reads environment variable to determine the factory to be used
+
+    Returns
+    -------
+    input_factory
+        Edge or miniseed factory object
+    """
     DATA_TYPE = os.getenv('Type', 'edge')
 
     if DATA_TYPE == 'edge':
@@ -153,7 +160,8 @@ def get_input_factory():
 
 
 def get_timeseries(query):
-    """
+    """Get timeseries data
+
     Parameters
     ----------
      WebServiceQuery
@@ -164,9 +172,7 @@ def get_timeseries(query):
     obspy.core.Stream
         timeseries object with requested data
     """
-    data_interval = get_interval_from_delta(query.sampling_period)
-    query.sampling_period = data_interval
-    print(data_interval)
+    query.sampling_period = get_interval_from_delta(query.sampling_period)
     input_factory = get_input_factory()
 
     timeseries = input_factory.get_timeseries(
