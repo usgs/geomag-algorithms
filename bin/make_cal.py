@@ -53,7 +53,7 @@ url = (
 )
 
 try:
-    print("Loading data from web service\n\t{}".format(url), file=sys.stderr)
+    print(f"Loading data from web service\n\t{url}", file=sys.stderr)
     response = urllib2.urlopen(
         url,
         # allow environment certificate bundle override
@@ -62,7 +62,7 @@ try:
     data = response.read()
     observations = json.loads(data)
 except Exception as e:
-    print("Error loading data ({})".format(str(e)), file=sys.stderr)
+    print(f"Error loading data ({e})", file=sys.stderr)
     sys.exit(1)
 
 
