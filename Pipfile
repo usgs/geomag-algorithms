@@ -8,6 +8,7 @@ flake8 = "*"
 pytest = "*"
 pytest-cov = "*"
 webtest = "*"
+black = "*"
 
 [packages]
 numpy = "*"
@@ -21,4 +22,7 @@ flask-migrate = "*"
 flask-session = "*"
 flask-sqlalchemy = "*"
 psycopg2-binary = "*"
+pre-commit = "*"
 
+[pipenv]
+allow_prereleases = true
