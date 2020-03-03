@@ -87,7 +87,7 @@ def get_interval_from_delta(delta):
 
     Parameters
     ----------
-    int
+    delta: str
         number of seconds for interval, or None if unknown
 
     Returns

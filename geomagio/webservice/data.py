@@ -273,23 +273,18 @@ def parse_query(query):
     """
     # Get values
     observatory_id = query.get("observatory")
-    start_time = UTCDateTime(query.get("starttime"))
-    end_time = UTCDateTime(query.get("endtime"))
     elements = query.get("channels", DEFAULT_ELEMENTS)
     sampling_period = query.get("sampling_period", DEFAULT_SAMPLING_PERIOD)
     data_type = query.get("type", DEFAULT_DATA_TYPE)
     output_format = query.get("format", DEFAULT_OUTPUT_FORMAT)
-    # Assign values or defaults
-    if not output_format:
-        output_format = DEFAULT_OUTPUT_FORMAT
-    else:
-        output_format = output_format.lower()
+    # Format values and get time values
+    output_format.lower()
+    observatory_id.upper()
 
-    observatory_id = observatory_id.upper()
-    if observatory_id not in VALID_OBSERVATORIES:
-        raise WebServiceException(
-             f"""Bad observatory id "{query.observatory_id}".  Valid values are:  {', '.join(VALID_OBSERVATORIES)}."""
-            )
+    try:
+        start_time = UTCDateTime(query.get('starttime'))
+    except:
+        start_time = query.get('starttime')
     if not start_time:
         now = datetime.now()
         today = UTCDateTime(
@@ -298,38 +293,24 @@ def parse_query(query):
                 day=now.day,
                 hour=0)
         start_time = today
-    else:
-        try:
-            start_time = UTCDateTime(start_time)
-        except Exception:
-            raise WebServiceException(
-                    'Bad start_time value "%s".'
-                    ' Valid values are ISO-8601 timestamps.' % start_time)
-    if not end_time:
-        end_time = start_time + (24 * 60 * 60 - 1)
-    else:
-        try:
-            end_time = UTCDateTime(end_time)
-        except Exception:
-            raise WebServiceException(
-                    'Bad end_time value "%s".'
-                    ' Valid values are ISO-8601 timestamps.' % end_time)
 
-    if not sampling_period:
-        sampling_period = DEFAULT_SAMPLING_PERIOD
-    else:
-        sampling_period = sampling_period
-    if not data_type:
-        data_type = DEFAULT_DATA_TYPE
-    else:
-        data_type = data_type.lower()
+    try:
+        end_time = UTCDateTime(query.get("endtime"))
+    except:
+        end_time = query.get("endtime")
+    if not end_time:
+        try:
+            end_time = start_time + (24 * 60 * 60 - 1)
+            end_time = UTCDateTime(end_time)
+        except:
+            end_time = None
     # Create WebServiceQuery object and set properties
     params = WebServiceQuery()
     params.observatory_id = observatory_id
     params.starttime = start_time
     params.endtime = end_time
     params.elements = elements
-    params.sampling_period = str(get_interval_from_delta(sampling_period))
+    params.sampling_period = get_interval_from_delta(sampling_period)
     params.data_type = data_type
     params.output_format = output_format
     return params
@@ -348,6 +329,14 @@ def validate_query(query):
     WebServiceException
         if any parameters are not supported.
     """
+    if not query.endtime:
+         raise WebServiceException(
+                    'Bad end_time value "%s".'
+                    ' Valid values are ISO-8601 timestamps.' % query.endtime)
+    if type(query.starttime) == str:
+         raise WebServiceException(
+                    'Bad end_time value "%s".'
+                    ' Valid values are ISO-8601 timestamps.' % query.starttime)
     if len(query.elements) > 4 and query.output_format == "iaga2002":
         raise WebServiceException(
             "No more than four elements allowed for iaga2002 format."
