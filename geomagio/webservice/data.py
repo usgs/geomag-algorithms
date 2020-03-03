@@ -299,11 +299,9 @@ def parse_query(query):
     except:
         end_time = query.get("endtime")
     if not end_time:
-        try:
-            end_time = start_time + (24 * 60 * 60 - 1)
-            end_time = UTCDateTime(end_time)
-        except:
-            end_time = None
+        end_time = start_time + (24 * 60 * 60 - 1)
+        end_time = UTCDateTime(end_time)
+
     # Create WebServiceQuery object and set properties
     params = WebServiceQuery()
     params.observatory_id = observatory_id
