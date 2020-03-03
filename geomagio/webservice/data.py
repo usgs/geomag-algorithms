@@ -327,7 +327,7 @@ def validate_query(query):
     WebServiceException
         if any parameters are not supported.
     """
-    if not query.endtime:
+    if type(query.endtime) == str:
          raise WebServiceException(
                     'Bad end_time value "%s".'
                     ' Valid values are ISO-8601 timestamps.' % query.endtime)
