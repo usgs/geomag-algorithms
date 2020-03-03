@@ -21,9 +21,8 @@ def test_algorithm_channels():
     confirms that algorithm.get_input_channels returns the correct channels
     confirms that algorithm.get_output_channels returns the correct channels
     """
-    inchannels = ['H', 'E', 'Z', 'F']
-    outchannels = ['H', 'D', 'Z', 'F']
-    algorithm = Algorithm(inchannels=inchannels,
-            outchannels=outchannels)
+    inchannels = ["H", "E", "Z", "F"]
+    outchannels = ["H", "D", "Z", "F"]
+    algorithm = Algorithm(inchannels=inchannels, outchannels=outchannels)
     assert_equal(algorithm.get_input_channels(), inchannels)
     assert_equal(algorithm.get_output_channels(), outchannels)

@@ -4,8 +4,7 @@ from numpy.testing import assert_equal
 from geomagio.pcdcp import PCDCPParser
 
 
-PCDCP_EXAMPLE = \
-"""
+PCDCP_EXAMPLE = """
 BOU  2015  001  01-Jan-15  HEZF  0.01nT  File Version 2.00
 0000  2086167    -5707  4745737  5237768
 0001  2086190    -5664  4745737  5237777
@@ -18,8 +17,7 @@ BOU  2015  001  01-Jan-15  HEZF  0.01nT  File Version 2.00
 0008  2086278    -5571  4745734  5237808
 """
 
-PCDCP_EXAMPLE_SECOND = \
-"""
+PCDCP_EXAMPLE_SECOND = """
 BOU  2015  001  01-Jan-15  HEZF  0.001nT  File Version 2.00
 00000  20861520    -57095  47457409  52377630
 00001  20861533    -57096  47457397  52377650
@@ -42,14 +40,15 @@ def test_parse_header():
     Verify the header name and value are split at the correct column.
     """
     parser = PCDCPParser()
-    parser._parse_header('BOU  2015  001  01-Jan-15  HEZF  0.01nT' +
-        '  File Version 2.00')
+    parser._parse_header(
+        "BOU  2015  001  01-Jan-15  HEZF  0.01nT" + "  File Version 2.00"
+    )
 
-    assert_equal(parser.header['date'], '01-Jan-15')
-    assert_equal(parser.header['station'], 'BOU')
-    assert_equal(parser.header['year'], '2015')
-    assert_equal(parser.header['yearday'], '001')
-    assert_equal(parser.header['resolution'], '0.01nT')
+    assert_equal(parser.header["date"], "01-Jan-15")
+    assert_equal(parser.header["station"], "BOU")
+    assert_equal(parser.header["year"], "2015")
+    assert_equal(parser.header["yearday"], "001")
+    assert_equal(parser.header["resolution"], "0.01nT")
 
 
 def test_parse_header_sec():
@@ -59,11 +58,12 @@ def test_parse_header_sec():
     header.  Verify the header name and value are split correctly.
     """
     parser = PCDCPParser()
-    parser._parse_header('BOU  2015  001  01-Jan-15  HEZF  0.001nT' +
-        ' File Version 2.00')
+    parser._parse_header(
+        "BOU  2015  001  01-Jan-15  HEZF  0.001nT" + " File Version 2.00"
+    )
 
-    assert_equal(parser.header['date'], '01-Jan-15')
-    assert_equal(parser.header['station'], 'BOU')
-    assert_equal(parser.header['year'], '2015')
-    assert_equal(parser.header['yearday'], '001')
-    assert_equal(parser.header['resolution'], '0.001nT')
+    assert_equal(parser.header["date"], "01-Jan-15")
+    assert_equal(parser.header["station"], "BOU")
+    assert_equal(parser.header["year"], "2015")
+    assert_equal(parser.header["yearday"], "001")
+    assert_equal(parser.header["resolution"], "0.001nT")

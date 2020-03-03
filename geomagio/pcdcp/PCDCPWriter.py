@@ -32,8 +32,9 @@ class PCDCPWriter(object):
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 raise TimeseriesFactoryException(
-                    'Missing channel "%s" for output, available channels %s' %
-                    (channel, str(TimeseriesUtility.get_channels(timeseries))))
+                    'Missing channel "%s" for output, available channels %s'
+                    % (channel, str(TimeseriesUtility.get_channels(timeseries)))
+                )
         stats = timeseries[0].stats
 
         # Set dead val for 1-sec data.
@@ -69,10 +70,20 @@ class PCDCPWriter(object):
         if stats.delta == 1:
             resolution = "0.001nT"
 
-        buf.append(observatory + '  ' + year + '  ' + yearday + '  ' +
-                    date + '  HEZF  ' + resolution + '  File Version 2.00\n')
+        buf.append(
+            observatory
+            + "  "
+            + year
+            + "  "
+            + yearday
+            + "  "
+            + date
+            + "  HEZF  "
+            + resolution
+            + "  File Version 2.00\n"
+        )
 
-        return ''.join(buf)
+        return "".join(buf)
 
     def _format_data(self, timeseries, channels, stats):
         """Format all data lines.
@@ -96,9 +107,10 @@ class PCDCPWriter(object):
         # Use a copy of the trace so that we don't modify the original.
         for trace in timeseries:
             traceLocal = trace.copy()
-            if traceLocal.stats.channel == 'D':
-                traceLocal.data = \
-                    ChannelConverter.get_minutes_from_radians(traceLocal.data)
+            if traceLocal.stats.channel == "D":
+                traceLocal.data = ChannelConverter.get_minutes_from_radians(
+                    traceLocal.data
+                )
 
             # TODO - we should look into multiplying the trace all at once
             # like this, but this gives an error on Windows at the moment.
@@ -112,11 +124,15 @@ class PCDCPWriter(object):
         delta = traces[0].stats.delta
 
         for i in range(len(traces[0].data)):
-            buf.append(self._format_values(
-                datetime.utcfromtimestamp(starttime + i * delta),
-                (t.data[i] for t in traces), stats))
+            buf.append(
+                self._format_values(
+                    datetime.utcfromtimestamp(starttime + i * delta),
+                    (t.data[i] for t in traces),
+                    stats,
+                )
+            )
 
-        return ''.join(buf)
+        return "".join(buf)
 
     def _format_values(self, time, values, stats):
         """Format one line of data values.
@@ -152,14 +168,26 @@ class PCDCPWriter(object):
 
         tt = time.timetuple()
 
-        totalMinutes = int(tt.tm_hour * hr_multiplier +
-                        tt.tm_min * mn_multiplier + tt.tm_sec * sc_multiplier)
+        totalMinutes = int(
+            tt.tm_hour * hr_multiplier
+            + tt.tm_min * mn_multiplier
+            + tt.tm_sec * sc_multiplier
+        )
 
-        return '{0:0>{tw}d} {1: >{dw}d} {2: >{dw}d} {3: >{dw}d}' \
-                ' {4: >{dw}d}\n'.format(totalMinutes, tw=time_width,
-                *[self.empty_value if numpy.isnan(val) else int(round(
-                    val * data_multiplier))
-                        for val in values], dw=data_width)
+        return (
+            "{0:0>{tw}d} {1: >{dw}d} {2: >{dw}d} {3: >{dw}d}"
+            " {4: >{dw}d}\n".format(
+                totalMinutes,
+                tw=time_width,
+                *[
+                    self.empty_value
+                    if numpy.isnan(val)
+                    else int(round(val * data_multiplier))
+                    for val in values
+                ],
+                dw=data_width
+            )
+        )
 
     @classmethod
     def format(self, timeseries, channels):

@@ -11,5 +11,5 @@ def test_parse_empty():
     if the data being parsed is empty.
     """
     parser = IAGA2002Factory()
-    stream = parser.parse_string('')
+    stream = parser.parse_string("")
     assert_equal(len(stream), 0)

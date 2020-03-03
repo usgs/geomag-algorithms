@@ -8,17 +8,32 @@ from .TimeseriesFactory import TimeseriesFactory
 class PlotTimeseriesFactory(TimeseriesFactory):
     """TimeseriesFactory that generates a plot.
     """
+
     def __init__(self, *args, **kwargs):
         TimeseriesFactory.__init__(self, *args, **kwargs)
 
-    def get_timeseries(self, starttime, endtime, observatory=None,
-            channels=None, type=None, interval=None):
+    def get_timeseries(
+        self,
+        starttime,
+        endtime,
+        observatory=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """This factory does not support get_timeseries.
         """
         raise NotImplementedError('"get_timeseries" not implemented')
 
-    def put_timeseries(self, timeseries, starttime=None, endtime=None,
-            channels=None, type=None, interval=None):
+    def put_timeseries(
+        self,
+        timeseries,
+        starttime=None,
+        endtime=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Store timeseries data.
 
         Parameters

@@ -40,8 +40,9 @@ class BinLogWriter(object):
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 raise TimeseriesFactoryException(
-                    'Missing channel "%s" for output, available channels %s' %
-                    (channel, str(TimeseriesUtility.get_channels(timeseries))))
+                    'Missing channel "%s" for output, available channels %s'
+                    % (channel, str(TimeseriesUtility.get_channels(timeseries)))
+                )
         stats = timeseries[0].stats
 
         out.write(self._format_header(stats))
@@ -49,15 +50,16 @@ class BinLogWriter(object):
         self._format_data(timeseries, channels)
 
         if (len(Hbuf) + len(Ebuf) + len(Zbuf)) > 0:
-            out.write(' C  Date       Time     DaySec     Bin change'
-            '    Voltage change\n')
-            out.write(''.join(Hbuf))
-            out.write('\n')
-            out.write(''.join(Ebuf))
-            out.write('\n')
-            out.write(''.join(Zbuf))
+            out.write(
+                " C  Date       Time     DaySec     Bin change" "    Voltage change\n"
+            )
+            out.write("".join(Hbuf))
+            out.write("\n")
+            out.write("".join(Ebuf))
+            out.write("\n")
+            out.write("".join(Zbuf))
         else:
-            out.write('*** No Bin Changes Found ***\n')
+            out.write("*** No Bin Changes Found ***\n")
 
     def _format_header(self, stats):
         """format headers for BinLog file
@@ -78,10 +80,17 @@ class BinLogWriter(object):
         sttdate = stats.starttime.strftime("%d-%b-%y")
         enddate = stats.endtime.strftime("%d-%b-%y")
 
-        buf.append('Bin Change Report: ' + observatory + '  Start Day: ' +
-                    sttdate + ' End Day: ' + enddate + '\n\n')
+        buf.append(
+            "Bin Change Report: "
+            + observatory
+            + "  Start Day: "
+            + sttdate
+            + " End Day: "
+            + enddate
+            + "\n\n"
+        )
 
-        return ''.join(buf)
+        return "".join(buf)
 
     def _format_data(self, timeseries, channels):
         """Format all data lines.
@@ -104,9 +113,10 @@ class BinLogWriter(object):
         # Use a copy of the trace so that we don't modify the original.
         for trace in timeseries:
             traceLocal = trace.copy()
-            if traceLocal.stats.channel == 'D':
-                traceLocal.data = \
-                    ChannelConverter.get_minutes_from_radians(traceLocal.data)
+            if traceLocal.stats.channel == "D":
+                traceLocal.data = ChannelConverter.get_minutes_from_radians(
+                    traceLocal.data
+                )
 
             # TODO - we should look into multiplying the trace all at once
             # like this, but this gives an error on Windows at the moment.
@@ -122,7 +132,8 @@ class BinLogWriter(object):
         for i in range(len(traces[0].data)):
             self._format_values(
                 datetime.utcfromtimestamp(starttime + i * delta),
-                (t.data[i] for t in traces))
+                (t.data[i] for t in traces),
+            )
 
         return
 
@@ -145,10 +156,11 @@ class BinLogWriter(object):
         tt = time.timetuple()
         totalMinutes = int(tt.tm_hour * 3600 + tt.tm_min * 60 + tt.tm_sec)
 
-        timestr = '{0.tm_year:0>4d}-{0.tm_mon:0>2d}-{0.tm_mday:0>2d} ' \
-                  '{0.tm_hour:0>2d}:{0.tm_min:0>2d}:{0.tm_sec:0>2d}' \
-                  ' ({1:0>5d})'. \
-                    format(tt, totalMinutes)
+        timestr = (
+            "{0.tm_year:0>4d}-{0.tm_mon:0>2d}-{0.tm_mday:0>2d} "
+            "{0.tm_hour:0>2d}:{0.tm_min:0>2d}:{0.tm_sec:0>2d}"
+            " ({1:0>5d})".format(tt, totalMinutes)
+        )
 
         # init volt/bin vals to dead
         vdead = 99.999999
@@ -159,27 +171,33 @@ class BinLogWriter(object):
         for idx, valx in enumerate(values):
             if ~numpy.isnan(valx):
                 if idx == 0 or idx == 2 or idx == 4:
-                    vblist[idx] = valx / 1000.
+                    vblist[idx] = valx / 1000.0
                 else:
                     vblist[idx] = int(valx)
 
         if vblist[1] != 999 and h_prev[1] != 999 and vblist[1] != h_prev[1]:
-            Hbuf.append('{0: >3s} {1:>s}  '
-            '{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n'.
-            format('(H)', timestr, h_prev[1],
-                    vblist[1], h_prev[0], vblist[0]))
+            Hbuf.append(
+                "{0: >3s} {1:>s}  "
+                "{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n".format(
+                    "(H)", timestr, h_prev[1], vblist[1], h_prev[0], vblist[0]
+                )
+            )
 
         if vblist[3] != 999 and e_prev[1] != 999 and vblist[3] != e_prev[1]:
-            Ebuf.append('{0: >3s} {1:>s}  '
-            '{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n'.
-            format('(E)', timestr, e_prev[1],
-                    vblist[3], e_prev[0], vblist[2]))
+            Ebuf.append(
+                "{0: >3s} {1:>s}  "
+                "{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n".format(
+                    "(E)", timestr, e_prev[1], vblist[3], e_prev[0], vblist[2]
+                )
+            )
 
         if vblist[5] != 999 and z_prev[1] != 999 and vblist[5] != z_prev[1]:
-            Zbuf.append('{0: >3s} {1:>s}  '
-            '{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n'.
-            format('(Z)', timestr, z_prev[1],
-                    vblist[5], z_prev[0], vblist[4]))
+            Zbuf.append(
+                "{0: >3s} {1:>s}  "
+                "{2: >4d} to {3: >4d}  {4: >10.6f} to {5: >10.6f}\n".format(
+                    "(Z)", timestr, z_prev[1], vblist[5], z_prev[0], vblist[4]
+                )
+            )
 
         h_prev[0] = vblist[0]
         h_prev[1] = vblist[1]

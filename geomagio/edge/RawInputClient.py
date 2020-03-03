@@ -27,9 +27,9 @@ PACKSTR, TAGSTR: String's used by pack.struct, to indicate the data format
     for that packet.
 PACKEHEAD: The code that leads a packet being sent to Edge.
 """
-PACKSTR = '!1H1h12s4h4B3i'
-TAGSTR = '!1H1h12s6i'
-PACKETHEAD = 0xa1b2
+PACKSTR = "!1H1h12s4h4B3i"
+TAGSTR = "!1H1h12s6i"
+PACKETHEAD = 0xA1B2
 
 """
 TAG, FORCEOUT: Flags that indicate to edge that a "data" packet has a specific
@@ -39,7 +39,7 @@ TAG = -1
 FORCEOUT = -2
 
 
-class RawInputClient():
+class RawInputClient:
 
     """RawInputClient for direct to edge data.
     Parameters
@@ -77,9 +77,20 @@ class RawInputClient():
     Uses sockets to send data to an edge. See send method for packet encoding
     """
 
-    def __init__(self, tag='', host='', port=0, station='', channel='',
-            location='', network='', activity=0, ioclock=0, quality=0,
-            timingquality=0):
+    def __init__(
+        self,
+        tag="",
+        host="",
+        port=0,
+        station="",
+        channel="",
+        location="",
+        network="",
+        activity=0,
+        ioclock=0,
+        quality=0,
+        timingquality=0,
+    ):
         self.tag = tag
         self.host = host
         self.port = port
@@ -92,12 +103,10 @@ class RawInputClient():
         self.buf = None
         self.sequence = 0
 
-        self.seedname = self.create_seedname(station, channel,
-                location, network)
+        self.seedname = self.create_seedname(station, channel, location, network)
 
         if len(self.tag) > 10:
-            raise TimeseriesFactoryException(
-                'Tag limited to 10 characters')
+            raise TimeseriesFactoryException("Tag limited to 10 characters")
 
     def close(self):
         """close the open sockets
@@ -106,8 +115,7 @@ class RawInputClient():
             self.socket.close()
             self.socket = None
 
-    def create_seedname(self, observatory, channel, location='R0',
-                network='NT'):
+    def create_seedname(self, observatory, channel, location="R0", network="NT"):
         """create a seedname for communication with edge.
 
         PARAMETERS
@@ -133,10 +141,7 @@ class RawInputClient():
         the correct length.  We only expect observatory to ever be of an
         incorrect length.
         """
-        return str(network +
-                observatory.ljust(5) +
-                channel +
-                location).encode()
+        return str(network + observatory.ljust(5) + channel + location).encode()
 
     def forceout(self):
         """ force edge to recognize data
@@ -148,7 +153,7 @@ class RawInputClient():
             Fourceout tells edge that we're done sending data for now, and
             to go ahead and make it available
         """
-        buf = self._get_forceout(UTCDateTime(datetime.utcnow()), 0.)
+        buf = self._get_forceout(UTCDateTime(datetime.utcnow()), 0.0)
         self._send(buf)
 
     def send_trace(self, interval, trace):
@@ -169,25 +174,24 @@ class RawInputClient():
         totalsamps = len(trace.data)
         starttime = trace.stats.starttime
 
-        if interval == 'second':
+        if interval == "second":
             nsamp = HOURSECONDS
             timeoffset = 1
-            samplerate = 1.
-        elif interval == 'minute':
+            samplerate = 1.0
+        elif interval == "minute":
             nsamp = DAYMINUTES
             timeoffset = 60
-            samplerate = 1. / 60
-        elif interval == 'hourly':
+            samplerate = 1.0 / 60
+        elif interval == "hourly":
             nsamp = MAXINPUTSIZE
             timeoffset = 3600
-            samplerate = 1. / 3600
-        elif interval == 'daily':
+            samplerate = 1.0 / 3600
+        elif interval == "daily":
             nsamp = MAXINPUTSIZE
             timeoffset = 86400
-            samplerate = 1. / 86400
+            samplerate = 1.0 / 86400
         else:
-            raise TimeseriesFactoryException(
-                    'Unsupported interval for RawInputClient')
+            raise TimeseriesFactoryException("Unsupported interval for RawInputClient")
 
         for i in range(0, totalsamps, nsamp):
             if totalsamps - i < nsamp:
@@ -228,7 +232,7 @@ class RawInputClient():
             self.socket.sendall(buf)
             self.sequence += 1
         except socket.error as v:
-            error = 'Socket error %d' % v[0]
+            error = "Socket error %d" % v[0]
             sys.stderr.write(error)
             raise TimeseriesFactoryException(error)
 
@@ -271,10 +275,23 @@ class RawInputClient():
         yr, doy, secs, usecs = self._get_time_values(time)
         ratemantissa, ratedivisor = self._get_mantissa_divisor(rate)
 
-        buf = struct.pack(PACKSTR, PACKETHEAD, FORCEOUT, self.seedname, yr,
-                doy, ratemantissa, ratedivisor, self.activity, self.ioclock,
-                self.quality, self.timingquality, secs, usecs,
-                self.sequence)
+        buf = struct.pack(
+            PACKSTR,
+            PACKETHEAD,
+            FORCEOUT,
+            self.seedname,
+            yr,
+            doy,
+            ratemantissa,
+            ratedivisor,
+            self.activity,
+            self.ioclock,
+            self.quality,
+            self.timingquality,
+            secs,
+            usecs,
+            self.sequence,
+        )
         return buf
 
     def _get_data(self, samples, time, rate):
@@ -319,17 +336,32 @@ class RawInputClient():
         nsamp = len(samples)
         if nsamp > 32767:
             raise TimeseriesFactoryException(
-                'Edge input limited to 32767 integers per packet.')
+                "Edge input limited to 32767 integers per packet."
+            )
 
         yr, doy, secs, usecs = self._get_time_values(time)
         ratemantissa, ratedivisor = self._get_mantissa_divisor(rate)
 
-        packStr = '%s%d%s' % (PACKSTR, nsamp, 'i')
+        packStr = "%s%d%s" % (PACKSTR, nsamp, "i")
         bpackStr = str(packStr).encode()
-        buf = struct.pack(bpackStr, PACKETHEAD, nsamp, self.seedname, yr, doy,
-                ratemantissa, ratedivisor, self.activity, self.ioclock,
-                self.quality, self.timingquality, secs, usecs, self.sequence,
-                *samples)
+        buf = struct.pack(
+            bpackStr,
+            PACKETHEAD,
+            nsamp,
+            self.seedname,
+            yr,
+            doy,
+            ratemantissa,
+            ratedivisor,
+            self.activity,
+            self.ioclock,
+            self.quality,
+            self.timingquality,
+            secs,
+            usecs,
+            self.sequence,
+            *samples
+        )
 
         return buf
 
@@ -349,11 +381,11 @@ class RawInputClient():
         if rate > 0.9999:
             ratemantissa = int(rate * 100 + 0.001)
             ratedivisor = -100
-        elif rate * 60. - 1.0 < 0.00000001:          # one minute data
+        elif rate * 60.0 - 1.0 < 0.00000001:  # one minute data
             ratemantissa = -60
             ratedivisor = 1
         else:
-            ratemantissa = int(rate * 10000. + 0.001)
+            ratemantissa = int(rate * 10000.0 + 0.001)
             ratedivisor = -10000
 
         return (ratemantissa, ratedivisor)
@@ -375,9 +407,8 @@ class RawInputClient():
         The Packet is right padded with zeros
         The Packet must be 40 Bytes long.
         """
-        tg = str(self.tag + '            ').encode()
-        tb = struct.pack(TAGSTR, PACKETHEAD, TAG, tg[:12],
-                0, 0, 0, 0, 0, 0)
+        tg = str(self.tag + "            ").encode()
+        tb = struct.pack(TAGSTR, PACKETHEAD, TAG, tg[:12], 0, 0, 0, 0, 0, 0)
         return tb
 
     def _get_time_values(self, time):
@@ -419,11 +450,11 @@ class RawInputClient():
                 newsocket.connect((self.host, self.port))
                 done = True
             except socket.error as v:
-                sys.stderr.write('Could not connect to socket, trying again')
-                sys.stderr.write('sockect error %d' % v[0])
+                sys.stderr.write("Could not connect to socket, trying again")
+                sys.stderr.write("sockect error %d" % v[0])
                 sleep(1)
             if trys > 2:
-                raise TimeseriesFactoryException('Could not open socket')
+                raise TimeseriesFactoryException("Could not open socket")
             trys += 1
         self.socket = newsocket
         self.socket.sendall(self._get_tag())

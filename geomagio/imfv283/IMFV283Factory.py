@@ -26,8 +26,15 @@ class IMFV283Factory(TimeseriesFactory):
         TimeseriesFactory.__init__(self, **kwargs)
         self.observatoryMetadata = observatoryMetadata or ObservatoryMetadata()
 
-    def get_timeseries(self, starttime, endtime, observatory=None,
-            channels=None, type='variation', interval='minute'):
+    def get_timeseries(
+        self,
+        starttime,
+        endtime,
+        observatory=None,
+        channels=None,
+        type="variation",
+        interval="minute",
+    ):
         """Get timeseries data
 
         Parameters
@@ -55,20 +62,22 @@ class IMFV283Factory(TimeseriesFactory):
             retrieving timeseries.
         """
         timeseries = TimeseriesFactory.get_timeseries(
-                self,
-                starttime=starttime,
-                endtime=endtime,
-                observatory=observatory,
-                channels=channels,
-                type=type,
-                interval=interval)
+            self,
+            starttime=starttime,
+            endtime=endtime,
+            observatory=observatory,
+            channels=channels,
+            type=type,
+            interval=interval,
+        )
         observatory = observatory or self.observatory
         if observatory is not None:
             timeseries = timeseries.select(station=observatory)
         for trace in timeseries:
             stats = trace.stats
-            self.observatoryMetadata.set_metadata(stats, stats.station,
-                    stats.channel, 'variation', 'minute')
+            self.observatoryMetadata.set_metadata(
+                stats, stats.station, stats.channel, "variation", "minute"
+            )
         return timeseries
 
     def parse_string(self, data, **kwargs):
@@ -94,8 +103,7 @@ class IMFV283Factory(TimeseriesFactory):
             if isinstance(trace.data, numpy.ma.MaskedArray):
                 trace.data.set_fill_value(numpy.nan)
                 trace.data = trace.data.filled()
-        if stream.select(channel='D').count() > 0:
-            for trace in stream.select(channel='D'):
-                trace.data = ChannelConverter.get_radians_from_minutes(
-                    trace.data)
+        if stream.select(channel="D").count() > 0:
+            for trace in stream.select(channel="D"):
+                trace.data = ChannelConverter.get_radians_from_minutes(trace.data)
         return stream

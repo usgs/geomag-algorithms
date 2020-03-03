@@ -8,9 +8,4 @@ from .PCDCPParser import PCDCPParser
 from .PCDCPWriter import PCDCPWriter
 
 
-__all__ = [
-    'PCDCPFactory',
-    'StreamPCDCPFactory',
-    'PCDCPParser',
-    'PCDCPWriter'
-]
+__all__ = ["PCDCPFactory", "StreamPCDCPFactory", "PCDCPParser", "PCDCPWriter"]

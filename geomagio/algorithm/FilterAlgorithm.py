@@ -9,26 +9,24 @@ from .. import TimeseriesUtility
 
 STEPS = [
     {  # 10 Hz to one second filter
-        'name': '10Hz',
-        'input_sample_period': 0.1,
-        'output_sample_period': 1.0,
-        'window': sps.firwin(123, 0.25, window='blackman', fs=10.0),
+        "name": "10Hz",
+        "input_sample_period": 0.1,
+        "output_sample_period": 1.0,
+        "window": sps.firwin(123, 0.25, window="blackman", fs=10.0),
     },
-
     {  # one second to one minute filter
-        'name': 'Intermagnet One Minute',
-        'input_sample_period': 1.0,
-        'output_sample_period': 60.0,
-        'window': sps.get_window(window=('gaussian', 15.8734), Nx=91),
+        "name": "Intermagnet One Minute",
+        "input_sample_period": 1.0,
+        "output_sample_period": 60.0,
+        "window": sps.get_window(window=("gaussian", 15.8734), Nx=91),
     },
-
     {  # one minute to one hour filter
-        'name': 'One Hour',
-        'input_sample_period': 60.0,
-        'output_sample_period': 3600.0,
-        'window': sps.windows.boxcar(91),
-    }
-        ]
+        "name": "One Hour",
+        "input_sample_period": 60.0,
+        "output_sample_period": 3600.0,
+        "window": sps.windows.boxcar(91),
+    },
+]
 
 
 class FilterAlgorithm(Algorithm):
@@ -36,9 +34,16 @@ class FilterAlgorithm(Algorithm):
         Filter Algorithm that filters and downsamples data
     """
 
-    def __init__(self, coeff_filename=None, filtertype=None,
-            steps=None, input_sample_period=None, output_sample_period=None,
-            inchannels=None, outchannels=None):
+    def __init__(
+        self,
+        coeff_filename=None,
+        filtertype=None,
+        steps=None,
+        input_sample_period=None,
+        output_sample_period=None,
+        inchannels=None,
+        outchannels=None,
+    ):
 
         Algorithm.__init__(self, inchannels=None, outchannels=None)
         self.coeff_filename = coeff_filename
@@ -55,19 +60,21 @@ class FilterAlgorithm(Algorithm):
         if self.coeff_filename is None:
             return
 
-        with open(self.coeff_filename, 'r') as f:
+        with open(self.coeff_filename, "r") as f:
             data = f.read()
             data = json.loads(data)
 
-        if data is None or data == '':
+        if data is None or data == "":
             return
 
-        self.steps = [{
-            'name': 'name' in data and data['name'] or 'custom',
-            'input_sample_period': self.input_sample_period,
-            'output_sample_period': self.output_sample_period,
-            'window': data['window']
-        }]
+        self.steps = [
+            {
+                "name": "name" in data and data["name"] or "custom",
+                "input_sample_period": self.input_sample_period,
+                "output_sample_period": self.output_sample_period,
+                "window": data["window"],
+            }
+        ]
 
     def save_state(self):
         """Save algorithm state to a file.
@@ -75,10 +82,8 @@ class FilterAlgorithm(Algorithm):
         """
         if self.coeff_filename is None:
             return
-        data = {
-            'window': list(self.window)
-        }
-        with open(self.coeff_filename, 'w') as f:
+        data = {"window": list(self.window)}
+        with open(self.coeff_filename, "w") as f:
             f.write(json.dumps(data))
 
     def get_filter_steps(self):
@@ -95,8 +100,8 @@ class FilterAlgorithm(Algorithm):
 
         steps = []
         for step in STEPS:
-            if self.input_sample_period <= step['input_sample_period']:
-                if self.output_sample_period >= step['output_sample_period']:
+            if self.input_sample_period <= step["input_sample_period"]:
+                if self.output_sample_period >= step["output_sample_period"]:
                     steps.append(step)
         return steps
 
@@ -115,10 +120,8 @@ class FilterAlgorithm(Algorithm):
             The input stream we want to make certain has data for the algorithm
         """
         return TimeseriesUtility.has_any_channels(
-                stream,
-                self.get_required_channels(),
-                starttime,
-                endtime)
+            stream, self.get_required_channels(), starttime, endtime
+        )
 
     def create_trace(self, channel, stats, data):
         """Utility to create a new trace object.
@@ -139,8 +142,7 @@ class FilterAlgorithm(Algorithm):
             trace containing data and metadata.
         """
 
-        trace = super(FilterAlgorithm, self).create_trace(channel, stats,
-            data)
+        trace = super(FilterAlgorithm, self).create_trace(channel, stats, data)
         return trace
 
     def process(self, stream):
@@ -177,20 +179,18 @@ class FilterAlgorithm(Algorithm):
             stream containing 1 trace per original trace.
         """
         # gather variables from step
-        input_sample_period = step['input_sample_period']
-        output_sample_period = step['output_sample_period']
-        window = np.array(step['window'])
+        input_sample_period = step["input_sample_period"]
+        output_sample_period = step["output_sample_period"]
+        window = np.array(step["window"])
         decimation = int(output_sample_period / input_sample_period)
         numtaps = len(window)
         window = window / sum(window)
 
         out = Stream()
         for trace in stream:
-            filtered = self.firfilter(trace.data,
-                    window, decimation)
+            filtered = self.firfilter(trace.data, window, decimation)
             stats = Stats(trace.stats)
-            stats.starttime = stats.starttime + \
-                    input_sample_period * (numtaps // 2)
+            stats.starttime = stats.starttime + input_sample_period * (numtaps // 2)
             stats.delta = output_sample_period
             stats.npts = len(filtered)
             trace_out = self.create_trace(stats.channel, stats, filtered)
@@ -221,11 +221,9 @@ class FilterAlgorithm(Algorithm):
 
         # build view into data, with numtaps  chunks separated into
         # overlapping 'rows'
-        shape = data.shape[:-1] + \
-                (data.shape[-1] - numtaps + 1, numtaps)
+        shape = data.shape[:-1] + (data.shape[-1] - numtaps + 1, numtaps)
         strides = data.strides + (data.strides[-1],)
-        as_s = npls.as_strided(data, shape=shape, strides=strides,
-                               writeable=False)
+        as_s = npls.as_strided(data, shape=shape, strides=strides, writeable=False)
         # build masked array for invalid entries, also 'decimate' by step
         as_masked = np.ma.masked_invalid(as_s[::step], copy=True)
         # sums of the total 'weights' of the filter corresponding to
@@ -287,9 +285,11 @@ class FilterAlgorithm(Algorithm):
         # input and output time intervals are managed
         # by Controller and TimeriesUtility
 
-        parser.add_argument('--filter-coefficients',
-                default=None,
-                help='File storing custom filter coefficients')
+        parser.add_argument(
+            "--filter-coefficients",
+            default=None,
+            help="File storing custom filter coefficients",
+        )
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.
@@ -302,7 +302,9 @@ class FilterAlgorithm(Algorithm):
         # intialize filter with command line arguments
         self.coeff_filename = arguments.filter_coefficients
         self.input_sample_period = TimeseriesUtility.get_delta_from_interval(
-                arguments.input_interval or arguments.interval)
+            arguments.input_interval or arguments.interval
+        )
         self.output_sample_period = TimeseriesUtility.get_delta_from_interval(
-                arguments.output_interval or arguments.interval)
+            arguments.output_interval or arguments.interval
+        )
         self.load_state()

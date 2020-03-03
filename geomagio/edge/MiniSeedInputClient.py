@@ -17,6 +17,7 @@ class MiniSeedInputClient(object):
     port: int
         MiniSeedServer port
     """
+
     def __init__(self, host, port=2061):
         self.host = host
         self.port = port
@@ -53,8 +54,7 @@ class MiniSeedInputClient(object):
             except socket.error as e:
                 if attempts >= max_attempts:
                     raise
-                print('Unable to connect (%s), trying again' % e,
-                        file=sys.stderr)
+                print("Unable to connect (%s), trying again" % e, file=sys.stderr)
         self.socket = s
 
     def send(self, stream):
@@ -72,6 +72,6 @@ class MiniSeedInputClient(object):
             self.connect()
         # convert stream to miniseed
         buf = io.BytesIO()
-        stream.write(buf, format='MSEED')
+        stream.write(buf, format="MSEED")
         # send data
         self.socket.sendall(buf)

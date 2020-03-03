@@ -7,8 +7,4 @@ from .StreamBinLogFactory import StreamBinLogFactory
 from .BinLogWriter import BinLogWriter
 
 
-__all__ = [
-    'BinLogFactory',
-    'StreamBinLogFactory',
-    'BinLogWriter'
-]
+__all__ = ["BinLogFactory", "StreamBinLogFactory", "BinLogWriter"]

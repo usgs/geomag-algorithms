@@ -20,8 +20,8 @@ Notes: We use numpy functions instead of standard python arithmetic funtions
 import numpy
 
 
-M2R = numpy.pi / 180 / 60       # Minutes to Radians
-R2M = 180.0 / numpy.pi * 60     # Radians to Minutes
+M2R = numpy.pi / 180 / 60  # Minutes to Radians
+R2M = 180.0 / numpy.pi * 60  # Radians to Minutes
 
 
 # ###

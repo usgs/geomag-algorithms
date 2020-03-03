@@ -13,6 +13,7 @@ class ObjectView(object):
     d : dictionary
         The dictionary to wrap.
     """
+
     def __init__(self, d):
         self.__dict__ = d
 
@@ -46,9 +47,9 @@ def get_file_from_url(url, createParentDirectory=False):
     Exception
         if url does not start with file://
     """
-    if not url.startswith('file://'):
-        raise Exception('Only file urls are supported by get_file_from_url')
-    filename = url.replace('file://', '')
+    if not url.startswith("file://"):
+        raise Exception("Only file urls are supported by get_file_from_url")
+    filename = url.replace("file://", "")
     if createParentDirectory:
         parent = os.path.dirname(filename)
         if not os.path.exists(parent):
@@ -83,10 +84,7 @@ def get_intervals(starttime, endtime, size=86400, align=True, trim=False):
         which represent [intervalstart, intervalend).
     """
     if size <= 0:
-        return [{
-            'start': starttime,
-            'end': endtime
-        }]
+        return [{"start": starttime, "end": endtime}]
     if align:
         # align based on size
         time = starttime - (starttime.timestamp % size)
@@ -102,10 +100,7 @@ def get_intervals(starttime, endtime, size=86400, align=True, trim=False):
                 start = starttime
             if end > endtime:
                 end = endtime
-        intervals.append({
-            'start': start,
-            'end': end
-        })
+        intervals.append({"start": start, "end": end})
     return intervals
 
 
@@ -128,7 +123,7 @@ def read_file(filepath):
         if file does not exist
     """
     file_data = None
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         file_data = f.read()
     return file_data
 
@@ -161,6 +156,7 @@ def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
         pass
     # wait to import pycurl until it is needed
     import pycurl
+
     content = None
     out = BytesIO()
     curl = pycurl.Curl()
@@ -174,7 +170,7 @@ def read_url(url, connect_timeout=15, max_redirects=5, timeout=300):
         curl.setopt(pycurl.WRITEFUNCTION, out.write)
         curl.perform()
         content = out.getvalue()
-        content = content.decode('utf-8')
+        content = content.decode("utf-8")
     except pycurl.error as e:
         raise IOError(e.args)
     finally:

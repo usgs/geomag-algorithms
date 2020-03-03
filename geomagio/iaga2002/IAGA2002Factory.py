@@ -9,7 +9,7 @@ from .IAGA2002Writer import IAGA2002Writer
 
 
 # pattern for iaga 2002 file names
-IAGA_FILE_PATTERN = '%(obs)s%(ymd)s%(t)s%(i)s.%(i)s'
+IAGA_FILE_PATTERN = "%(obs)s%(ymd)s%(t)s%(i)s.%(i)s"
 
 
 class IAGA2002Factory(TimeseriesFactory):
@@ -35,8 +35,7 @@ class IAGA2002Factory(TimeseriesFactory):
     def __init__(self, **kwargs):
         TimeseriesFactory.__init__(self, **kwargs)
 
-    def parse_string(self, data, observatory=None, interval='minute',
-            **kwargs):
+    def parse_string(self, data, observatory=None, interval="minute", **kwargs):
         """Parse the contents of a string in the format of an IAGA2002 file.
 
         Parameters
@@ -66,21 +65,20 @@ class IAGA2002Factory(TimeseriesFactory):
             rate = (length - 1) / (endtime - starttime)
         else:
             # guess based on args
-            if interval == 'minute':
+            if interval == "minute":
                 rate = 1 / 60
-            elif interval == 'second':
+            elif interval == "second":
                 rate = 1
             else:
-                raise Exception('one sample, and unable to guess rate')
+                raise Exception("one sample, and unable to guess rate")
         for channel in list(data.keys()):
             stats = obspy.core.Stats(metadata)
             stats.starttime = starttime
             stats.sampling_rate = rate
             stats.npts = length
             stats.channel = channel
-            if channel == 'D':
-                data[channel] = ChannelConverter.get_radians_from_minutes(
-                    data[channel])
+            if channel == "D":
+                data[channel] = ChannelConverter.get_radians_from_minutes(data[channel])
             stream += obspy.core.Trace(data[channel], stats)
         return stream
 

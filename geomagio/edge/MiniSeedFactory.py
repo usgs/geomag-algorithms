@@ -63,10 +63,19 @@ class MiniSeedFactory(TimeseriesFactory):
         for reading.
     """
 
-    def __init__(self, host='cwbpub.cr.usgs.gov', port=2061, write_port=7981,
-            observatory=None, channels=None, type=None, interval=None,
-            observatoryMetadata=None, locationCode=None,
-            convert_channels=None):
+    def __init__(
+        self,
+        host="cwbpub.cr.usgs.gov",
+        port=2061,
+        write_port=7981,
+        observatory=None,
+        channels=None,
+        type=None,
+        interval=None,
+        observatoryMetadata=None,
+        locationCode=None,
+        convert_channels=None,
+    ):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
 
         self.client = miniseed.Client(host, port)
@@ -79,8 +88,15 @@ class MiniSeedFactory(TimeseriesFactory):
         self.convert_channels = convert_channels or []
         self.write_client = MiniSeedInputClient(self.host, self.write_port)
 
-    def get_timeseries(self, starttime, endtime, observatory=None,
-            channels=None, type=None, interval=None):
+    def get_timeseries(
+        self,
+        starttime,
+        endtime,
+        observatory=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Get timeseries data
 
         Parameters
@@ -116,7 +132,8 @@ class MiniSeedFactory(TimeseriesFactory):
 
         if starttime > endtime:
             raise TimeseriesFactoryException(
-                'Starttime before endtime "%s" "%s"' % (starttime, endtime))
+                'Starttime before endtime "%s" "%s"' % (starttime, endtime)
+            )
 
         # obspy factories sometimes write to stdout, instead of stderr
         original_stdout = sys.stdout
@@ -127,11 +144,13 @@ class MiniSeedFactory(TimeseriesFactory):
             timeseries = obspy.core.Stream()
             for channel in channels:
                 if channel in self.convert_channels:
-                    data = self._convert_timeseries(starttime, endtime,
-                            observatory, channel, type, interval)
+                    data = self._convert_timeseries(
+                        starttime, endtime, observatory, channel, type, interval
+                    )
                 else:
-                    data = self._get_timeseries(starttime, endtime,
-                            observatory, channel, type, interval)
+                    data = self._get_timeseries(
+                        starttime, endtime, observatory, channel, type, interval
+                    )
                 timeseries += data
         finally:
             # restore stdout
@@ -140,8 +159,16 @@ class MiniSeedFactory(TimeseriesFactory):
         self._post_process(timeseries, starttime, endtime, channels)
         return timeseries
 
-    def put_timeseries(self, timeseries, starttime=None, endtime=None,
-                observatory=None, channels=None, type=None, interval=None):
+    def put_timeseries(
+        self,
+        timeseries,
+        starttime=None,
+        endtime=None,
+        observatory=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Put timeseries data
 
         Parameters
@@ -169,22 +196,26 @@ class MiniSeedFactory(TimeseriesFactory):
         type = type or self.type or stats.data_type
         interval = interval or self.interval or stats.data_interval
 
-        if (starttime is None or endtime is None):
+        if starttime is None or endtime is None:
             starttime, endtime = TimeseriesUtility.get_stream_start_end_times(
-                    timeseries)
+                timeseries
+            )
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 raise TimeseriesFactoryException(
-                    'Missing channel "%s" for output, available channels %s' %
-                    (channel, str(TimeseriesUtility.get_channels(timeseries))))
+                    'Missing channel "%s" for output, available channels %s'
+                    % (channel, str(TimeseriesUtility.get_channels(timeseries)))
+                )
         for channel in channels:
-            self._put_channel(timeseries, observatory, channel, type,
-                    interval, starttime, endtime)
+            self._put_channel(
+                timeseries, observatory, channel, type, interval, starttime, endtime
+            )
         # close socket
         self.write_client.close()
 
-    def get_calculated_timeseries(self, starttime, endtime, observatory,
-            channel, type, interval, components):
+    def get_calculated_timeseries(
+        self, starttime, endtime, observatory, channel, type, interval, components
+    ):
         """Calculate a single channel using multiple component channels.
 
         Parameters
@@ -217,8 +248,9 @@ class MiniSeedFactory(TimeseriesFactory):
         converted = None
         for component in components:
             # load component
-            data = self._get_timeseries(starttime, endtime, observatory,
-                        component["channel"], type, interval)[0]
+            data = self._get_timeseries(
+                starttime, endtime, observatory, component["channel"], type, interval
+            )[0]
             # convert to nT
             nt = data.data * component["scale"] + component["offset"]
             # add to converted
@@ -230,10 +262,17 @@ class MiniSeedFactory(TimeseriesFactory):
         # set channel parameter to U, V, or W
         stats.channel = channel
         # create empty trace with adapted stats
-        out = TimeseriesUtility.create_empty_trace(stats.starttime,
-                stats.endtime, stats.station, stats.channel,
-                stats.data_type, stats.data_interval,
-                stats.network, stats.station, stats.location)
+        out = TimeseriesUtility.create_empty_trace(
+            stats.starttime,
+            stats.endtime,
+            stats.station,
+            stats.channel,
+            stats.data_type,
+            stats.data_interval,
+            stats.network,
+            stats.station,
+            stats.location,
+        )
         out.data = converted
         return out
 
@@ -281,53 +320,53 @@ class MiniSeedFactory(TimeseriesFactory):
 
         # If form is chan.loc, return chan (left) portion.
         # Allows specific chan/loc selection.
-        if channel.find('.') >= 0:
-            tmplist = channel.split('.')
+        if channel.find(".") >= 0:
+            tmplist = channel.split(".")
             return tmplist[0].strip()
 
         # see if channel name uses _ for ELEMENT_SUFFIX
         element = None
         suffix = None
-        if channel.find('_') >= 0:
-            element, suffix = channel.split('_')
+        if channel.find("_") >= 0:
+            element, suffix = channel.split("_")
 
         # 10Hz should be bin/volt
-        if interval == 'tenhertz':
+        if interval == "tenhertz":
             middle = None
-            if suffix == 'Bin':
-                middle = 'Y'
-            elif suffix == 'Volt':
-                middle = 'E'
+            if suffix == "Bin":
+                middle = "Y"
+            elif suffix == "Volt":
+                middle = "E"
             elif suffix is not None:
                 raise TimeseriesFactoryException(
-                        'bad channel suffix "%s", wanted "Bin" or "Volt"'
-                        % suffix)
+                    'bad channel suffix "%s", wanted "Bin" or "Volt"' % suffix
+                )
             # check for expected channels
-            if element in ('U', 'V', 'W') and middle is not None:
+            if element in ("U", "V", "W") and middle is not None:
                 return edge_interval_code + middle + element
             else:
                 # unknown, assume advanced user
                 return channel
 
         if suffix is not None:
-            if suffix == 'Dist' or suffix == 'SQ' or suffix == 'SV':
+            if suffix == "Dist" or suffix == "SQ" or suffix == "SV":
                 # these suffixes modify location code, but use element channel
                 channel = element
             else:
                 raise TimeseriesFactoryException(
-                        'bad channel suffix "%s", wanted "Dist", "SQ", or "SV"'
-                        % suffix)
-        if channel in ('D', 'F', 'G', 'H', 'U', 'V', 'W', 'X', 'Y', 'Z'):
+                    'bad channel suffix "%s", wanted "Dist", "SQ", or "SV"' % suffix
+                )
+        if channel in ("D", "F", "G", "H", "U", "V", "W", "X", "Y", "Z"):
             # normal elements
-            edge_channel = edge_interval_code + 'F' + channel
-        elif channel == 'E-E':
-            edge_channel = edge_interval_code + 'QE'
-        elif channel == 'E-N':
-            edge_channel = edge_interval_code + 'QN'
-        elif channel == 'Dst4':
-            edge_channel = edge_interval_code + 'X4'
-        elif channel == 'Dst3':
-            edge_channel = edge_interval_code + 'X3'
+            edge_channel = edge_interval_code + "F" + channel
+        elif channel == "E-E":
+            edge_channel = edge_interval_code + "QE"
+        elif channel == "E-N":
+            edge_channel = edge_interval_code + "QN"
+        elif channel == "Dst4":
+            edge_channel = edge_interval_code + "X4"
+        elif channel == "Dst3":
+            edge_channel = edge_interval_code + "X3"
         else:
             edge_channel = channel
         return edge_channel
@@ -356,36 +395,36 @@ class MiniSeedFactory(TimeseriesFactory):
         """
         # If form is chan.loc, return loc (right) portion
         # Allows specific chan/loc selection.
-        if channel.find('.') >= 0:
-            tmplist = channel.split('.')
+        if channel.find(".") >= 0:
+            tmplist = channel.split(".")
             return tmplist[1].strip()
         # factory override
         if self.locationCode is not None:
             return self.locationCode
         # determine prefix
-        location_prefix = 'R'
-        if data_type == 'variation' or data_type == 'reported':
-            location_prefix = 'R'
-        elif data_type == 'adjusted' or data_type == 'provisional':
-            location_prefix = 'A'
-        elif data_type == 'quasi-definitive':
-            location_prefix = 'Q'
-        elif data_type == 'definitive':
-            location_prefix = 'D'
+        location_prefix = "R"
+        if data_type == "variation" or data_type == "reported":
+            location_prefix = "R"
+        elif data_type == "adjusted" or data_type == "provisional":
+            location_prefix = "A"
+        elif data_type == "quasi-definitive":
+            location_prefix = "Q"
+        elif data_type == "definitive":
+            location_prefix = "D"
         # determine suffix
-        location_suffix = '0'
-        if channel.find('_') >= 0:
-            _, suffix = channel.split('_')
-            if suffix == 'Dist':
-                location_suffix = 'D'
-            elif suffix == 'SQ':
-                location_suffix = 'Q'
-            elif suffix == 'SV':
-                location_suffix = 'V'
-            elif suffix not in ('Bin', 'Volt'):
+        location_suffix = "0"
+        if channel.find("_") >= 0:
+            _, suffix = channel.split("_")
+            if suffix == "Dist":
+                location_suffix = "D"
+            elif suffix == "SQ":
+                location_suffix = "Q"
+            elif suffix == "SV":
+                location_suffix = "V"
+            elif suffix not in ("Bin", "Volt"):
                 raise TimeseriesFactoryException(
-                        'bad channel suffix "%s", wanted "Dist", "SQ", or "SV"'
-                        % suffix)
+                    'bad channel suffix "%s", wanted "Dist", "SQ", or "SV"' % suffix
+                )
         return location_prefix + location_suffix
 
     def _get_edge_network(self, observatory, channel, type, interval):
@@ -407,7 +446,7 @@ class MiniSeedFactory(TimeseriesFactory):
         network
             always NT
         """
-        return 'NT'
+        return "NT"
 
     def _get_edge_station(self, observatory, channel, type, interval):
         """get edge station.
@@ -446,23 +485,21 @@ class MiniSeedFactory(TimeseriesFactory):
         interval type
         """
         interval_code = None
-        if interval == 'day':
-            interval_code = 'P'
-        elif interval == 'hour':
-            interval_code = 'R'
-        elif interval == 'minute':
-            interval_code = 'U'
-        elif interval == 'second':
-            interval_code = 'L'
-        elif interval == 'tenhertz':
-            interval_code = 'B'
+        if interval == "day":
+            interval_code = "P"
+        elif interval == "hour":
+            interval_code = "R"
+        elif interval == "minute":
+            interval_code = "U"
+        elif interval == "second":
+            interval_code = "L"
+        elif interval == "tenhertz":
+            interval_code = "B"
         else:
-            raise TimeseriesFactoryException(
-                    'Unexpected interval "%s"' % interval)
+            raise TimeseriesFactoryException('Unexpected interval "%s"' % interval)
         return interval_code
 
-    def _get_timeseries(self, starttime, endtime, observatory,
-                channel, type, interval):
+    def _get_timeseries(self, starttime, endtime, observatory, channel, type, interval):
         """get timeseries data for a single channel.
 
         Parameters
@@ -485,27 +522,32 @@ class MiniSeedFactory(TimeseriesFactory):
         obspy.core.trace
             timeseries trace of the requested channel data
         """
-        station = self._get_edge_station(observatory, channel,
-                type, interval)
-        location = self._get_edge_location(observatory, channel,
-                type, interval)
-        network = self._get_edge_network(observatory, channel,
-                type, interval)
-        edge_channel = self._get_edge_channel(observatory, channel,
-                type, interval)
-        data = self.client.get_waveforms(network, station, location,
-                edge_channel, starttime, endtime)
+        station = self._get_edge_station(observatory, channel, type, interval)
+        location = self._get_edge_location(observatory, channel, type, interval)
+        network = self._get_edge_network(observatory, channel, type, interval)
+        edge_channel = self._get_edge_channel(observatory, channel, type, interval)
+        data = self.client.get_waveforms(
+            network, station, location, edge_channel, starttime, endtime
+        )
         data.merge()
         if data.count() == 0:
             data += TimeseriesUtility.create_empty_trace(
-                starttime, endtime, observatory, channel, type,
-                interval, network, station, location)
-        self._set_metadata(data,
-                observatory, channel, type, interval)
+                starttime,
+                endtime,
+                observatory,
+                channel,
+                type,
+                interval,
+                network,
+                station,
+                location,
+            )
+        self._set_metadata(data, observatory, channel, type, interval)
         return data
 
-    def _convert_timeseries(self, starttime, endtime, observatory,
-                channel, type, interval):
+    def _convert_timeseries(
+        self, starttime, endtime, observatory, channel, type, interval
+    ):
         """Generate a single channel using multiple components.
 
         Finds metadata, then calls _get_converted_timeseries for actual
@@ -543,18 +585,26 @@ class MiniSeedFactory(TimeseriesFactory):
                 # no idea how to convert
                 continue
             # determine metadata overlap with request
-            start = (starttime
-                    if entry_starttime is None or
-                        entry_starttime < starttime
-                    else entry_starttime)
-            end = (endtime
-                    if entry_endtime is None or
-                        entry_endtime > endtime
-                    else entry_endtime)
+            start = (
+                starttime
+                if entry_starttime is None or entry_starttime < starttime
+                else entry_starttime
+            )
+            end = (
+                endtime
+                if entry_endtime is None or entry_endtime > endtime
+                else entry_endtime
+            )
             # now convert
-            out += self.get_calculated_timeseries(start, end,
-                    observatory, channel, type, interval,
-                    instrument_channels[channel])
+            out += self.get_calculated_timeseries(
+                start,
+                end,
+                observatory,
+                channel,
+                type,
+                interval,
+                instrument_channels[channel],
+            )
         return out
 
     def _post_process(self, timeseries, starttime, endtime, channels):
@@ -582,15 +632,15 @@ class MiniSeedFactory(TimeseriesFactory):
                 trace.data.set_fill_value(numpy.nan)
                 trace.data = trace.data.filled()
 
-        if 'D' in channels:
-            for trace in timeseries.select(channel='D'):
-                trace.data = ChannelConverter.get_radians_from_minutes(
-                    trace.data)
+        if "D" in channels:
+            for trace in timeseries.select(channel="D"):
+                trace.data = ChannelConverter.get_radians_from_minutes(trace.data)
 
         TimeseriesUtility.pad_timeseries(timeseries, starttime, endtime)
 
-    def _put_channel(self, timeseries, observatory, channel, type, interval,
-                starttime, endtime):
+    def _put_channel(
+        self, timeseries, observatory, channel, type, interval, starttime, endtime
+    ):
         """Put a channel worth of data
 
         Parameters
@@ -614,14 +664,10 @@ class MiniSeedFactory(TimeseriesFactory):
         to_write = to_write.split()
         to_write = TimeseriesUtility.unmask_stream(to_write)
         # relabel channels from internal to edge conventions
-        station = self._get_edge_station(observatory, channel,
-                type, interval)
-        location = self._get_edge_location(observatory, channel,
-                type, interval)
-        network = self._get_edge_network(observatory, channel,
-                type, interval)
-        edge_channel = self._get_edge_channel(observatory, channel,
-                type, interval)
+        station = self._get_edge_station(observatory, channel, type, interval)
+        location = self._get_edge_location(observatory, channel, type, interval)
+        network = self._get_edge_network(observatory, channel, type, interval)
+        edge_channel = self._get_edge_channel(observatory, channel, type, interval)
         for trace in to_write:
             trace.stats.station = station
             trace.stats.location = location
@@ -645,5 +691,6 @@ class MiniSeedFactory(TimeseriesFactory):
         """
 
         for trace in stream:
-            self.observatoryMetadata.set_metadata(trace.stats, observatory,
-                    channel, type, interval)
+            self.observatoryMetadata.set_metadata(
+                trace.stats, observatory, channel, type, interval
+            )

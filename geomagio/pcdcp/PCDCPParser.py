@@ -4,9 +4,9 @@
 import numpy
 
 # values that represent missing data points in PCDCP
-NINES = numpy.int('9999999')
-NINES_RAW = numpy.int('99999990')
-NINES_DEG = numpy.int('9999')
+NINES = numpy.int("9999999")
+NINES_RAW = numpy.int("99999990")
+NINES_DEG = numpy.int("9999")
 
 
 class PCDCPParser(object):
@@ -29,8 +29,15 @@ class PCDCPParser(object):
     def __init__(self):
         """Create a new PCDCP parser."""
         # header fields
-        self.header_fields = ['station', 'year', 'yearday', 'date',
-                             'orientation', 'resolution', 'Version']
+        self.header_fields = [
+            "station",
+            "year",
+            "yearday",
+            "date",
+            "orientation",
+            "resolution",
+            "Version",
+        ]
         self.header = {}
         # resolution (float)
         self.resolution = 0.0
@@ -68,10 +75,11 @@ class PCDCPParser(object):
 
         Adds value to ``self.header``.
         """
-        self.header = dict(zip(self.header_fields,
-                               line.split(None, len(self.header_fields))))
+        self.header = dict(
+            zip(self.header_fields, line.split(None, len(self.header_fields)))
+        )
 
-        self.resolution = float(self.header['resolution'].split('nT')[0])
+        self.resolution = float(self.header["resolution"].split("nT")[0])
 
         return
 
@@ -107,9 +115,9 @@ class PCDCPParser(object):
         """Adds channel names to ``self.channels``.
         Creates empty values arrays in ``self.data``.
         """
-        self.channels.append('H')
-        self.channels.append('E')
-        self.channels.append('Z')
-        self.channels.append('F')
+        self.channels.append("H")
+        self.channels.append("E")
+        self.channels.append("Z")
+        self.channels.append("F")
 
         self._parsedata = ([], [], [], [], [])

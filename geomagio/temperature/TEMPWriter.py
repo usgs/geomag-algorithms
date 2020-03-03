@@ -12,7 +12,7 @@ class TEMPWriter(object):
     """TEMP writer.
     """
 
-    def __init__(self, empty_value=numpy.int('9999')):
+    def __init__(self, empty_value=numpy.int("9999")):
         self.empty_value = empty_value
 
     def write(self, out, timeseries, channels):
@@ -30,8 +30,9 @@ class TEMPWriter(object):
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 raise TimeseriesFactoryException(
-                    'Missing channel "%s" for output, available channels %s' %
-                    (channel, str(TimeseriesUtility.get_channels(timeseries))))
+                    'Missing channel "%s" for output, available channels %s'
+                    % (channel, str(TimeseriesUtility.get_channels(timeseries)))
+                )
         stats = timeseries[0].stats
         out.write(self._format_header(stats))
         out.write(self._format_data(timeseries, channels))
@@ -56,10 +57,18 @@ class TEMPWriter(object):
         yearday = str(stats.starttime.julday).zfill(3)
         date = stats.starttime.strftime("%d-%b-%y")
 
-        buf.append(observatory + '  ' + year + '  ' + yearday + '  ' + date +
-                    '  T1 T2 T3 T4 V1 Deg-C*10/volts*10  File Version 1.00\n')
+        buf.append(
+            observatory
+            + "  "
+            + year
+            + "  "
+            + yearday
+            + "  "
+            + date
+            + "  T1 T2 T3 T4 V1 Deg-C*10/volts*10  File Version 1.00\n"
+        )
 
-        return ''.join(buf)
+        return "".join(buf)
 
     def _format_data(self, timeseries, channels):
         """Format all data lines.
@@ -96,11 +105,14 @@ class TEMPWriter(object):
         delta = traces[0].stats.delta
 
         for i in range(len(traces[0].data)):
-            buf.append(self._format_values(
-                datetime.utcfromtimestamp(starttime + i * delta),
-                (t.data[i] for t in traces)))
+            buf.append(
+                self._format_values(
+                    datetime.utcfromtimestamp(starttime + i * delta),
+                    (t.data[i] for t in traces),
+                )
+            )
 
-        return ''.join(buf)
+        return "".join(buf)
 
     def _format_values(self, time, values):
         """Format one line of data values.
@@ -121,11 +133,13 @@ class TEMPWriter(object):
         tt = time.timetuple()
         totalMinutes = int(tt.tm_hour * 60 + tt.tm_min)
 
-        return '{0:0>4d} {1: >5d} {2: >5d} {3: >5d} {4: >5d}' \
-                ' {5: >5d}\n'.format(totalMinutes,
-                *[self.empty_value if numpy.isnan(val) else int(round(
-                    val * 10))
-                        for val in values])
+        return "{0:0>4d} {1: >5d} {2: >5d} {3: >5d} {4: >5d}" " {5: >5d}\n".format(
+            totalMinutes,
+            *[
+                self.empty_value if numpy.isnan(val) else int(round(val * 10))
+                for val in values
+            ]
+        )
 
     @classmethod
     def format(self, timeseries, channels):

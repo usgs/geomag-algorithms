@@ -6,7 +6,7 @@ from .TEMPWriter import TEMPWriter
 
 
 # pattern for temp file names
-TEMP_FILE_PATTERN = '%(obs)s%(y)s%(j)s.%(i)s'
+TEMP_FILE_PATTERN = "%(obs)s%(y)s%(j)s.%(i)s"
 
 
 class TEMPFactory(TimeseriesFactory):

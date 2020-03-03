@@ -23,22 +23,22 @@ def test_process():
 
     # Create timeseries with first trace that uses test_data1
     timeseries = Stream()
-    timeseries += __create_trace('H', test_data1)
+    timeseries += __create_trace("H", test_data1)
     # Set metadata so process can read the array:
     # station, sample number, data type, and data interval
-    timeseries[0].stats.station = 'HON'
+    timeseries[0].stats.station = "HON"
     timeseries[0].stats.samples = 5
-    timeseries[0].stats.data_type = 'variation'
-    timeseries[0].stats.data_interval = 'minute'
+    timeseries[0].stats.data_type = "variation"
+    timeseries[0].stats.data_interval = "minute"
     # Add the next trace with test_data2 and set station name
-    timeseries += __create_trace('H', test_data2)
-    timeseries[1].stats.station = 'GUA'
+    timeseries += __create_trace("H", test_data2)
+    timeseries[1].stats.station = "GUA"
     # Add final trace with test_data3 and set station name
-    timeseries += __create_trace('H', test_data3)
-    timeseries[2].stats.station = 'SJG'
+    timeseries += __create_trace("H", test_data3)
+    timeseries[2].stats.station = "SJG"
 
     # initialize the algorithm factory with Observatories and Channel
-    a = AverageAlgorithm(('HON', 'GUA', 'SJG'), 'H')
+    a = AverageAlgorithm(("HON", "GUA", "SJG"), "H")
     outstream = a.process(timeseries)
     # Ensure the average of two
     np.testing.assert_array_equal(outstream[0].data, expected_solution)
@@ -52,30 +52,30 @@ def test_gaps():
     """
 
     # Create a trace with data gaps
-    gap_trace = __create_trace('H', [1, 1, np.nan, np.nan, 1, 1])
+    gap_trace = __create_trace("H", [1, 1, np.nan, np.nan, 1, 1])
 
     # set time of first sample, sample rate (1 minute),
     # station, data type, and data interval
-    gap_trace.stats.starttime = UTCDateTime('2015-01-01T00:00:00Z')
+    gap_trace.stats.starttime = UTCDateTime("2015-01-01T00:00:00Z")
     gap_trace.stats.delta = 60
-    gap_trace.stats.station = 'HON'
-    gap_trace.stats.data_type = 'variation'
-    gap_trace.stats.data_interval = 'minute'
+    gap_trace.stats.station = "HON"
+    gap_trace.stats.data_type = "variation"
+    gap_trace.stats.data_interval = "minute"
 
     # Create a trace with no gaps
-    full_trace = __create_trace('H', [1, 1, 1, 1, 1, 1])
+    full_trace = __create_trace("H", [1, 1, 1, 1, 1, 1])
 
     # set time of first sample, sample rate, station
-    full_trace.stats.starttime = UTCDateTime('2015-01-01T00:00:00Z')
+    full_trace.stats.starttime = UTCDateTime("2015-01-01T00:00:00Z")
     full_trace.stats.delta = 60
-    full_trace.stats.station = 'SJG'
+    full_trace.stats.station = "SJG"
 
     # Create timeseries that contains the gap_trace and full_trace
     timeseries = Stream()
     timeseries += gap_trace
     timeseries += full_trace
     # Initialize the AverageAlgorithm factory with observatories and channel
-    alg = AverageAlgorithm(('HON', 'SJG'), 'H')
+    alg = AverageAlgorithm(("HON", "SJG"), "H")
     # Run timeseries through the average process
     outstream = alg.process(timeseries)
 
@@ -91,20 +91,20 @@ def test_metadata():
     """
 
     # Create a trace with channel 'H' and any numbers
-    test_trace = __create_trace('H', [3, 3, 3, 3, 3, 3])
-    test_trace2 = __create_trace('H', [1, 1, 1, 1, 1, 1])
+    test_trace = __create_trace("H", [3, 3, 3, 3, 3, 3])
+    test_trace2 = __create_trace("H", [1, 1, 1, 1, 1, 1])
 
     # set start time, sample rate (1 minute), station, data type and interval
-    test_trace.stats.starttime = UTCDateTime('2015-01-01T00:00:00Z')
+    test_trace.stats.starttime = UTCDateTime("2015-01-01T00:00:00Z")
     test_trace.stats.delta = 60
-    test_trace.stats.station = 'HON'
-    test_trace.stats.data_type = 'variation'
-    test_trace.stats.data_interval = 'minute'
+    test_trace.stats.station = "HON"
+    test_trace.stats.data_type = "variation"
+    test_trace.stats.data_interval = "minute"
 
     # set start time, sample rate (1 minute), station of second trace
-    test_trace2.stats.starttime = UTCDateTime('2015-01-01T00:00:00Z')
+    test_trace2.stats.starttime = UTCDateTime("2015-01-01T00:00:00Z")
     test_trace2.stats.delta = 60
-    test_trace2.stats.station = 'SJG'
+    test_trace2.stats.station = "SJG"
 
     # Populate timeseries with the 2 traces
     timeseries = Stream()
@@ -113,10 +113,10 @@ def test_metadata():
 
     # Initialize the average algorithm with observatories and
     # set a new outchannel name
-    alg = AverageAlgorithm(('HON', 'SJG'), 'Hdt')
+    alg = AverageAlgorithm(("HON", "SJG"), "Hdt")
     outstream = alg.process(timeseries)
 
     # The station name should be changed to 'USGS'
-    assert_equal(outstream[0].stats.station, 'USGS')
+    assert_equal(outstream[0].stats.station, "USGS")
     # The channel should be changed to 'Hdt'
-    assert_equal(outstream[0].stats.channel, 'Hdt')
+    assert_equal(outstream[0].stats.channel, "Hdt")

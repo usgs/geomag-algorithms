@@ -17,13 +17,9 @@ def get_instrument(observatory, start_time=None, end_time=None, metadata=None):
     return [
         m
         for m in metadata
-        if m["station"] == observatory and
-            (end_time is None or
-                m["start_time"] is None or
-                m["start_time"] < end_time) and
-            (start_time is None or
-                m["end_time"] is None or
-                m["end_time"] > start_time)
+        if m["station"] == observatory
+        and (end_time is None or m["start_time"] is None or m["start_time"] < end_time)
+        and (start_time is None or m["end_time"] is None or m["end_time"] > start_time)
     ]
 
 

@@ -19,8 +19,8 @@ def create_app():
     session.init_app(app)
 
     # add default route
-    @app.route('/')
+    @app.route("/")
     def index():
-        return flask.render_template('index.html')
+        return flask.render_template("index.html")
 
     return app

@@ -72,10 +72,22 @@ class EdgeFactory(TimeseriesFactory):
         for reading.
     """
 
-    def __init__(self, host='cwbpub.cr.usgs.gov', port=2060, write_port=7981,
-            observatory=None, channels=None, type=None, interval=None,
-            observatoryMetadata=None, locationCode=None,
-            cwbhost=None, cwbport=0, tag='GeomagAlg', forceout=False):
+    def __init__(
+        self,
+        host="cwbpub.cr.usgs.gov",
+        port=2060,
+        write_port=7981,
+        observatory=None,
+        channels=None,
+        type=None,
+        interval=None,
+        observatoryMetadata=None,
+        locationCode=None,
+        cwbhost=None,
+        cwbport=0,
+        tag="GeomagAlg",
+        forceout=False,
+    ):
         TimeseriesFactory.__init__(self, observatory, channels, type, interval)
         self.client = earthworm.Client(host, port)
 
@@ -86,12 +98,19 @@ class EdgeFactory(TimeseriesFactory):
         self.host = host
         self.port = port
         self.write_port = write_port
-        self.cwbhost = cwbhost or ''
+        self.cwbhost = cwbhost or ""
         self.cwbport = cwbport
         self.forceout = forceout
 
-    def get_timeseries(self, starttime, endtime, observatory=None,
-            channels=None, type=None, interval=None):
+    def get_timeseries(
+        self,
+        starttime,
+        endtime,
+        observatory=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Get timeseries data
 
         Parameters
@@ -127,7 +146,8 @@ class EdgeFactory(TimeseriesFactory):
 
         if starttime > endtime:
             raise TimeseriesFactoryException(
-                'Starttime before endtime "%s" "%s"' % (starttime, endtime))
+                'Starttime before endtime "%s" "%s"' % (starttime, endtime)
+            )
 
         # obspy factories sometimes write to stdout, instead of stderr
         original_stdout = sys.stdout
@@ -137,8 +157,9 @@ class EdgeFactory(TimeseriesFactory):
             # get the timeseries
             timeseries = obspy.core.Stream()
             for channel in channels:
-                data = self._get_timeseries(starttime, endtime, observatory,
-                        channel, type, interval)
+                data = self._get_timeseries(
+                    starttime, endtime, observatory, channel, type, interval
+                )
                 timeseries += data
         finally:
             # restore stdout
@@ -147,8 +168,16 @@ class EdgeFactory(TimeseriesFactory):
 
         return timeseries
 
-    def put_timeseries(self, timeseries, starttime=None, endtime=None,
-                observatory=None, channels=None, type=None, interval=None):
+    def put_timeseries(
+        self,
+        timeseries,
+        starttime=None,
+        endtime=None,
+        observatory=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Put timeseries data
 
         Parameters
@@ -176,17 +205,20 @@ class EdgeFactory(TimeseriesFactory):
         type = type or self.type or stats.data_type
         interval = interval or self.interval or stats.data_interval
 
-        if (starttime is None or endtime is None):
+        if starttime is None or endtime is None:
             starttime, endtime = TimeseriesUtility.get_stream_start_end_times(
-                    timeseries)
+                timeseries
+            )
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 raise TimeseriesFactoryException(
-                    'Missing channel "%s" for output, available channels %s' %
-                    (channel, str(TimeseriesUtility.get_channels(timeseries))))
+                    'Missing channel "%s" for output, available channels %s'
+                    % (channel, str(TimeseriesUtility.get_channels(timeseries)))
+                )
         for channel in channels:
-            self._put_channel(timeseries, observatory, channel, type,
-                    interval, starttime, endtime)
+            self._put_channel(
+                timeseries, observatory, channel, type, interval, starttime, endtime
+            )
 
     def _convert_timeseries_to_decimal(self, stream):
         """convert geomag edge timeseries data stored as ints, to decimal by
@@ -270,38 +302,38 @@ class EdgeFactory(TimeseriesFactory):
 
         # If form is chan.loc, return chan (left) portion.
         # Allows specific chan/loc selection.
-        if channel.find('.') >= 0:
-            tmplist = channel.split('.')
+        if channel.find(".") >= 0:
+            tmplist = channel.split(".")
             return tmplist[0].strip()
 
-        if channel == 'D':
-            edge_channel = edge_interval_code + 'VD'
-        elif channel == 'E':
-            edge_channel = edge_interval_code + 'VE'
-        elif channel == 'F':
-            edge_channel = edge_interval_code + 'SF'
-        elif channel == 'H':
-            edge_channel = edge_interval_code + 'VH'
-        elif channel == 'Z':
-            edge_channel = edge_interval_code + 'VZ'
-        elif channel == 'G':
-            edge_channel = edge_interval_code + 'SG'
-        elif channel == 'X':
-            edge_channel = edge_interval_code + 'VX'
-        elif channel == 'Y':
-            edge_channel = edge_interval_code + 'VY'
-        elif channel == 'E-E':
-            edge_channel = edge_interval_code + 'QE'
-        elif channel == 'E-N':
-            edge_channel = edge_interval_code + 'QN'
-        elif channel == 'DIST':
-            edge_channel = edge_interval_code + 'DT'
-        elif channel == 'DST':
-            edge_channel = edge_interval_code + 'GD'
-        elif channel == 'SQ':
-            edge_channel = edge_interval_code + 'SQ'
-        elif channel == 'SV':
-            edge_channel = edge_interval_code + 'SV'
+        if channel == "D":
+            edge_channel = edge_interval_code + "VD"
+        elif channel == "E":
+            edge_channel = edge_interval_code + "VE"
+        elif channel == "F":
+            edge_channel = edge_interval_code + "SF"
+        elif channel == "H":
+            edge_channel = edge_interval_code + "VH"
+        elif channel == "Z":
+            edge_channel = edge_interval_code + "VZ"
+        elif channel == "G":
+            edge_channel = edge_interval_code + "SG"
+        elif channel == "X":
+            edge_channel = edge_interval_code + "VX"
+        elif channel == "Y":
+            edge_channel = edge_interval_code + "VY"
+        elif channel == "E-E":
+            edge_channel = edge_interval_code + "QE"
+        elif channel == "E-N":
+            edge_channel = edge_interval_code + "QN"
+        elif channel == "DIST":
+            edge_channel = edge_interval_code + "DT"
+        elif channel == "DST":
+            edge_channel = edge_interval_code + "GD"
+        elif channel == "SQ":
+            edge_channel = edge_interval_code + "SQ"
+        elif channel == "SV":
+            edge_channel = edge_interval_code + "SV"
         else:
             edge_channel = channel
         return edge_channel
@@ -332,21 +364,21 @@ class EdgeFactory(TimeseriesFactory):
 
         # If form is chan.loc, return loc (right) portion
         # Allows specific chan/loc selection.
-        if channel.find('.') >= 0:
-            tmplist = channel.split('.')
+        if channel.find(".") >= 0:
+            tmplist = channel.split(".")
             return tmplist[1].strip()
 
         if self.locationCode is not None:
             location = self.locationCode
         else:
-            if type == 'variation' or type == 'reported':
-                location = 'R0'
-            elif type == 'adjusted' or type == 'provisional':
-                location = 'A0'
-            elif type == 'quasi-definitive':
-                location = 'Q0'
-            elif type == 'definitive':
-                location = 'D0'
+            if type == "variation" or type == "reported":
+                location = "R0"
+            elif type == "adjusted" or type == "provisional":
+                location = "A0"
+            elif type == "quasi-definitive":
+                location = "Q0"
+            elif type == "definitive":
+                location = "D0"
         return location
 
     def _get_edge_network(self, observatory, channel, type, interval):
@@ -368,7 +400,7 @@ class EdgeFactory(TimeseriesFactory):
         network
             always NT
         """
-        return 'NT'
+        return "NT"
 
     def _get_edge_station(self, observatory, channel, type, interval):
         """get edge station.
@@ -413,21 +445,19 @@ class EdgeFactory(TimeseriesFactory):
         interval type
         """
         interval_code = None
-        if interval == 'day':
-            interval_code = 'D'
-        elif interval == 'hour':
-            interval_code = 'H'
-        elif interval == 'minute':
-            interval_code = 'M'
-        elif interval == 'second':
-            interval_code = 'S'
+        if interval == "day":
+            interval_code = "D"
+        elif interval == "hour":
+            interval_code = "H"
+        elif interval == "minute":
+            interval_code = "M"
+        elif interval == "second":
+            interval_code = "S"
         else:
-            raise TimeseriesFactoryException(
-                    'Unexpected interval "%s"' % interval)
+            raise TimeseriesFactoryException('Unexpected interval "%s"' % interval)
         return interval_code
 
-    def _get_timeseries(self, starttime, endtime, observatory,
-                channel, type, interval):
+    def _get_timeseries(self, starttime, endtime, observatory, channel, type, interval):
         """get timeseries data for a single channel.
 
         Parameters
@@ -450,26 +480,30 @@ class EdgeFactory(TimeseriesFactory):
         obspy.core.trace
             timeseries trace of the requested channel data
         """
-        station = self._get_edge_station(observatory, channel,
-                type, interval)
-        location = self._get_edge_location(observatory, channel,
-                type, interval)
-        network = self._get_edge_network(observatory, channel,
-                type, interval)
-        edge_channel = self._get_edge_channel(observatory, channel,
-                type, interval)
-        data = self.client.get_waveforms(network, station, location,
-                edge_channel, starttime, endtime)
+        station = self._get_edge_station(observatory, channel, type, interval)
+        location = self._get_edge_location(observatory, channel, type, interval)
+        network = self._get_edge_network(observatory, channel, type, interval)
+        edge_channel = self._get_edge_channel(observatory, channel, type, interval)
+        data = self.client.get_waveforms(
+            network, station, location, edge_channel, starttime, endtime
+        )
         # make sure data is 32bit int
         for trace in data:
-            trace.data = trace.data.astype('i4')
+            trace.data = trace.data.astype("i4")
         data.merge()
         if data.count() == 0:
             data += TimeseriesUtility.create_empty_trace(
-                starttime, endtime, observatory, channel, type,
-                interval, network, station, location)
-        self._set_metadata(data,
-                observatory, channel, type, interval)
+                starttime,
+                endtime,
+                observatory,
+                channel,
+                type,
+                interval,
+                network,
+                station,
+                location,
+            )
+        self._set_metadata(data, observatory, channel, type, interval)
         return data
 
     def _post_process(self, timeseries, starttime, endtime, channels):
@@ -498,15 +532,15 @@ class EdgeFactory(TimeseriesFactory):
                 trace.data.set_fill_value(numpy.nan)
                 trace.data = trace.data.filled()
 
-        if 'D' in channels:
-            for trace in timeseries.select(channel='D'):
-                trace.data = ChannelConverter.get_radians_from_minutes(
-                    trace.data)
+        if "D" in channels:
+            for trace in timeseries.select(channel="D"):
+                trace.data = ChannelConverter.get_radians_from_minutes(trace.data)
 
         TimeseriesUtility.pad_timeseries(timeseries, starttime, endtime)
 
-    def _put_channel(self, timeseries, observatory, channel, type, interval,
-                starttime, endtime):
+    def _put_channel(
+        self, timeseries, observatory, channel, type, interval, starttime, endtime
+    ):
         """Put a channel worth of data
 
         Parameters
@@ -528,14 +562,10 @@ class EdgeFactory(TimeseriesFactory):
         -----
         RawInputClient seems to only work when sockets are
         """
-        station = self._get_edge_station(observatory, channel,
-                type, interval)
-        location = self._get_edge_location(observatory, channel,
-                type, interval)
-        network = self._get_edge_network(observatory, channel,
-                type, interval)
-        edge_channel = self._get_edge_channel(observatory, channel,
-                type, interval)
+        station = self._get_edge_station(observatory, channel, type, interval)
+        location = self._get_edge_location(observatory, channel, type, interval)
+        network = self._get_edge_network(observatory, channel, type, interval)
+        edge_channel = self._get_edge_channel(observatory, channel, type, interval)
 
         now = obspy.core.UTCDateTime(datetime.utcnow())
         if ((now - endtime) > 864000) and (self.cwbport > 0):
@@ -545,11 +575,11 @@ class EdgeFactory(TimeseriesFactory):
             host = self.host
             port = self.write_port
 
-        ric = RawInputClient(self.tag, host, port, station,
-                edge_channel, location, network)
+        ric = RawInputClient(
+            self.tag, host, port, station, edge_channel, location, network
+        )
 
-        stream = self._convert_stream_to_masked(timeseries=timeseries,
-                channel=channel)
+        stream = self._convert_stream_to_masked(timeseries=timeseries, channel=channel)
 
         # Make certain there's actually data
         if not numpy.ma.any(stream.select(channel=channel)[0].data):
@@ -558,9 +588,10 @@ class EdgeFactory(TimeseriesFactory):
         for trace in stream.select(channel=channel).split():
             trace_send = trace.copy()
             trace_send.trim(starttime, endtime)
-            if channel == 'D':
+            if channel == "D":
                 trace_send.data = ChannelConverter.get_minutes_from_radians(
-                    trace_send.data)
+                    trace_send.data
+                )
             trace_send = self._convert_trace_to_int(trace_send)
             ric.send_trace(interval, trace_send)
         if self.forceout:
@@ -582,5 +613,6 @@ class EdgeFactory(TimeseriesFactory):
         """
 
         for trace in stream:
-            self.observatoryMetadata.set_metadata(trace.stats, observatory,
-                    channel, type, interval)
+            self.observatoryMetadata.set_metadata(
+                trace.stats, observatory, channel, type, interval
+            )

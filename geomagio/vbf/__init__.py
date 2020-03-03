@@ -7,8 +7,4 @@ from .StreamVBFFactory import StreamVBFFactory
 from .VBFWriter import VBFWriter
 
 
-__all__ = [
-    'VBFFactory',
-    'StreamVBFFactory',
-    'VBFWriter'
-]
+__all__ = ["VBFFactory", "StreamVBFFactory", "VBFWriter"]

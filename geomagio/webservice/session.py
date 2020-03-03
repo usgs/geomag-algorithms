@@ -7,6 +7,6 @@ from .database import db
 
 
 def init_app(app: flask.Flask):
-    app.config['SESSION_TYPE'] = 'sqlalchemy'
-    app.config['SESSION_SQLALCHEMY'] = db
+    app.config["SESSION_TYPE"] = "sqlalchemy"
+    app.config["SESSION_SQLALCHEMY"] = db
     flask_session.Session(app)

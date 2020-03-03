@@ -5,8 +5,8 @@ from .database import db
 
 
 # known category values as constants
-CATEGORY_FLAG = 'flag'
-CATEGORY_ADJUSTED_MATRIX = 'adjusted-matrix'
+CATEGORY_FLAG = "flag"
+CATEGORY_ADJUSTED_MATRIX = "adjusted-matrix"
 
 
 class Metadata(db.Model):
@@ -49,7 +49,7 @@ class Metadata(db.Model):
     """
 
     # table and primary key
-    __tablename__ = 'metadata'
+    __tablename__ = "metadata"
     id = db.Column(db.Integer, primary_key=True)
 
     # author

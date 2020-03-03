@@ -19,10 +19,10 @@ import urllib2
 
 # format used to output files
 # "{OBSERVATORY}" and "{YEAR}" are replaced with argument values
-FILENAME_FORMAT = './{OBSERVATORY}{YEAR}WebAbsMaster.cal'
+FILENAME_FORMAT = "./{OBSERVATORY}{YEAR}WebAbsMaster.cal"
 
 # url for observation web service
-SERVICE_URL = 'https://geomag.usgs.gov/baselines/observation.json.php'
+SERVICE_URL = "https://geomag.usgs.gov/baselines/observation.json.php"
 
 ############################################################################
 # DO NOT EDIT BELOW THIS LINE
@@ -31,8 +31,8 @@ SERVICE_URL = 'https://geomag.usgs.gov/baselines/observation.json.php'
 # parse observatory and year arguments
 if len(sys.argv) != 3:
     cmd = sys.argv[0]
-    print('Usage:   {} OBSERVATORY YEAR'.format(cmd), file=sys.stderr)
-    print('Example: {} BOU 2016'.format(cmd), file=sys.stderr)
+    print("Usage:   {} OBSERVATORY YEAR".format(cmd), file=sys.stderr)
+    print("Example: {} BOU 2016".format(cmd), file=sys.stderr)
     sys.exit(1)
 
 OBSERVATORY = sys.argv[1]
@@ -40,79 +40,91 @@ YEAR = int(sys.argv[2])
 
 
 # request observations from service
-url = SERVICE_URL + '?' + '&'.join([
-    'observatory=' + OBSERVATORY,
-    'starttime=' + str(YEAR) + '-01-01',
-    'endtime=' + str(YEAR + 1) + '-01-01',
-])
+url = (
+    SERVICE_URL
+    + "?"
+    + "&".join(
+        [
+            "observatory=" + OBSERVATORY,
+            "starttime=" + str(YEAR) + "-01-01",
+            "endtime=" + str(YEAR + 1) + "-01-01",
+        ]
+    )
+)
 
 try:
-    print('Loading data from web service\n\t{}'.format(url), file=sys.stderr)
-    response = urllib2.urlopen(url,
+    print("Loading data from web service\n\t{}".format(url), file=sys.stderr)
+    response = urllib2.urlopen(
+        url,
         # allow environment certificate bundle override
-        cafile=os.environ.get('SSL_CERT_FILE'))
+        cafile=os.environ.get("SSL_CERT_FILE"),
+    )
     data = response.read()
     observations = json.loads(data)
 except Exception as e:
-    print('Error loading data ({})'.format(str(e)), file=sys.stderr)
+    print("Error loading data ({})".format(str(e)), file=sys.stderr)
     sys.exit(1)
 
 
 # extract all valid cal values
 cals = []
-for observation in observations['data']:
-    for reading in observation['readings']:
-        for channel in ['H', 'D', 'Z']:
+for observation in observations["data"]:
+    for reading in observation["readings"]:
+        for channel in ["H", "D", "Z"]:
             cal = reading[channel]
-            if not cal['absolute'] or \
-                    not cal['baseline'] or \
-                    not cal['end'] or \
-                    not cal['start'] or \
-                    not cal['valid']:
+            if (
+                not cal["absolute"]
+                or not cal["baseline"]
+                or not cal["end"]
+                or not cal["start"]
+                or not cal["valid"]
+            ):
                 # not a valid cal value
                 continue
             # convert D values from degrees to minutes
-            multiplier = 60 if channel == 'D' else 1
-            absolute = cal['absolute'] * multiplier
-            baseline = cal['baseline'] * multiplier
-            end = datetime.utcfromtimestamp(cal['end'])
-            start = datetime.utcfromtimestamp(cal['start'])
-            cals.append({
-                'absolute': absolute,
-                'baseline': baseline,
-                'channel': channel,
-                'end': end,
-                'start': start
-            })
+            multiplier = 60 if channel == "D" else 1
+            absolute = cal["absolute"] * multiplier
+            baseline = cal["baseline"] * multiplier
+            end = datetime.utcfromtimestamp(cal["end"])
+            start = datetime.utcfromtimestamp(cal["start"])
+            cals.append(
+                {
+                    "absolute": absolute,
+                    "baseline": baseline,
+                    "channel": channel,
+                    "end": end,
+                    "start": start,
+                }
+            )
 
 
 # format calfile
-CAL_HEADER_FORMAT = '--{date:%Y %m %d} ({channel})'
-CAL_LINE_FORMAT = '{start:%H%M}-{end:%H%M} c{baseline:9.1f}{absolute:9.1f}'
+CAL_HEADER_FORMAT = "--{date:%Y %m %d} ({channel})"
+CAL_LINE_FORMAT = "{start:%H%M}-{end:%H%M} c{baseline:9.1f}{absolute:9.1f}"
 
 calfile = []
 # output by date in order
-cals = sorted(cals, key=lambda c: c['start'])
+cals = sorted(cals, key=lambda c: c["start"])
 # group by date
-for date, cals in itertools.groupby(cals, key=lambda c: c['start'].date()):
+for date, cals in itertools.groupby(cals, key=lambda c: c["start"].date()):
     # convert group to list so it can be reused
     cals = list(cals)
     # within each day, order by H, then D, then Z
-    for channel in ['H', 'D', 'Z']:
-        channel_cals = [c for c in cals if c['channel'] == channel]
+    for channel in ["H", "D", "Z"]:
+        channel_cals = [c for c in cals if c["channel"] == channel]
         if not channel_cals:
             # no matching values
             continue
         # add channel header
         calfile.append(CAL_HEADER_FORMAT.format(channel=channel, date=date))
         calfile.extend([CAL_LINE_FORMAT.format(**c) for c in channel_cals])
-calfile.append('')
+calfile.append("")
 
 
 # write calfile
 filename = FILENAME_FORMAT.format(OBSERVATORY=OBSERVATORY, YEAR=YEAR)
-print('Writing cal file to {}'.format(filename), file=sys.stderr)
-with open(filename, 'wb', -1) as f:
+print("Writing cal file to {}".format(filename), file=sys.stderr)
+with open(filename, "wb", -1) as f:
     f.write(os.linesep.join(calfile))
 
 

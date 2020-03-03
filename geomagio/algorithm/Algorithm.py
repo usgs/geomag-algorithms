@@ -102,10 +102,8 @@ class Algorithm(object):
             The input stream we want to make certain has data for the algorithm
         """
         return TimeseriesUtility.has_all_channels(
-                stream,
-                self.get_required_channels(),
-                starttime,
-                endtime)
+            stream, self.get_required_channels(), starttime, endtime
+        )
 
     def get_next_starttime(self):
         """Check whether algorithm has a stateful start time.

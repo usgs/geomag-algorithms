@@ -52,8 +52,7 @@ class IMFV122Factory(TimeseriesFactory):
             stats.sampling_rate = rate
             stats.npts = length
             stats.channel = channel
-            if channel == 'D':
-                data[channel] = ChannelConverter.get_radians_from_minutes(
-                    data[channel])
+            if channel == "D":
+                data[channel] = ChannelConverter.get_radians_from_minutes(data[channel])
             stream += obspy.core.Trace(data[channel], stats)
         return stream

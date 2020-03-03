@@ -19,8 +19,8 @@ cos = numpy.cos
 sin = numpy.sin
 
 D2R = numpy.pi / 180
-D2I = 60 * 10               # Degrees to Iaga Decbas
-STARTTIME = obspy.core.UTCDateTime('2014-11-01')
+D2I = 60 * 10  # Degrees to Iaga Decbas
+STARTTIME = obspy.core.UTCDateTime("2014-11-01")
 
 
 def test_get_geo_from_mag():
@@ -36,17 +36,27 @@ def test_get_geo_from_mag():
     #   H = [1, 1], and D = [15 degrees, 30 degrees], expect streams of
     #   X = [cos(15), cos(30)] and Y = [sin(15), sin(30)]
     # stats.DECBAS = 15 * D2I
-    mag += __create_trace('H', [1, 1])
-    mag += __create_trace('D', [15 * D2R, 30 * D2R])
-    mag += __create_trace('Z', [1, 1])
-    mag += __create_trace('F', [1, 1])
+    mag += __create_trace("H", [1, 1])
+    mag += __create_trace("D", [15 * D2R, 30 * D2R])
+    mag += __create_trace("Z", [1, 1])
+    mag += __create_trace("F", [1, 1])
     geo = StreamConverter.get_geo_from_mag(mag)
-    X = geo.select(channel='X')[0].data
-    Y = geo.select(channel='Y')[0].data
-    assert_almost_equal(X, [cos(15 * D2R), cos(30 * D2R)], 9,
-        'Expect X to equal [cos(15), cos(30)]', True)
-    assert_almost_equal(Y, [sin(15 * D2R), sin(30 * D2R)], 9,
-        'Expect Y to equal [sin(15), sin(30)]', True)
+    X = geo.select(channel="X")[0].data
+    Y = geo.select(channel="Y")[0].data
+    assert_almost_equal(
+        X,
+        [cos(15 * D2R), cos(30 * D2R)],
+        9,
+        "Expect X to equal [cos(15), cos(30)]",
+        True,
+    )
+    assert_almost_equal(
+        Y,
+        [sin(15 * D2R), sin(30 * D2R)],
+        9,
+        "Expect Y to equal [sin(15), sin(30)]",
+        True,
+    )
 
 
 def test_get_geo_from_obs():
@@ -60,34 +70,42 @@ def test_get_geo_from_obs():
 
     # 1) Call get_geo_from_obs using equal h, e streams with a decbas of 0
     #   the geographic stream values X, Y will be the same.
-    obs += __create_trace('H', [1])
-    obs += __create_trace('E', [1])
-    obs += __create_trace('Z', [1])
-    obs += __create_trace('F', [1])
+    obs += __create_trace("H", [1])
+    obs += __create_trace("E", [1])
+    obs += __create_trace("Z", [1])
+    obs += __create_trace("F", [1])
     geo = StreamConverter.get_geo_from_obs(obs)
-    X = geo.select(channel='X')[0].data
-    Y = geo.select(channel='Y')[0].data
-    assert_almost_equal(X[0], 1, 9,
-        'Expect X to almost equal 1', True)
-    assert_almost_equal(Y[0], 1, 9,
-        'Expect Y to almost equal 1', True)
+    X = geo.select(channel="X")[0].data
+    Y = geo.select(channel="Y")[0].data
+    assert_almost_equal(X[0], 1, 9, "Expect X to almost equal 1", True)
+    assert_almost_equal(Y[0], 1, 9, "Expect Y to almost equal 1", True)
 
     # 2) Call get_geo_from_obs using a decbas of 15 degrees, and streams
     #   with H = [cos(15), cos(30)], and E = [sin(15), sin(30)].
     #   Expect streams of X = [cos(30), cos(45)] and Y = sin(30), sin(45)
     obs = obspy.core.Stream()
     DECBAS = 15 * D2I
-    obs += __create_trace('H', [cos(15 * D2R), cos(30 * D2R)], DECBAS)
-    obs += __create_trace('E', [sin(15 * D2R), sin(30 * D2R)], DECBAS)
-    obs += __create_trace('Z', [1, 1], DECBAS)
-    obs += __create_trace('F', [1, 1], DECBAS)
+    obs += __create_trace("H", [cos(15 * D2R), cos(30 * D2R)], DECBAS)
+    obs += __create_trace("E", [sin(15 * D2R), sin(30 * D2R)], DECBAS)
+    obs += __create_trace("Z", [1, 1], DECBAS)
+    obs += __create_trace("F", [1, 1], DECBAS)
     geo = StreamConverter.get_geo_from_obs(obs)
-    X = geo.select(channel='X')[0].data
-    Y = geo.select(channel='Y')[0].data
-    assert_almost_equal(X, [cos(30 * D2R), cos(45 * D2R)], 9,
-        'Expect X to equal [cos(30), cos(45)]', True)
-    assert_almost_equal(Y, [sin(30 * D2R), sin(45 * D2R)], 9,
-        'Expect Y to equal [sin(30), sin(45)]', True)
+    X = geo.select(channel="X")[0].data
+    Y = geo.select(channel="Y")[0].data
+    assert_almost_equal(
+        X,
+        [cos(30 * D2R), cos(45 * D2R)],
+        9,
+        "Expect X to equal [cos(30), cos(45)]",
+        True,
+    )
+    assert_almost_equal(
+        Y,
+        [sin(30 * D2R), sin(45 * D2R)],
+        9,
+        "Expect Y to equal [sin(30), sin(45)]",
+        True,
+    )
 
 
 def test_get_mag_from_geo():
@@ -103,17 +121,17 @@ def test_get_mag_from_geo():
     #   [cos(15), cos(30)], and a Y stream of [sin(15), sin(30)].
     #   Expect a H stream of [1,1] and a D strem of [15 degrees, 30 degrees]
     DECBAS = 15 * D2I
-    geo += __create_trace('X', [cos(15 * D2R), cos(30 * D2R)], DECBAS)
-    geo += __create_trace('Y', [sin(15 * D2R), sin(30 * D2R)], DECBAS)
-    geo += __create_trace('Z', [1, 1], DECBAS)
-    geo += __create_trace('F', [1, 1], DECBAS)
+    geo += __create_trace("X", [cos(15 * D2R), cos(30 * D2R)], DECBAS)
+    geo += __create_trace("Y", [sin(15 * D2R), sin(30 * D2R)], DECBAS)
+    geo += __create_trace("Z", [1, 1], DECBAS)
+    geo += __create_trace("F", [1, 1], DECBAS)
     mag = StreamConverter.get_mag_from_geo(geo)
-    H = mag.select(channel='H')[0].data
-    D = mag.select(channel='D')[0].data
-    assert_almost_equal(H, [1, 1], 9,
-        'Expect H to equal [1,1]', True)
-    assert_almost_equal(D, [15 * D2R, 30 * D2R], 9,
-        'Expect D to equal [15 degrees, 30 degrees]', True)
+    H = mag.select(channel="H")[0].data
+    D = mag.select(channel="D")[0].data
+    assert_almost_equal(H, [1, 1], 9, "Expect H to equal [1,1]", True)
+    assert_almost_equal(
+        D, [15 * D2R, 30 * D2R], 9, "Expect D to equal [15 degrees, 30 degrees]", True
+    )
 
 
 def test_get_mag_from_obs():
@@ -128,17 +146,17 @@ def test_get_mag_from_obs():
     #   [cos(15), cos(30)] and a E stream of [sin(15), sin(30)].
     #   Expect a H stream of [1, 1] and a D stream of [30 degrees, 45 degrees]
     DECBAS = 15 * D2I
-    obs += __create_trace('H', [cos(15 * D2R), cos(30 * D2R)], DECBAS)
-    obs += __create_trace('E', [sin(15 * D2R), sin(30 * D2R)], DECBAS)
-    obs += __create_trace('Z', [1, 1], DECBAS)
-    obs += __create_trace('F', [1, 1], DECBAS)
+    obs += __create_trace("H", [cos(15 * D2R), cos(30 * D2R)], DECBAS)
+    obs += __create_trace("E", [sin(15 * D2R), sin(30 * D2R)], DECBAS)
+    obs += __create_trace("Z", [1, 1], DECBAS)
+    obs += __create_trace("F", [1, 1], DECBAS)
     mag = StreamConverter.get_mag_from_obs(obs)
-    H = mag.select(channel='H')[0].data
-    D = mag.select(channel='D')[0].data
-    assert_almost_equal(H, [1, 1], 9,
-        'Expect H to equal [1,1]', True)
-    assert_almost_equal(D, [30 * D2R, 45 * D2R], 9,
-        'Expect D to equal [30 degrees, 45 degrees]', True)
+    H = mag.select(channel="H")[0].data
+    D = mag.select(channel="D")[0].data
+    assert_almost_equal(H, [1, 1], 9, "Expect H to equal [1,1]", True)
+    assert_almost_equal(
+        D, [30 * D2R, 45 * D2R], 9, "Expect D to equal [30 degrees, 45 degrees]", True
+    )
 
 
 def test_get_obs_from_geo():
@@ -155,20 +173,31 @@ def test_get_obs_from_geo():
     #   Expect a H stream of [cos(15), cos(30)] and a
     #   E stream of [sin(15), sin(30)]
     DECBAS = 15 * D2I
-    geo += __create_trace('X', [cos(30 * D2R), cos(45 * D2R)], DECBAS)
-    geo += __create_trace('Y', [sin(30 * D2R), sin(45 * D2R)], DECBAS)
-    geo += __create_trace('Z', [1, 1], DECBAS)
-    geo += __create_trace('F', [1, 1], DECBAS)
+    geo += __create_trace("X", [cos(30 * D2R), cos(45 * D2R)], DECBAS)
+    geo += __create_trace("Y", [sin(30 * D2R), sin(45 * D2R)], DECBAS)
+    geo += __create_trace("Z", [1, 1], DECBAS)
+    geo += __create_trace("F", [1, 1], DECBAS)
     obs = StreamConverter.get_obs_from_geo(geo, True)
-    H = obs.select(channel='H')[0].data
-    E = obs.select(channel='E')[0].data
-    D = obs.select(channel='D')[0].data
-    assert_almost_equal(H, [cos(15 * D2R), cos(30 * D2R)], 9,
-        'Expect H to equal [cos(15), cos(30)]', True)
-    assert_almost_equal(E, [sin(15 * D2R), sin(30 * D2R)], 9,
-        'Expect E to equal [sin(15), sin(30)', True)
-    assert_almost_equal(D, [15 * D2R, 30 * D2R], 9,
-        'Expect D to equal [15 degress, 30 degrees]', True)
+    H = obs.select(channel="H")[0].data
+    E = obs.select(channel="E")[0].data
+    D = obs.select(channel="D")[0].data
+    assert_almost_equal(
+        H,
+        [cos(15 * D2R), cos(30 * D2R)],
+        9,
+        "Expect H to equal [cos(15), cos(30)]",
+        True,
+    )
+    assert_almost_equal(
+        E,
+        [sin(15 * D2R), sin(30 * D2R)],
+        9,
+        "Expect E to equal [sin(15), sin(30)",
+        True,
+    )
+    assert_almost_equal(
+        D, [15 * D2R, 30 * D2R], 9, "Expect D to equal [15 degress, 30 degrees]", True
+    )
 
 
 def test_get_obs_from_mag():
@@ -185,20 +214,31 @@ def test_get_obs_from_mag():
     #   of [cos(15), cos(30)], a D stream of [30 degrees, 45 degrees],
     #   and a E stream of [sin(15), sin(30)]
     DECBAS = 15 * D2I
-    mag += __create_trace('H', [1, 1], DECBAS)
-    mag += __create_trace('D', [30 * D2R, 45 * D2R], DECBAS)
-    mag += __create_trace('Z', [1, 1], DECBAS)
-    mag += __create_trace('F', [1, 1], DECBAS)
+    mag += __create_trace("H", [1, 1], DECBAS)
+    mag += __create_trace("D", [30 * D2R, 45 * D2R], DECBAS)
+    mag += __create_trace("Z", [1, 1], DECBAS)
+    mag += __create_trace("F", [1, 1], DECBAS)
     obs = StreamConverter.get_obs_from_mag(mag, True)
-    H = obs.select(channel='H')[0].data
-    D = obs.select(channel='D')[0].data
-    E = obs.select(channel='E')[0].data
-    assert_almost_equal(H, [cos(15 * D2R), cos(30 * D2R)], 9,
-        'Expect H to equal [cos(15), cos(30)', True)
-    assert_almost_equal(D, [15 * D2R, 30 * D2R], 9,
-        'Expect D to equal [15 degrees, 30 degrees', True)
-    assert_almost_equal(E, [sin(15 * D2R), sin(30 * D2R)], 9,
-        'Expect E to equal [sin(15), sin(30)', True)
+    H = obs.select(channel="H")[0].data
+    D = obs.select(channel="D")[0].data
+    E = obs.select(channel="E")[0].data
+    assert_almost_equal(
+        H,
+        [cos(15 * D2R), cos(30 * D2R)],
+        9,
+        "Expect H to equal [cos(15), cos(30)",
+        True,
+    )
+    assert_almost_equal(
+        D, [15 * D2R, 30 * D2R], 9, "Expect D to equal [15 degrees, 30 degrees", True
+    )
+    assert_almost_equal(
+        E,
+        [sin(15 * D2R), sin(30 * D2R)],
+        9,
+        "Expect E to equal [sin(15), sin(30)",
+        True,
+    )
 
 
 def test_get_obs_from_obs():
@@ -214,27 +254,33 @@ def test_get_obs_from_obs():
     #   Expect a D stream of [15 degrees, 30 degrees]
     obs_e = obspy.core.Stream()
     DECBAS = 15 * D2I
-    obs_e += __create_trace('H', [cos(15 * D2R), cos(30 * D2R)], DECBAS)
-    obs_e += __create_trace('E', [sin(15 * D2R), sin(30 * D2R)], DECBAS)
-    obs_e += __create_trace('Z', [1, 1], DECBAS)
-    obs_e += __create_trace('F', [1, 1], DECBAS)
+    obs_e += __create_trace("H", [cos(15 * D2R), cos(30 * D2R)], DECBAS)
+    obs_e += __create_trace("E", [sin(15 * D2R), sin(30 * D2R)], DECBAS)
+    obs_e += __create_trace("Z", [1, 1], DECBAS)
+    obs_e += __create_trace("F", [1, 1], DECBAS)
     obs_D = StreamConverter.get_obs_from_obs(obs_e, False, True)
-    d = obs_D.select(channel='D')[0].data
-    assert_almost_equal(d, [15 * D2R, 30 * D2R], 9,
-        'Expect D to equal [15 degrees, 30 degrees]', True)
+    d = obs_D.select(channel="D")[0].data
+    assert_almost_equal(
+        d, [15 * D2R, 30 * D2R], 9, "Expect D to equal [15 degrees, 30 degrees]", True
+    )
 
     # 2) Call get_obs_from_obs using a decbase of 15 degrees, a H stream of
     #   [cos(15), cos(30)], and a D stream of [15, 30].
     #   Expect a D stream of [sin(15), sin(30)]
     obs_d = obspy.core.Stream()
-    obs_d += __create_trace('H', [cos(15 * D2R), cos(30 * D2R)], DECBAS)
-    obs_d += __create_trace('D', [15 * D2R, 30 * D2R], DECBAS)
-    obs_d += __create_trace('Z', [1, 1], DECBAS)
-    obs_d += __create_trace('F', [1, 1], DECBAS)
+    obs_d += __create_trace("H", [cos(15 * D2R), cos(30 * D2R)], DECBAS)
+    obs_d += __create_trace("D", [15 * D2R, 30 * D2R], DECBAS)
+    obs_d += __create_trace("Z", [1, 1], DECBAS)
+    obs_d += __create_trace("F", [1, 1], DECBAS)
     obs_E = StreamConverter.get_obs_from_obs(obs_d, True, False)
-    e = obs_E.select(channel='E')[0].data
-    assert_almost_equal(e, [sin(15 * D2R), sin(30 * D2R)], 9,
-        'Expect E to equal [sin(15), sin(30)', True)
+    e = obs_E.select(channel="E")[0].data
+    assert_almost_equal(
+        e,
+        [sin(15 * D2R), sin(30 * D2R)],
+        9,
+        "Expect E to equal [sin(15), sin(30)",
+        True,
+    )
 
 
 def test_verification_data():
@@ -251,40 +297,50 @@ def test_verification_data():
     """
     DECBAS = 552.7
     obs_v = obspy.core.Stream()
-    obs_v += __create_trace('H',
-        [20889.55, 20889.57, 20889.74, 20889.86, 20889.91, 20889.81], DECBAS)
-    obs_v += __create_trace('E',
-        [-21.10, -20.89, -20.72, -20.57, -20.39, -20.12], DECBAS)
-    obs_v += __create_trace('Z',
-        [47565.29, 47565.34, 47565.39, 47565.45, 47565.51, 47565.54], DECBAS)
-    obs_v += __create_trace('F',
-        [52485.77, 52485.84, 52485.94, 52486.06, 52486.11, 52486.10], DECBAS)
+    obs_v += __create_trace(
+        "H", [20889.55, 20889.57, 20889.74, 20889.86, 20889.91, 20889.81], DECBAS
+    )
+    obs_v += __create_trace(
+        "E", [-21.10, -20.89, -20.72, -20.57, -20.39, -20.12], DECBAS
+    )
+    obs_v += __create_trace(
+        "Z", [47565.29, 47565.34, 47565.39, 47565.45, 47565.51, 47565.54], DECBAS
+    )
+    obs_v += __create_trace(
+        "F", [52485.77, 52485.84, 52485.94, 52486.06, 52486.11, 52486.10], DECBAS
+    )
     obs_V = StreamConverter.get_obs_from_obs(obs_v, True, True)
-    d = obs_V.select(channel='D')[0].data
+    d = obs_V.select(channel="D")[0].data
     d = ChannelConverter.get_minutes_from_radians(d)
     # Using d values calculated using small angle approximation.
-    assert_almost_equal(d,
-        [-3.47, -3.43, -3.40, -3.38, -3.35, -3.31], 2,
-        'Expect d to equal [-3.47, -3.43, -3.40, -3.38, -3.35, -3.31]', True)
+    assert_almost_equal(
+        d,
+        [-3.47, -3.43, -3.40, -3.38, -3.35, -3.31],
+        2,
+        "Expect d to equal [-3.47, -3.43, -3.40, -3.38, -3.35, -3.31]",
+        True,
+    )
 
     mag = obspy.core.Stream()
     DECBAS = 552.7
-    mag += __create_trace('H',
-        [20884.04, 20883.45, 20883.38, 20883.43, 20883.07, 20882.76], DECBAS)
+    mag += __create_trace(
+        "H", [20884.04, 20883.45, 20883.38, 20883.43, 20883.07, 20882.76], DECBAS
+    )
     d = ChannelConverter.get_radians_from_minutes(
-        [556.51, 556.52, 556.56, 556.61, 556.65, 556.64])
-    mag += __create_trace('D', d, DECBAS)
-    mag += __create_trace('Z',
-        [48546.90, 48546.80, 48546.80, 48546.70, 48546.80, 48546.90], DECBAS)
-    mag += __create_trace('F',
-        [0.10, 0.00, 0.10, 0.00, 0.00, 0.00, 0.00], DECBAS)
+        [556.51, 556.52, 556.56, 556.61, 556.65, 556.64]
+    )
+    mag += __create_trace("D", d, DECBAS)
+    mag += __create_trace(
+        "Z", [48546.90, 48546.80, 48546.80, 48546.70, 48546.80, 48546.90], DECBAS
+    )
+    mag += __create_trace("F", [0.10, 0.00, 0.10, 0.00, 0.00, 0.00, 0.00], DECBAS)
     geo = StreamConverter.get_geo_from_mag(mag)
-    X = geo.select(channel='X')[0].data
-    Y = geo.select(channel='Y')[0].data
-    assert_almost_equal(X,
-        [20611.00, 20610.40, 20610.30, 20610.30, 20609.90, 20609.60], 2)
-    assert_almost_equal(Y,
-        [3366.00, 3366.00, 3366.20, 3366.50, 3366.70, 3366.60], 1)
+    X = geo.select(channel="X")[0].data
+    Y = geo.select(channel="Y")[0].data
+    assert_almost_equal(
+        X, [20611.00, 20610.40, 20610.30, 20610.30, 20609.90, 20609.60], 2
+    )
+    assert_almost_equal(Y, [3366.00, 3366.00, 3366.20, 3366.50, 3366.70, 3366.60], 1)
 
 
 def __create_trace(channel, data, decbase=0):
