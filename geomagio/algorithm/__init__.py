@@ -6,6 +6,7 @@ from __future__ import absolute_import
 # base classes
 from .Algorithm import Algorithm
 from .AlgorithmException import AlgorithmException
+
 # algorithms
 from .AdjustedAlgorithm import AdjustedAlgorithm
 from .AverageAlgorithm import AverageAlgorithm
@@ -17,25 +18,25 @@ from .XYZAlgorithm import XYZAlgorithm
 
 # algorithms is used by Controller to auto generate arguments
 algorithms = {
-    'identity': Algorithm,
-    'adjusted': AdjustedAlgorithm,
-    'average': AverageAlgorithm,
-    'deltaf': DeltaFAlgorithm,
-    'filter': FilterAlgorithm,
-    'sqdist': SqDistAlgorithm,
-    'xyz': XYZAlgorithm
+    "identity": Algorithm,
+    "adjusted": AdjustedAlgorithm,
+    "average": AverageAlgorithm,
+    "deltaf": DeltaFAlgorithm,
+    "filter": FilterAlgorithm,
+    "sqdist": SqDistAlgorithm,
+    "xyz": XYZAlgorithm,
 }
 
 
 __all__ = [
     # base classes
-    'Algorithm',
-    'AlgorithmException',
+    "Algorithm",
+    "AlgorithmException",
     # algorithms
-    'AdjustedAlgorithm',
-    'AverageAlgorithm',
-    'DeltaFAlgorithm',
-    'FilterAlgorithm',
-    'SqDistAlgorithm',
-    'XYZAlgorithm'
+    "AdjustedAlgorithm",
+    "AverageAlgorithm",
+    "DeltaFAlgorithm",
+    "FilterAlgorithm",
+    "SqDistAlgorithm",
+    "XYZAlgorithm",
 ]

@@ -14,17 +14,24 @@ import sys
 class AdjustedAlgorithm(Algorithm):
     """Adjusted Data Algorithm"""
 
-    def __init__(self, matrix=None, pier_correction=None, statefile=None,
-            data_type=None, location=None):
-        Algorithm.__init__(self, inchannels=('H', 'E', 'Z', 'F'),
-            outchannels=('X', 'Y', 'Z', 'F'))
+    def __init__(
+        self,
+        matrix=None,
+        pier_correction=None,
+        statefile=None,
+        data_type=None,
+        location=None,
+    ):
+        Algorithm.__init__(
+            self, inchannels=("H", "E", "Z", "F"), outchannels=("X", "Y", "Z", "F")
+        )
         # state variables
         self.matrix = matrix
         self.pier_correction = pier_correction
         self.statefile = statefile
         self.data_type = data_type
         self.location = location
-        if (matrix is None):
+        if matrix is None:
             self.load_state()
 
     def load_state(self):
@@ -37,30 +44,30 @@ class AdjustedAlgorithm(Algorithm):
             return
         data = None
         try:
-            with open(self.statefile, 'r') as f:
+            with open(self.statefile, "r") as f:
                 data = f.read()
                 data = json.loads(data)
         except IOError as err:
             sys.stderr.write("I/O error {0}".format(err))
-        if data is None or data == '':
+        if data is None or data == "":
             return
-        self.matrix[0, 0] = np.float64(data['M11'])
-        self.matrix[0, 1] = np.float64(data['M12'])
-        self.matrix[0, 2] = np.float64(data['M13'])
-        self.matrix[0, 3] = np.float64(data['M14'])
-        self.matrix[1, 0] = np.float64(data['M21'])
-        self.matrix[1, 1] = np.float64(data['M22'])
-        self.matrix[1, 2] = np.float64(data['M23'])
-        self.matrix[1, 3] = np.float64(data['M24'])
-        self.matrix[2, 0] = np.float64(data['M31'])
-        self.matrix[2, 1] = np.float64(data['M32'])
-        self.matrix[2, 2] = np.float64(data['M33'])
-        self.matrix[2, 3] = np.float64(data['M34'])
-        self.matrix[3, 0] = np.float64(data['M41'])
-        self.matrix[3, 1] = np.float64(data['M42'])
-        self.matrix[3, 2] = np.float64(data['M43'])
-        self.matrix[3, 3] = np.float64(data['M44'])
-        self.pier_correction = np.float64(data['PC'])
+        self.matrix[0, 0] = np.float64(data["M11"])
+        self.matrix[0, 1] = np.float64(data["M12"])
+        self.matrix[0, 2] = np.float64(data["M13"])
+        self.matrix[0, 3] = np.float64(data["M14"])
+        self.matrix[1, 0] = np.float64(data["M21"])
+        self.matrix[1, 1] = np.float64(data["M22"])
+        self.matrix[1, 2] = np.float64(data["M23"])
+        self.matrix[1, 3] = np.float64(data["M24"])
+        self.matrix[2, 0] = np.float64(data["M31"])
+        self.matrix[2, 1] = np.float64(data["M32"])
+        self.matrix[2, 2] = np.float64(data["M33"])
+        self.matrix[2, 3] = np.float64(data["M34"])
+        self.matrix[3, 0] = np.float64(data["M41"])
+        self.matrix[3, 1] = np.float64(data["M42"])
+        self.matrix[3, 2] = np.float64(data["M43"])
+        self.matrix[3, 3] = np.float64(data["M44"])
+        self.pier_correction = np.float64(data["PC"])
 
     def save_state(self):
         """Save algorithm state to a file.
@@ -69,25 +76,25 @@ class AdjustedAlgorithm(Algorithm):
         if self.statefile is None:
             return
         data = {
-            'M11': self.matrix[0, 0],
-            'M12': self.matrix[0, 1],
-            'M13': self.matrix[0, 2],
-            'M14': self.matrix[0, 3],
-            'M21': self.matrix[1, 0],
-            'M22': self.matrix[1, 1],
-            'M23': self.matrix[1, 2],
-            'M24': self.matrix[1, 3],
-            'M31': self.matrix[2, 0],
-            'M32': self.matrix[2, 1],
-            'M33': self.matrix[2, 2],
-            'M34': self.matrix[2, 3],
-            'M41': self.matrix[3, 0],
-            'M42': self.matrix[3, 1],
-            'M43': self.matrix[3, 2],
-            'M44': self.matrix[3, 3],
-            'PC': self.pier_correction
+            "M11": self.matrix[0, 0],
+            "M12": self.matrix[0, 1],
+            "M13": self.matrix[0, 2],
+            "M14": self.matrix[0, 3],
+            "M21": self.matrix[1, 0],
+            "M22": self.matrix[1, 1],
+            "M23": self.matrix[1, 2],
+            "M24": self.matrix[1, 3],
+            "M31": self.matrix[2, 0],
+            "M32": self.matrix[2, 1],
+            "M33": self.matrix[2, 2],
+            "M34": self.matrix[2, 3],
+            "M41": self.matrix[3, 0],
+            "M42": self.matrix[3, 1],
+            "M43": self.matrix[3, 2],
+            "M44": self.matrix[3, 3],
+            "PC": self.pier_correction,
         }
-        with open(self.statefile, 'w') as f:
+        with open(self.statefile, "w") as f:
             f.write(json.dumps(data))
 
     def create_trace(self, channel, stats, data):
@@ -109,16 +116,15 @@ class AdjustedAlgorithm(Algorithm):
         """
         stats = Stats(stats)
         if self.data_type is None:
-            stats.data_type = 'adjusted'
+            stats.data_type = "adjusted"
         else:
             stats.data_type = self.data_type
         if self.data_type is None:
-            stats.location = 'A0'
+            stats.location = "A0"
         else:
             stats.location = self.location
 
-        trace = super(AdjustedAlgorithm, self).create_trace(channel, stats,
-            data)
+        trace = super(AdjustedAlgorithm, self).create_trace(channel, stats, data)
         return trace
 
     def process(self, stream):
@@ -136,19 +142,19 @@ class AdjustedAlgorithm(Algorithm):
 
         out = None
 
-        h = stream.select(channel='H')[0]
-        e = stream.select(channel='E')[0]
-        z = stream.select(channel='Z')[0]
-        f = stream.select(channel='F')[0]
+        h = stream.select(channel="H")[0]
+        e = stream.select(channel="E")[0]
+        z = stream.select(channel="Z")[0]
+        f = stream.select(channel="F")[0]
 
         raws = np.vstack([h.data, e.data, z.data, np.ones_like(h.data)])
         adj = np.dot(self.matrix, raws)
         fnew = f.data + self.pier_correction
 
-        x = self.create_trace('X', h.stats, adj[0])
-        y = self.create_trace('Y', e.stats, adj[1])
-        z = self.create_trace('Z', z.stats, adj[2])
-        f = self.create_trace('F', f.stats, fnew)
+        x = self.create_trace("X", h.stats, adj[0])
+        y = self.create_trace("Y", e.stats, adj[1])
+        z = self.create_trace("Z", z.stats, adj[2])
+        f = self.create_trace("F", f.stats, fnew)
 
         out = Stream([x, y, z, f])
 
@@ -169,26 +175,28 @@ class AdjustedAlgorithm(Algorithm):
         # collect channels in stream
         channels = []
         for trace in stream:
-            channels += trace.stats['channel']
+            channels += trace.stats["channel"]
 
         # if F is available, can produce at least adjusted F
-        if ('F' in channels and
-            super(AdjustedAlgorithm, self).can_produce_data(
-                starttime,
-                endtime,
-                stream.select(channel='F'))):
+        if "F" in channels and super(AdjustedAlgorithm, self).can_produce_data(
+            starttime, endtime, stream.select(channel="F")
+        ):
             return True
 
         # if HEZ are available, can produce at least adjusted XYZ
-        if ('H' in channels and
-            'E' in channels and
-            'Z' in channels and
-            np.all(
-                [super(AdjustedAlgorithm, self).can_produce_data(
-                     starttime,
-                     endtime,
-                     stream.select(channel=chan))
-                 for chan in ('H', 'E', 'Z')])):
+        if (
+            "H" in channels
+            and "E" in channels
+            and "Z" in channels
+            and np.all(
+                [
+                    super(AdjustedAlgorithm, self).can_produce_data(
+                        starttime, endtime, stream.select(channel=chan)
+                    )
+                    for chan in ("H", "E", "Z")
+                ]
+            )
+        ):
             return True
 
         # return false if cannot produce adjustded F or XYZ
@@ -203,9 +211,11 @@ class AdjustedAlgorithm(Algorithm):
             command line argument parser
         """
 
-        parser.add_argument('--adjusted-statefile',
-                default=None,
-                help='File to store state between calls to algorithm')
+        parser.add_argument(
+            "--adjusted-statefile",
+            default=None,
+            help="File to store state between calls to algorithm",
+        )
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.

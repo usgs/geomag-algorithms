@@ -6,7 +6,4 @@ from .IMFJSONFactory import IMFJSONFactory
 from .IMFJSONWriter import IMFJSONWriter
 
 
-__all__ = [
-    'IMFJSONWriter',
-    'IMFJSONFactory'
-]
+__all__ = ["IMFJSONWriter", "IMFJSONFactory"]

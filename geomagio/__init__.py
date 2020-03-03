@@ -16,15 +16,15 @@ from .TimeseriesFactoryException import TimeseriesFactoryException
 from .WebService import WebService
 
 __all__ = [
-    'ChannelConverter',
-    'Controller',
-    'DeltaFAlgorithm',
-    'ObservatoryMetadata',
-    'PlotTimeseriesFactory',
-    'StreamConverter',
-    'TimeseriesFactory',
-    'TimeseriesFactoryException',
-    'TimeseriesUtility',
-    'Util',
-    'WebService'
+    "ChannelConverter",
+    "Controller",
+    "DeltaFAlgorithm",
+    "ObservatoryMetadata",
+    "PlotTimeseriesFactory",
+    "StreamConverter",
+    "TimeseriesFactory",
+    "TimeseriesFactoryException",
+    "TimeseriesUtility",
+    "Util",
+    "WebService",
 ]

@@ -5,8 +5,8 @@ import numpy
 from obspy.core import UTCDateTime
 
 # values that represent missing data points in IAGA2002
-EIGHTS = numpy.float64('888888')
-NINES = numpy.float64('999999')
+EIGHTS = numpy.float64("888888")
+NINES = numpy.float64("999999")
 
 
 class IMFV122Parser(object):
@@ -32,10 +32,7 @@ class IMFV122Parser(object):
     def __init__(self, observatory=None):
         """Create a new IAGA2002 parser."""
         # header fields
-        self.metadata = {
-            'network': 'NT',
-            'station': observatory
-        }
+        self.metadata = {"network": "NT", "station": observatory}
         # array of channel names
         self.channels = []
         # timestamps of data (datetime.datetime)
@@ -67,23 +64,25 @@ class IMFV122Parser(object):
 
         Adds value to ``self.headers``.
         """
-        (observatory,
-                date,
-                doy,
-                start,
-                components,
-                type,
-                gin,
-                colalong,
-                decbas,
-                reserved) = line.split()
+        (
+            observatory,
+            date,
+            doy,
+            start,
+            components,
+            type,
+            gin,
+            colalong,
+            decbas,
+            reserved,
+        ) = line.split()
 
         self.channels = list(components)
-        self.metadata['declination_base'] = int(decbas)
-        self.metadata['geodetic_latitude'] = float(colalong[:4]) / 10
-        self.metadata['geodetic_longitude'] = float(colalong[4:]) / 10
-        self.metadata['station'] = observatory
-        self.metadata['gin'] = gin
+        self.metadata["declination_base"] = int(decbas)
+        self.metadata["geodetic_latitude"] = float(colalong[:4]) / 10
+        self.metadata["geodetic_longitude"] = float(colalong[4:]) / 10
+        self.metadata["station"] = observatory
+        self.metadata["gin"] = gin
 
         year = 1900 + int(date[-2:])
         julday = int(doy)
@@ -101,11 +100,7 @@ class IMFV122Parser(object):
             hour = int(dayminute / 60)
             minute = dayminute % 60
             self._delta = 60
-        self._nexttime = UTCDateTime(
-                year=year,
-                julday=julday,
-                hour=hour,
-                minute=minute)
+        self._nexttime = UTCDateTime(year=year, julday=julday, hour=hour, minute=minute)
 
     def _parse_data(self, line):
         """Parse one data point in the timeseries.
@@ -139,7 +134,7 @@ class IMFV122Parser(object):
             data = numpy.array(data, dtype=numpy.float64)
             data[data == EIGHTS] = numpy.nan
             data[data == NINES] = numpy.nan
-            if channel == 'D':
+            if channel == "D":
                 data = data / 100
             else:
                 data = data / 10

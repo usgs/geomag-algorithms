@@ -6,8 +6,9 @@ import numpy
 import obspy.core
 
 
-def create_empty_trace(starttime, endtime, observatory,
-            channel, type, interval, network, station, location):
+def create_empty_trace(
+    starttime, endtime, observatory, channel, type, interval, network, station, location
+):
     """create an empty trace filled with nans.
 
     Parameters
@@ -43,7 +44,8 @@ def create_empty_trace(starttime, endtime, observatory,
     stats.channel = channel
     # Calculate first valid sample time based on interval
     trace_starttime = obspy.core.UTCDateTime(
-        numpy.ceil(starttime.timestamp / delta) * delta)
+        numpy.ceil(starttime.timestamp / delta) * delta
+    )
     stats.starttime = trace_starttime
     stats.delta = delta
     # Calculate number of valid samples up to or before endtime
@@ -66,16 +68,16 @@ def get_delta_from_interval(data_interval):
     int
         number of seconds for interval, or None if unknown
     """
-    if data_interval == 'tenhertz':
+    if data_interval == "tenhertz":
         delta = 0.1
-    elif data_interval == 'second':
-        delta = 1.
-    elif data_interval == 'minute':
-        delta = 60.
-    elif data_interval == 'hour':
-        delta = 3600.
-    elif data_interval == 'day':
-        delta = 86400.
+    elif data_interval == "second":
+        delta = 1.0
+    elif data_interval == "minute":
+        delta = 60.0
+    elif data_interval == "hour":
+        delta = 3600.0
+    elif data_interval == "day":
+        delta = 86400.0
     else:
         delta = None
     return delta
@@ -173,16 +175,12 @@ def get_trace_gaps(trace):
         else:
             if gap is not None:
                 # end of a gap
-                gap.extend([
-                        starttime + (i - 1) * delta,
-                        starttime + i * delta])
+                gap.extend([starttime + (i - 1) * delta, starttime + i * delta])
                 gaps.append(gap)
                 gap = None
     # check for gap at end
     if gap is not None:
-        gap.extend([
-                starttime + (length - 1) * delta,
-                starttime + length * delta])
+        gap.extend([starttime + (length - 1) * delta, starttime + length * delta])
         gaps.append(gap)
     return gaps
 
@@ -268,13 +266,14 @@ def has_all_channels(stream, channels, starttime, endtime):
     -------
     bool: True if data found across all channels between starttime/endtime
     """
-    input_gaps = get_merged_gaps(
-            get_stream_gaps(stream=stream, channels=channels))
+    input_gaps = get_merged_gaps(get_stream_gaps(stream=stream, channels=channels))
     for input_gap in input_gaps:
         # Check for gaps that include the entire range
-        if (starttime >= input_gap[0] and
-                starttime <= input_gap[1] and
-                endtime < input_gap[2]):
+        if (
+            starttime >= input_gap[0]
+            and starttime <= input_gap[1]
+            and endtime < input_gap[2]
+        ):
             return False
     return True
 
@@ -307,9 +306,7 @@ def has_any_channels(stream, channels, starttime, endtime):
             # no gaps in channel
             return True
         for gap in channel_gaps:
-            if not (starttime >= gap[0] and
-                    starttime <= gap[1] and
-                    endtime < gap[2]):
+            if not (starttime >= gap[0] and starttime <= gap[1] and endtime < gap[2]):
                 # gap doesn't span channel
                 return True
     # didn't find any data
@@ -331,9 +328,7 @@ def mask_stream(stream):
     """
     masked = obspy.core.Stream()
     for trace in stream:
-        masked += obspy.core.Trace(
-                numpy.ma.masked_invalid(trace.data),
-                trace.stats)
+        masked += obspy.core.Trace(numpy.ma.masked_invalid(trace.data), trace.stats)
     return masked
 
 
@@ -354,10 +349,11 @@ def unmask_stream(stream):
     unmasked = obspy.core.Stream()
     for trace in stream:
         unmasked += obspy.core.Trace(
-                trace.data.filled(fill_value=numpy.nan)
-                        if isinstance(trace.data, numpy.ma.MaskedArray)
-                        else trace.data,
-                trace.stats)
+            trace.data.filled(fill_value=numpy.nan)
+            if isinstance(trace.data, numpy.ma.MaskedArray)
+            else trace.data,
+            trace.stats,
+        )
     return unmasked
 
 
@@ -390,22 +386,24 @@ def merge_streams(*streams):
     for trace in merged:
         stats = trace.stats
         split_stream = split.select(
-                channel=stats.channel,
-                station=stats.station,
-                network=stats.network,
-                location=stats.location)
+            channel=stats.channel,
+            station=stats.station,
+            network=stats.network,
+            location=stats.location,
+        )
         if len(split_stream) == 0:
             readd += trace
     split += readd
 
     # merge data
     split.merge(
-            # 1 = do not interpolate
-            interpolation_samples=0,
-            # 1 = when there is overlap, use data from trace with last endtime
-            method=1,
-            # np.nan = work-around for (problematic) intermediate masked arrays
-            fill_value=numpy.nan)
+        # 1 = do not interpolate
+        interpolation_samples=0,
+        # 1 = when there is overlap, use data from trace with last endtime
+        method=1,
+        # np.nan = work-around for (problematic) intermediate masked arrays
+        fill_value=numpy.nan,
+    )
 
     # convert back to NaN filled array
     merged = unmask_stream(split)
@@ -463,9 +461,9 @@ def pad_and_trim_trace(trace, starttime, endtime):
         # pad to starttime
         cnt = int((trace_starttime - starttime) / trace_delta)
         if cnt > 0:
-            trace.data = numpy.concatenate([
-                    numpy.full(cnt, numpy.nan, dtype=numpy.float64),
-                    trace.data])
+            trace.data = numpy.concatenate(
+                [numpy.full(cnt, numpy.nan, dtype=numpy.float64), trace.data]
+            )
             trace_starttime = trace_starttime - trace_delta * cnt
             trace.stats.starttime = trace_starttime
     if trace_endtime > endtime:
@@ -477,6 +475,6 @@ def pad_and_trim_trace(trace, starttime, endtime):
         # pad to endtime
         cnt = int((endtime - trace_endtime) / trace.stats.delta)
         if cnt > 0:
-            trace.data = numpy.concatenate([
-                    trace.data,
-                    numpy.full(cnt, numpy.nan, dtype=numpy.float64)])
+            trace.data = numpy.concatenate(
+                [trace.data, numpy.full(cnt, numpy.nan, dtype=numpy.float64)]
+            )

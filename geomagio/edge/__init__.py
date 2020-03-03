@@ -7,9 +7,4 @@ from .LocationCode import LocationCode
 from .MiniSeedFactory import MiniSeedFactory
 from .RawInputClient import RawInputClient
 
-__all__ = [
-    'EdgeFactory',
-    'LocationCode',
-    'MiniSeedFactory',
-    'RawInputClient'
-]
+__all__ = ["EdgeFactory", "LocationCode", "MiniSeedFactory", "RawInputClient"]

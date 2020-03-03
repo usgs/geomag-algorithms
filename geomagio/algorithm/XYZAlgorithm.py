@@ -14,10 +14,10 @@ from .. import StreamConverter
 # obs represents the sensor orientation aligned close to the mag orientation
 # obsd is the same as obs,  but with D(declination) instead of E (e/w vector)
 CHANNELS = {
-    'geo': ['X', 'Y', 'Z', 'F'],
-    'mag': ['H', 'D', 'Z', 'F'],
-    'obs': ['H', 'E', 'Z', 'F'],
-    'obsd': ['H', 'D', 'Z', 'F']
+    "geo": ["X", "Y", "Z", "F"],
+    "mag": ["H", "D", "Z", "F"],
+    "obs": ["H", "E", "Z", "F"],
+    "obsd": ["H", "D", "Z", "F"],
 }
 
 
@@ -34,9 +34,10 @@ class XYZAlgorithm(Algorithm):
         be converting to.
     """
 
-    def __init__(self, informat='obs', outformat='geo'):
-        Algorithm.__init__(self, inchannels=CHANNELS[informat],
-                outchannels=CHANNELS[outformat])
+    def __init__(self, informat="obs", outformat="geo"):
+        Algorithm.__init__(
+            self, inchannels=CHANNELS[informat], outchannels=CHANNELS[outformat]
+        )
         self._informat = informat
         self._outformat = outformat
 
@@ -53,8 +54,7 @@ class XYZAlgorithm(Algorithm):
         """
         for channel in self.get_required_channels():
             if len(timeseries.select(channel=channel)) == 0:
-                raise AlgorithmException(
-                    'Channel %s not found in input' % channel)
+                raise AlgorithmException("Channel %s not found in input" % channel)
 
     def get_required_channels(self):
         """Only the first two channels are required
@@ -78,38 +78,42 @@ class XYZAlgorithm(Algorithm):
         out_stream = None
         informat = self._informat
         outformat = self._outformat
-        if outformat == 'geo':
-            if informat == 'geo':
+        if outformat == "geo":
+            if informat == "geo":
                 out_stream = timeseries
-            elif informat == 'mag':
+            elif informat == "mag":
                 out_stream = StreamConverter.get_geo_from_mag(timeseries)
-            elif informat == 'obs' or informat == 'obsd':
+            elif informat == "obs" or informat == "obsd":
                 out_stream = StreamConverter.get_geo_from_obs(timeseries)
-        elif outformat == 'mag':
-            if informat == 'geo':
+        elif outformat == "mag":
+            if informat == "geo":
                 out_stream = StreamConverter.get_mag_from_geo(timeseries)
-            elif informat == 'mag':
+            elif informat == "mag":
                 out_stream = timeseries
-            elif informat == 'obs' or informat == 'obsd':
+            elif informat == "obs" or informat == "obsd":
                 out_stream = StreamConverter.get_mag_from_obs(timeseries)
-        elif outformat == 'obs':
-            if informat == 'geo':
+        elif outformat == "obs":
+            if informat == "geo":
                 out_stream = StreamConverter.get_obs_from_geo(timeseries)
-            elif informat == 'mag':
+            elif informat == "mag":
                 out_stream = StreamConverter.get_obs_from_mag(timeseries)
-            elif informat == 'obs' or informat == 'obsd':
-                out_stream = StreamConverter.get_obs_from_obs(timeseries,
-                        include_e=True)
-        elif outformat == 'obsd':
-            if informat == 'geo':
-                out_stream = StreamConverter.get_obs_from_geo(timeseries,
-                        include_d=True)
-            elif informat == 'mag':
-                out_stream = StreamConverter.get_obs_from_mag(timeseries,
-                        include_d=True)
-            elif informat == 'obs' or informat == 'obsd':
-                out_stream = StreamConverter.get_obs_from_obs(timeseries,
-                        include_d=True)
+            elif informat == "obs" or informat == "obsd":
+                out_stream = StreamConverter.get_obs_from_obs(
+                    timeseries, include_e=True
+                )
+        elif outformat == "obsd":
+            if informat == "geo":
+                out_stream = StreamConverter.get_obs_from_geo(
+                    timeseries, include_d=True
+                )
+            elif informat == "mag":
+                out_stream = StreamConverter.get_obs_from_mag(
+                    timeseries, include_d=True
+                )
+            elif informat == "obs" or informat == "obsd":
+                out_stream = StreamConverter.get_obs_from_obs(
+                    timeseries, include_d=True
+                )
         return out_stream
 
     @classmethod
@@ -121,14 +125,18 @@ class XYZAlgorithm(Algorithm):
         parser: ArgumentParser
             command line argument parser
         """
-        parser.add_argument('--xyz-from',
-                choices=['geo', 'mag', 'obs', 'obsd'],
-                default='obs',
-                help='Geomagnetic orientation to read from')
-        parser.add_argument('--xyz-to',
-                choices=['geo', 'mag', 'obs', 'obsd'],
-                default='geo',
-                help='Geomagnetic orientation to convert to')
+        parser.add_argument(
+            "--xyz-from",
+            choices=["geo", "mag", "obs", "obsd"],
+            default="obs",
+            help="Geomagnetic orientation to read from",
+        )
+        parser.add_argument(
+            "--xyz-to",
+            choices=["geo", "mag", "obs", "obsd"],
+            default="geo",
+            help="Geomagnetic orientation to convert to",
+        )
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.

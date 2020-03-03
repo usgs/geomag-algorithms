@@ -12,7 +12,7 @@ class VBFWriter(object):
     """VBF writer.
     """
 
-    def __init__(self, empty_value=numpy.int('9999999')):
+    def __init__(self, empty_value=numpy.int("9999999")):
         self.empty_value = empty_value
 
     def write(self, out, timeseries, channels):
@@ -30,8 +30,9 @@ class VBFWriter(object):
         for channel in channels:
             if timeseries.select(channel=channel).count() == 0:
                 raise TimeseriesFactoryException(
-                    'Missing channel "%s" for output, available channels %s' %
-                    (channel, str(TimeseriesUtility.get_channels(timeseries))))
+                    'Missing channel "%s" for output, available channels %s'
+                    % (channel, str(TimeseriesUtility.get_channels(timeseries)))
+                )
         stats = timeseries[0].stats
 
         out.write(self._format_header(stats))
@@ -58,10 +59,18 @@ class VBFWriter(object):
         yearday = str(stats.starttime.julday).zfill(3)
         date = stats.starttime.strftime("%d-%b-%y")
 
-        buf.append(observatory + '  ' + year + '  ' + yearday + '  ' +
-                    date + '  Hvolt Hbin Evolt Ebin Zvolt Zbin Version 1.0\n')
+        buf.append(
+            observatory
+            + "  "
+            + year
+            + "  "
+            + yearday
+            + "  "
+            + date
+            + "  Hvolt Hbin Evolt Ebin Zvolt Zbin Version 1.0\n"
+        )
 
-        return ''.join(buf)
+        return "".join(buf)
 
     def _format_data(self, timeseries, channels):
         """Format all data lines.
@@ -85,9 +94,10 @@ class VBFWriter(object):
         # Use a copy of the trace so that we don't modify the original.
         for trace in timeseries:
             traceLocal = trace.copy()
-            if traceLocal.stats.channel == 'D':
-                traceLocal.data = \
-                    ChannelConverter.get_minutes_from_radians(traceLocal.data)
+            if traceLocal.stats.channel == "D":
+                traceLocal.data = ChannelConverter.get_minutes_from_radians(
+                    traceLocal.data
+                )
 
             # TODO - we should look into multiplying the trace all at once
             # like this, but this gives an error on Windows at the moment.
@@ -101,11 +111,14 @@ class VBFWriter(object):
         delta = traces[0].stats.delta
 
         for i in range(len(traces[0].data)):
-            buf.append(self._format_values(
-                datetime.utcfromtimestamp(starttime + i * delta),
-                (t.data[i] for t in traces)))
+            buf.append(
+                self._format_values(
+                    datetime.utcfromtimestamp(starttime + i * delta),
+                    (t.data[i] for t in traces),
+                )
+            )
 
-        return ''.join(buf)
+        return "".join(buf)
 
     def _format_values(self, time, values):
         """Format one line of data values.
@@ -135,12 +148,14 @@ class VBFWriter(object):
         for idx, valx in enumerate(values):
             if ~numpy.isnan(valx):
                 if idx == 0 or idx == 2 or idx == 4:
-                    vblist[idx] = valx / 1000.
+                    vblist[idx] = valx / 1000.0
                 else:
                     vblist[idx] = int(valx)
 
-        return '{0:0>5d} {1: >10.6f} {2: >4d} {3: >10.6f} {4: >4d} ' \
-                '{5: >10.6f} {6: >4d}\n'.format(totalMinutes, *vblist)
+        return (
+            "{0:0>5d} {1: >10.6f} {2: >4d} {3: >10.6f} {4: >4d} "
+            "{5: >10.6f} {6: >4d}\n".format(totalMinutes, *vblist)
+        )
 
     @classmethod
     def format(self, timeseries, channels):

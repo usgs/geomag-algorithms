@@ -18,12 +18,20 @@ class StreamTEMPFactory(TEMPFactory):
     TEMPFactory
     Timeseriesfactory
     """
+
     def __init__(self, stream, **kwargs):
         TEMPFactory.__init__(self, **kwargs)
         self._stream = stream
 
-    def put_timeseries(self, timeseries, starttime=None, endtime=None,
-            channels=None, type=None, interval=None):
+    def put_timeseries(
+        self,
+        timeseries,
+        starttime=None,
+        endtime=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Implements put_timeseries
 
         Notes: Calls TEMPFactory.write_file in place of

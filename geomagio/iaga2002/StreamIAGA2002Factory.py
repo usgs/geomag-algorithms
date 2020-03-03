@@ -18,23 +18,38 @@ class StreamIAGA2002Factory(IAGA2002Factory):
     IAGA2002Factory
     Timeseriesfactory
     """
+
     def __init__(self, stream, **kwargs):
         IAGA2002Factory.__init__(self, **kwargs)
         self._stream = stream
 
-    def get_timeseries(self, starttime, endtime, observatory=None,
-            channels=None, type=None, interval=None):
+    def get_timeseries(
+        self,
+        starttime,
+        endtime,
+        observatory=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Implements get_timeseries
 
         Notes: Calls IAGA2002Factory.parse_string in place of
             IAGA2002Factory.get_timeseries.
         """
-        return IAGA2002Factory.parse_string(self,
-                data=self._stream.read(),
-                observatory=observatory)
+        return IAGA2002Factory.parse_string(
+            self, data=self._stream.read(), observatory=observatory
+        )
 
-    def put_timeseries(self, timeseries, starttime=None, endtime=None,
-            channels=None, type=None, interval=None):
+    def put_timeseries(
+        self,
+        timeseries,
+        starttime=None,
+        endtime=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Implements put_timeseries
 
         Notes: Calls IAGA2002Factory.write_file in place of

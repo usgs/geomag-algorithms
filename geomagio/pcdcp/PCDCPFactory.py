@@ -9,7 +9,7 @@ from .PCDCPWriter import PCDCPWriter
 
 
 # pattern for pcdcp file names
-PCDCP_FILE_PATTERN = '%(obs)s%(y)s%(j)s.%(i)s'
+PCDCP_FILE_PATTERN = "%(obs)s%(y)s%(j)s.%(i)s"
 # note: seconds files end in .raw after 2008, .sec or .Sec on or before
 
 
@@ -59,8 +59,8 @@ class PCDCPFactory(TimeseriesFactory):
         sample_periods = {4: 60.0, 5: 1.0}
         sample_period = sample_periods[len(parser.times[0])]
 
-        yr = parser.header['year']
-        yrday = parser.header['yearday']
+        yr = parser.header["year"]
+        yrday = parser.header["yearday"]
 
         startday = obspy.core.UTCDateTime(yr + yrday)
         starttime = startday + int(parser.times[0]) * sample_period
@@ -73,16 +73,15 @@ class PCDCPFactory(TimeseriesFactory):
 
         for channel in list(data.keys()):
             stats = obspy.core.Stats()
-            stats.network = 'NT'
-            stats.station = parser.header['station']
+            stats.network = "NT"
+            stats.station = parser.header["station"]
             stats.starttime = starttime
             stats.sampling_rate = rate
             stats.npts = length
             stats.channel = channel
 
-            if channel == 'D':
-                data[channel] = ChannelConverter.get_radians_from_minutes(
-                    data[channel])
+            if channel == "D":
+                data[channel] = ChannelConverter.get_radians_from_minutes(data[channel])
 
             stream += obspy.core.Trace(data[channel], stats)
 

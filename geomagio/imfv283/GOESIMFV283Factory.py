@@ -41,18 +41,33 @@ class GOESIMFV283Factory(IMFV283Factory):
     IMFV283Factory
     Timeseriesfactory
     """
-    def __init__(self, directory=None, getdcpmessages=None,
-            password=None, server=None, user=None, **kwargs):
+
+    def __init__(
+        self,
+        directory=None,
+        getdcpmessages=None,
+        password=None,
+        server=None,
+        user=None,
+        **kwargs
+    ):
         IMFV283Factory.__init__(self, None, **kwargs)
         self.directory = directory
         self.getdcpmessages = getdcpmessages
         self.server = server
         self.user = user
         self.password = password
-        self.javaerror = b'FATAL'
+        self.javaerror = b"FATAL"
 
-    def get_timeseries(self, starttime, endtime, observatory=None,
-            channels=None, type=None, interval=None):
+    def get_timeseries(
+        self,
+        starttime,
+        endtime,
+        observatory=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Implements get_timeseries
 
         Notes: Calls IMFV283Factory.parse_string in place of
@@ -60,7 +75,7 @@ class GOESIMFV283Factory(IMFV283Factory):
         """
         observatory = observatory or self.observatory
         channels = channels or self.channels
-        self.criteria_file_name = observatory + '.sc'
+        self.criteria_file_name = observatory + ".sc"
         timeseries = Stream()
         output = self._retrieve_goes_messages(starttime, endtime, observatory)
         timeseries += self.parse_string(output)
@@ -70,8 +85,10 @@ class GOESIMFV283Factory(IMFV283Factory):
         timeseries.trim(starttime, endtime)
         # output the number of points we read for logging
         if len(timeseries):
-            print("Read %s points from %s" % (timeseries[0].stats.npts,
-                observatory), file=sys.stderr)
+            print(
+                "Read %s points from %s" % (timeseries[0].stats.npts, observatory),
+                file=sys.stderr,
+            )
 
         self._post_process(timeseries)
         if observatory is not None:
@@ -89,8 +106,9 @@ class GOESIMFV283Factory(IMFV283Factory):
         """
         for trace in timeseries:
             stats = trace.stats
-            self.observatoryMetadata.set_metadata(stats, stats.station,
-                    stats.channel, 'variation', 'minute')
+            self.observatoryMetadata.set_metadata(
+                stats, stats.station, stats.channel, "variation", "minute"
+            )
 
     def _retrieve_goes_messages(self, starttime, endtime, observatory):
         """Retrieve goes messages, using getdcpmessages commandline tool.
@@ -128,18 +146,27 @@ class GOESIMFV283Factory(IMFV283Factory):
         for server in self.server:
             print(server, file=sys.stderr)
             proc = subprocess.Popen(
-                    [self.getdcpmessages,
-                    '-h', server,
-                    '-u', self.user,
-                    '-P', self.password,
-                    '-f', self.directory + '/' + self.criteria_file_name,
-                    '-t', '60',
-                    '-n'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                [
+                    self.getdcpmessages,
+                    "-h",
+                    server,
+                    "-u",
+                    self.user,
+                    "-P",
+                    self.password,
+                    "-f",
+                    self.directory + "/" + self.criteria_file_name,
+                    "-t",
+                    "60",
+                    "-n",
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
             (output, error) = proc.communicate()
             print(error, file=sys.stderr)
             if error.find(self.javaerror) >= 0:
-                print('Error: could not connect to %s' % server,
-                    file=sys.stderr)
+                print("Error: could not connect to %s" % server, file=sys.stderr)
                 continue
             break
 
@@ -170,21 +197,21 @@ class GOESIMFV283Factory(IMFV283Factory):
         start = starttime - 2200
         end = endtime + 1800
 
-        criteria_file = self.directory + '/' + self.criteria_file_name
+        criteria_file = self.directory + "/" + self.criteria_file_name
         buf = []
-        buf.append('#\n# LRGS Search Criteria\n#\n')
-        buf.append('DAPS_SINCE: ')
-        buf.append(start.datetime.strftime('%y/%j %H:%M:%S\n'))
-        buf.append('DAPS_UNTIL: ')
-        buf.append(end.datetime.strftime('%y/%j %H:%M:%S\n'))
-        buf.append('NETWORK_LIST: ' + observatory.lower() + '.nl\n')
-        buf.append('DAPS_STATUS: N\n')
-        buf.append('RETRANSMITTED: N\n')
-        buf.append('ASCENDING_TIME: false\n')
-        buf.append('RT_SETTLE_DELAY: true\n')
+        buf.append("#\n# LRGS Search Criteria\n#\n")
+        buf.append("DAPS_SINCE: ")
+        buf.append(start.datetime.strftime("%y/%j %H:%M:%S\n"))
+        buf.append("DAPS_UNTIL: ")
+        buf.append(end.datetime.strftime("%y/%j %H:%M:%S\n"))
+        buf.append("NETWORK_LIST: " + observatory.lower() + ".nl\n")
+        buf.append("DAPS_STATUS: N\n")
+        buf.append("RETRANSMITTED: N\n")
+        buf.append("ASCENDING_TIME: false\n")
+        buf.append("RT_SETTLE_DELAY: true\n")
         criteria_dir = os.path.dirname(criteria_file)
         if not os.path.exists(criteria_dir):
             os.makedirs(criteria_dir)
-        with open(criteria_file, 'wb') as fh:
-            fh.write(''.join(buf).encode())
+        with open(criteria_file, "wb") as fh:
+            fh.write("".join(buf).encode())
             fh.close()

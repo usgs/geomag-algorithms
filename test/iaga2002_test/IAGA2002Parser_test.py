@@ -4,8 +4,7 @@ from numpy.testing import assert_equal
 from geomagio.iaga2002 import IAGA2002Parser
 
 
-IAGA2002_EXAMPLE = \
-""" Format                 IAGA-2002                                    |
+IAGA2002_EXAMPLE = """ Format                 IAGA-2002                                    |
  Source of Data         United States Geological Survey (USGS)       |
  Station Name           Boulder Test                                 |
  IAGA CODE              BDT                                          |
@@ -49,10 +48,10 @@ def test__merge_comments():
     only the middle line ending in a period.
     Verify, the first and second line are merged.
     """
-    comments = ['line 1', 'line 2.', 'line 3']
+    comments = ["line 1", "line 2.", "line 3"]
     assert_equal(
-        IAGA2002Parser()._merge_comments(comments),
-        ['line 1 line 2.', 'line 3'])
+        IAGA2002Parser()._merge_comments(comments), ["line 1 line 2.", "line 3"]
+    )
 
 
 def test__parse_header():
@@ -62,9 +61,10 @@ def test__parse_header():
     Verify the header name and value are split at the correct column.
     """
     parser = IAGA2002Parser()
-    parser._parse_header(' Format                 ' +
-            'IAGA-2002                                    |')
-    assert_equal(parser.headers['Format'], 'IAGA-2002')
+    parser._parse_header(
+        " Format                 " + "IAGA-2002                                    |"
+    )
+    assert_equal(parser.headers["Format"], "IAGA-2002")
 
 
 def test__parse_comment():
@@ -74,11 +74,13 @@ def test__parse_comment():
     Verify the comment delimiters are removed.
     """
     parser = IAGA2002Parser()
-    parser._parse_comment(' # Go to www.intermagnet.org for details on' +
-            ' obtaining this product.  |')
-    assert_equal(parser.comments[-1],
-            'Go to www.intermagnet.org for details on' +
-                    ' obtaining this product.')
+    parser._parse_comment(
+        " # Go to www.intermagnet.org for details on" + " obtaining this product.  |"
+    )
+    assert_equal(
+        parser.comments[-1],
+        "Go to www.intermagnet.org for details on" + " obtaining this product.",
+    )
 
 
 def test__parse_channels():
@@ -89,11 +91,13 @@ def test__parse_channels():
     Verify the IAGA CODE value is removed from parsed channel names.
     """
     parser = IAGA2002Parser()
-    parser._parse_header(' IAGA CODE              ' +
-            'BDT                                          |')
-    parser._parse_channels('DATE       TIME         DOY     ' +
-            'BDTH      BDTD      BDTZ      BDTF   |')
-    assert_equal(parser.channels, ['H', 'D', 'Z', 'F'])
+    parser._parse_header(
+        " IAGA CODE              " + "BDT                                          |"
+    )
+    parser._parse_channels(
+        "DATE       TIME         DOY     " + "BDTH      BDTD      BDTZ      BDTF   |"
+    )
+    assert_equal(parser.channels, ["H", "D", "Z", "F"])
 
 
 def test_parse_decbas():
@@ -105,4 +109,4 @@ def test_parse_decbas():
     """
     parser = IAGA2002Parser()
     parser.parse(IAGA2002_EXAMPLE)
-    assert_equal(parser.metadata['declination_base'], 5527)
+    assert_equal(parser.metadata["declination_base"], 5527)

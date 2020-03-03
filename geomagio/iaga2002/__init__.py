@@ -12,8 +12,8 @@ from .IAGA2002Writer import IAGA2002Writer
 
 
 __all__ = [
-    'IAGA2002Factory',
-    'StreamIAGA2002Factory',
-    'IAGA2002Parser',
-    'IAGA2002Writer'
+    "IAGA2002Factory",
+    "StreamIAGA2002Factory",
+    "IAGA2002Parser",
+    "IAGA2002Writer",
 ]

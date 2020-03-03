@@ -7,20 +7,17 @@ class WebServiceUsage(object):
     def __init__(self, metadata=None, mount_path=None, host_prefix=None):
         metadata = metadata or list(ObservatoryMetadata().metadata.keys())
         self.date = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-        self.metadata = ', '.join(sorted(metadata))
+        self.metadata = ", ".join(sorted(metadata))
         self.mount_path = mount_path
         self.host_prefix = host_prefix
 
     def __call__(self, environ, start_response):
         """Implement documentation page"""
-        start_response('200 OK',
-                [
-                    ("Content-Type", "text/html")
-                ])
+        start_response("200 OK", [("Content-Type", "text/html")])
         if self.mount_path is None:
-            self.mount_path = '/ws/edge'
+            self.mount_path = "/ws/edge"
         if self.host_prefix is None:
-            self.host_prefix = environ['HTTP_HOST']
+            self.host_prefix = environ["HTTP_HOST"]
         usage_page = self.set_usage_page()
         return [usage_page]
 
@@ -182,12 +179,13 @@ class WebServiceUsage(object):
               </nav>
             </body>
             </html>
-        """.format(metadata=ids, date=self.date,
-                host_prefix=self.host_prefix,
-                stylesheet=stylesheet,
-                link1=self.host_prefix + self.mount_path + "/?id=BOU",
-                link2=self.host_prefix + self.mount_path +
-                "/?id=BOU&format=json",
-                link3=self.host_prefix + self.mount_path +
-                "/?id=BOU&elements=E-N,E-E",)
+        """.format(
+            metadata=ids,
+            date=self.date,
+            host_prefix=self.host_prefix,
+            stylesheet=stylesheet,
+            link1=self.host_prefix + self.mount_path + "/?id=BOU",
+            link2=self.host_prefix + self.mount_path + "/?id=BOU&format=json",
+            link3=self.host_prefix + self.mount_path + "/?id=BOU&elements=E-N,E-E",
+        )
         return usage_body

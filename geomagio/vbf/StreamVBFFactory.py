@@ -23,8 +23,15 @@ class StreamVBFFactory(VBFFactory):
         VBFFactory.__init__(self, **kwargs)
         self._stream = stream
 
-    def put_timeseries(self, timeseries, starttime=None, endtime=None,
-            channels=None, type=None, interval=None):
+    def put_timeseries(
+        self,
+        timeseries,
+        starttime=None,
+        endtime=None,
+        channels=None,
+        type=None,
+        interval=None,
+    ):
         """Implements put_timeseries
 
         Notes: Calls VBFFactory.write_file in place of

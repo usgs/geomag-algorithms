@@ -6,7 +6,7 @@ from .VBFWriter import VBFWriter
 
 
 # pattern for vbf file names
-VBF_FILE_PATTERN = '%(obs)s%(y)s%(j)s.%(i)s'
+VBF_FILE_PATTERN = "%(obs)s%(y)s%(j)s.%(i)s"
 
 
 class VBFFactory(TimeseriesFactory):

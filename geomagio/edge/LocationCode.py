@@ -26,7 +26,8 @@ def LocationCode(code):
         if the location code doesn't match the regular expression.
     """
     try:
-        return re.match('^[A-Z0-9]{2}$', code).group(0)
+        return re.match("^[A-Z0-9]{2}$", code).group(0)
     except AttributeError:
         raise argparse.ArgumentTypeError(
-                'Invalid location code, expected /^[A-Z0-9]{2}$/')
+            "Invalid location code, expected /^[A-Z0-9]{2}$/"
+        )

@@ -18,13 +18,7 @@ class AverageAlgorithm(Algorithm):
 
     """
 
-    def __init__(
-        self,
-        observatories=None,
-        channel=None,
-        location=None,
-        scales=None
-    ):
+    def __init__(self, observatories=None, channel=None, location=None, scales=None):
         Algorithm.__init__(self)
         self._npts = -1
         self._stt = -1
@@ -50,9 +44,10 @@ class AverageAlgorithm(Algorithm):
         # must have only one channel for each observatory
         if len(timeseries) != len(self.observatories):
             raise AlgorithmException(
-                'Expected data for %d stations, received %d \n'
-                    'Only 1 channel may be averaged at one time'
-                    % (len(self.observatories), len(timeseries)))
+                "Expected data for %d stations, received %d \n"
+                "Only 1 channel may be averaged at one time"
+                % (len(self.observatories), len(timeseries))
+            )
 
         first = True
         # timeseries starttime and number of samples must match
@@ -66,17 +61,17 @@ class AverageAlgorithm(Algorithm):
                 first = False
 
             if ts.stats.npts != self._npts:
-                raise AlgorithmException(
-                    'Received timeseries have different lengths')
+                raise AlgorithmException("Received timeseries have different lengths")
 
             if numpy.isnan(ts.data).all():
                 raise AlgorithmException(
-                    'Trace for %s observatory is completely empty.'
-                    % (ts.stats.station))
+                    "Trace for %s observatory is completely empty." % (ts.stats.station)
+                )
 
             if ts.stats.starttime != self._stt:
                 raise AlgorithmException(
-                    'Received timeseries have different starttimes')
+                    "Received timeseries have different starttimes"
+                )
 
     def process(self, timeseries):
         """averages a channel across multiple stations
@@ -89,14 +84,11 @@ class AverageAlgorithm(Algorithm):
         out_stream:
             new stream object containing the averaged values.
         """
-        self.observatories = self.observatories or \
-                    [t.stats.station for t in timeseries]
+        self.observatories = self.observatories or [t.stats.station for t in timeseries]
 
-        self.outchannel = self.outchannel or \
-            timeseries[0].stats.channel
+        self.outchannel = self.outchannel or timeseries[0].stats.channel
 
-        self.outlocation = self.outlocation or \
-            timeseries[0].stats.location
+        self.outlocation = self.outlocation or timeseries[0].stats.location
 
         scale_values = self.scales or ([1] * len(timeseries))
         lat_corr = {}
@@ -128,15 +120,14 @@ class AverageAlgorithm(Algorithm):
 
         # Create a stream from the trace function
         new_stats = obspy.core.Stats()
-        new_stats.station = 'USGS'
+        new_stats.station = "USGS"
         new_stats.channel = self.outchannel
-        new_stats.network = 'NT'
+        new_stats.network = "NT"
         new_stats.location = self.outlocation
         new_stats.starttime = timeseries[0].stats.starttime
         new_stats.npts = timeseries[0].stats.npts
         new_stats.delta = timeseries[0].stats.delta
-        stream = obspy.core.Stream((
-                obspy.core.Trace(dst_tot, new_stats), ))
+        stream = obspy.core.Stream((obspy.core.Trace(dst_tot, new_stats),))
 
         # return averaged values as a stream
         return stream
@@ -150,12 +141,14 @@ class AverageAlgorithm(Algorithm):
         parser: ArgumentParser
             command line argument parser
         """
-        parser.add_argument('--average-observatory-scale',
-               default=None,
-               help='Scale factor for observatories specified with ' +
-                    '--observatory argument',
-               nargs='*',
-               type=float)
+        parser.add_argument(
+            "--average-observatory-scale",
+            default=None,
+            help="Scale factor for observatories specified with "
+            + "--observatory argument",
+            nargs="*",
+            type=float,
+        )
 
     def configure(self, arguments):
         """Configure algorithm using comand line arguments.
@@ -169,14 +162,14 @@ class AverageAlgorithm(Algorithm):
         self.observatories = arguments.observatory
         if arguments.outchannels:
             if len(arguments.outchannels) > 1:
-                raise AlgorithmException(
-                    'Only 1 channel can be specified')
+                raise AlgorithmException("Only 1 channel can be specified")
             self.outchannel = arguments.outchannels[0]
 
         self.scales = arguments.average_observatory_scale
         if self.scales:
             if len(self.observatories) != len(self.scales):
                 raise AlgorithmException(
-                    'Mismatch between observatories and scale factors')
+                    "Mismatch between observatories and scale factors"
+                )
 
         self.outlocation = arguments.outlocationcode or arguments.locationcode
