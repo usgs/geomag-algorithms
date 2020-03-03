@@ -58,7 +58,7 @@ def get_data():
         validate_query(parsed_query)
     except Exception as e:
         exception = str(e)
-        error_body = format_error(400, exception, parsed_query, request)
+        error_body = format_error(400, exception)
         return error_body
 
     try:
@@ -66,7 +66,7 @@ def get_data():
         return format_timeseries(timeseries, parsed_query)
     except Exception as e:
         exception = str(e)
-        error_body = format_error(500, exception, parsed_query, request)
+        error_body = format_error(500, exception)
         return error_body
 
 
@@ -116,10 +116,10 @@ class WebServiceQuery(object):
         self.output_format = output_format
 
 
-def format_error(status_code, exception, parsed_query, request):
+def format_error(status_code, exception):
     """Assign error_body value based on error format."""
 
-    if parsed_query.output_format == 'json':
+    if request.args.get("output_format") == 'json':
         return Response(
             json_error(status_code, exception, request.url),
             mimetype="application/json")
@@ -200,7 +200,7 @@ def get_timeseries(query):
     return timeseries
 
 
-def iaga2002_error(code, message, request_args):
+def iaga2002_error(code, message):
     """Format iaga2002 error message.
 
     Returns
@@ -227,7 +227,7 @@ Service Version:
     return error_body
 
 
-def json_error(code, message, url):
+def json_error(code, message):
     """Format json error message.
 
     Returns
@@ -243,11 +243,10 @@ def json_error(code, message, url):
         "metadata": {
             "status": code,
             "generated": date,
-            "url": url,
+            "url": request.url,
             "title": status_message,
             "error": message
         }
-
     }
     return dumps(error_dict,
     sort_keys=True).encode('utf8')
@@ -287,13 +286,11 @@ def parse_query(query):
         start_time = query.get('starttime')
     if not start_time:
         now = datetime.now()
-        today = UTCDateTime(
+        start_time = UTCDateTime(
                 year=now.year,
                 month=now.month,
                 day=now.day,
                 hour=0)
-        start_time = today
-
     try:
         end_time = UTCDateTime(query.get("endtime"))
     except:
