@@ -82,6 +82,7 @@ def get_delta_from_interval(data_interval):
         delta = None
     return delta
 
+
 def get_interval_from_delta(delta):
     """Convert delta to an interval name
 
@@ -95,15 +96,15 @@ def get_interval_from_delta(delta):
     interval : str
         interval length {day, hour, minute, second, tenhertz}
     """
-    if delta == "0.1":
+    if delta == 0.1:
         data_interval = "tenhertz"
     elif delta == 1:
         data_interval = "second"
-    elif delta == "60":
+    elif delta == 60:
         data_interval = "minute"
-    elif delta == "3600":
+    elif delta == 3600:
         data_interval = "hour"
-    elif delta == "86400":
+    elif delta == 86400:
         data_interval = "day"
     else:
         data_interval = delta

@@ -3,55 +3,83 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='usage.css') }}"/>
 {% endblock %}
 {% block content %}
-  <div class="views-field views-field-field-intro">        <div class="field-content lead pane-border"><p><strong>Example Requests</strong><br /></p><dl><dt>BOU observatory data for current UTC day in IAGA2002 format</dt>
-<dd><a href="http://geomag.usgs.gov/ws/edge/?id=BOU">http://geomag.usgs.gov/ws/edge/?id=BOU</a></dd>
-<dt>BOU observatory data for current UTC day in JSON format</dt>
-<dd><a href="http://geomag.usgs.gov/ws/edge/?id=BOU&amp;format=json">http://geomag.usgs.gov/ws/edge/?id=BOU&amp;format=json</a></dd>
-<dt>BOU electric field data for current UTC day in IAGA2002 format</dt>
-<dd><a href="http://geomag.usgs.gov/ws/edge/?id=BOU&amp;elements=E-N,E-E">http://geomag.usgs.gov/ws/edge/?id=BOU&amp;elements=E-N,E-E</a></dd>
-</dl><p><a href="/natural-hazards/geomagnetism/science/more-examples">See more examples</a></p>
-</div>  </div>
-  <div class="views-field views-field-field-science-tab-intro">        <div class="field-content"></div>  </div>
-  <div class="views-field views-field-field-science-object-body">        <div class="field-content"><div class="tex2jax"><p><strong>Request Limits</strong></p>
-<p>To ensure availability for users, the web service restricts the amount of data that can be retrieved in one request. The amount of data requested is computed as follows, where an interval is the number of seconds between start time and end time:</p>
-<p>samples = count(elements) * interval / sampling_period</p>
-<p><strong>Limits by the output format</strong></p>
-<p><strong>json</strong></p>
-<ul><li>172800 samples = 4 elements * 12 hours * 3600 samples/hour.</li>
-</ul><p><strong>iaga2002</strong></p>
-<ul><li>345600 samples = 4 elements * 24 hours * 3600 samples/hour.</li>
-<li>NOTE: while the json format supports fewer total samples per request, users may request fewer elements to retrieve longer intervals.</li>
-</ul><p><strong>Parameters</strong></p>
-<p><strong>id</strong></p>
-<ul><li>Observatory code. Required.</li>
-<li>Valid values: BDT, BOU, TST, BRW, BRT, BSL, CMO, CMT, DED, DHT, FRD, FRN, GUA, HON, NEW, SHU, SIT, SJG, TUC,  USGS, BLC, BRD, CBB, EUA, FCC, IQA, MEA, OTT, RES, SNK, STJ, VIC, YKC, HAD, HER, KAK</li>
-</ul><p><strong>starttime</strong></p>
-<ul><li>Time of first requested data.</li>
-<li>Default: start of current UTC day</li>
-<li>Format: ISO8601 (YYYY-MM-DDTHH:MM:SSZ)</li>
-<li>Example: 2018-08-06T22:10:14Z</li>
-</ul><p><strong>endtime</strong></p>
-<ul><li>Time of last requested data.</li>
-<li>Default: starttime + 24 hours</li>
-<li>Format: ISO8601 (YYYY-MM-DDTHH:MM:SSZ)</li>
-<li>Example: 2018-08-06T22:10:14Z</li>
-</ul><p><strong>elements</strong></p>
-<ul><li>Comma separated list of requested elements.</li>
-<li>Default: X,Y,Z,F</li>
-<li>Valid values: D, DIST, DST, E, E-E, E-N, F, G, H, SQ, SV, UK1, UK2, UK3, UK4, X, Y, Z</li>
-</ul><p><strong>sampling_period</strong></p>
-<ul><li>Interval in seconds between values.</li>
-<li>Default: 60</li>
-<li>Valid values: 1, 60, 3600</li>
-</ul><p><strong>type</strong></p>
-<ul><li>Type of data.</li>
-<li>Default: variation Valid values: variation, adjusted, quasi-definitive,definitive</li>
-<li>NOTE: the USGS web service also supports specific EDGE location codes. For example: R0 is "internet variation",R1 is "satellite variation".</li>
-</ul><p><strong>format</strong></p>
-<ul><li>Output format.</li>
-<li>Default: iaga2002</li>
-<li>Valid values: iaga2002, json.</li>
-</ul></div></div>  </div>
+<div>
+  <div>
+    <p><strong>Example Requests</strong><br /></p>
+    <dl>
+      <dt>BOU observatory data for current UTC day in IAGA2002 format</dt>
+      <dd><a href="http://geomag.usgs.gov/ws/edge/?id=BOU">http://geomag.usgs.gov/ws/edge/?id=BOU</a>
+      </dd>
+      <dt>BOU observatory data for current UTC day in JSON format
+      </dt>
+      <dd><a href="http://geomag.usgs.gov/ws/edge/?id=BOU&amp;format=json">http://geomag.usgs.gov/ws/edge/?id=BOU&amp;format=json</a>
+      </dd>
+      <dt>BOU electric field data for current UTC day in IAGA2002 format
+      </dt>
+      <dd><a href="http://geomag.usgs.gov/ws/edge/?id=BOU&amp;elements=E-N,E-E">http://geomag.usgs.gov/ws/edge/?id=BOU&amp;elements=E-N,E-E</a>
+      </dd>
+    </dl>
+    <p><a href="/natural-hazards/geomagnetism/science/more-examples">See more examples</a>
+    </p>
+</div>
+<div>
+  <p><strong>Request Limits</strong></p>
+  <p>To ensure availability for users, the web service restricts the amount of data that can be retrieved in one request. The amount of data requested is computed as follows, where an interval is the number of seconds between start time and end time:</p>
+  <p>samples = count(elements) * interval / sampling_period</p>
+  <p><strong>Limits by the output format</strong></p>
+  <p><strong>json</strong></p>
+  <ul>
+    <li>172800 samples = 4 elements * 12 hours * 3600 samples/hour.</li>
+  </ul>
+  <p><strong>iaga2002</strong></p>
+  <ul>
+    <li>345600 samples = 4 elements * 24 hours * 3600 samples/hour.</li>
+    <li>NOTE: while the json format supports fewer total samples per request, users may request fewer elements to retrieve longer intervals.</li>
+  </ul>
+  <p><strong>Parameters</strong></p>
+  <p><strong>id</strong></p>
+  <ul>
+    <li>Observatory code. Required.</li>
+    <li>Valid values: BDT, BOU, TST, BRW, BRT, BSL, CMO, CMT, DED, DHT, FRD, FRN, GUA, HON, NEW, SHU, SIT, SJG, TUC,  USGS, BLC, BRD, CBB, EUA, FCC, IQA, MEA, OTT, RES, SNK, STJ, VIC, YKC, HAD, HER, KAK</li>
+  </ul>
+  <p><strong>starttime</strong></p>
+  <ul>
+    <li>Time of first requested data.</li>
+  <li>Default: start of current UTC day</li>
+  <li>Format: ISO8601 (YYYY-MM-DDTHH:MM:SSZ)</li>
+  <li>Example: 2018-08-06T22:10:14Z</li>
+  </ul>
+  <p><strong>endtime</strong></p>
+  <ul>
+    <li>Time of last requested data.</li>
+    <li>Default: starttime + 24 hours</li>
+    <li>Format: ISO8601 (YYYY-MM-DDTHH:MM:SSZ)</li>
+    <li>Example: 2018-08-06T22:10:14Z</li>
+  </ul><p><strong>elements</strong></p>
+  <ul>
+    <li>Comma separated list of requested elements.</li>
+    <li>Default: X,Y,Z,F</li>
+    <li>Valid values: D, DIST, DST, E, E-E, E-N, F, G, H, SQ, SV, UK1, UK2, UK3, UK4, X, Y, Z</li>
+  </ul>
+  <p><strong>sampling_period</strong></p>
+  <ul>
+    <li>Interval in seconds between values.</li>
+    <li>Default: 60</li>
+    <li>Valid values: 1, 60, 3600</li>
+  </ul>
+  <p><strong>type</strong></p>
+  <ul>
+    <li>Type of data.</li>
+    <li>Default: variation Valid values: variation, adjusted, quasi-definitive,definitive</li>
+    <li>NOTE: the USGS web service also supports specific EDGE location codes. For example: R0 is "internet variation",R1 is "satellite variation".</li>
+  </ul>
+  <p><strong>format</strong></p>
+  <ul>
+    <li>Output format.</li>
+    <li>Default: iaga2002</li>
+    <li>Valid values: iaga2002, json.</li>
+  </ul>
+</div></div>
 </body>
 </html>
 {% endblock %}
