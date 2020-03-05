@@ -9,7 +9,7 @@ clean:
 	git clean -i
 
 coverage:
-  pytest --cov=geomagio --cov-report xml
+    pytest --cov=geomagio --cov-report xml
 
 format:
 	black .
