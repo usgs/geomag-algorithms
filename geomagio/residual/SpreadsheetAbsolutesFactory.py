@@ -182,7 +182,7 @@ class SpreadsheetAbsolutesFactory(object):
                     time=time,
                 )
             )
-        return measurements
+        return measurements, errors
 
     def _parse_metadata(
         self,
