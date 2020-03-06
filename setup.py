@@ -1,23 +1,28 @@
-from distutils.core import setup
+import setuptools
 
-setup(
+setuptools.setup(
     name="geomag-algorithms",
-    version="1.0.0",
-    description="USGS Geomag IO Library",
+    version="1.0.1",
+    description="USGS Geomag Algorithms Library",
     url="https://github.com/usgs/geomag-algorithms",
-    packages=[
-        "geomagio",
-        "geomagio.algorithm",
-        "geomagio.binlog",
-        "geomagio.edge",
-        "geomagio.iaga2002",
-        "geomagio.imfjson",
-        "geomagio.imfv122",
-        "geomagio.imfv283",
-        "geomagio.pcdcp",
-        "geomagio.temperature",
-        "geomagio.vbf",
-    ],
-    install_requires=["numpy", "matplotlib", "scipy", "obspy", "pycurl"],
+    packages=setuptools.find_packages(exclude=["test*"]),
+    python_requires=">=3.6, <4",
+    install_requires=["obspy"],
+    extras_require={
+        "url": ["pycurl"],
+        "webservice": [
+            "authlib",
+            "flask",
+            "flask-login",
+            "flask-migrate",
+            "flask-session",
+            "flask-sqlalchemy",
+            "psycopg2-binary",
+        ],
+    },
     scripts=["bin/geomag.py", "bin/geomag_webservice.py", "bin/make_cal.py"],
+    project_urls={
+        "Bug Reports": "https://github.com/usgs/geomag-algorithms/issues",
+        "Source": "https://github.com/usgs/geomag-algorithms",
+    },
 )

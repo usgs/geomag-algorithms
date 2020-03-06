@@ -7,3 +7,6 @@ coverage.xml
 .pytest_cache
 htmlcov
 .vscode
+build
+dist
+*.egg-info

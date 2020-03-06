@@ -1,74 +1,96 @@
-Development Dependencies
-========================
+# Development Dependencies
 
 These instructions only need to be completed if you plan on developing new
-code for this project, and may also be used to run a local copy of the code.
+code for this project, but may also be used to run a local copy of the code.
 
+## Clone Project
 
-Begin Developing
-----------------
+This project uses a forking workflow.
+https://guides.github.com/activities/forking/
 
-1. Install `obspy`, `pycurl`, `flake8`, `pytest`, `pytest-cov`, `webtest`.
-> Using Anaconda is recommended ( https://conda.io/miniconda.html ).
+1.  Fork this project on Github.
 
-        conda config --add channels conda-forge
-        conda create --name geomagenv obspy pycurl flake8 pytest pytest-cov webtest
-        source activate geomagenv
+    https://github.com/usgs/geomag-algorithms.git
 
-2. Fork this project on Github ( https://guides.github.com/activities/forking/ ).
-
-        https://github.com/{YOUR_GITHUB_ACCOUNT}/geomag-algorithms.git
-
-3. Clone your fork
+2.  Clone your fork
 
         git clone https://github.com/{YOUR_GITHUB_ACCOUNT}/geomag-algorithms.git
         cd geomag-algorithms
         git remote add upstream https://github.com/usgs/geomag-algorithms.git
 
-4. Use branches to develop new features and submit pull requests.
+3.  Use branches to develop new features and submit pull requests.
 
+## Install Dependencies
 
-Developer Tools
----------------
+- Using `pipenv`
+  https://pipenv.kennethreitz.org/en/latest/
 
-- **Linting errors**
-Check for linting errors using Flake8
+  > `pyenv` is also useful for installing specific/multiple versions of python
+  >
+  > - https://github.com/pyenv/pyenv
+  > - https://github.com/pyenv-win/pyenv-win
 
-        cd geomag-algorithms
-        flake8
+      pipenv install --dev
+      pipenv shell
+
+- Or, using Miniconda/Anaconda
+  https://conda.io/miniconda.html
+
+      conda config --add channels conda-forge
+      conda create --name geomagenv obspy pycurl black pre-commit pytest pytest-cov webtest
+      conda activate geomagenv
+
+## Coding Standards
+
+This project uses _The Black Code Style_
+https://black.readthedocs.io/en/stable/the_black_code_style.html
+
+## Developer Tools
+
+- **Code Formatting**
+
+  This project uses the `black` formatter, combined with `pre-commit`, to
+  automatically format code before it is committed.
+
+  VSCode ( https://code.visualstudio.com/ ), with the `Python` extension,
+  can be configured to automatically format using `black` when files are saved.
+  The `Formatting Toggle` extension is also useful.
+
+  You can also manually format all files in the project by running
+
+      black .
 
 - **Unit tests**
-Run unit tests using PyTest
 
-        cd geomag-algorithms
-        pytest
+  Run unit tests using PyTest
+
+      pytest
 
 - **Unit test coverage**
 
-        cd geomag-algorithms
-        pytest --cov=geomagio
+      pytest --cov=geomagio
 
-- **Automatically run linting and tests while developing**
-(Requires NodeJS)
+## Routine Git Updates
 
-        cd geomag-algorithms
-        npm install
-        npm run watch
+- **Pulling new changes**
 
-    There are also "npm run" aliases for individual commands which are listed by running
+  When starting a new branch, or before putting in a pull request, make sure
+  you have the latest changes from the `upstream` repository.
 
-        npm run
+  > The local master branch should only be used for synchonization with the
+  > `upstream` repository, and we recommend always using the `--ff-only` option.
 
+      git checkout master
+      git pull --ff-only upstream master
 
-Coding Standards
-----------------
+- **Rebase an existing branch**
 
-This project adheres to PEP8 standards in most cases:
-    https://www.python.org/dev/peps/pep-0008
+  After downloading updates into the master branch, feature branches need to be
+  rebased so they include any already merged changes.
 
-**PEP8 Exceptions**
+      git checkout FEATURE-BRANCH
+      git rebase master
 
-- Hanging/Visual indents (E122, E126, E127, E128, E131)
-
-    - line continuations should use two indentations (8 spaces).
-    - do not use visual indents.
+  Resolve any rebase conflicts.
+  If you have already pushed this branch to your fork, you may need to force push
+  because branch history has changed.
