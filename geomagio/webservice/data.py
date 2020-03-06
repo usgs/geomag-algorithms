@@ -12,7 +12,7 @@ from ..TimeseriesUtility import get_interval_from_delta
 
 
 DEFAULT_DATA_TYPE = "variation"
-DEFAULT_ELEMENTS = ("X", "Y", "Z", "F")
+DEFAULT_ELEMENTS = ["X", "Y", "Z", "F"]
 DEFAULT_OUTPUT_FORMAT = "iaga2002"
 DEFAULT_SAMPLING_PERIOD = "60"
 ERROR_CODE_MESSAGES = {
@@ -24,71 +24,90 @@ ERROR_CODE_MESSAGES = {
     501: "Not Implemented",
     503: "Service Unavailable",
 }
+REQUEST_LIMIT = 345600
 VALID_DATA_TYPES = ["variation", "adjusted", "quasi-definitive", "definitive"]
-VALID_INTERVALS = ["tenhertz", "second", "minute", "hour", "day"]
+VALID_ELEMENTS = [
+    "D",
+    "DIST",
+    "DST",
+    "E",
+    "E-E",
+    "E-N",
+    "F",
+    "G",
+    "H",
+    "SQ",
+    "SV",
+    "UK1",
+    "UK2",
+    "UK3",
+    "UK4",
+    "X",
+    "Y",
+    "Z",
+]
 VALID_OBSERVATORIES = [
-    "BRT",
-    "BRW",
-    "DED",
-    "DHT",
-    "CMO",
-    "CMT",
-    "SIT",
-    "SHU",
-    "NEW",
     "BDT",
     "BOU",
-    "TST",
-    "USGS",
+    "BRT",
+    "BRW",
+    "BSL",
+    "CMO",
+    "CMT",
+    "DED",
+    "DHT",
     "FDT",
     "FRD",
     "FRN",
-    "TUC",
-    "BSL",
-    "HON",
-    "SJG",
     "GUA",
+    "HON",
+    "NEW",
+    "SHU",
+    "SIT",
+    "SJG",
     "SJT",
+    "TST",
+    "TUC",
+    "USGS",
 ]
 VALID_OUTPUT_FORMATS = ["iaga2002", "json"]
-VALID_SAMPLING_PERIODS = ["0.1", "1", "60", "3600", "86400"]
+VALID_SAMPLING_PERIODS = [0.1, 1, 60, 3600, 86400]
 
 
 blueprint = Blueprint("data", __name__)
-input_factory = None
+data_factory = None
 VERSION = "version"
 
 
 def init_app(app: Flask):
     global blueprint
-    global input_factory
-    input_factory = get_input_factory()
-
+    global data_factory
+    # set up data factory
+    data_factory = get_data_factory()
     app.register_blueprint(blueprint)
 
 
-@blueprint.route("/data", methods=["GET"])
+@blueprint.route("/data/", methods=["GET"])
 def get_data():
     query_params = request.args
-
     if not query_params:
-        return render_template("data/usage.html")
-
+        return render_template(
+            "data/usage.html",
+            valid_data_types=VALID_DATA_TYPES,
+            valid_elements=VALID_ELEMENTS,
+            valid_observatories=VALID_OBSERVATORIES,
+            valid_sampling_periods=VALID_SAMPLING_PERIODS,
+        )
     try:
         parsed_query = parse_query(query_params)
         validate_query(parsed_query)
     except Exception as e:
-        exception = str(e)
-        error_body = format_error(400, exception)
-        return error_body
-
+        return format_error(400, e)
     try:
         timeseries = get_timeseries(parsed_query)
         return format_timeseries(timeseries, parsed_query)
     except Exception as e:
-        exception = str(e)
-        error_body = format_error(500, exception)
-        return error_body
+        return format_error(500, e)
 
 
 class WebServiceException(Exception):
@@ -144,7 +163,7 @@ def format_error(status_code, exception):
     if request.args.get("format") == "json":
         return Response(json_error(status_code, exception), mimetype="application/json")
     else:
-        return Response(iaga2002_error(status_code, exception), mimetype="text/plain",)
+        return Response(iaga2002_error(status_code, exception), mimetype="text/plain")
 
 
 def format_timeseries(timeseries, query):
@@ -170,25 +189,25 @@ def format_timeseries(timeseries, query):
         )
     else:
         return Response(
-            IAGA2002Writer.format(timeseries, query.elements), mimetype="text/plain"
+            IAGA2002Writer.format(timeseries, query.elements), mimetype="text/plain",
         )
 
 
-def get_input_factory():
+def get_data_factory():
     """Reads environment variable to determine the factory to be used
 
     Returns
     -------
-    input_factory
+    data_factory
         Edge or miniseed factory object
     """
     data_type = os.getenv("DATA_TYPE", "edge")
-    host = os.getenv("DATA_HOST", "cwbpub.cr.usgs.gov")
-    port = os.getenv("DATA_PORT", 2060)
+    data_host = os.getenv("DATA_HOST", "cwbpub.cr.usgs.gov")
+    data_port = os.getenv("DATA_PORT", 2060)
 
     if data_type == "edge":
-        input_factory = EdgeFactory(host=host, port=port, type=data_type)
-        return input_factory
+        data_factory = EdgeFactory(host=data_host, port=data_port)
+        return data_factory
     else:
         return None
 
@@ -206,18 +225,18 @@ def get_timeseries(query):
     obspy.core.Stream
         timeseries object with requested data
     """
-    timeseries = input_factory.get_timeseries(
+    timeseries = data_factory.get_timeseries(
         query.starttime,
         query.endtime,
         query.observatory_id,
         query.elements,
         query.data_type,
-        query.sampling_period,
+        get_interval_from_delta(query.sampling_period),
     )
     return timeseries
 
 
-def iaga2002_error(code, message):
+def iaga2002_error(code: int, error: Exception):
     """Format iaga2002 error message.
 
     Returns
@@ -228,7 +247,7 @@ def iaga2002_error(code, message):
     status_message = ERROR_CODE_MESSAGES[code]
     error_body = f"""Error {code}: {status_message}
 
-{message}
+{error}
 
 Usage details are available from {request.base_url}
 
@@ -244,7 +263,7 @@ Service Version:
     return error_body
 
 
-def json_error(code, message):
+def json_error(code: int, error: Exception):
     """Format json error message.
 
     Returns
@@ -252,17 +271,15 @@ def json_error(code, message):
     error_body : str
         body of json error message.
     """
-    date = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     status_message = ERROR_CODE_MESSAGES[code]
-
     error_dict = {
         "type": "Error",
         "metadata": {
             "status": code,
-            "generated": date,
+            "generated": UTCDateTime().isoformat() + "Z",
             "url": request.url,
             "title": status_message,
-            "error": message,
+            "error": str(error),
         },
     }
     return dumps(error_dict, sort_keys=True).encode("utf8")
@@ -287,53 +304,53 @@ def parse_query(query):
         if any parameters are not supported.
     """
     # Get values
-    observatory_id = query.get("observatory")
-    start_time = query.get("starttime")
-    end_time = query.get("endtime")
-    elements = query.getlist("channels")
+    observatory_id = query.get("id")
+    starttime = query.get("starttime")
+    endtime = query.get("endtime")
+    elements = query.getlist("elements")
     sampling_period = query.get("sampling_period", DEFAULT_SAMPLING_PERIOD)
     data_type = query.get("type", DEFAULT_DATA_TYPE)
     output_format = query.get("format", DEFAULT_OUTPUT_FORMAT)
-    # Format values and get time values
-    output_format.lower()
-    observatory_id.upper()
-    elements = [e.split(",") for e in elements]
-    elements = sum(elements, [])
-    if not elements:
+    # Parse values and set defaults
+    if len(elements) == 0:
         elements = DEFAULT_ELEMENTS
-    if observatory_id not in VALID_OBSERVATORIES:
-        raise WebServiceException(
-            f"""Bad observatory id "{observatory_id}".  Valid values are:  {', '.join(VALID_OBSERVATORIES)}."""
-        )
-    if not start_time:
+    if len(elements) == 1 and "," in elements[0]:
+        elements = [e.trim() for e in elements[0].split(",")]
+    if not starttime:
         now = datetime.now()
-        start_time = UTCDateTime(year=now.year, month=now.month, day=now.day, hour=0)
+        starttime = UTCDateTime(year=now.year, month=now.month, day=now.day)
     else:
         try:
-            start_time = UTCDateTime(start_time)
-        except Exception:
+            starttime = UTCDateTime(starttime)
+        except Exception as e:
             raise WebServiceException(
-                'Bad starttime value "%s".'
-                " Valid values are ISO-8601 timestamps." % start_time
-            )
-    if not end_time:
-        end_time = start_time + (24 * 60 * 60 - 1)
-        end_time = UTCDateTime(end_time)
+                f"Bad starttime value '{starttime}'."
+                " Valid values are ISO-8601 timestamps."
+            ) from e
+    if not endtime:
+        endtime = starttime + (24 * 60 * 60 - 1)
     else:
         try:
-            end_time = UTCDateTime(end_time)
-        except Exception:
+            endtime = UTCDateTime(endtime)
+        except Exception as e:
             raise WebServiceException(
-                'Bad end_time value "%s".'
-                " Valid values are ISO-8601 timestamps." % end_time
-            )
+                f"Bad endtime value '{endtime}'."
+                " Valid values are ISO-8601 timestamps."
+            ) from e
+    try:
+        sampling_period = float(sampling_period)
+    except ValueError as e:
+        raise WebServiceException(
+            f"Bad sampling_period {sampling_period}"
+            ", valid values are {','.join(VALID_SAMPLING_PERIODS)}"
+        ) from e
     # Create WebServiceQuery object and set properties
     params = WebServiceQuery()
     params.observatory_id = observatory_id
-    params.starttime = start_time
-    params.endtime = end_time
+    params.starttime = starttime
+    params.endtime = endtime
     params.elements = elements
-    params.sampling_period = get_interval_from_delta(float(sampling_period))
+    params.sampling_period = sampling_period
     params.data_type = data_type
     params.output_format = output_format
     return params
@@ -352,21 +369,37 @@ def validate_query(query):
     WebServiceException
         if any parameters are not supported.
     """
+    # validate enumerated
+    if query.data_type not in VALID_DATA_TYPES:
+        raise WebServiceException(
+            f"Bad data type value '{query.data_type}'."
+            f" Valid values are: {', '.join(VALID_DATA_TYPES)}."
+        )
+    if query.observatory_id not in VALID_OBSERVATORIES:
+        raise WebServiceException(
+            f"Bad observatory id '{query.observatory_id}'."
+            f" Valid values are: {', '.join(VALID_OBSERVATORIES)}."
+        )
+    if query.output_format not in VALID_OUTPUT_FORMATS:
+        raise WebServiceException(
+            f"Bad format value '{query.output_format}'."
+            f" Valid values are: {', '.join(VALID_OUTPUT_FORMATS)}."
+        )
+    if query.sampling_period not in VALID_SAMPLING_PERIODS:
+        raise WebServiceException(
+            f"Bad sampling_period value '{query.sampling_period}'."
+            f" Valid values are: {', '.join(VALID_SAMPLING_PERIODS)}."
+        )
+    # validate combinations
     if len(query.elements) > 4 and query.output_format == "iaga2002":
         raise WebServiceException(
             "No more than four elements allowed for iaga2002 format."
         )
     if query.starttime > query.endtime:
-        raise WebServiceException("Starttime must be before endtime.")
-    if query.data_type not in VALID_DATA_TYPES:
-        raise WebServiceException(
-            f"""Bad data type value "{query.data_type}". Valid values are:  {', '.join(VALID_DATA_TYPES)}."""
-        )
-    if query.sampling_period not in VALID_INTERVALS:
-        raise WebServiceException(
-            f"""Bad sampling_period value {query.sampling_period}. Valid values are:  {', '.join(VALID_SAMPLING_PERIODS)}."""
-        )
-    if query.output_format not in VALID_OUTPUT_FORMATS:
-        raise WebServiceException(
-            f"""Bad format value "{query.output_format}".  Valid values are:  {', '.join(VALID_OUTPUT_FORMATS)}."""
-        )
+        raise WebServiceException("starttime must be before endtime.")
+    # check data volume
+    samples = int(
+        len(query.elements) * (query.endtime - query.starttime) / query.sampling_period
+    )
+    if samples > REQUEST_LIMIT:
+        raise WebServiceException(f"Query exceeds request limit ({samples} > 345600)")
