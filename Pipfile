@@ -1,13 +1,18 @@
+## note setuptools = "==45.3.0" needs to be installed separately:
+# pipenv install setuptools==45.3.0
+# pipenv install --dev
+
 [[source]]
 name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+black = "*"
+pre-commit = "*"
 pytest = "*"
 pytest-cov = "*"
 webtest = "*"
-black = "*"
 
 [packages]
 numpy = "*"
@@ -21,7 +26,6 @@ flask-migrate = "*"
 flask-session = "*"
 flask-sqlalchemy = "*"
 psycopg2-binary = "*"
-pre-commit = "*"
 
 [pipenv]
 allow_prereleases = true
