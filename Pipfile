@@ -1,7 +1,3 @@
-## note setuptools = "==45.3.0" needs to be installed separately:
-# pipenv install setuptools==45.3.0
-# pipenv install --dev
-
 [[source]]
 name = "pypi"
 url = "https://pypi.org/simple"
@@ -17,7 +13,7 @@ webtest = "*"
 [packages]
 numpy = "*"
 scipy = "*"
-obspy = "*"
+obspy = ">1.2.0"
 pycurl = "*"
 authlib = "*"
 flask = "*"

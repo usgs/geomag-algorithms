@@ -9,7 +9,7 @@ if ssl_cert_file:
 
 setuptools.setup(
     name="geomag-algorithms",
-    version="1.0.1",
+    version="1.0.2",
     description="USGS Geomag Algorithms Library",
     url="https://github.com/usgs/geomag-algorithms",
     packages=setuptools.find_packages(exclude=["test*"]),
@@ -19,9 +19,6 @@ setuptools.setup(
     },
     python_requires=">=3.6, <4",
     scripts=["bin/geomag.py", "bin/geomag_webservice.py", "bin/make_cal.py"],
-    setup_requires=[
-        "setuptools==45.3.0",  # need this until obspy 1.2.1
-        "setuptools-pipfile",
-    ],
+    setup_requires=["setuptools-pipfile",],
     use_pipfile=True,
 )
