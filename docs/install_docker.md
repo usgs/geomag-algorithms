@@ -11,9 +11,9 @@ The container includes a Jupyter Notebook server for interactive development.
 
 The following command creates and starts a container in the background.
 
-    docker run -rm -it --name geomagio -p 8000:8000 -v $(pwd)/data:/data usgs/geomag-algorithms
+    docker run --rm -it --name geomagio -p 8000:8000 -v $(pwd)/data:/data usgs/geomag-algorithms
 
-- `-rm` runs a temporary container
+- `--rm` runs a temporary container
 - `-it` makes the container interactive (so you can stop it with `ctrl+c`)
 - `-name geomagio` assigns the name `geomagio`
 - `-p 8000:8000` forwards system port `8000` to container port `8000`
