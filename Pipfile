@@ -4,15 +4,16 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+black = "*"
+pre-commit = "*"
 pytest = "*"
 pytest-cov = "*"
 webtest = "*"
-black = "*"
 
 [packages]
 numpy = "*"
 scipy = "*"
-obspy = "*"
+obspy = ">1.2.0"
 pycurl = "*"
 authlib = "*"
 flask = "*"
@@ -21,7 +22,6 @@ flask-migrate = "*"
 flask-session = "*"
 flask-sqlalchemy = "*"
 psycopg2-binary = "*"
-pre-commit = "*"
 
 [pipenv]
 allow_prereleases = true

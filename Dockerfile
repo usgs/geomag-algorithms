@@ -39,11 +39,12 @@ RUN useradd \
         -r \
         -s /sbin/nologin \
          geomag_user \
-    && mkdir -p /home/geomag_user/notebooks \
-    && chown -R geomag_user:geomag_user /home/geomag_user
+    && mkdir -p /data \
+    && chown -R geomag_user:geomag_user /data
 
 USER geomag_user
-WORKDIR /geomag-algorithms
+WORKDIR /data
 EXPOSE 8000
+
 # entrypoint needs double quotes
 ENTRYPOINT [ "/geomag-algorithms/docker-entrypoint.sh" ]
