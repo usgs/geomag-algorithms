@@ -1,4 +1,4 @@
-from restricted_app import create_app
+from .restricted_app import create_app
 
 restricted_app = create_app()
 
