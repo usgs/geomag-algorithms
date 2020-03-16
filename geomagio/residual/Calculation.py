@@ -30,14 +30,14 @@ def calculate_I(measurements, ordinates, metadata):
     southup_ordinate = average_ordinate(ordinates, "SouthUp")
     total_ordinate = Ordinate()
     total_ordinate.h, total_ordinate.z, total_ordinate.e, total_ordinate.f = np.average(
-        [southdown_ordinate, southup_ordinate, northdown_ordinate, northup_ordinate,],
+        [southdown_ordinate, southup_ordinate, northdown_ordinate, northup_ordinate],
         axis=1,
     )
     # calculate f for each measurement type
-    southdown_f = float(calculate_f(southdown_ordinate, total_ordinate, Iprime))
-    southup_f = float(calculate_f(southup_ordinate, total_ordinate, Iprime))
-    northup_f = float(calculate_f(northup_ordinate, total_ordinate, Iprime))
-    northdown_f = float(calculate_f(northdown_ordinate, total_ordinate, Iprime))
+    southdown_f = calculate_f(southdown_ordinate, total_ordinate, Iprime)
+    southup_f = calculate_f(southup_ordinate, total_ordinate, Iprime)
+    northup_f = calculate_f(northup_ordinate, total_ordinate, Iprime)
+    northdown_f = calculate_f(northdown_ordinate, total_ordinate, Iprime)
     # calculate average f that will take the place of f_mean in the next step
     fo = np.average([southdown_f, southup_f, northdown_f, northup_f])
 
@@ -56,7 +56,7 @@ def calculate_I(measurements, ordinates, metadata):
         0, northdown_angle, 1, northdown_residual, northdown_f, hs
     )
 
-    inclination = np.average([SD_I, NU_I, SU_I, ND_I])
+    inclination = np.average([southdown_I, northup_I, southup_I, northdown_I])
 
     return inclination
 
@@ -82,7 +82,7 @@ def calculate_baselines(Habs, Zabs, total_ordinate):
 
 
 def calculate_scale(f, measurements, I, pier_correction):
-    i = np.deg2rad(i)
+    i = np.deg2rad(I)
     measurements = measurements[-2:]
     angle_diff = np.diff([m.angle for m in measurements]) / f
     A = np.cos(i) * angle_diff
