@@ -3,26 +3,21 @@ from .Ordinate import Ordinate
 
 
 def calculate_I(measurements, ordinates, metadata):
-    # type = ["SouthDown", "NorthDown", "SouthUp", "NorthUp"]
-
     # gather average angles for each measurement type
     southdown_angle = average_angle(measurements, "SouthDown")
     northdown_angle = average_angle(measurements, "NorthDown")
     southup_angle = average_angle(measurements, "SouthUp")
     northup_angle = average_angle(measurements, "NorthUp")
-
     # gather average residuals for each measurement type
     southdown_residual = average_residual(measurements, "SouthDown")
     northdown_residual = average_residual(measurements, "NorthDown")
     southup_residual = average_residual(measurements, "SouthUp")
     northup_residual = average_residual(measurements, "NorthUp")
-
-    # process first assumed inclination angle
+    # process first inclination angle, assumed to be southdown
     Iprime = southdown_angle
     if Iprime >= 90:
         Iprime -= 180
     Iprime = np.deg2rad(Iprime)
-
     # gather measurement ordinate averages and ordinate averages by channel
     southdown_ordinate = average_ordinate(ordinates, "SouthDown")
     northdown_ordinate = average_ordinate(ordinates, "NorthDown")
@@ -40,12 +35,12 @@ def calculate_I(measurements, ordinates, metadata):
     northdown_f = calculate_f(northdown_ordinate, total_ordinate, Iprime)
     # calculate average f that will take the place of f_mean in the next step
     fo = np.average([southdown_f, southup_f, northdown_f, northup_f])
-
+    # get multiplier for hempisphere the observatory is located in
+    hs = metadata["hemisphere"]
     # calculate f for every measurement type
     southdown_I = calculate_inclination(
-        -180, southdown_angle, 1, southdown_residual, southdown_f
+        -180, southdown_angle, 1, southdown_residual, southdown_f, hs
     )
-    hs = metadata["hemisphere"]
     northup_I = calculate_inclination(
         0, northup_angle, -1, northup_residual, northup_f, hs
     )
@@ -55,6 +50,7 @@ def calculate_I(measurements, ordinates, metadata):
     northdown_I = calculate_inclination(
         0, northdown_angle, 1, northdown_residual, northdown_f, hs
     )
+    # FIXME: Add looping to this method
 
     inclination = np.average([southdown_I, northup_I, southup_I, northdown_I])
 
