@@ -2,15 +2,12 @@ from .MeasurementType import MeasurementType
 
 
 class Ordinate(object):
-    """One angle and time measurement with optional residual.
+    """One variometer reading per channel. Gathered from each measurement time within a Reading.
 
     Attributes
     ----------
     measurement_type: type of measurement.
-    angle: measured angle, decimal degrees.
-    residual: residual at time of measurement.
-    time: when measurement was taken.
-    ordinate: variometer data from time of measurement
+    h, e, z, f: one variometer reading for each channel per measurement
     """
 
     def __init__(
