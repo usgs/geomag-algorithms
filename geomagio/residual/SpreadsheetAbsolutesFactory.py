@@ -220,10 +220,10 @@ class SpreadsheetAbsolutesFactory(object):
                 ordinates.append(
                     Ordinate(
                         measurement_type=measurement_type,
-                        h=stream.select(channel="H")[0].data,
-                        e=stream.select(channel="E")[0].data,
-                        z=stream.select(channel="Z")[0].data,
-                        f=stream.select(channel="F")[0].data,
+                        h=stream.select(channel="H")[0].data[0],
+                        e=stream.select(channel="E")[0].data[0],
+                        z=stream.select(channel="Z")[0].data[0],
+                        f=stream.select(channel="F")[0].data[0],
                     )
                 )
         return ordinates
