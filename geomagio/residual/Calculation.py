@@ -85,17 +85,13 @@ def calculate_baselines(Habs, Zabs, total_ordinate):
 def calculate_scale(f, measurements, I, pier_correction):
     i = np.deg2rad(I)
     measurements = measurements[-2:]
-    angle_diff = np.diff([m.angle for m in measurements]) / f
+    angle_diff = (np.diff([m.angle for m in measurements]) / f)[0]
     A = np.cos(i) * angle_diff
     B = np.sin(i) * angle_diff
     delta_f = np.rad2deg(A - B)
-
-    detla_r = abs(np.diff([m.residual for m in measurements]))
-
-    time_delta = np.diff([m.time for m in measurements])
-
+    detla_r = abs(np.diff([m.residual for m in measurements]))[0]
+    time_delta = np.diff([m.time for m in measurements])[0]
     delta_b = delta_f + (time_delta / 60.0)
-
     scale_value = f * np.deg2rad(delta_b / detla_r)
 
     return scale_value
@@ -120,7 +116,6 @@ def average_residual(measurements, type):
 
 
 def average_ordinate(ordinates, type):
-    ordinates = ordinates
     if type == "NorthDown":
         # exclude final measurement, which is only used for scaling
         ordinates = ordinates[type][:-1]
