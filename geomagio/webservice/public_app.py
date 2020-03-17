@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 import flask
 
-from . import data, login
+from . import data
 
 
 def create_app():
@@ -12,7 +12,6 @@ def create_app():
     app.config.update(os.environ)
 
     # connect modules
-    login.init_app(app)
     data.init_app(app)
 
     # add default route
