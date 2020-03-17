@@ -66,3 +66,14 @@ class Reading(BaseModel):
         for m in self.measurements:
             index[m.measurement_type].append(m)
         return index
+
+    def ordinate_index(self) -> Dict[MeasurementType, List[Ordinate]]:
+        """Generate index of ordinates keyed by MeasurementType.
+
+        Any missing MeasurementType returns an empty list.
+        There may be multiple ordinates of each MeasurementType.
+        """
+        index = collections.defaultdict(list)
+        for o in self.ordinates:
+            index[o.measurement_type].append(o)
+        return index
