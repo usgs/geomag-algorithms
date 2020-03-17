@@ -99,18 +99,21 @@ def calculate_scale(f, measurements, I, pier_correction):
 
 def average_angle(measurements, type):
     if type == "NorthDown":
+        # exclude final measurement, which is only used for scaling
         measurements = measurements[:-1]
     return np.average([m.angle for m in measurements[type]])
 
 
 def average_residual(measurements, type):
     if type == "NorthDown":
+        # exclude final measurement, which is only used for scaling
         measurements = measurements[:-1]
     return np.average([m.residual for m in measurements[type]])
 
 
 def average_ordinate(ordinates, type):
     if type == "NorthDown":
+        # exclude final measurement, which is only used for scaling
         ordinates = ordinates[:-1]
     ordinate = Ordinate()
     ordinate.h, ordinate.e, ordinate.z, ordinate.f = np.average(
