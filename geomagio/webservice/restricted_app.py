@@ -3,9 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 import flask
 
-from . import data
-from . import database
-from . import login
+from . import database, login, session
 
 
 def create_app():
@@ -16,7 +14,7 @@ def create_app():
     # connect modules
     database.init_app(app)
     login.init_app(app)
-    data.init_app(app)
+    session.init_app(app)
 
     # add default route
     @app.route("/")
@@ -24,4 +22,3 @@ def create_app():
         return "<h1>Restricted Page</h1>"
 
     return app
-

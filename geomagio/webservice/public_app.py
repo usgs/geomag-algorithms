@@ -3,9 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 import flask
 
-from . import data
-from . import database
-from . import login
+from . import data, login
 
 
 def create_app():
@@ -14,7 +12,6 @@ def create_app():
     app.config.update(os.environ)
 
     # connect modules
-    database.init_app(app)
     login.init_app(app)
     data.init_app(app)
 
