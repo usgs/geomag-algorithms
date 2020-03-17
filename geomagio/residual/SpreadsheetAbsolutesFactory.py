@@ -1,5 +1,5 @@
 import os
-from typing import Dict, IO, List, Mapping, Optional, Union
+from typing import Dict, List
 
 from obspy.core import UTCDateTime
 import openpyxl

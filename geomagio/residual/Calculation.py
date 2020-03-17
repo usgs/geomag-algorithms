@@ -54,7 +54,7 @@ def calculate_I(measurements, ordinates, metadata):
 
     inclination = np.average([southdown_I, northup_I, southup_I, northdown_I])
 
-    return inclination
+    return inclination, fo, total_ordinate
 
 
 def calculate_absolutes(f, I, pier_correction):
