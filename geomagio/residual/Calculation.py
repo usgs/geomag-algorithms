@@ -1,58 +1,43 @@
 import numpy as np
 from .Ordinate import Ordinate
+from .Measurement import Measurement
 
 
 def calculate_I(measurements, ordinates, metadata):
     # gather average angles for each measurement type
-    southdown_angle = average_angle(measurements, "SouthDown")
-    northdown_angle = average_angle(measurements, "NorthDown")
-    southup_angle = average_angle(measurements, "SouthUp")
-    northup_angle = average_angle(measurements, "NorthUp")
-    # gather average residuals for each measurement type
-    southdown_residual = average_residual(measurements, "SouthDown")
-    northdown_residual = average_residual(measurements, "NorthDown")
-    southup_residual = average_residual(measurements, "SouthUp")
-    northup_residual = average_residual(measurements, "NorthUp")
+    southdown = process_type(measurements, ordinates, "SouthDown")
+    southup = process_type(measurements, ordinates, "SouthUp")
+    northdown = process_type(measurements, ordinates, "NorthDown")
+    northup = process_type(measurements, ordinates, "NorthUp")
     # process first inclination angle, assumed to be southdown
-    Iprime = southdown_angle
+    Iprime = southdown.angle
     if Iprime >= 90:
         Iprime -= 180
     Iprime = np.deg2rad(Iprime)
-    # gather measurement ordinate averages and ordinate averages by channel
-    southdown_ordinate = average_ordinate(ordinates, "SouthDown")
-    northdown_ordinate = average_ordinate(ordinates, "NorthDown")
-    northup_ordinate = average_ordinate(ordinates, "NorthUp")
-    southup_ordinate = average_ordinate(ordinates, "SouthUp")
     # gather ordinates into array
-    ordinates = [
-        southdown_ordinate,
-        northdown_ordinate,
-        northup_ordinate,
-        southup_ordinate,
-    ]
-
-    total_ordinate = average_ordinate(ordinates, None)
+    ords = [southdown.ordinate, southup.ordinate, northdown.ordinate, northup.ordinate]
+    total_ordinate = average_ordinate(ords, None)
     # calculate f for each measurement type
-    southdown_f = calculate_f(southdown_ordinate, total_ordinate, Iprime)
-    southup_f = calculate_f(southup_ordinate, total_ordinate, Iprime)
-    northup_f = calculate_f(northup_ordinate, total_ordinate, Iprime)
-    northdown_f = calculate_f(northdown_ordinate, total_ordinate, Iprime)
+    southdown_f = calculate_f(southdown.ordinate, total_ordinate, Iprime)
+    southup_f = calculate_f(southup.ordinate, total_ordinate, Iprime)
+    northup_f = calculate_f(northup.ordinate, total_ordinate, Iprime)
+    northdown_f = calculate_f(northdown.ordinate, total_ordinate, Iprime)
     # calculate average f that will take the place of f_mean in the next step
     fo = np.average([southdown_f, southup_f, northdown_f, northup_f])
     # get multiplier for hempisphere the observatory is located in
     hs = metadata["hemisphere"]
     # calculate f for every measurement type
     southdown_I = calculate_inclination(
-        -180, southdown_angle, 1, southdown_residual, southdown_f, hs
+        -180, southdown.angle, 1, southdown.residual, southdown_f, hs
     )
     northup_I = calculate_inclination(
-        0, northup_angle, -1, northup_residual, northup_f, hs
+        0, northup.angle, -1, northup.residual, northup_f, hs
     )
     southup_I = calculate_inclination(
-        180, southup_angle, -1, southup_residual, southup_f, hs
+        180, southup.angle, -1, southup.residual, southup_f, hs
     )
     northdown_I = calculate_inclination(
-        0, northdown_angle, 1, northdown_residual, northdown_f, hs
+        0, northdown.angle, 1, northdown.residual, northdown_f, hs
     )
     # FIXME: Add looping to this method
 
@@ -149,3 +134,12 @@ def calculate_f(ordinate, total_ordinate, I):
 
 def calculate_inclination(shift, angle, ud, residual, f, hs):
     return shift + angle + ud * np.rad2deg(hs * np.sin(residual / f))
+
+
+def process_type(measurements, ordinates, type):
+    m = Measurement(measurement_type=type)
+    m.angle = average_angle(measurements, type)
+    m.residual = average_residual(measurements, type)
+    m.ordinate = average_ordinate(ordinates, type)
+
+    return m
