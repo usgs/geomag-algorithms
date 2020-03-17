@@ -9,9 +9,7 @@ from .MeasurementType import MeasurementType
 from .Ordinate import Ordinate
 from .Calculation import (
     calculate_scale,
-    calculate_inclination,
     calculate_I,
-    calculate_f,
     calculate_baselines,
     calculate_absolutes,
 )
