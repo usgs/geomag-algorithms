@@ -58,6 +58,7 @@ def calculate_I(measurements, ordinates, metadata):
 
 
 def calculate_absolutes(f, I, pier_correction):
+
     i = np.deg2rad(I)
     Fabs = f + pier_correction
     Habs = Fabs * np.cos(i)
