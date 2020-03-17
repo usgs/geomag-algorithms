@@ -43,8 +43,8 @@ class Reading(BaseModel):
     def calculate(self):
         # gather class object to perform calculations
         metadata = self.metadata
-        ordinates = self.ordinate_index
-        measurements = self.measurement_index
+        ordinates = self.ordinate_index()
+        measurements = self.measurement_index()
         # calculate inclination
         inclination, f, ordinate = calculate_I(measurements, ordinates, metadata)
         # calculate absolutes
@@ -54,7 +54,9 @@ class Reading(BaseModel):
         # calculate baselines
         Hb, Zb = calculate_baselines(Habs, Zabs, ordinate)
         # calculate scale value for declination
-        calculate_scale(f, measurements, inclination, metadata["pier_correction"])
+        calculate_scale(
+            f, measurements["NorthDown"], inclination, metadata["pier_correction"]
+        )
 
     def measurement_index(self) -> Dict[MeasurementType, List[Measurement]]:
         """Generate index of measurements keyed by MeasurementType.

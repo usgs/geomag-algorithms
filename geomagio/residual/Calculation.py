@@ -23,11 +23,15 @@ def calculate_I(measurements, ordinates, metadata):
     northdown_ordinate = average_ordinate(ordinates, "NorthDown")
     northup_ordinate = average_ordinate(ordinates, "NorthUp")
     southup_ordinate = average_ordinate(ordinates, "SouthUp")
-    total_ordinate = Ordinate()
-    total_ordinate.h, total_ordinate.z, total_ordinate.e, total_ordinate.f = np.average(
-        [southdown_ordinate, southup_ordinate, northdown_ordinate, northup_ordinate],
-        axis=1,
-    )
+    # gather ordinates into array
+    ordinates = [
+        southdown_ordinate,
+        northdown_ordinate,
+        northup_ordinate,
+        southup_ordinate,
+    ]
+
+    total_ordinate = average_ordinate(ordinates, None)
     # calculate f for each measurement type
     southdown_f = calculate_f(southdown_ordinate, total_ordinate, Iprime)
     southup_f = calculate_f(southup_ordinate, total_ordinate, Iprime)
@@ -90,7 +94,7 @@ def calculate_scale(f, measurements, I, pier_correction):
 
     time_delta = np.diff([m.time for m in measurements])
 
-    delta_b = delta_f + time_delta
+    delta_b = delta_f + (time_delta / 60.0)
 
     scale_value = f * np.deg2rad(delta_b / detla_r)
 
@@ -100,26 +104,32 @@ def calculate_scale(f, measurements, I, pier_correction):
 def average_angle(measurements, type):
     if type == "NorthDown":
         # exclude final measurement, which is only used for scaling
-        measurements = measurements[:-1]
-    return np.average([m.angle for m in measurements[type]])
+        measurements = measurements[type][:-1]
+    else:
+        measurements = measurements[type]
+    return np.average([m.angle for m in measurements])
 
 
 def average_residual(measurements, type):
     if type == "NorthDown":
         # exclude final measurement, which is only used for scaling
-        measurements = measurements[:-1]
-    return np.average([m.residual for m in measurements[type]])
+        measurements = measurements[type][:-1]
+    else:
+        measurements = measurements[type]
+    return np.average([m.residual for m in measurements])
 
 
 def average_ordinate(ordinates, type):
+    ordinates = ordinates
     if type == "NorthDown":
         # exclude final measurement, which is only used for scaling
-        ordinates = ordinates[:-1]
-    ordinate = Ordinate()
-    ordinate.h, ordinate.e, ordinate.z, ordinate.f = np.average(
-        [o for o in ordinates[type]], axis=1
-    )
-    return ordinate
+        ordinates = ordinates[type][:-1]
+    elif type is not None:
+        ordinates = ordinates[type]
+    o = Ordinate(measurement_type=type)
+    avgs = np.average([[o.h, o.e, o.z, o.f] for o in ordinates], axis=0)
+    o.h, o.e, o.z, o.f = avgs
+    return o
 
 
 def calculate_f(ordinate, total_ordinate, I):
