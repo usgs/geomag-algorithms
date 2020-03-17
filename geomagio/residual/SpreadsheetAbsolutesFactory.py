@@ -9,6 +9,8 @@ from .Measurement import Measurement
 from .MeasurementType import MeasurementType as mt
 from .Reading import Reading
 from . import Angle
+from ..edge import EdgeFactory
+from .Ordinate import Ordinate
 
 
 SPREADSHEET_MEASUREMENTS = [
@@ -115,7 +117,14 @@ class SpreadsheetAbsolutesFactory(object):
         absolutes = self._parse_absolutes(summary_sheet, metadata["date"])
         measurements = (
             include_measurements
-            and self._parse_measurements(measurement_sheet, metadata["date"])
+            and self._parse_measurements(measurement_sheet, metadata["date"],)
+            or None
+        )
+        ordinates = (
+            include_measurements
+            and self._gather_ordinates(
+                measurement_sheet, metadata["date"], metadata["station"]
+            )
             or None
         )
         return Reading(
@@ -125,6 +134,7 @@ class SpreadsheetAbsolutesFactory(object):
             measurements=measurements,
             metadata=metadata,
             pier_correction=metadata["pier_correction"],
+            ordinates=ordinates,
         )
 
     def _parse_absolutes(
@@ -183,6 +193,40 @@ class SpreadsheetAbsolutesFactory(object):
                 )
             )
         return measurements
+
+    def _gather_ordinates(
+        self, sheet: openpyxl.worksheet, base_date, observatory: str
+    ) -> List[Ordinate]:
+        """Gather ordinates from EdgeFactory using times in measurement spreadsheet.
+        """
+        ordinates = []
+        for m in SPREADSHEET_MEASUREMENTS:
+            measurement_type = m["type"]
+            time = (
+                "time" in m
+                and parse_relative_time(base_date, sheet[m["time"]].value)
+                or None
+            )
+            if time is not None:
+                e = EdgeFactory()
+                stream = e.get_timeseries(
+                    observatory=observatory,
+                    type="variation",
+                    interval="second",
+                    starttime=time,
+                    endtime=time,
+                    channels=["H", "E", "Z", "F"],
+                )
+                ordinates.append(
+                    Ordinate(
+                        measurement_type=measurement_type,
+                        h=stream.select(channel="H")[0].data,
+                        e=stream.select(channel="E")[0].data,
+                        z=stream.select(channel="Z")[0].data,
+                        f=stream.select(channel="F")[0].data,
+                    )
+                )
+        return ordinates
 
     def _parse_metadata(
         self,
