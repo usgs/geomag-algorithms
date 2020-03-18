@@ -308,6 +308,7 @@ def parse_query(query):
     starttime = query.get("starttime")
     endtime = query.get("endtime")
     elements = query.getlist("elements")
+    print(elements)
     sampling_period = query.get("sampling_period", DEFAULT_SAMPLING_PERIOD)
     data_type = query.get("type", DEFAULT_DATA_TYPE)
     output_format = query.get("format", DEFAULT_OUTPUT_FORMAT)
@@ -315,7 +316,7 @@ def parse_query(query):
     if len(elements) == 0:
         elements = DEFAULT_ELEMENTS
     if len(elements) == 1 and "," in elements[0]:
-        elements = [e.trim() for e in elements[0].split(",")]
+        elements = [e.strip() for e in elements[0].split(",")]
     if not starttime:
         now = datetime.now()
         starttime = UTCDateTime(year=now.year, month=now.month, day=now.day)
