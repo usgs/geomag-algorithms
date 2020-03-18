@@ -308,7 +308,6 @@ def parse_query(query):
     starttime = query.get("starttime")
     endtime = query.get("endtime")
     elements = query.getlist("elements")
-    print(elements)
     sampling_period = query.get("sampling_period", DEFAULT_SAMPLING_PERIOD)
     data_type = query.get("type", DEFAULT_DATA_TYPE)
     output_format = query.get("format", DEFAULT_OUTPUT_FORMAT)
