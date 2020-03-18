@@ -315,7 +315,7 @@ def parse_query(query):
     if len(elements) == 0:
         elements = DEFAULT_ELEMENTS
     if len(elements) == 1 and "," in elements[0]:
-        elements = [e.trim() for e in elements[0].split(",")]
+        elements = [e.strip() for e in elements[0].split(",")]
     if not starttime:
         now = datetime.now()
         starttime = UTCDateTime(year=now.year, month=now.month, day=now.day)
