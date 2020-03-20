@@ -19,9 +19,9 @@ class Calculate(object):
         self.meridian = meridian
 
 
-def calculate_I(measurements, ordinates, metadata):
+def calculate_I(measurements, ordinates, ordinates_index, metadata):
     # average ordinates for all channels
-    total_ordinate = average_ordinate(measurements, None)
+    total_ordinate = average_ordinate(ordinates, None)
     # get first inclination angle, assumed to be southdown
     Iprime = average_angle(measurements, "SouthDown")
     if Iprime >= 90:
@@ -29,13 +29,17 @@ def calculate_I(measurements, ordinates, metadata):
     Iprime = np.deg2rad(Iprime)
     # gather average angles for each measurement type
     southdown = process_type(
-        Iprime, measurements, ordinates, total_ordinate, "SouthDown"
+        Iprime, measurements, ordinates_index, total_ordinate, None, "SouthDown"
     )
-    southup = process_type(Iprime, measurements, ordinates, total_ordinate, "SouthUp")
+    southup = process_type(
+        Iprime, measurements, ordinates_index, total_ordinate, None, "SouthUp"
+    )
     northdown = process_type(
-        Iprime, measurements, ordinates, total_ordinate, "NorthDown"
+        Iprime, measurements, ordinates_index, total_ordinate, None, "NorthDown"
     )
-    northup = process_type(Iprime, measurements, ordinates, total_ordinate, "NorthUp")
+    northup = process_type(
+        Iprime, measurements, ordinates_index, total_ordinate, None, "NorthUp"
+    )
     # calculate average f that will take the place of f_mean in the next step
     fo = np.average([southdown.f, southup.f, northdown.f, northup.f])
     # get multiplier for hempisphere the observatory is located in
@@ -67,16 +71,16 @@ def calculate_I(measurements, ordinates, metadata):
     return inclination, fo, total_ordinate
 
 
-def calculate_D(ordinates, measurements, r_data, AZ, Hb):
+def calculate_D(ordinates, measurements, measurements_index, AZ, Hb):
     # gather average angles for each measurement type
-    westdown = process_type(None, measurements, ordinates, None, "WestDown")
-    westup = process_type(None, measurements, ordinates, None, "WestUp")
-    eastdown = process_type(None, measurements, ordinates, None, "EastDown")
-    eastup = process_type(None, measurements, ordinates, None, "EastUp")
+    westdown = process_type(None, measurements_index, ordinates, None, Hb, "WestDown")
+    westup = process_type(None, measurements_index, ordinates, None, Hb, "WestUp")
+    eastdown = process_type(None, measurements_index, ordinates, None, Hb, "EastDown")
+    eastup = process_type(None, measurements_index, ordinates, None, Hb, "EastUp")
     # get average meridian angle from measurement types
-    meridian = np.average[
-        westdown.meridian, westup.meridian, eastdown.meridian, eastup.meridian
-    ]
+    meridian = np.average(
+        [westdown.meridian, westup.meridian, eastdown.meridian, eastup.meridian]
+    )
     # compute average angle from marks
     average_mark = np.average(
         [m.angle for m in measurements if "mark" in m.measurement_type]
@@ -141,20 +145,14 @@ def average_residual(measurements, type):
     return np.average([m.residual for m in measurements])
 
 
-def average_ordinate(measurements, type):
+def average_ordinate(ordinates, type):
     if type == "NorthDown":
         # exclude final measurement, which is only used for scaling
-        measurements = measurements[type][:-1]
+        ordinates = ordinates[type][:-1]
     elif type is not None:
-        measurements = measurements[type]
+        ordinates = ordinates[type]
     o = Ordinate(measurement_type=type)
-    avgs = np.average(
-        [
-            [m.ordinate.h, m.ordinate.e, m.ordinate.e, m.ordiante.z]
-            for m in measurements
-        ],
-        axis=0,
-    )
+    avgs = np.average([[o.h, o.e, o.z, o.f] for o in ordinates], axis=0,)
     o.h, o.e, o.z, o.f = avgs
     return o
 
@@ -184,7 +182,7 @@ def calculate_inclination(shift, angle, ud, residual, f, hs):
 
 
 def process_type(I, measurements, ordinates, total_ordinate, baseline, type):
-    c = Calculate(measurement_type=type)
+    c = Calculate()
     c.angle = average_angle(measurements, type)
     c.residual = average_residual(measurements, type)
     c.ordinate = average_ordinate(ordinates, type)
@@ -197,13 +195,13 @@ def process_type(I, measurements, ordinates, total_ordinate, baseline, type):
 
 
 def calculate_meridian_term(calculation, baseline):
-    A1 = np.asin(
+    A1 = np.arcsin(
         calculation.residual
         / np.sqrt(
             (calculation.ordinate.h + baseline) ** 2 + (calculation.ordinate.e) ** 2
         )
     )
-    A2 = np.atan(calculation.ordinate.e / (calculation.ordinate.h + baseline))
+    A2 = np.arctan(calculation.ordinate.e / (calculation.ordinate.h + baseline))
     A1 = np.rad2deg(A1)
     A2 = np.rad2deg(A2)
     meridian_term = calculation.angle - A1 - A2
