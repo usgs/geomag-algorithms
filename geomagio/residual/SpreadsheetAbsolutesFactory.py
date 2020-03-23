@@ -213,8 +213,9 @@ class SpreadsheetAbsolutesFactory(object):
                     observatory=observatory,
                     type="variation",
                     interval="second",
-                    starttime=time,
-                    endtime=time,
+                    # left as hard coded dates becauase of available data
+                    starttime=UTCDateTime("2020-01:01T02:00:00Z"),
+                    endtime=UTCDateTime("2020-01:01T02:00:00Z"),
                     channels=["H", "E", "Z", "F"],
                 )
                 ordinates.append(

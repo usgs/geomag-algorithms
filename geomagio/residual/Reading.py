@@ -67,7 +67,6 @@ class Reading(BaseModel):
             self.metadata["mark_azimuth"],
             Hb,
         )
-
         return Hb, Zb, declination_baseline, scale
 
     def measurement_index(self) -> Dict[MeasurementType, List[Measurement]]:

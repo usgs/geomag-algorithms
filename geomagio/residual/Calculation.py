@@ -68,7 +68,33 @@ def calculate_I(measurements, ordinates, ordinates_index, metadata):
         ]
     )
 
-    return inclination, fo, total_ordinate
+    inclination = np.deg2rad(inclination)
+    Inclination = inclination
+
+    measurements = [southdown, northup, southup, northdown]
+
+    while inclination - Inclination >= 0.0001:
+        f_avg = np.average(
+            [calculate_f(i, total_ordinate, Inclination) for i in measurements]
+        )
+        total_ordinate.f = f_avg
+        southdown.inclination = calculate_inclination(
+            -180, southdown.angle, 1, southdown.residual, southdown.f, hs
+        )
+        northup.inclination = calculate_inclination(
+            0, northup.angle, -1, northup.residual, northup.f, hs
+        )
+        southup.inclination = calculate_inclination(
+            180, southup.angle, -1, southup.residual, southup.f, hs
+        )
+        northdown.inclination = calculate_inclination(
+            0, northdown.angle, 1, northdown.residual, northdown.f, hs
+        )
+        measurements = [southdown, northup, southup, northdown]
+        Inclination = np.average([i.inclination for i in measurements])
+        Inclination = np.deg2rad(Inclination)
+
+    return Inclination, fo, total_ordinate
 
 
 def calculate_D(ordinates, measurements, measurements_index, AZ, Hb):
@@ -83,7 +109,7 @@ def calculate_D(ordinates, measurements, measurements_index, AZ, Hb):
     )
     # compute average angle from marks
     average_mark = np.average(
-        [m.angle for m in measurements if "mark" in m.measurement_type]
+        [m.angle for m in measurements if "mark" in m.measurement_type.capitalize()]
     )
     # add average mark, meridian, and azimuth angle to get declination baseline
     declination_baseline = average_mark + meridian + AZ
