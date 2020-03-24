@@ -48,6 +48,7 @@ class Reading(BaseModel):
         # calculate inclination
         inclination, f = calculate_I(
             self.measurement_index(),
+            self.ordinates,
             self.ordinate_index(),
             total_ordinate,
             self.metadata,
@@ -71,11 +72,11 @@ class Reading(BaseModel):
             Hb,
         )
 
+        # return results as a set of Absolute objects along with the calculated scale value
         resultH = Absolute(element="H", baseline=Hb, absolute=Habs)
         resultD = Absolute(element="D", baseline=Db, absolute=Dabs)
         resultZ = Absolute(element="Z", baseline=Zb, absolute=Zabs)
-        resultF = Absolute(element="F", baseline=Zb, absolute=Fabs)
-
+        resultF = Absolute(element="F", baseline=None, absolute=Fabs)
         result = [resultH, resultD, resultZ, resultF]
 
         return result, scale
