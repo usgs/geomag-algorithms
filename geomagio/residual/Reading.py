@@ -13,6 +13,7 @@ from .Calculation import (
     calculate_baselines,
     calculate_absolutes,
     calculate_D,
+    average_ordinate,
 )
 
 
@@ -42,11 +43,13 @@ class Reading(BaseModel):
         return {a.element: a for a in self.absolutes}
 
     def calculate(self):
+        # get average ordinate values across h, e, z, and f
+        total_ordinate = average_ordinate(self.ordinates, None)
         # calculate inclination
-        inclination, f, ordinate = calculate_I(
+        inclination, f = calculate_I(
             self.measurement_index(),
-            self.ordinates,
             self.ordinate_index(),
+            total_ordinate,
             self.metadata,
         )
         # calculate absolutes
@@ -54,20 +57,28 @@ class Reading(BaseModel):
             f, inclination, self.metadata["pier_correction"]
         )
         # calculate baselines
-        Hb, Zb = calculate_baselines(Habs, Zabs, ordinate)
+        Hb, Zb = calculate_baselines(Habs, Zabs, total_ordinate)
         # calculate scale value for declination
         scale = calculate_scale(
             f, self.measurements, inclination, self.metadata["pier_correction"]
         )
-        # calculate declination
-        declination_baseline = calculate_D(
+        # calculate declination and
+        Db, Dabs = calculate_D(
             self.ordinate_index(),
             self.measurements,
             self.measurement_index(),
             self.metadata["mark_azimuth"],
             Hb,
         )
-        return Hb, Zb, declination_baseline, scale
+
+        resultH = Absolute(element="H", baseline=Hb, absolute=Habs)
+        resultD = Absolute(element="D", baseline=Db, absolute=Dabs)
+        resultZ = Absolute(element="Z", baseline=Zb, absolute=Zabs)
+        resultF = Absolute(element="F", baseline=Zb, absolute=Fabs)
+
+        result = [resultH, resultD, resultZ, resultF]
+
+        return result, scale
 
     def measurement_index(self) -> Dict[MeasurementType, List[Measurement]]:
         """Generate index of measurements keyed by MeasurementType.

@@ -11,14 +11,8 @@ class Ordinate(object):
     """
 
     def __init__(
-        self,
-        measurement_type: MeasurementType,
-        h: float = 0,
-        e: float = 0,
-        z: float = 0,
-        f: float = 0,
+        self, h: float = 0, e: float = 0, z: float = 0, f: float = 0,
     ):
-        self.measurement_type = measurement_type
         self.h = h
         self.e = e
         self.z = z
