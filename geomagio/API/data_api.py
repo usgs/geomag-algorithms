@@ -1,11 +1,12 @@
 from datetime import datetime
+import enum
 from fastapi import FastAPI, Query, Request
 from json import dumps
 from obspy import UTCDateTime
 import os
 from pydantic import BaseModel
 from starlette.responses import Response
-from typing import List, Any
+from typing import List, Any, Union
 
 
 from ..edge import EdgeFactory
@@ -17,8 +18,7 @@ from ..TimeseriesUtility import get_interval_from_delta
 DEFAULT_DATA_TYPE = "variation"
 DEFAULT_ELEMENTS = ["X", "Y", "Z", "F"]
 DEFAULT_OUTPUT_FORMAT = "iaga2002"
-DEFAULT_SAMPLING_PERIOD = "60"
-DEFAULT_STARTTIME = datetime.now()
+DEFAULT_SAMPLING_PERIOD = 60
 ERROR_CODE_MESSAGES = {
     204: "No Data",
     400: "Bad Request",
@@ -29,7 +29,6 @@ ERROR_CODE_MESSAGES = {
     503: "Service Unavailable",
 }
 REQUEST_LIMIT = 345600
-VALID_DATA_TYPES = ["variation", "adjusted", "quasi-definitive", "definitive"]
 VALID_ELEMENTS = [
     "D",
     "DIST",
@@ -74,12 +73,29 @@ VALID_OBSERVATORIES = [
     "TUC",
     "USGS",
 ]
-VALID_OUTPUT_FORMATS = ["iaga2002", "json"]
-VALID_SAMPLING_PERIODS = [0.1, 1, 60, 3600, 86400]
 VERSION = "version"
 
-
 app = FastAPI(docs_url="/data")
+
+
+class SamplingPeriod(float, enum.Enum):
+    TEN_HERTZ = 0.1
+    SECOND = 1.0
+    MINUTE = 60
+    HOUR = 3600
+    DAY = 86400
+
+
+class DataType(str, enum.Enum):
+    Variation = "variation"
+    Adjusted = "adjusted"
+    Quasi_Definitive = "quasi-definitive"
+    Definitive = "definitive"
+
+
+class OutputFormat(str, enum.Enum):
+    Iaga2002 = "iaga2002"
+    JSON = "json"
 
 
 class WebServiceException(Exception):
@@ -92,27 +108,27 @@ class WebServiceQuery(BaseModel):
     observatory_id: str
     starttime: Any
     endtime: Any
-    elements: List[str] = DEFAULT_ELEMENTS
-    sampling_period: int = DEFAULT_SAMPLING_PERIOD
-    data_type: str = DEFAULT_DATA_TYPE
-    output_format: str = DEFAULT_OUTPUT_FORMAT
+    elements: List[str]
+    sampling_period: SamplingPeriod
+    data_type: Union[DataType, str]
+    output_format: OutputFormat
 
 
 @app.get("/data/")
-def read_query(
+def get_data(
     request: Request,
     id: str,
-    starttime: Any = Query(DEFAULT_STARTTIME),
-    endtime: Any = Query(None),
+    starttime: datetime = Query(None),
+    endtime: datetime = Query(None),
     elements: List[str] = Query(DEFAULT_ELEMENTS),
-    sampling_period: float = Query(DEFAULT_SAMPLING_PERIOD),
-    data_type: str = Query(DEFAULT_DATA_TYPE),
-    format: str = Query(DEFAULT_OUTPUT_FORMAT),
+    sampling_period: SamplingPeriod = Query(DEFAULT_SAMPLING_PERIOD),
+    data_type: Union[DataType, str] = Query(DEFAULT_DATA_TYPE),
+    format: OutputFormat = Query(DEFAULT_OUTPUT_FORMAT),
 ):
     if len(elements) == 1 and "," in elements[0]:
         elements = [e.strip() for e in elements[0].split(",")]
 
-    observatory = {
+    query = {
         "observatory_id": id,
         "starttime": starttime,
         "endtime": endtime,
@@ -122,15 +138,42 @@ def read_query(
         "output_format": format,
     }
 
+    if query["starttime"] == None:
+        now = datetime.now()
+        query["starttime"] = UTCDateTime(year=now.year, month=now.month, day=now.day)
+
+    else:
+        try:
+            query["starttime"] = UTCDateTime(query["starttime"])
+
+        except Exception as e:
+            raise WebServiceException(
+                f"Bad starttime value '{query['starttime']}'."
+                " Valid values are ISO-8601 timestamps."
+            ) from e
+
+    if query["endtime"] == None:
+        endtime = query["starttime"] + (24 * 60 * 60 - 1)
+        query["endtime"] = endtime
+
+    else:
+        try:
+            query["endtime"] = UTCDateTime(query["endtime"])
+        except Exception as e:
+            raise WebServiceException(
+                f"Bad endtime value '{query['endtime']}'."
+                " Valid values are ISO-8601 timestamps."
+            ) from e
+
     try:
-        parsed_query = parse_query(observatory)
-        validate_query(parsed_query)
+        params = WebServiceQuery(**query)
+        validate_query(params)
     except Exception as e:
         return format_error(400, e, format, request)
 
     try:
-        timeseries = get_timeseries(parsed_query)
-        return format_timeseries(timeseries, parsed_query)
+        timeseries = get_timeseries(params)
+        return format_timeseries(timeseries, params)
     except Exception as e:
         return format_error(500, e, format, request)
 
@@ -263,56 +306,16 @@ def json_error(code: int, error: Exception, request):
     return dumps(error_dict).encode("utf8")
 
 
-def parse_query(query):
-
-    try:
-        query["starttime"] = UTCDateTime(query["starttime"])
-
-    except Exception as e:
-        raise WebServiceException(
-            f"Bad starttime value '{query['starttime']}'."
-            " Valid values are ISO-8601 timestamps."
-        ) from e
-
-    if query["endtime"] == None:
-        endtime = query["starttime"] + (24 * 60 * 60 - 1)
-        query["endtime"] = endtime
-
-    else:
-        try:
-            endtime = query["endtime"]
-            endtime = UTCDateTime(endtime)
-            query["endtime"] = endtime
-        except Exception as e:
-            raise WebServiceException(
-                f"Bad endtime value '{query['endtime']}'."
-                " Valid values are ISO-8601 timestamps."
-            ) from e
-
-    params = WebServiceQuery(**query)
-    return params
-
-
 def validate_query(query):
-    if query.data_type not in VALID_DATA_TYPES:
+    if len(query.data_type) > 2 and query.data_type not in DataType:
         raise WebServiceException(
             f"Bad data type value '{query.data_type}'."
-            f" Valid values are: {', '.join(VALID_DATA_TYPES)}."
+            f" Valid values are: {DataType.Adjusted}, {DataType.Variation}, {DataType.Definitive} and {DataType.Quasi_Definitive}."
         )
     if query.observatory_id not in VALID_OBSERVATORIES:
         raise WebServiceException(
             f"Bad observatory id '{query.observatory_id}'."
             f" Valid values are: {', '.join(VALID_OBSERVATORIES)}."
-        )
-    if query.output_format not in VALID_OUTPUT_FORMATS:
-        raise WebServiceException(
-            f"Bad format value '{query.output_format}'."
-            f" Valid values are: {', '.join(VALID_OUTPUT_FORMATS)}."
-        )
-    if query.sampling_period not in VALID_SAMPLING_PERIODS:
-        raise WebServiceException(
-            f"Bad sampling_period value '{query.sampling_period}'."
-            f" Valid values are: {', '.join(VALID_SAMPLING_PERIODS)}."
         )
     # validate combinations
     if len(query.elements) > 4 and query.output_format == "iaga2002":
@@ -320,7 +323,7 @@ def validate_query(query):
             "No more than four elements allowed for iaga2002 format."
         )
     if query.starttime > query.endtime:
-        raise WebServiceException("starttime must be before endtime.")
+        raise WebServiceException("Starttime must be before endtime.")
     # check data volume
     samples = int(
         len(query.elements) * (query.endtime - query.starttime) / query.sampling_period
