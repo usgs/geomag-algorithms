@@ -2,8 +2,18 @@ import numpy as np
 from .Ordinate import Ordinate
 
 
-# class object for performing calculations
 class Calculate(object):
+    """
+    Class object for performing calculations.
+    Contains the following:
+    angle: average angle across a measurement type
+    residual: average residual across a measurement type
+    hs: Multiplier for inclination claculations. +1 if measurment was taken in northern hemisphere, -1 if measurement was taken in the southern hemishpere.
+    ordinate: Variometer data. Ordinate object(contains a datapoint for H, E, Z, and F)
+    ud: Multiplier for inclination calculations. +1 if instrument is oriented upward, -1 if instrument if oriented downward.
+    shift: Degree shift in inclination measurements.
+    """
+
     def __init__(
         self,
         angle: float = None,
@@ -35,7 +45,7 @@ def calculate_I(measurements, ordinates, ordinates_index, total_ordinate, metada
     # 1 if observatory is in northern hemisphere
     # -1 if observatory is in southern hemisphere
     hs = metadata["hemisphere"]
-    # gather average angles for each measurement type
+    # gather calculation objects for each measurement type
     southdown = process_type(
         shift=-180,
         inclination=Iprime,
@@ -118,7 +128,7 @@ def calculate_D(ordinates, measurements, measurements_index, AZ, Hb):
     average_mark = np.average(
         [m.angle for m in measurements if "mark" in m.measurement_type.capitalize()]
     )
-    # gather average angles for each measurement type
+    # gather calculation objects for each measurement type
     southdown = process_type(
         measurements=measurements_index,
         ordinates=ordinates,
@@ -243,6 +253,8 @@ def average_ordinate(ordinates, type):
         ordinates = ordinates[type][:-1]
     elif type is not None:
         ordinates = ordinates[type]
+    elif type is None:
+        ordinates = ordinates[:-1]
     o = Ordinate(measurement_type=type)
     avgs = np.average([[o.h, o.e, o.z, o.f] for o in ordinates], axis=0,)
     o.h, o.e, o.z, o.f = avgs
