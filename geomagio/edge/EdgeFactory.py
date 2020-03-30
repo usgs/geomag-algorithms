@@ -484,9 +484,14 @@ class EdgeFactory(TimeseriesFactory):
         location = self._get_edge_location(observatory, channel, type, interval)
         network = self._get_edge_network(observatory, channel, type, interval)
         edge_channel = self._get_edge_channel(observatory, channel, type, interval)
-        data = self.client.get_waveforms(
-            network, station, location, edge_channel, starttime, endtime
-        )
+        try:
+            data = self.client.get_waveforms(
+                network, station, location, edge_channel, starttime, endtime
+            )
+        except TypeError:
+            # get_waveforms() fails if no data is returned from Edge
+            data = obspy.core.Stream()
+
         # make sure data is 32bit int
         for trace in data:
             trace.data = trace.data.astype("i4")
