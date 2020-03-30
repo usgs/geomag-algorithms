@@ -1,31 +1,23 @@
 from datetime import datetime
 import enum
-from json import dumps
 import os
-from typing import List, Any, Union
+from typing import Any, List, Union
 
-from fastapi import FastAPI, Query, Request, Depends, HTTPException
+from fastapi import Depends, FastAPI, Query, Request
 from obspy import UTCDateTime
-from pydantic import BaseModel, validator, ValidationError, root_validator
-from starlette.responses import PlainTextResponse, Response
-from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 
-from ..edge import EdgeFactory
-from ..iaga2002 import IAGA2002Writer
-from ..imfjson import IMFJSONWriter
-from ..TimeseriesUtility import get_interval_from_delta
-from fastapi.exception_handlers import (
-    http_exception_handler,
-    request_validation_exception_handler,
-)
+from ...edge import EdgeFactory
+from ...iaga2002 import IAGA2002Writer
+from ...imfjson import IMFJSONWriter
+from ...TimeseriesUtility import get_interval_from_delta
+from .DataApiQuery import *
 
 
-DEFAULT_DATA_TYPE = "variation"
 DEFAULT_ELEMENTS = ["X", "Y", "Z", "F"]
-DEFAULT_OUTPUT_FORMAT = "iaga2002"
-DEFAULT_SAMPLING_PERIOD = 60
 ERROR_CODE_MESSAGES = {
     204: "No Data",
     400: "Bad Request",
@@ -35,120 +27,10 @@ ERROR_CODE_MESSAGES = {
     501: "Not Implemented",
     503: "Service Unavailable",
 }
-REQUEST_LIMIT = 345600
-VALID_DATA_TYPES = ["variation", "adjusted", "quasi-definitive", "definitive"]
-VALID_ELEMENTS = [
-    "D",
-    "DIST",
-    "DST",
-    "E",
-    "E-E",
-    "E-N",
-    "F",
-    "G",
-    "H",
-    "SQ",
-    "SV",
-    "UK1",
-    "UK2",
-    "UK3",
-    "UK4",
-    "X",
-    "Y",
-    "Z",
-]
-VALID_OBSERVATORIES = [
-    "BDT",
-    "BOU",
-    "BRT",
-    "BRW",
-    "BSL",
-    "CMO",
-    "CMT",
-    "DED",
-    "DHT",
-    "FDT",
-    "FRD",
-    "FRN",
-    "GUA",
-    "HON",
-    "NEW",
-    "SHU",
-    "SIT",
-    "SJG",
-    "SJT",
-    "TST",
-    "TUC",
-    "USGS",
-]
+
 VERSION = "version"
 
 app = FastAPI(docs_url="/data")
-
-
-class DataType(str, enum.Enum):
-    VARIATION = "variation"
-    ADJUSTED = "adjusted"
-    QUASI_DEFINITIVE = "quasi-definitive"
-    DEFINITIVE = "definitive"
-
-
-class OutputFormat(str, enum.Enum):
-    IAGA2002 = "iaga2002"
-    JSON = "json"
-
-
-class SamplingPeriod(float, enum.Enum):
-    TEN_HERTZ = 0.1
-    SECOND = 1.0
-    MINUTE = 60
-    HOUR = 3600
-    DAY = 86400
-
-
-class WebServiceQuery(BaseModel):
-    id: str
-    starttime: Any
-    endtime: Any
-    elements: List[str]
-    sampling_period: SamplingPeriod
-    data_type: Union[DataType, str]
-    format: OutputFormat
-
-    @validator("data_type")
-    def validate_data_type(cls, data_type):
-        if len(data_type) != 2 and data_type not in DataType:
-            raise ValueError(
-                f"Bad data type value '{data_type}'. Valid values are: {', '.join(VALID_DATA_TYPES)}"
-            )
-
-    # @root_validator
-    # def validate_times(cls, values):
-    #     print("**************************************")
-    #     # print(values)
-    #     # print("**************************************")
-    #     # starttime, endtime = values["starttime"], values["endtime"]
-    #     # print(starttime)
-    #     # print(endtime)
-    #     # if starttime > endtime:
-    #     #     raise ValueError("Starttime must be before endtime.")
-
-    @validator("elements")
-    def validate_elements(cls, elements):
-        for element in elements:
-            if element not in VALID_ELEMENTS and len(element) != 3:
-                raise ValueError(
-                    f"Bad element '{element}'."
-                    f"Valid values are: {', '.join(VALID_ELEMENTS)}."
-                )
-
-    @validator("id")
-    def validate_id(cls, id):
-        if id not in VALID_OBSERVATORIES:
-            raise ValueError(
-                f"Bad observatory id '{id}'."
-                f" Valid values are: {', '.join(VALID_OBSERVATORIES)}."
-            )
 
 
 def format_error(status_code, exception, format, request):
@@ -279,14 +161,14 @@ def json_error(code: int, error: Exception, url):
 
 
 def parse_query(
-    id: str = Query(None),
+    id: str,
     starttime: Any = Query(None),
     endtime: Any = Query(None),
     elements: List[str] = Query(DEFAULT_ELEMENTS),
-    sampling_period: SamplingPeriod = Query(DEFAULT_SAMPLING_PERIOD),
-    data_type: Union[DataType, str] = Query(DEFAULT_DATA_TYPE),
-    format: OutputFormat = Query(DEFAULT_OUTPUT_FORMAT),
-) -> WebServiceQuery:
+    sampling_period: SamplingPeriod = Query(SamplingPeriod.HOUR),
+    data_type: Union[DataType, str] = Query(DataType.VARIATION),
+    format: OutputFormat = Query(OutputFormat.IAGA2002),
+) -> DataApiQuery:
 
     if len(elements) == 0:
         elements = DEFAULT_ELEMENTS
@@ -318,8 +200,7 @@ def parse_query(
                 f"Bad endtime value '{endtime}'."
                 " Valid values are ISO-8601 timestamps."
             ) from e
-    print(type(id))
-    params = WebServiceQuery(
+    params = DataApiQuery(
         id=id,
         starttime=starttime,
         endtime=endtime,
@@ -328,28 +209,8 @@ def parse_query(
         data_type=data_type,
         format=format,
     )
-    print(params)
-    params.id = id
-    params.elements = elements
-    params.data_type = data_type
-    print("***********")
-    print(params)
 
     return params
-
-
-def validate_query(query):
-
-    # validate combinations
-    if len(query.elements) > 4 and query.format == "iaga2002":
-        raise ValueError("No more than four elements allowed for iaga2002 format.")
-
-    # check data volume
-    samples = int(
-        len(query.elements) * (query.endtime - query.starttime) / query.sampling_period
-    )
-    if samples > REQUEST_LIMIT:
-        raise ValueError(f"Query exceeds request limit ({samples} > 345600)")
 
 
 @app.exception_handler(ValueError)
@@ -359,7 +220,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 @app.get("/data/")
-def get_data(request: Request, query: WebServiceQuery = Depends(parse_query)):
+def get_data(request: Request, query: DataApiQuery = Depends(parse_query)):
     try:
         timeseries = get_timeseries(query)
         return format_timeseries(timeseries, query)
