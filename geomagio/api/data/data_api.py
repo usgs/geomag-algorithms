@@ -4,20 +4,19 @@ import os
 from typing import Any, List, Union
 
 from fastapi import Depends, FastAPI, Query, Request
-from obspy import UTCDateTime
 from fastapi.exceptions import RequestValidationError
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.responses import JSONResponse
+from obspy import UTCDateTime
 from starlette.responses import Response
 
+from .DataApiQuery import DataApiQuery, DataType, OutputFormat, SamplingPeriod
 from ...edge import EdgeFactory
 from ...iaga2002 import IAGA2002Writer
 from ...imfjson import IMFJSONWriter
 from ...TimeseriesUtility import get_interval_from_delta
-from .DataApiQuery import *
 
 
-DEFAULT_ELEMENTS = ["X", "Y", "Z", "F"]
 ERROR_CODE_MESSAGES = {
     204: "No Data",
     400: "Bad Request",
@@ -30,10 +29,11 @@ ERROR_CODE_MESSAGES = {
 
 VERSION = "version"
 
-app = FastAPI(docs_url="/data")
 
-
-def format_error(status_code, exception, format, request):
+def format_error(
+    status_code: int, exception: str, format: str, request: Request
+) -> str or dict:
+    """Assign error_body value based on error format."""
     if format == "json":
 
         error = JSONResponse(json_error(status_code, exception, request.url))
@@ -46,7 +46,7 @@ def format_error(status_code, exception, format, request):
     return error
 
 
-def format_timeseries(timeseries, query):
+def format_timeseries(timeseries, query: DataApiQuery) -> str:
     """Formats timeseries into JSON or IAGA data
 
     Parameters
@@ -54,7 +54,7 @@ def format_timeseries(timeseries, query):
     obspy.core.Stream
         timeseries object with requested data
 
-    WebServiceQuery
+    DataApiQuery
         parsed query object
 
     Returns
@@ -92,12 +92,12 @@ def get_data_factory():
         return None
 
 
-def get_timeseries(query):
+def get_timeseries(query: DataApiQuery):
     """Get timeseries data
 
     Parameters
     ----------
-     WebServiceQuery
+     DataApiQuery
         parsed query object
 
     Returns
@@ -108,8 +108,8 @@ def get_timeseries(query):
     data_factory = get_data_factory()
 
     timeseries = data_factory.get_timeseries(
-        starttime=query.starttime,
-        endtime=query.endtime,
+        starttime=UTCDateTime(query.starttime),
+        endtime=UTCDateTime(query.endtime),
         observatory=query.id,
         channels=query.elements,
         type=query.data_type,
@@ -118,7 +118,14 @@ def get_timeseries(query):
     return timeseries
 
 
-def iaga2002_error(code, error, url):
+def iaga2002_error(code: int, error: Exception, url: str) -> str:
+    """Format iaga2002 error message.
+
+    Returns
+    -------
+    error_body : str
+        body of iaga2002 error message.
+    """
     status_message = ERROR_CODE_MESSAGES[code]
     error_body = f"""Error {code}: {status_message}
 
@@ -138,7 +145,7 @@ Service Version:
     return error_body
 
 
-def json_error(code: int, error: Exception, url):
+def json_error(code: int, error: Exception, url: str) -> dict:
     """Format json error message.
 
     Returns
@@ -162,18 +169,17 @@ def json_error(code: int, error: Exception, url):
 
 def parse_query(
     id: str,
-    starttime: Any = Query(None),
-    endtime: Any = Query(None),
-    elements: List[str] = Query(DEFAULT_ELEMENTS),
-    sampling_period: SamplingPeriod = Query(SamplingPeriod.HOUR),
-    data_type: Union[DataType, str] = Query(DataType.VARIATION),
-    format: OutputFormat = Query(OutputFormat.IAGA2002),
+    starttime: datetime = Query(None),
+    endtime: datetime = Query(None),
+    elements: List[str] = Query(None),
+    sampling_period: SamplingPeriod = Query(None),
+    data_type: Union[DataType, str] = Query(None),
+    format: OutputFormat = Query(None),
 ) -> DataApiQuery:
 
-    if len(elements) == 0:
-        elements = DEFAULT_ELEMENTS
-    if len(elements) == 1 and "," in elements[0]:
-        elements = [e.strip() for e in elements[0].split(",")]
+    if elements != None:
+        if len(elements) == 1 and "," in elements[0]:
+            elements = [e.strip() for e in elements[0].split(",")]
 
     if starttime == None:
         now = datetime.now()
@@ -213,9 +219,15 @@ def parse_query(
     return params
 
 
+app = FastAPI(docs_url="/data")
+
+
 @app.exception_handler(ValueError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    data_format = str(request.query_params["format"])
+    if "format" in request.query_params:
+        data_format = str(request.query_params["format"])
+    else:
+        data_format = "iaga2002"
     return format_error(400, str(exc), data_format, request)
 
 

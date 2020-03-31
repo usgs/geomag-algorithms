@@ -1,8 +1,11 @@
+from datetime import datetime
 import enum
 from typing import Any, List, Union
 
 from pydantic import BaseModel, root_validator, validator
 
+
+DEFAULT_ELEMENTS = ["X", "Y", "Z", "F"]
 REQUEST_LIMIT = 345600
 VALID_DATA_TYPES = ["variation", "adjusted", "quasi-definitive", "definitive"]
 VALID_ELEMENTS = [
@@ -73,12 +76,28 @@ class SamplingPeriod(float, enum.Enum):
 
 class DataApiQuery(BaseModel):
     id: str
-    starttime: Any
-    endtime: Any
+    starttime: datetime
+    endtime: datetime
     elements: List[str]
     sampling_period: SamplingPeriod
     data_type: Union[DataType, str]
     format: OutputFormat
+
+    @validator("data_type", pre=True, always=True)
+    def set_data_type(cls, data_type):
+        return data_type or DataType.VARIATION
+
+    @validator("elements", pre=True, always=True)
+    def set_elements(cls, elements):
+        return elements or DEFAULT_ELEMENTS
+
+    @validator("sampling_period", pre=True, always=True)
+    def set_sampling_period(cls, sampling_period):
+        return sampling_period or SamplingPeriod.HOUR
+
+    @validator("format", pre=True, always=True)
+    def set_format(cls, format):
+        return format or OutputFormat.IAGA2002
 
     @validator("data_type")
     def validate_data_type(cls, data_type):
@@ -122,7 +141,9 @@ class DataApiQuery(BaseModel):
         if len(elements) > 4 and format == "iaga2002":
             raise ValueError("No more than four elements allowed for iaga2002 format.")
 
-        samples = int(len(elements) * (endtime - starttime) / sampling_period)
+        samples = int(
+            len(elements) * (endtime - starttime).total_seconds() / sampling_period
+        )
         # check data volume
         if samples > REQUEST_LIMIT:
             raise ValueError(f"Query exceeds request limit ({samples} > 345600)")
