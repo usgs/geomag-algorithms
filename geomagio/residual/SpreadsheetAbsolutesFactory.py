@@ -9,7 +9,6 @@ from .Measurement import Measurement
 from .MeasurementType import MeasurementType as mt
 from .Reading import Reading
 from . import Angle
-from ..edge import EdgeFactory
 from .Ordinate import Ordinate
 
 
@@ -44,7 +43,94 @@ SPREADSHEET_MEASUREMENTS = [
     {"type": mt.SOUTH_UP, "angle": "D42", "residual": "E42", "time": "B42"},
     {"type": mt.NORTH_DOWN, "angle": "D43", "residual": "E43", "time": "B43"},
     {"type": mt.NORTH_DOWN, "angle": "D44", "residual": "E44", "time": "B44"},
-    {"type": mt.NORTH_DOWN, "angle": "D45", "residual": "E45", "time": "B45"},
+    # scaling
+    {"type": mt.NORTH_DOWN_SCALE, "angle": "D44", "residual": "E44", "time": "B44"},
+    {"type": mt.NORTH_DOWN_SCALE, "angle": "D45", "residual": "E45", "time": "B45"},
+]
+
+SPREADSHEET_ORDINATES = [
+    # inclination
+    {
+        "type": mt.SOUTH_DOWN,
+        "h": "C50",
+        "e": "D50",
+        "z": "E50",
+        "f": "B50",
+        "time": "A50",
+    },
+    {
+        "type": mt.SOUTH_DOWN,
+        "h": "C51",
+        "e": "D51",
+        "z": "E51",
+        "f": "B51",
+        "time": "A51",
+    },
+    {
+        "type": mt.NORTH_UP,
+        "h": "C52",
+        "e": "D52",
+        "z": "E52",
+        "f": "B52",
+        "time": "A52",
+    },
+    {
+        "type": mt.NORTH_UP,
+        "h": "C53",
+        "e": "D53",
+        "z": "E53",
+        "f": "B53",
+        "time": "A53",
+    },
+    {
+        "type": mt.SOUTH_UP,
+        "h": "C54",
+        "e": "D54",
+        "z": "E54",
+        "f": "B54",
+        "time": "A54",
+    },
+    {
+        "type": mt.SOUTH_UP,
+        "h": "C55",
+        "e": "D55",
+        "z": "E55",
+        "f": "B55",
+        "time": "A55",
+    },
+    {
+        "type": mt.NORTH_DOWN,
+        "h": "C56",
+        "e": "D56",
+        "z": "E56",
+        "f": "B56",
+        "time": "A56",
+    },
+    {
+        "type": mt.NORTH_DOWN,
+        "h": "C57",
+        "e": "D57",
+        "z": "E57",
+        "f": "B57",
+        "time": "A57",
+    },
+    # scaling
+    {
+        "type": mt.NORTH_DOWN_SCALE,
+        "h": "C57",
+        "e": "D57",
+        "z": "E57",
+        "f": "B57",
+        "time": "A57",
+    },
+    {
+        "type": mt.NORTH_DOWN_SCALE,
+        "h": "C58",
+        "e": "D58",
+        "z": "E58",
+        "f": "B58",
+        "time": "A58",
+    },
 ]
 
 
@@ -122,9 +208,7 @@ class SpreadsheetAbsolutesFactory(object):
         )
         ordinates = (
             include_measurements
-            and self._gather_ordinates(
-                measurement_sheet, metadata["date"], metadata["station"]
-            )
+            and self._parse_ordinates(measurement_sheet, metadata["date"],)
             or None
         )
         return Reading(
@@ -194,39 +278,28 @@ class SpreadsheetAbsolutesFactory(object):
             )
         return measurements
 
-    def _gather_ordinates(
-        self, sheet: openpyxl.worksheet, base_date, observatory: str
+    def _parse_ordinates(
+        self, sheet: openpyxl.worksheet, base_date: str
     ) -> List[Ordinate]:
-        """Gather ordinates from EdgeFactory using times in measurement spreadsheet.
+        """Parse ordinates from a measurement sheet.
         """
         ordinates = []
-        for m in SPREADSHEET_MEASUREMENTS:
+        for m in SPREADSHEET_ORDINATES:
             measurement_type = m["type"]
+            h = "h" in m and sheet[m["h"]].value or None
+            e = "e" in m and sheet[m["e"]].value or None
+            z = "z" in m and sheet[m["z"]].value or None
+            f = "f" in m and sheet[m["f"]].value or None
             time = (
                 "time" in m
                 and parse_relative_time(base_date, sheet[m["time"]].value)
                 or None
             )
-            if time is not None:
-                e = EdgeFactory()
-                stream = e.get_timeseries(
-                    observatory=observatory,
-                    type="variation",
-                    interval="second",
-                    # left as hard coded dates becauase of available data
-                    starttime=time,
-                    endtime=time,
-                    channels=["H", "E", "Z", "F"],
+            ordinates.append(
+                Ordinate(
+                    measurement_type=measurement_type, h=h, e=e, z=z, f=f, time=time,
                 )
-                ordinates.append(
-                    Ordinate(
-                        measurement_type=measurement_type,
-                        h=stream.select(channel="H")[0].data[0],
-                        e=stream.select(channel="E")[0].data[0],
-                        z=stream.select(channel="Z")[0].data[0],
-                        f=stream.select(channel="F")[0].data[0],
-                    )
-                )
+            )
         return ordinates
 
     def _parse_metadata(

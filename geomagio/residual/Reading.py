@@ -7,14 +7,7 @@ from .Absolute import Absolute
 from .Measurement import Measurement
 from .MeasurementType import MeasurementType
 from .Ordinate import Ordinate
-from .Calculation import (
-    calculate_scale,
-    calculate_I,
-    calculate_baselines,
-    calculate_absolutes,
-    calculate_D,
-    average_ordinate,
-)
+from .Calculation import calculate
 
 
 class Reading(BaseModel):
@@ -42,44 +35,9 @@ class Reading(BaseModel):
         """
         return {a.element: a for a in self.absolutes}
 
-    def calculate(self):
-        # get average ordinate values across h, e, z, and f
-        total_ordinate = average_ordinate(self.ordinates, None)
-        # calculate inclination
-        inclination, f = calculate_I(
-            self.measurement_index(),
-            self.ordinates,
-            self.ordinate_index(),
-            total_ordinate,
-            self.metadata,
-        )
-        # calculate absolutes
-        Habs, Zabs, Fabs = calculate_absolutes(
-            f, inclination, self.metadata["pier_correction"]
-        )
-        # calculate baselines
-        Hb, Zb = calculate_baselines(Habs, Zabs, total_ordinate)
-        # calculate scale value for declination
-        scale = calculate_scale(
-            f, self.measurements, inclination, self.metadata["pier_correction"]
-        )
-        # calculate declination and
-        Db, Dabs = calculate_D(
-            self.ordinate_index(),
-            self.measurements,
-            self.measurement_index(),
-            self.metadata["mark_azimuth"],
-            Hb,
-        )
-
-        # return results as a set of Absolute objects along with the calculated scale value
-        resultH = Absolute(element="H", baseline=Hb, absolute=Habs)
-        resultD = Absolute(element="D", baseline=Db, absolute=Dabs)
-        resultZ = Absolute(element="Z", baseline=Zb, absolute=Zabs)
-        resultF = Absolute(element="F", baseline=None, absolute=Fabs)
-        result = [resultH, resultD, resultZ, resultF]
-
-        return result, scale
+    # FIXME: Move method into calculation module. Make a method in this module that updates absolutes
+    def update_absolutes(self):
+        self.absolutes = calculate(self)
 
     def measurement_index(self) -> Dict[MeasurementType, List[Measurement]]:
         """Generate index of measurements keyed by MeasurementType.

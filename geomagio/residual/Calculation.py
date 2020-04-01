@@ -1,5 +1,6 @@
 import numpy as np
 from .Ordinate import Ordinate
+from .Absolute import Absolute
 
 
 class Calculate(object):
@@ -19,6 +20,7 @@ class Calculate(object):
         angle: float = None,
         residual: float = None,
         ordinate: Ordinate = None,
+        baseline: float = None,
         hs: int = None,
         ud: int = None,
         shift: int = None,
@@ -26,71 +28,124 @@ class Calculate(object):
         self.angle = angle
         self.residual = residual
         self.ordinate = ordinate
+        self.baseline = baseline
         self.hs = hs
+        self.ud = ud
         self.shift = shift
 
 
-def calculate_I(measurements, ordinates, ordinates_index, total_ordinate, metadata):
+def calculate(Reading):
+    # get average ordinate values across h, e, z, and f
+    # FIXME: call this mean
+    mean = average_ordinate(Reading.ordinates, None)
+    # calculate inclination
+    inclination, f = calculate_I(
+        Reading.measurement_index(),
+        Reading.ordinates,
+        Reading.ordinate_index(),
+        mean,
+        Reading.metadata,
+    )
+    # calculate absolutes
+    # FIXME: change to self.pier_correction
+    Habs, Zabs, Fabs = calculate_absolutes(
+        f, inclination, Reading.metadata["pier_correction"]
+    )
+    # calculate baselines
+    Hb, Zb = calculate_baselines(Habs, Zabs, mean)
+    # calculate scale value for declination
+    scale_measurements = Reading.measurement_index()["NorthDownScale"]
+    scale = calculate_scale(
+        f, scale_measurements, inclination, Reading.metadata["pier_correction"]
+    )
+    # calculate declination and
+    Db, Dabs = calculate_D(
+        Reading.ordinates,
+        Reading.measurements,
+        Reading.measurement_index(),
+        Reading.metadata["mark_azimuth"],
+        Hb,
+    )
+
+    # return results as a set of Absolute objects along with the calculated scale value
+    resultH = Absolute(element="H", baseline=Hb, absolute=Habs)
+    resultD = Absolute(element="D", baseline=Db, absolute=Dabs)
+    resultZ = Absolute(element="Z", baseline=Zb, absolute=Zabs)
+    resultF = Absolute(element="F", baseline=None, absolute=Fabs)
+    result = [resultH, resultD, resultZ, resultF]
+
+    return result
+
+
+def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     """
     Calculate inclination angles from measurements, ordinates,
     average ordinates from every measurement, and metadata.
     Returns inclination angle and calculated average f
     """
     # get first inclination angle, assumed to be southdown
-    Iprime = average_angle(measurements, "SouthDown")
+    Iprime = measurements["SouthDown"][0].angle
     if Iprime >= 90:
         Iprime -= 180
     Iprime = np.deg2rad(Iprime)
+    print(Iprime)
     # get multiplier for hempisphere the observatory is located in
     # 1 if observatory is in northern hemisphere
     # -1 if observatory is in southern hemisphere
     hs = metadata["hemisphere"]
     # gather calculation objects for each measurement type
-    southdown = process_type(
+    # FIXME: create calculation objects inline
+
+    # c = Calculate()
+    # c.angle = average_angle(measurements, type)
+    # c.residual = average_residual(measurements, type)
+    # c.ordinate = average_ordinate(ordinates, type)
+    # c.hs = hs
+    # c.ud = ud
+    # c.shift = shift
+    # c.baseline = baseline
+
+    southdown = Calculate(
         shift=-180,
-        inclination=Iprime,
         ud=-1,
-        measurements=measurements,
-        ordinates=ordinates_index,
-        total_ordinate=total_ordinate,
-        type="SouthDown",
         hs=hs,
+        angle=average_angle(measurements, "SouthDown"),
+        residual=average_residual(measurements, "SouthDown"),
+        ordinate=average_ordinate(ordinates_index, "SouthDown"),
     )
-    southup = process_type(
+
+    southup = Calculate(
         shift=180,
-        inclination=Iprime,
         ud=1,
-        measurements=measurements,
-        ordinates=ordinates_index,
-        total_ordinate=total_ordinate,
-        type="SouthUp",
         hs=hs,
+        angle=average_angle(measurements, "SouthUp"),
+        residual=average_residual(measurements, "SouthUp"),
+        ordinate=average_ordinate(ordinates_index, "SouthUp"),
     )
-    northup = process_type(
+
+    northup = Calculate(
         shift=0,
-        inclination=Iprime,
         ud=1,
-        measurements=measurements,
-        ordinates=ordinates_index,
-        total_ordinate=total_ordinate,
-        type="NorthUp",
         hs=hs,
+        angle=average_angle(measurements, "NorthUp"),
+        residual=average_residual(measurements, "NorthUp"),
+        ordinate=average_ordinate(ordinates_index, "NorthUp"),
     )
-    northdown = process_type(
+
+    northdown = Calculate(
         shift=0,
-        inclination=Iprime,
         ud=-1,
-        measurements=measurements,
-        ordinates=ordinates_index,
-        total_ordinate=total_ordinate,
-        type="NorthDown",
         hs=hs,
+        angle=average_angle(measurements, "NorthDown"),
+        residual=average_residual(measurements, "NorthDown"),
+        ordinate=average_ordinate(ordinates_index, "NorthDown"),
     )
+
     # gather measurements into array
     measurements = [southdown, southup, northdown, northup]
     # Get average inclination from measurments
     inclination = np.average(
-        [calculate_measurement_inclination(i, total_ordinate.f) for i in measurements]
+        [calculate_measurement_inclination(i, mean.f) for i in measurements]
     )
     # iterate calculations until the difference in the resultant inclination angle is less than 0.0001
     # intialize inclination for current step to be outside threshold specified in condition
@@ -99,26 +154,21 @@ def calculate_I(measurements, ordinates, ordinates_index, total_ordinate, metada
         # establish the inclination angle as the previously calculated average inclination angle
         Inclination = inclination
         # calculate average f component from each measurement
-        f_avg = np.average(
-            [calculate_f(i, total_ordinate, Inclination) for i in ordinates]
-        )
+        f_avg = np.average([calculate_f(i, mean, Inclination) for i in ordinates])
         # update ordinate's f value as the average f component
         # used in next iterations f_avg calculation
-        total_ordinate.f = f_avg
+        mean.f = f_avg
         # re-calculate inclination for measurement types
         inclination = np.average(
-            [
-                calculate_measurement_inclination(i, total_ordinate.f)
-                for i in measurements
-            ]
+            [calculate_measurement_inclination(i, mean.f) for i in measurements]
         )
         # transfer inclination angle from degrees to radians
         inclination = np.deg2rad(inclination)
 
-    return Inclination, total_ordinate.f
+    return inclination, mean.f
 
 
-def calculate_D(ordinates, measurements, measurements_index, AZ, Hb):
+def calculate_D(ordinates_index, measurements, measurements_index, AZ, Hb):
     """
     Calculate declination absolute and declination baseline from
     ordinates, measurements, measurement_index(dictionary), azimuth and H baseline
@@ -128,39 +178,36 @@ def calculate_D(ordinates, measurements, measurements_index, AZ, Hb):
     average_mark = np.average(
         [m.angle for m in measurements if "mark" in m.measurement_type.capitalize()]
     )
+
     # gather calculation objects for each measurement type
-    southdown = process_type(
-        measurements=measurements_index,
-        ordinates=ordinates,
+    westdown = Calculate(
         baseline=Hb,
-        type="SouthDown",
+        angle=average_angle(measurements_index, "WestDown"),
+        residual=average_residual(measurements_index, "WestDown"),
     )
-    southup = process_type(
-        measurements=measurements_index,
-        ordinates=ordinates,
+    westup = Calculate(
         baseline=Hb,
-        type="SouthUp",
+        angle=average_angle(measurements_index, "WestUp"),
+        residual=average_residual(measurements_index, "WestUp"),
     )
-    northdown = process_type(
-        measurements=measurements_index,
-        ordinates=ordinates,
+    eastdown = Calculate(
         baseline=Hb,
-        type="NorthDown",
+        angle=average_angle(measurements_index, "EastDown"),
+        residual=average_residual(measurements_index, "EastDown"),
     )
-    northup = process_type(
-        measurements=measurements_index,
-        ordinates=ordinates,
+    eastup = Calculate(
         baseline=Hb,
-        type="NorthUp",
+        angle=average_angle(measurements_index, "EastUp"),
+        residual=average_residual(measurements_index, "EastUp"),
     )
     # gather measurements into array
-    measurements = [southdown, southup, northup, northdown]
+    measurements = [westdown, westup, eastdown, eastup]
     # get average meridian angle from measurement types
     meridian = np.average([calculate_meridian_term(i) for i in measurements])
     # add average mark, meridian, and azimuth angle to get declination baseline
     Db = (average_mark + meridian + AZ) * 60
     # calculate declination absolute
-    Dabs = Db + np.arctan(southdown.ordinate.e / (Hb + southdown.ordinate.h)) * (
+    Dabs = Db + np.arctan(westdown.ordinate.e / (Hb + westdown.ordinate.h)) * (
         10800 / np.pi
     )
 
@@ -182,37 +229,34 @@ def calculate_absolutes(f, inclination, pier_correction):
     return Habs, Zabs, Fabs
 
 
-def calculate_baselines(Habs, Zabs, total_ordinate):
+def calculate_baselines(Habs, Zabs, mean):
     """
     Calculate baselines with H and Z absolutes, and
     average ordinates across all measurements.
     Returns H and Z baselines
     """
-    h_mean = total_ordinate.h
-    e_mean = total_ordinate.e
-    z_mean = total_ordinate.z
-
-    Hb = np.sqrt(Habs ** 2 - e_mean ** 2) - h_mean
-    Zb = Zabs - z_mean
+    Hb = np.sqrt(Habs ** 2 - mean.e ** 2) - mean.h
+    Zb = Zabs - mean.z
 
     return Hb, Zb
 
 
+# FIXME: call in scaling measurements rather than all measurements
 def calculate_scale(f, measurements, inclination, pier_correction):
     """
     Calculate scale value from calulated f(from inclination computations),
     calculated inclination, and pier correction(metadata)
     """
     i = np.deg2rad(inclination)
-    measurements = measurements[-2:]
-    angle_diff = (np.diff([m.angle for m in measurements]) / f)[0]
+    angle_diff = np.diff([m.angle for m in measurements]) / f
     A = np.cos(i) * angle_diff
     B = np.sin(i) * angle_diff
     delta_f = np.rad2deg(A - B)
-    detla_r = abs(np.diff([m.residual for m in measurements]))[0]
-    time_delta = np.diff([m.time for m in measurements])[0]
+    detla_r = abs(np.diff([m.residual for m in measurements]))
+    time_delta = np.diff([m.time for m in measurements])
     delta_b = delta_f + (time_delta / 60.0)
-    scale_value = f * np.deg2rad(delta_b / detla_r)
+    # scale_value = f * np.deg2rad(delta_b / detla_r)
+    scale_value = 1
 
     return scale_value
 
@@ -222,12 +266,8 @@ def average_angle(measurements, type):
     Compute average angle from a dictionary of
     measurements and specified measurement type.
     """
-    if type == "NorthDown":
-        # exclude final measurement, which is only used for scaling
-        measurements = measurements[type][:-1]
-    else:
-        measurements = measurements[type]
-    return np.average([m.angle for m in measurements])
+    # FIXME: change repetitive checks
+    return np.average([m.angle for m in measurements[type]])
 
 
 def average_residual(measurements, type):
@@ -235,12 +275,8 @@ def average_residual(measurements, type):
     Compute average residual from a dictionary
     of measurements and specified measurement type.
     """
-    if type == "NorthDown":
-        # exclude final measurement, which is only used for scaling
-        measurements = measurements[type][:-1]
-    else:
-        measurements = measurements[type]
-    return np.average([m.residual for m in measurements])
+    # FIXME: change repetitive checks
+    return np.average([m.residual for m in measurements[type]])
 
 
 def average_ordinate(ordinates, type):
@@ -248,62 +284,50 @@ def average_ordinate(ordinates, type):
     Compute average ordinate from a dictionary
     of ordinates and specified measurement type.
     """
-    if type == "NorthDown":
-        # exclude final measurement, which is only used for scaling
-        ordinates = ordinates[type][:-1]
-    elif type is not None:
+    # FIXME: change repetitive checks
+    if type is not None:
         ordinates = ordinates[type]
-    elif type is None:
-        ordinates = ordinates[:-1]
     o = Ordinate(measurement_type=type)
     avgs = np.average([[o.h, o.e, o.z, o.f] for o in ordinates], axis=0,)
     o.h, o.e, o.z, o.f = avgs
     return o
 
 
-def calculate_f(ordinate, total_ordinate, inclination):
+def calculate_f(ordinate, mean, inclination):
     """
     calculate f for a measurement type using a measurement's
     average ordinates, average ordinate across all measurements,
     and calculated inclination.
     """
     # get channel means form all ordinates
-    h_mean = total_ordinate.h
-    e_mean = total_ordinate.e
-    z_mean = total_ordinate.z
-    f_mean = total_ordinate.f
-    # get individual ordinate means
-    h = ordinate.h
-    e = ordinate.e
-    z = ordinate.z
+    # FIXME: don't unpack ordinates
     # calculate f using current step's inclination angle
     f = (
-        f_mean
-        + (h - h_mean) * np.cos(inclination)
-        + (z - z_mean) * np.sin(inclination)
-        + ((e) ** 2 - (e_mean) ** 2) / (2 * f_mean)
+        mean.f
+        + (ordinate.h - mean.h) * np.cos(inclination)
+        + (ordinate.z - mean.z) * np.sin(inclination)
+        + ((mean.e) ** 2 - (mean.e) ** 2) / (2 * mean.f)
     )
     return f
 
 
-def calculate_measurement_inclination(calculation, f):
+def calculate_measurement_inclination(calc, f):
     """
     Calculate a measurement's inclination value using
     Calculate items' elements.
     """
-    shift = calculation.shift
-    angle = calculation.angle
-    ud = calculation.ud
-    hs = calculation.hs
-    r = calculation.residual
-    return shift + angle + ud * np.rad2deg(hs * np.sin(r / f))
+    return (
+        calc.shift
+        + calc.angle
+        + calc.ud * np.rad2deg(calc.hs * np.sin(calc.residual / f))
+    )
 
 
 def process_type(
     measurements,
     ordinates,
     type,
-    total_ordinate=None,
+    mean=None,
     shift=None,
     ud=None,
     inclination=None,

@@ -1,4 +1,6 @@
 from .MeasurementType import MeasurementType
+from obspy.core import UTCDateTime
+from typing import Optional
 
 
 class Ordinate(object):
@@ -10,9 +12,11 @@ class Ordinate(object):
     h, e, z, f: one variometer reading for each channel per measurement
     """
 
+    # FIXME: Add a starttime and endtime
     def __init__(
         self,
         measurement_type: MeasurementType,
+        time: Optional[UTCDateTime] = None,
         h: float = 0,
         e: float = 0,
         z: float = 0,
