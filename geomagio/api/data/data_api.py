@@ -215,7 +215,7 @@ def parse_query(
     return params
 
 
-app = FastAPI(docs_url="/data")
+app = FastAPI(docs_url="/docs", openapi_prefix="/ws")
 
 
 @app.exception_handler(ValueError)
