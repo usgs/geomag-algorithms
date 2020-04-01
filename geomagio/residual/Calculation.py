@@ -37,11 +37,17 @@ class Calculate(object):
 def calculate(Reading):
     # get average ordinate values across h, e, z, and f
     # FIXME: call this mean
-    mean = average_ordinate(Reading.ordinates, None)
+    inclination_ordinates = [
+        o
+        for o in Reading.ordinates
+        if "South" in o.measurement_type.capitalize()
+        or "North" in o.measurement_type.capitalize()
+    ]
+    mean = average_ordinate(inclination_ordinates, None)
     # calculate inclination
     inclination, f = calculate_I(
         Reading.measurement_index(),
-        Reading.ordinates,
+        inclination_ordinates,
         Reading.ordinate_index(),
         mean,
         Reading.metadata,
@@ -60,7 +66,7 @@ def calculate(Reading):
     )
     # calculate declination and
     Db, Dabs = calculate_D(
-        Reading.ordinates,
+        Reading.ordinate_index(),
         Reading.measurements,
         Reading.measurement_index(),
         Reading.metadata["mark_azimuth"],
@@ -88,23 +94,12 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     if Iprime >= 90:
         Iprime -= 180
     Iprime = np.deg2rad(Iprime)
-    print(Iprime)
     # get multiplier for hempisphere the observatory is located in
     # 1 if observatory is in northern hemisphere
     # -1 if observatory is in southern hemisphere
     hs = metadata["hemisphere"]
     # gather calculation objects for each measurement type
     # FIXME: create calculation objects inline
-
-    # c = Calculate()
-    # c.angle = average_angle(measurements, type)
-    # c.residual = average_residual(measurements, type)
-    # c.ordinate = average_ordinate(ordinates, type)
-    # c.hs = hs
-    # c.ud = ud
-    # c.shift = shift
-    # c.baseline = baseline
-
     southdown = Calculate(
         shift=-180,
         ud=-1,
@@ -184,21 +179,25 @@ def calculate_D(ordinates_index, measurements, measurements_index, AZ, Hb):
         baseline=Hb,
         angle=average_angle(measurements_index, "WestDown"),
         residual=average_residual(measurements_index, "WestDown"),
+        ordinate=average_ordinate(ordinates_index, "WestDown"),
     )
     westup = Calculate(
         baseline=Hb,
         angle=average_angle(measurements_index, "WestUp"),
         residual=average_residual(measurements_index, "WestUp"),
+        ordinate=average_ordinate(ordinates_index, "WestUp"),
     )
     eastdown = Calculate(
         baseline=Hb,
         angle=average_angle(measurements_index, "EastDown"),
         residual=average_residual(measurements_index, "EastDown"),
+        ordinate=average_ordinate(ordinates_index, "EastDown"),
     )
     eastup = Calculate(
         baseline=Hb,
         angle=average_angle(measurements_index, "EastUp"),
         residual=average_residual(measurements_index, "EastUp"),
+        ordinate=average_ordinate(ordinates_index, "EastUp"),
     )
     # gather measurements into array
     measurements = [westdown, westup, eastdown, eastup]
@@ -252,11 +251,10 @@ def calculate_scale(f, measurements, inclination, pier_correction):
     A = np.cos(i) * angle_diff
     B = np.sin(i) * angle_diff
     delta_f = np.rad2deg(A - B)
-    detla_r = abs(np.diff([m.residual for m in measurements]))
-    time_delta = np.diff([m.time for m in measurements])
+    detla_r = abs(np.diff([m.residual for m in measurements]))[0]
+    time_delta = abs(np.diff([m.time for m in measurements]))[0]
     delta_b = delta_f + (time_delta / 60.0)
-    # scale_value = f * np.deg2rad(delta_b / detla_r)
-    scale_value = 1
+    scale_value = f * np.deg2rad(delta_b / detla_r)
 
     return scale_value
 

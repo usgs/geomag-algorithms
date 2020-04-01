@@ -49,6 +49,71 @@ SPREADSHEET_MEASUREMENTS = [
 ]
 
 SPREADSHEET_ORDINATES = [
+    # declination
+    {
+        "type": mt.WEST_DOWN,
+        "h": "F19",
+        "e": "G19",
+        "z": "H19",
+        "f": "F19",
+        "time": "B19",
+    },
+    {
+        "type": mt.WEST_DOWN,
+        "h": "F20",
+        "e": "G20",
+        "z": "H20",
+        "f": "F20",
+        "time": "B20",
+    },
+    {
+        "type": mt.EAST_DOWN,
+        "h": "F21",
+        "e": "G21",
+        "z": "H19",
+        "f": "F21",
+        "time": "B21",
+    },
+    {
+        "type": mt.EAST_DOWN,
+        "h": "F22",
+        "e": "G22",
+        "z": "H20",
+        "f": "F22",
+        "time": "B22",
+    },
+    {
+        "type": mt.WEST_UP,
+        "h": "F23",
+        "e": "G23",
+        "z": "H19",
+        "f": "F23",
+        "time": "B23",
+    },
+    {
+        "type": mt.WEST_UP,
+        "h": "F24",
+        "e": "G24",
+        "z": "H20",
+        "f": "F24",
+        "time": "B24",
+    },
+    {
+        "type": mt.EAST_UP,
+        "h": "F25",
+        "e": "G25",
+        "z": "H19",
+        "f": "F25",
+        "time": "B25",
+    },
+    {
+        "type": mt.EAST_UP,
+        "h": "F26",
+        "e": "G26",
+        "z": "H20",
+        "f": "F26",
+        "time": "B26",
+    },
     # inclination
     {
         "type": mt.SOUTH_DOWN,
