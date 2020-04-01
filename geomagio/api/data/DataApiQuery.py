@@ -84,12 +84,31 @@ class DataApiQuery(BaseModel):
     format: OutputFormat
 
     @validator("data_type", pre=True, always=True)
-    def set_data_type(cls, data_type):
-        return data_type or DataType.VARIATION
+    def set_and_validate_data_type(cls, data_type):
+        if not data_type:
+            return DataType.VARIATION
+
+        if len(data_type) != 2 and data_type not in DataType:
+            raise ValueError(
+                f"Bad data type value '{data_type}'. Valid values are: {', '.join(VALID_DATA_TYPES)}"
+            )
+        return data_type
 
     @validator("elements", pre=True, always=True)
-    def set_elements(cls, elements):
-        return elements or DEFAULT_ELEMENTS
+    def set_and_validate_elements(cls, elements):
+        if not elements:
+            return DEFAULT_ELEMENTS
+
+        if len(elements) == 1 and "," in elements[0]:
+            elements = [e.strip() for e in elements[0].split(",")]
+
+        for element in elements:
+            if element not in VALID_ELEMENTS and len(element) != 3:
+                raise ValueError(
+                    f"Bad element '{element}'."
+                    f"Valid values are: {', '.join(VALID_ELEMENTS)}."
+                )
+        return elements
 
     @validator("sampling_period", pre=True, always=True)
     def set_sampling_period(cls, sampling_period):
@@ -98,24 +117,6 @@ class DataApiQuery(BaseModel):
     @validator("format", pre=True, always=True)
     def set_format(cls, format):
         return format or OutputFormat.IAGA2002
-
-    @validator("data_type")
-    def validate_data_type(cls, data_type):
-        if len(data_type) != 2 and data_type not in DataType:
-            raise ValueError(
-                f"Bad data type value '{data_type}'. Valid values are: {', '.join(VALID_DATA_TYPES)}"
-            )
-        return data_type
-
-    @validator("elements")
-    def validate_elements(cls, elements):
-        for element in elements:
-            if element not in VALID_ELEMENTS and len(element) != 3:
-                raise ValueError(
-                    f"Bad element '{element}'."
-                    f"Valid values are: {', '.join(VALID_ELEMENTS)}."
-                )
-        return elements
 
     @validator("id")
     def validate_id(cls, id):

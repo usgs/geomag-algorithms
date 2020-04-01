@@ -1,20 +1,20 @@
 from datetime import datetime
 import enum
 import os
-from typing import Any, List, Union
+from typing import Any, Dict, List, Union
 
 from fastapi import Depends, FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.responses import JSONResponse
-from obspy import UTCDateTime
+from obspy import UTCDateTime, Stream
 from starlette.responses import Response
 
-from .DataApiQuery import DataApiQuery, DataType, OutputFormat, SamplingPeriod
 from ...edge import EdgeFactory
 from ...iaga2002 import IAGA2002Writer
 from ...imfjson import IMFJSONWriter
 from ...TimeseriesUtility import get_interval_from_delta
+from .DataApiQuery import DataApiQuery, DataType, OutputFormat, SamplingPeriod
 
 
 ERROR_CODE_MESSAGES = {
@@ -32,7 +32,7 @@ VERSION = "version"
 
 def format_error(
     status_code: int, exception: str, format: str, request: Request
-) -> str or dict:
+) -> Response:
     """Assign error_body value based on error format."""
     if format == "json":
 
@@ -46,7 +46,7 @@ def format_error(
     return error
 
 
-def format_timeseries(timeseries, query: DataApiQuery) -> str:
+def format_timeseries(timeseries, query: DataApiQuery) -> Stream:
     """Formats timeseries into JSON or IAGA data
 
     Parameters
@@ -145,7 +145,7 @@ Service Version:
     return error_body
 
 
-def json_error(code: int, error: Exception, url: str) -> dict:
+def json_error(code: int, error: Exception, url: str) -> Dict:
     """Format json error message.
 
     Returns
@@ -172,14 +172,10 @@ def parse_query(
     starttime: datetime = Query(None),
     endtime: datetime = Query(None),
     elements: List[str] = Query(None),
-    sampling_period: SamplingPeriod = Query(None),
-    data_type: Union[DataType, str] = Query(None),
-    format: OutputFormat = Query(None),
+    sampling_period: SamplingPeriod = Query(SamplingPeriod.HOUR),
+    data_type: Union[DataType, str] = Query(DataType.VARIATION),
+    format: OutputFormat = Query(OutputFormat.IAGA2002),
 ) -> DataApiQuery:
-
-    if elements != None:
-        if len(elements) == 1 and "," in elements[0]:
-            elements = [e.strip() for e in elements[0].split(",")]
 
     if starttime == None:
         now = datetime.now()
