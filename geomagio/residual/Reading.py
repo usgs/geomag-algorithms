@@ -38,6 +38,7 @@ class Reading(BaseModel):
     # FIXME: Move method into calculation module. Make a method in this module that updates absolutes
     def update_absolutes(self):
         self.absolutes = calculate(self)
+        return self.absolutes
 
     def measurement_index(self) -> Dict[MeasurementType, List[Measurement]]:
         """Generate index of measurements keyed by MeasurementType.

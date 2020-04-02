@@ -1,6 +1,7 @@
 import numpy as np
 from .Ordinate import Ordinate
 from .Absolute import Absolute
+from .MeasurementType import MeasurementType as mt
 
 
 class Calculate(object):
@@ -40,8 +41,9 @@ def calculate(Reading):
     inclination_ordinates = [
         o
         for o in Reading.ordinates
-        if "South" in o.measurement_type.capitalize()
-        or "North" in o.measurement_type.capitalize()
+        if o.measurement_type != mt.NORTH_DOWN_SCALE
+        and "West" not in o.measurement_type.capitalize()
+        and "East" not in o.measurement_type.capitalize()
     ]
     mean = average_ordinate(inclination_ordinates, None)
     # calculate inclination
@@ -90,9 +92,10 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     Returns inclination angle and calculated average f
     """
     # get first inclination angle, assumed to be southdown
-    Iprime = measurements["SouthDown"][0].angle
-    if Iprime >= 90:
-        Iprime -= 180
+    Iprime = average_angle(measurements, "SouthDown")
+    if Iprime >= 100:
+        Iprime -= 200
+    print(Iprime)
     Iprime = np.deg2rad(Iprime)
     # get multiplier for hempisphere the observatory is located in
     # 1 if observatory is in northern hemisphere
@@ -265,7 +268,7 @@ def average_angle(measurements, type):
     measurements and specified measurement type.
     """
     # FIXME: change repetitive checks
-    return np.average([m.angle for m in measurements[type]])
+    return np.average([convert_to_geon(m.angle) for m in measurements[type]])
 
 
 def average_residual(measurements, type):
@@ -367,3 +370,11 @@ def calculate_meridian_term(calculation):
     A2 = np.rad2deg(A2)
     meridian_term = calculation.angle - A1 - A2
     return meridian_term
+
+
+def convert_to_geon(angle):
+    degrees = int(angle)
+    minutes = int((angle % 1) * 100) / 60
+    seconds = ((angle * 100) % 1) / 36
+    dms = (degrees + minutes + seconds) / 0.9
+    return dms
