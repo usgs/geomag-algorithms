@@ -1,3 +1,10 @@
+class Element(BaseModel):
+    id: str
+    abbreviation: str
+    name: str
+    units: str
+
+
 elements = {
     "type": "FeatureCollection",
     "features": [
