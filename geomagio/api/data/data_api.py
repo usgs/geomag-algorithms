@@ -15,7 +15,7 @@ from ...iaga2002 import IAGA2002Writer
 from ...imfjson import IMFJSONWriter
 from ...TimeseriesUtility import get_interval_from_delta
 from .DataApiQuery import DataApiQuery, DataType, OutputFormat, SamplingPeriod
-
+from .elements import elements
 
 ERROR_CODE_MESSAGES = {
     204: "No Data",
@@ -234,3 +234,8 @@ def get_data(request: Request, query: DataApiQuery = Depends(parse_query)):
         return format_timeseries(timeseries, query)
     except Exception as e:
         return format_error(500, e, query.format, request)
+
+
+@app.get("/elements/")
+def get_elements():
+    return JSONResponse(elements)
