@@ -1,3 +1,6 @@
+from pydantic import BaseModel
+
+
 class Element(BaseModel):
     id: str
     abbreviation: str
