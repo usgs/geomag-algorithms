@@ -16,6 +16,11 @@ scipy = "*"
 obspy = ">1.2.0"
 pycurl = "*"
 authlib = "*"
+
+fastapi = "*"
+pydantic = "*"
+uvicorn = "*"
+
 flask = "*"
 flask-login = "*"
 flask-migrate = "*"
