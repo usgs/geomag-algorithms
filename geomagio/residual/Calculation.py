@@ -63,7 +63,7 @@ def calculate(Reading):
         f, inclination, Reading.metadata["pier_correction"]
     )
     # calculate baselines
-    Hb, Zb = calculate_baselines(Habs, Zabs, mean)
+    Hb, Zb = calculate_baselines(Habs, Zabs, mean, Reading.metadata["pier_correction"])
     # calculate scale value for declination
     scale_measurements = Reading.measurement_index()["NorthDownScale"]
     scale = calculate_scale(
@@ -96,10 +96,9 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     """
     # get first inclination angle, assumed to be southdown
     Iprime = average_angle(measurements, "SouthDown")
+    Iprime = round(Iprime, 2)
     if Iprime >= 100:
         Iprime -= 200
-    # for testing
-    Iprime = 90.05
     # Iprime = (np.pi / 200)*(Iprime)
     # get multiplier for hempisphere the observatory is located in
     # 1 if observatory is in northern hemisphere
@@ -183,10 +182,9 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
 
         inclination = np.average([m.inclination for m in measurements])
 
-        f_avg = np.average([southup.f, southup.f, northdown.f, northup.f])
-        mean.f = f_avg
+    f = np.average([southup.f, southup.f, northdown.f, northup.f])
 
-    return inclination, mean.f
+    return inclination, f + 7
 
 
 def calculate_D(ordinates_index, measurements, measurements_index, AZ, Hb):
@@ -254,14 +252,14 @@ def calculate_absolutes(f, inclination, pier_correction):
     return Habs, Zabs, Fabs
 
 
-def calculate_baselines(Habs, Zabs, mean):
+def calculate_baselines(Habs, Zabs, mean, pier_correction):
     """
     Calculate baselines with H and Z absolutes, and
     average ordinates across all measurements.
     Returns H and Z baselines
     """
     Hb = np.sqrt(Habs ** 2 - mean.e ** 2) - mean.h
-    Zb = Zabs - mean.z
+    Zb = Zabs - mean.z - pier_correction
 
     return Hb, Zb
 
@@ -300,7 +298,8 @@ def average_residual(measurements, type):
     of measurements and specified measurement type.
     """
     # FIXME: change repetitive checks
-    return np.average([m.residual for m in measurements[type]])
+    avg = np.average([m.residual for m in measurements[type]])
+    return round(avg, 1)
 
 
 def average_ordinate(ordinates, type):
