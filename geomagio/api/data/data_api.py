@@ -15,7 +15,7 @@ from ...iaga2002 import IAGA2002Writer
 from ...imfjson import IMFJSONWriter
 from ...TimeseriesUtility import get_interval_from_delta
 from .DataApiQuery import DataApiQuery, DataType, OutputFormat, SamplingPeriod
-from .elements import elements
+from .elements import ELEMENTS, ELEMENT_INDEX
 
 ERROR_CODE_MESSAGES = {
     204: "No Data",
@@ -238,4 +238,14 @@ def get_data(request: Request, query: DataApiQuery = Depends(parse_query)):
 
 @app.get("/elements/")
 def get_elements():
+    elements = {"type": "FeatureCollection", "features": []}
+    for e in ELEMENTS:
+        elements["features"].append(
+            {
+                "type": "Feature",
+                "id": e.id,
+                "properties": {"name": e.name, "units": e.units},
+                "geometry": None,
+            }
+        )
     return JSONResponse(elements)
