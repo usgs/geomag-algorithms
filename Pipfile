@@ -16,18 +16,15 @@ scipy = "*"
 obspy = ">1.2.0"
 pycurl = "*"
 authlib = "*"
-
+databases = {extras = ["postgresql", "sqlite"],version = "*"}
 fastapi = "*"
+orm = "*"
 pydantic = "*"
+sqlalchemy = "*"
 uvicorn = "*"
-
-flask = "*"
-flask-login = "*"
-flask-migrate = "*"
-flask-session = "*"
-flask-sqlalchemy = "*"
-psycopg2-binary = "*"
-gunicorn = "*"
+typesystem = "==0.2.4"
+httpx = "==0.11.1"
+cryptography = "*"
 
 [pipenv]
 allow_prereleases = true
