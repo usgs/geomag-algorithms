@@ -24,7 +24,8 @@ def register_custom_pydantic_type(
         if custom_type.__custom_pydantic_type__:
             # already registered
             return
-    except:
+    except AttributeError:
+        # not registered yet
         pass
     # add encoder
     pydantic.json.ENCODERS_BY_TYPE[custom_type] = encoder
