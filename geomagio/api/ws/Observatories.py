@@ -8,7 +8,7 @@ from .Observatory import OBSERVATORIES
 router = APIRouter()
 
 
-@router.get("/observatory/")
+@router.get("/observatories/")
 def get_observatories() -> Dict:
     return {
         "type": "FeatureCollection",
