@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 from obspy import UTCDateTime
 from pydantic import BaseModel, root_validator, validator
 
+from ... import pydantic_utcdatetime
 from .Element import ELEMENTS, ELEMENT_INDEX
 
 DEFAULT_ELEMENTS = ["X", "Y", "Z", "F"]
@@ -59,8 +60,8 @@ class SamplingPeriod(float, enum.Enum):
 
 class DataApiQuery(BaseModel):
     id: str
-    starttime: datetime.datetime = None
-    endtime: datetime.datetime = None
+    starttime: UTCDateTime = None
+    endtime: UTCDateTime = None
     elements: List[str] = DEFAULT_ELEMENTS
     sampling_period: SamplingPeriod = SamplingPeriod.MINUTE
     data_type: Union[DataType, str] = DataType.VARIATION
@@ -100,32 +101,18 @@ class DataApiQuery(BaseModel):
             )
         return id
 
-    @validator("starttime", pre=True, always=True)
-    def validate_starttime(
-        cls, starttime: Union[datetime.datetime, datetime.date]
-    ) -> datetime.datetime:
+    @validator("starttime", always=True)
+    def validate_starttime(cls, starttime: UTCDateTime) -> UTCDateTime:
         if not starttime:
             # default to start of current day
             now = datetime.datetime.now(tz=datetime.timezone.utc)
-            return datetime.datetime(
-                year=now.year,
-                month=now.month,
-                day=now.day,
-                tzinfo=datetime.timezone.utc,
-            )
-        elif isinstance(starttime, datetime.date):
-            return datetime.datetime(
-                year=starttime.year,
-                month=starttime.month,
-                day=starttime.day,
-                tzinfo=datetime.timezone.utc,
-            )
+            return UTCDateTime(year=now.year, month=now.month, day=now.day)
         return starttime
 
-    @validator("endtime", always=True, pre=True)
+    @validator("endtime", always=True)
     def validate_endtime(
-        cls, endtime: Union[datetime.datetime, datetime.date], *, values: Dict, **kwargs
-    ) -> datetime.datetime:
+        cls, endtime: UTCDateTime, *, values: Dict, **kwargs
+    ) -> UTCDateTime:
         """Default endtime is based on starttime.
 
         This method needs to be after validate_starttime.
@@ -133,14 +120,7 @@ class DataApiQuery(BaseModel):
         if not endtime:
             # endtime defaults to 1 day after startime
             starttime = values.get("starttime")
-            endtime = starttime + datetime.timedelta(seconds=86400 - 0.001)
-        elif isinstance(endtime, datetime.date):
-            return datetime.datetime(
-                year=endtime.year,
-                month=endtime.month,
-                day=endtime.day,
-                tzinfo=datetime.timezone.utc,
-            )
+            endtime = starttime + (86400 - 0.001)
         return endtime
 
     @root_validator
@@ -157,9 +137,7 @@ class DataApiQuery(BaseModel):
         if starttime > endtime:
             raise ValueError("Starttime must be before endtime.")
         # check data volume
-        samples = int(
-            len(elements) * (endtime - starttime).total_seconds() / sampling_period
-        )
+        samples = int(len(elements) * (endtime - starttime) / sampling_period)
         if samples > REQUEST_LIMIT:
             raise ValueError(f"Request exceeds limit ({samples} > {REQUEST_LIMIT})")
         # otherwise okay

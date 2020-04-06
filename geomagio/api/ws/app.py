@@ -1,9 +1,9 @@
-import datetime
 from typing import Dict, Union
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
-from starlette.responses import RedirectResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
+from obspy import UTCDateTime
 
 from . import data, elements
 
@@ -31,37 +31,42 @@ async def redirect_to_docs():
     return RedirectResponse("/ws/docs")
 
 
-@app.exception_handler(ValueError)
+@app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Value errors are user errors.
     """
-    if "format" in request.query_params:
-        data_format = str(request.query_params["format"])
+    data_format = (
+        "format" in request.query_params
+        and str(request.query_params["format"])
+        or "text"
+    )
     return format_error(400, str(exc), data_format, request)
 
 
 @app.exception_handler(Exception)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def server_exception_handler(request: Request, exc: Exception):
     """Other exceptions are server errors.
     """
-    if "format" in request.query_params:
-        data_format = str(request.query_params["format"])
+    data_format = (
+        "format" in request.query_params
+        and str(request.query_params["format"])
+        or "text"
+    )
     return format_error(500, str(exc), data_format, request)
 
 
 def format_error(
     status_code: int, exception: str, format: str, request: Request
 ) -> Response:
-    """Assign error_body value based on error format."""
+    """Assign error_body value based on error format.
+    """
     if format == "json":
         return json_error(status_code, exception, request.url)
     else:
-        return Response(
-            text_error(status_code, exception, request.url), media_type="text/plain"
-        )
+        return text_error(status_code, exception, request.url)
 
 
-def json_error(code: int, error: Exception, url: str) -> Dict:
+def json_error(code: int, error: Exception, url: str) -> Response:
     """Format json error message.
 
     Returns
@@ -69,26 +74,31 @@ def json_error(code: int, error: Exception, url: str) -> Dict:
     error_body : str
         body of json error message.
     """
-    return {
-        "type": "Error",
-        "metadata": {
-            "title": ERROR_CODE_MESSAGES[code],
-            "status": code,
-            "error": str(error),
-            "generated": datetime.datetime.utcnow(),
-            "url": str(url),
+    return JSONResponse(
+        content={
+            "type": "Error",
+            "metadata": {
+                "title": ERROR_CODE_MESSAGES[code],
+                "status": code,
+                "error": str(error),
+                "generated": f"{UTCDateTime().isoformat()}Z",
+                "url": str(url),
+                "version": VERSION,
+            },
         },
-    }
+        status_code=code,
+    )
 
 
-def text_error(code: int, error: Exception, url: str) -> str:
+def text_error(code: int, error: Exception, url: str) -> Response:
     """Format error message as plain text
 
     Returns
     -------
     error message formatted as plain text.
     """
-    return f"""Error {code}: {ERROR_CODE_MESSAGES[code]}
+    return PlainTextResponse(
+        content=f"""Error {code}: {ERROR_CODE_MESSAGES[code]}
 
 {error}
 
@@ -98,8 +108,10 @@ Request:
 {url}
 
 Request Submitted:
-{datetime.datetime.utcnow().isoformat()}
+{UTCDateTime().isoformat()}Z
 
 Service Version:
 {VERSION}
-"""
+""",
+        status_code=code,
+    )
