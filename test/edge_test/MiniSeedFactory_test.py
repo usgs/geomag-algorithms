@@ -162,6 +162,7 @@ def __create_trace(
     stats.starttime = UTCDateTime("2019-12-01")
     stats.delta = TimeseriesUtility.get_delta_from_interval(data_interval)
     stats.channel = channel
+    stats.station = station
     stats.npts = len(data)
     stats.data_interval = data_interval
     stats.data_type = data_type

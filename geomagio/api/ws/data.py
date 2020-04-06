@@ -1,4 +1,3 @@
-import datetime
 import os
 from typing import Any, Dict, List, Union
 
@@ -67,8 +66,8 @@ def get_timeseries(data_factory: TimeseriesFactory, query: DataApiQuery) -> Stre
     """
     # get data
     timeseries = data_factory.get_timeseries(
-        starttime=UTCDateTime(query.starttime),
-        endtime=UTCDateTime(query.endtime),
+        starttime=query.starttime,
+        endtime=query.endtime,
         observatory=query.id,
         channels=query.elements,
         type=query.data_type,
@@ -83,8 +82,8 @@ router = APIRouter()
 @router.get("/data/")
 def get_data(
     id: str,
-    starttime: Union[datetime.datetime, datetime.date] = Query(None),
-    endtime: Union[datetime.datetime, datetime.date] = Query(None),
+    starttime: UTCDateTime = Query(None),
+    endtime: UTCDateTime = Query(None),
     elements: List[str] = Query(DEFAULT_ELEMENTS),
     sampling_period: Union[SamplingPeriod, float] = Query(SamplingPeriod.MINUTE),
     data_type: Union[DataType, str] = Query(DataType.ADJUSTED),
