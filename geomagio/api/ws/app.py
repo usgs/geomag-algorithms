@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from obspy import UTCDateTime
 
-from . import data, elements
+from . import data, elements, observatories
 
 
 ERROR_CODE_MESSAGES = {
@@ -24,6 +24,7 @@ VERSION = "version"
 app = FastAPI(docs_url="/docs", openapi_prefix="/ws")
 app.include_router(data.router)
 app.include_router(elements.router)
+app.include_router(observatories.router)
 
 
 @app.get("/", include_in_schema=False)
