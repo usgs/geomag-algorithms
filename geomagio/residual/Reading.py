@@ -27,6 +27,7 @@ class Reading(BaseModel):
     azimuth: float = 0
     hemisphere: float = 1  # maybe hemisphere should be calculated from latitude
     measurements: Optional[List[Measurement]] = []
+    ordinates: Optional[List[Ordinate]] = []
     metadata: Optional[Dict] = []
     pier_correction: float = 0
 
@@ -35,7 +36,6 @@ class Reading(BaseModel):
         """
         return {a.element: a for a in self.absolutes}
 
-    # FIXME: Move method into calculation module. Make a method in this module that updates absolutes
     def update_absolutes(self):
         self.absolutes = calculate(self)
         return self.absolutes

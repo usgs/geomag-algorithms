@@ -182,14 +182,6 @@ SPREADSHEET_ORDINATES = [
     # scaling
     {
         "type": mt.NORTH_DOWN_SCALE,
-        "h": "C57",
-        "e": "D57",
-        "z": "E57",
-        "f": "B57",
-        "time": "A57",
-    },
-    {
-        "type": mt.NORTH_DOWN_SCALE,
         "h": "C58",
         "e": "D58",
         "z": "E58",
@@ -271,19 +263,17 @@ class SpreadsheetAbsolutesFactory(object):
             and self._parse_measurements(measurement_sheet, metadata["date"],)
             or None
         )
-        ordinates = (
-            include_measurements
-            and self._parse_ordinates(measurement_sheet, metadata["date"],)
-            or None
+        ordinates = include_measurements and self._parse_ordinates(
+            measurement_sheet, metadata["date"]
         )
         return Reading(
             absolutes=absolutes,
             azimuth=metadata["mark_azimuth"],
             hemisphere=metadata["hemisphere"],
             measurements=measurements,
+            ordinates=ordinates,
             metadata=metadata,
             pier_correction=metadata["pier_correction"],
-            ordinates=ordinates,
         )
 
     def _parse_absolutes(

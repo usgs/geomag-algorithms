@@ -20,5 +20,5 @@ class Measurement(BaseModel):
 
     measurement_type: MeasurementType
     angle: float = 0
-    residual: float = 0
+    residual: float = None
     time: Optional[UTCDateTime] = None
