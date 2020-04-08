@@ -86,7 +86,7 @@ def get_data(
     endtime: UTCDateTime = Query(None),
     elements: List[str] = Query(DEFAULT_ELEMENTS),
     sampling_period: Union[SamplingPeriod, float] = Query(SamplingPeriod.MINUTE),
-    data_type: Union[DataType, str] = Query(DataType.ADJUSTED),
+    data_type: Union[DataType, str] = Query(DataType.ADJUSTED, alias="type"),
     format: OutputFormat = Query(OutputFormat.IAGA2002),
     data_factory: TimeseriesFactory = Depends(get_data_factory),
 ) -> Response:
