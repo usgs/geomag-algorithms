@@ -179,7 +179,23 @@ SPREADSHEET_ORDINATES = [
         "f": "B57",
         "time": "A57",
     },
+    {
+        "type": mt.NORTH_DOWN,
+        "h": "C58",
+        "e": "D58",
+        "z": "E58",
+        "f": "B58",
+        "time": "A58",
+    },
     # scaling
+    {
+        "type": mt.NORTH_DOWN_SCALE,
+        "h": "C57",
+        "e": "D57",
+        "z": "E57",
+        "f": "B57",
+        "time": "A57",
+    },
     {
         "type": mt.NORTH_DOWN_SCALE,
         "h": "C58",
@@ -237,7 +253,7 @@ class SpreadsheetAbsolutesFactory(object):
             observatory_directory = os.path.join(
                 self.base_directory, observatory, f"{year}", observatory
             )
-            for (dirpath, dirnames, filenames) in os.walk(observatory_directory):
+            for (dirpath, filenames) in os.walk(observatory_directory):
                 for filename in filenames:
                     if start_filename <= filename < end_filename:
                         readings.append(
@@ -369,9 +385,10 @@ class SpreadsheetAbsolutesFactory(object):
         mark_azimuth = None
         try:
             azimuth_number = measurement_sheet["F8"].value
-            mark_azimuth = Angle.from_dms(
-                minutes=constants_sheet[f"F{azimuth_number + 5}"].value
-            )
+            azimuth = str(constants_sheet[f"F{azimuth_number + 5}"].value)
+            degrees = float(azimuth[0:2])
+            minutes = float(azimuth[2::])
+            mark_azimuth = Angle.from_dms(degrees=degrees, minutes=minutes,)
         except:
             errors.append("Unable to read mark azimuth")
         year = measurement_sheet["B8"].value

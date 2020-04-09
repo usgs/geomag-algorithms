@@ -49,7 +49,10 @@ def calculate(Reading):
         for o in Reading.ordinates
         if "West" not in o.measurement_type.capitalize()
         and "East" not in o.measurement_type.capitalize()
+        and "NorthDownScale" not in o.measurement_type.capitalize()
     ]
+
+    inclination_ordinates = inclination_ordinates[0:-2]
     mean = average_ordinate(inclination_ordinates, None)
     # calculate inclination
     inclination, f = calculate_I(
@@ -61,15 +64,20 @@ def calculate(Reading):
     )
     # calculate absolutes
     # FIXME: change to self.pier_correction
-    Habs, Zabs, Fabs = calculate_absolutes(
+    Habs, Zabs = calculate_absolutes(
         f, inclination, Reading.metadata["pier_correction"]
     )
     # calculate baselines
     Hb, Zb = calculate_baselines(Habs, Zabs, mean, Reading.pier_correction)
     # calculate scale value for declination
+    scale_ordinates = Reading.ordinate_index()["NorthDownScale"]
     scale_measurements = Reading.measurement_index()["NorthDownScale"]
     scale = calculate_scale(
-        f, scale_measurements, inclination, Reading.metadata["pier_correction"]
+        f,
+        scale_ordinates,
+        scale_measurements,
+        inclination,
+        Reading.metadata["pier_correction"],
     )
     # calculate declination and
     Db, Dabs = calculate_D(
@@ -84,10 +92,10 @@ def calculate(Reading):
     resultH = Absolute(element="H", baseline=Hb, absolute=Habs)
     resultD = Absolute(element="D", baseline=Db, absolute=Dabs)
     resultZ = Absolute(element="Z", baseline=Zb, absolute=Zabs)
-    resultF = Absolute(element="F", baseline=None, absolute=Fabs)
-    result = [resultH, resultD, resultZ, resultF]
 
-    return result
+    result = [resultH, resultD, resultZ]
+
+    return result, scale
 
 
 def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
@@ -185,43 +193,66 @@ def calculate_D(ordinates_index, measurements, measurements_index, AZ, Hb):
         ]
     )
 
+    if (
+        measurements_index["FirstMarkUp"][0].angle
+        < measurements_index["FirstMarkDown"][0].angle
+    ):
+        average_mark += 100
+    else:
+        average_mark -= 100
+
+    # if average_mark < 200:
+    #     average_mark += 100
+    # else:
+    #     average_mark -= 100
+
     # gather calculation objects for each measurement type
     westdown = Calculate(
         baseline=Hb,
         angle=average_angle(measurements_index, "WestDown"),
         residual=average_residual(measurements_index, "WestDown"),
         ordinate=average_ordinate(ordinates_index, "WestDown"),
+        ud=-1,
     )
     westup = Calculate(
         baseline=Hb,
         angle=average_angle(measurements_index, "WestUp"),
         residual=average_residual(measurements_index, "WestUp"),
         ordinate=average_ordinate(ordinates_index, "WestUp"),
+        ud=-1,
     )
     eastdown = Calculate(
         baseline=Hb,
         angle=average_angle(measurements_index, "EastDown"),
         residual=average_residual(measurements_index, "EastDown"),
         ordinate=average_ordinate(ordinates_index, "EastDown"),
+        ud=1,
     )
     eastup = Calculate(
         baseline=Hb,
         angle=average_angle(measurements_index, "EastUp"),
         residual=average_residual(measurements_index, "EastUp"),
         ordinate=average_ordinate(ordinates_index, "EastUp"),
+        ud=1,
     )
+    # AZ = convert_to_geon(AZ, include_seconds=False)
+    AZ = 92.3633
     # gather measurements into array
     measurements = [westdown, westup, eastdown, eastup]
     # get average meridian angle from measurement types
     meridian = np.average([calculate_meridian_term(i) for i in measurements])
     # add average mark, meridian, and azimuth angle to get declination baseline
-    Db = (average_mark + meridian + AZ) * 60
+    Db_abs = (meridian - average_mark) + AZ
+    Db = round(Db_abs * 54, 2)
+    Db_dms = int(Db / 60) * 100 + ((Db / 60) % 1) * 60
     # calculate declination absolute
-    Dabs = Db + np.arctan(westdown.ordinate.e / (Hb + westdown.ordinate.h)) * (
-        10800 / np.pi
-    )
+    wd_E_1 = ordinates_index["WestDown"][0].e
+    wd_H_1 = ordinates_index["WestDown"][0].h
+    Dabs = Db_abs + np.arctan(wd_E_1 / (Hb + wd_H_1)) * (200 / np.pi)
+    Dabs = round(Dabs * 54, 1)
+    Dabs_dms = int(Dabs / 60) * 100 + ((Dabs / 60) % 1) * 60
 
-    return Db, Dabs
+    return Db_dms, Dabs_dms
 
 
 def calculate_absolutes(f, inclination, pier_correction):
@@ -235,7 +266,7 @@ def calculate_absolutes(f, inclination, pier_correction):
     Habs = f * np.cos(i)
     Zabs = f * np.sin(i)
 
-    return Habs, Zabs, f
+    return Habs, Zabs
 
 
 def calculate_baselines(Habs, Zabs, mean, pier_correction):
@@ -245,25 +276,37 @@ def calculate_baselines(Habs, Zabs, mean, pier_correction):
     Returns H and Z baselines
     """
     # FIXME: Figure out where 0.3 comes from
-    Hb = round(np.sqrt(Habs ** 2 - mean.e ** 2) - mean.h, 1) - (pier_correction / 5)
-    Zb = round(Zabs - mean.z, 1) - (pier_correction / 5)
+    correction = pier_correction / 5
+    Hb = round(np.sqrt(Habs ** 2 - mean.e ** 2) - mean.h, 1) - correction
+    Zb = round(Zabs - mean.z, 1) - correction
 
     return Hb, Zb
 
 
-def calculate_scale(f, measurements, inclination, pier_correction):
+def calculate_scale(f, ordinates, measurements, inclination, pier_correction):
     """
     Calculate scale value from calulated f(from inclination computations),
     calculated inclination, and pier correction(metadata)
     """
-    i = (np.pi / 200) * (inclination)
-    angle_diff = measurements[-1].angle - measurements[0].angle
-    A = np.cos(i) * angle_diff
-    B = np.sin(i) * angle_diff
-    delta_f = (200 / np.pi) * (A - B)
-    delta_b = delta_f + 0.1852  # ten minutes/ 60
-    delta_r = measurements[-1].residual - measurements[0].residual
-    scale_value = (f * delta_b / delta_r) * np.pi / 200
+    first_ord = ordinates[0]
+    second_ord = ordinates[1]
+    first_measurement = measurements[0]
+    second_measurement = measurements[1]
+
+    field_change = (
+        (
+            -np.sin(inclination * np.pi / 200) * (second_ord.h - first_ord.h) / f
+            + np.cos(inclination * np.pi / 200) * (second_ord.z - first_ord.z) / f
+        )
+        * 200
+        / np.pi
+    )
+
+    field_change += 0.1852
+
+    residual_change = abs(second_measurement.residual - first_measurement.residual)
+
+    scale_value = (f * field_change / residual_change) * np.pi / 200
 
     return scale_value
 
@@ -345,13 +388,16 @@ def calculate_meridian_term(calculation):
     )
     A1 = (200 / np.pi) * (A1)
     A2 = (200 / np.pi) * (A2)
-    meridian_term = calculation.angle - A1 - A2
+    meridian_term = calculation.angle + (calculation.ud * A1) - A2
     return meridian_term
 
 
-def convert_to_geon(angle):
+def convert_to_geon(angle, include_seconds=True):
     degrees = int(angle)
     minutes = int((angle % 1) * 100) / 60
-    seconds = ((angle * 100) % 1) / 36
+    if include_seconds:
+        seconds = ((angle * 100) % 1) / 36
+    else:
+        seconds = 0
     dms = (degrees + minutes + seconds) / 0.9
     return dms
