@@ -385,10 +385,7 @@ class SpreadsheetAbsolutesFactory(object):
         mark_azimuth = None
         try:
             azimuth_number = measurement_sheet["F8"].value
-            azimuth = str(constants_sheet[f"F{azimuth_number + 5}"].value)
-            degrees = float(azimuth[0:2])
-            minutes = float(azimuth[2::])
-            mark_azimuth = Angle.from_dms(degrees=degrees, minutes=minutes,)
+            mark_azimuth = constants_sheet[f"F{azimuth_number + 5}"].value
         except:
             errors.append("Unable to read mark azimuth")
         year = measurement_sheet["B8"].value

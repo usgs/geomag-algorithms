@@ -236,7 +236,7 @@ def calculate_D(ordinates_index, measurements, measurements_index, AZ, Hb):
         ud=1,
     )
     # AZ = convert_to_geon(AZ, include_seconds=False)
-    AZ = 92.3633
+    AZ = (int(AZ / 100) + (AZ % 100) / 60) / 0.9
     # gather measurements into array
     measurements = [westdown, westup, eastdown, eastup]
     # get average meridian angle from measurement types
