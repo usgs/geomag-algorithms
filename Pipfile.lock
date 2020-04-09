@@ -2,7 +2,11 @@
     "_meta": {
         "hash": {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "sha256": "809e5e04e4d1957e08e475b75c4c425c1b63b7d1fdaee30e79b077e84e115504"
+=======
+            "sha256": "9d11130b39f605d10cd4d32c8b721e21b38cdbae4b5eaf19f794d6181184a08c"
+>>>>>>> pip
 =======
             "sha256": "9d11130b39f605d10cd4d32c8b721e21b38cdbae4b5eaf19f794d6181184a08c"
 >>>>>>> pip
