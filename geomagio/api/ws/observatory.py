@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
+from typing import Dict
 
 
 class Observatory(BaseModel):
@@ -11,6 +12,33 @@ class Observatory(BaseModel):
     agency_name: str
     declination_base: int
     sensor_orientation: str
+
+    @validator("agency_name", always=true)
+    def validate_agency_name(cls, agency_name: str, values: Dict) -> str:
+        agency = values.get("agency")
+        if not agency_name:
+            if agency == "USGS":
+                agency_name = "United States Geological Survey (USGS)"
+            if agency == "GSC":
+                agency_name = "Geological Survey of Canada (GSC)"
+            if agency == "BGS":
+                agency_name = "British Geological Survey (BGS)"
+            if agency == "SANSA":
+                agency_name = "South African National Space Agency (SANSA)"
+            if agency == "JMA":
+                agency_name = "Japan Meteorological Agency (JMA)"
+        return agency_name
+
+    @validator("sensor_orientation", always=true)
+    def validate_sensor_orientation(cls, sensor_orientation: str, values: Dict) -> str:
+        agency = values.get("agency")
+
+        if not sensor_orientation:
+            if agency == "GSC":
+                sensor_orientation = "XYZF"
+            else:
+                sensor_orientation = "HDZF"
+            return sensor_orientation
 
 
 OBSERVATORIES = [
