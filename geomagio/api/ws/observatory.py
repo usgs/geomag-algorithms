@@ -13,7 +13,7 @@ class Observatory(BaseModel):
     declination_base: int
     sensor_orientation: str
 
-    @validator("agency_name", always=true)
+    @validator("agency_name", always=True)
     def validate_agency_name(cls, agency_name: str, values: Dict) -> str:
         agency = values.get("agency")
         if not agency_name:
@@ -29,7 +29,7 @@ class Observatory(BaseModel):
                 agency_name = "Japan Meteorological Agency (JMA)"
         return agency_name
 
-    @validator("sensor_orientation", always=true)
+    @validator("sensor_orientation", always=True)
     def validate_sensor_orientation(cls, sensor_orientation: str, values: Dict) -> str:
         agency = values.get("agency")
 

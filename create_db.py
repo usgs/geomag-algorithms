@@ -1,3 +1,3 @@
-from geomagio.api.db.create_db import create_db
+from geomagio.api.db.create import create_db
 
 create_db()
