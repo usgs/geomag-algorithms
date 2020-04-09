@@ -279,8 +279,10 @@ class SpreadsheetAbsolutesFactory(object):
             and self._parse_measurements(measurement_sheet, metadata["date"],)
             or None
         )
-        ordinates = include_measurements and self._parse_ordinates(
-            measurement_sheet, metadata["date"]
+        ordinates = (
+            include_measurements
+            and self._parse_ordinates(measurement_sheet, metadata["date"])
+            or None
         )
         return Reading(
             absolutes=absolutes,

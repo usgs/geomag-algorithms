@@ -25,7 +25,7 @@ class Reading(BaseModel):
 
     absolutes: Optional[List[Absolute]] = None
     azimuth: float = 0
-    hemisphere: float = 1  # maybe hemisphere should be calculated from latitude
+    hemisphere: float = 1
     measurements: Optional[List[Measurement]] = []
     ordinates: Optional[List[Ordinate]] = []
     metadata: Optional[Dict] = []
