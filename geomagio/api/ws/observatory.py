@@ -9,9 +9,9 @@ class Observatory(BaseModel):
     longitude: float
     name: str
     agency: str
-    agency_name: str
+    agency_name: str = None
     declination_base: int
-    sensor_orientation: str
+    sensor_orientation: str = None
 
     @validator("agency_name", always=True)
     def validate_agency_name(cls, agency_name: str, values: Dict) -> str:
@@ -32,13 +32,12 @@ class Observatory(BaseModel):
     @validator("sensor_orientation", always=True)
     def validate_sensor_orientation(cls, sensor_orientation: str, values: Dict) -> str:
         agency = values.get("agency")
-
         if not sensor_orientation:
             if agency == "GSC":
                 sensor_orientation = "XYZF"
             else:
                 sensor_orientation = "HDZF"
-            return sensor_orientation
+        return sensor_orientation
 
 
 OBSERVATORIES = [
@@ -49,9 +48,7 @@ OBSERVATORIES = [
         longitude=254.763,
         name="Boulder Test",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=5527,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="BOU",
@@ -60,9 +57,7 @@ OBSERVATORIES = [
         longitude=254.763,
         name="Boulder",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=5527,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="TST",
@@ -71,9 +66,7 @@ OBSERVATORIES = [
         longitude=254.763,
         name="Boulder Test (ObsRIO)",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=5527,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="BRW",
@@ -82,9 +75,7 @@ OBSERVATORIES = [
         longitude=71.322,
         name="Barrow",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=10589,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="BRT",
@@ -93,9 +84,7 @@ OBSERVATORIES = [
         longitude=71.322,
         name="Barrow Test (ObsRIO)",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=10589,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="BSL",
@@ -104,9 +93,7 @@ OBSERVATORIES = [
         longitude=270.365,
         name="Stennis Space Center",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=215772,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="CMO",
@@ -115,9 +102,7 @@ OBSERVATORIES = [
         longitude=212.14,
         name="College",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=12151,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="CMT",
@@ -126,9 +111,7 @@ OBSERVATORIES = [
         longitude=212.14,
         name="College (ObsRIO)",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=12151,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="DED",
@@ -137,9 +120,7 @@ OBSERVATORIES = [
         longitude=211.207,
         name="Deadhorse",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=10755,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="DHT",
@@ -148,9 +129,7 @@ OBSERVATORIES = [
         longitude=211.207,
         name="Deadhorse Test (ObsRIO)",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=10755,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="FRD",
@@ -159,9 +138,7 @@ OBSERVATORIES = [
         longitude=282.627,
         name="Fredericksburg",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=209690,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="FRT",
@@ -170,9 +147,7 @@ OBSERVATORIES = [
         longitude=282.627,
         name="Fredericksburg Test",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=209690,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="FRN",
@@ -181,9 +156,7 @@ OBSERVATORIES = [
         longitude=240.282,
         name="Fresno",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=8097,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="GUA",
@@ -192,9 +165,7 @@ OBSERVATORIES = [
         longitude=144.867,
         name="Guam",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=764,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="HON",
@@ -203,9 +174,7 @@ OBSERVATORIES = [
         longitude=202.0,
         name="Honolulu",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=5982,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="NEW",
@@ -214,9 +183,7 @@ OBSERVATORIES = [
         longitude=242.878,
         name="Newport",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=9547,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="SHU",
@@ -225,9 +192,7 @@ OBSERVATORIES = [
         longitude=199.538,
         name="Shumagin",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=7386,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="SIT",
@@ -236,9 +201,7 @@ OBSERVATORIES = [
         longitude=224.675,
         name="Sitka",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=12349,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="SJG",
@@ -247,9 +210,7 @@ OBSERVATORIES = [
         longitude=293.849,
         name="San Juan",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=208439,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="SJT",
@@ -258,9 +219,7 @@ OBSERVATORIES = [
         longitude=293.849,
         name="San Juan Test",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=208439,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="TUC",
@@ -269,9 +228,7 @@ OBSERVATORIES = [
         longitude=249.267,
         name="Tucson",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=5863,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="USGS",
@@ -280,9 +237,7 @@ OBSERVATORIES = [
         longitude=254.764,
         name="USGS",
         agency="USGS",
-        agency_name="United States Geological Survey (USGS)",
         declination_base=0,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="BLC",
@@ -291,9 +246,7 @@ OBSERVATORIES = [
         longitude=264.0,
         name="Baker Lake",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="BRD",
@@ -302,9 +255,7 @@ OBSERVATORIES = [
         longitude=262.9,
         name="Brandon",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="CBB",
@@ -313,9 +264,7 @@ OBSERVATORIES = [
         longitude=255.0,
         name="Cambridge Bay",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="EUA",
@@ -324,9 +273,7 @@ OBSERVATORIES = [
         longitude=282.3,
         name="Eureka",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="FCC",
@@ -335,9 +282,7 @@ OBSERVATORIES = [
         longitude=265.9,
         name="Fort Churchill",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="IQA",
@@ -346,9 +291,7 @@ OBSERVATORIES = [
         longitude=291.5,
         name="Iqaluit",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="MEA",
@@ -357,9 +300,7 @@ OBSERVATORIES = [
         longitude=246.7,
         name="Meanook",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="OTT",
@@ -368,9 +309,7 @@ OBSERVATORIES = [
         longitude=284.5,
         name="Ottawa",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="RES",
@@ -379,9 +318,7 @@ OBSERVATORIES = [
         longitude=265.1,
         name="Resolute Bay",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="SNK",
@@ -390,9 +327,7 @@ OBSERVATORIES = [
         longitude=245.5,
         name="Sanikiluaq",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="STJ",
@@ -401,9 +336,7 @@ OBSERVATORIES = [
         longitude=307.3,
         name="St Johns",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="VIC",
@@ -412,9 +345,7 @@ OBSERVATORIES = [
         longitude=236.6,
         name="Victoria",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="YKC",
@@ -423,9 +354,7 @@ OBSERVATORIES = [
         longitude=245.5,
         name="Yellowknife",
         agency="GSC",
-        agency_name="Geological Survey of Canada (GSC)",
         declination_base=0,
-        sensor_orientation="XYZF",
     ),
     Observatory(
         id="HAD",
@@ -434,9 +363,7 @@ OBSERVATORIES = [
         longitude=355.5,
         name="Hartland",
         agency="BGS",
-        agency_name="British Geological Survey (BGS)",
         declination_base=0,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="HER",
@@ -445,9 +372,7 @@ OBSERVATORIES = [
         longitude=19.2,
         name="Hermanus",
         agency="SANSA",
-        agency_name="South African National Space Agency (SANSA)",
         declination_base=0,
-        sensor_orientation="HDZF",
     ),
     Observatory(
         id="KAK",
@@ -456,9 +381,7 @@ OBSERVATORIES = [
         longitude=140.18,
         name="Kakioka",
         agency="JMA",
-        agency_name="Japan Meteorological Agency (JMA)",
         declination_base=0,
-        sensor_orientation="HDZF",
     ),
 ]
 
