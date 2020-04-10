@@ -26,7 +26,7 @@ class Calculate(BaseModel):
     residual: average residual across a measurement type
     hs: Multiplier for inclination claculations. +1 if measurment was taken in northern hemisphere, -1 if measurement was taken in the southern hemishpere.
     ordinate: Variometer data. Ordinate object(contains a datapoint for H, E, Z, and F)
-    ud: Multiplier for inclination calculations. +1 if instrument is oriented upward, -1 if instrument if oriented downward.
+    direction: Multiplier for inclination calculations. +1 if instrument is oriented upward, -1 if instrument if oriented downward.
     shift: Degree shift in inclination measurements.
     """
 
@@ -34,8 +34,8 @@ class Calculate(BaseModel):
     residual: float = None
     ordinate: Ordinate = None
     f: float = None
-    ud: int = None
-    pm: int = None
+    direction: int = None
+    meridian: int = None
     shift: int = None
 
 
@@ -101,36 +101,36 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     hs = metadata["hemisphere"]
     # gather calculation objects for each measurement type
     southdown = Calculate(
-        shift=-200,
-        ud=1,
-        pm=1,
+        shift=mt.SOUTH_DOWN.shift,
+        direction=mt.SOUTH_DOWN.direction,
+        meridian=mt.SOUTH_DOWN.meridian,
         angle=average_angle(measurements, mt.SOUTH_DOWN),
         residual=average_residual(measurements, mt.SOUTH_DOWN),
         ordinate=average_ordinate(ordinates_index, mt.SOUTH_DOWN),
     )
 
     southup = Calculate(
-        shift=200,
-        ud=-1,
-        pm=-1,
+        shift=mt.SOUTH_UP.shift,
+        direction=mt.SOUTH_UP.direction,
+        meridian=mt.SOUTH_UP.meridian,
         angle=average_angle(measurements, mt.SOUTH_UP),
         residual=average_residual(measurements, mt.SOUTH_UP),
         ordinate=average_ordinate(ordinates_index, mt.SOUTH_UP),
     )
 
     northup = Calculate(
-        shift=0,
-        ud=-1,
-        pm=1,
+        shift=mt.NORTH_UP.shift,
+        direction=mt.NORTH_UP.direction,
+        meridian=mt.NORTH_UP.meridian,
         angle=average_angle(measurements, mt.NORTH_UP),
         residual=average_residual(measurements, mt.NORTH_UP),
         ordinate=average_ordinate(ordinates_index, mt.NORTH_UP),
     )
 
     northdown = Calculate(
-        shift=400,
-        ud=1,
-        pm=-1,
+        shift=mt.NORTH_DOWN.shift,
+        direction=mt.NORTH_DOWN.direction,
+        meridian=mt.NORTH_DOWN.meridian,
         angle=average_angle(measurements, mt.NORTH_DOWN),
         residual=average_residual(measurements, mt.NORTH_DOWN),
         ordinate=average_ordinate(ordinates_index, mt.NORTH_DOWN),
@@ -188,32 +188,32 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
         average_mark -= 100
 
     # gather calculation objects for each declination measurement type
-    # note that the pm(plus minus) multiplier has been repurposed.
+    # note that the meridian(plus minus) multiplier has been repurposed.
     # West facing measurements have a multiplier of -1
     # East facing measurements have a multipllier of 1
     westdown = Calculate(
         angle=average_angle(measurements_index, mt.WEST_DOWN),
         residual=average_residual(measurements_index, mt.WEST_DOWN),
         ordinate=average_ordinate(ordinates_index, mt.WEST_DOWN),
-        pm=-1,
+        meridian=mt.WEST_DOWN.meridian,
     )
     westup = Calculate(
         angle=average_angle(measurements_index, mt.WEST_UP),
         residual=average_residual(measurements_index, mt.WEST_UP),
         ordinate=average_ordinate(ordinates_index, mt.WEST_UP),
-        pm=-1,
+        meridian=mt.WEST_UP.meridian,
     )
     eastdown = Calculate(
         angle=average_angle(measurements_index, mt.EAST_DOWN),
         residual=average_residual(measurements_index, mt.EAST_DOWN),
         ordinate=average_ordinate(ordinates_index, mt.EAST_DOWN),
-        pm=1,
+        meridian=mt.EAST_DOWN.meridian,
     )
     eastup = Calculate(
         angle=average_angle(measurements_index, mt.EAST_UP),
         residual=average_residual(measurements_index, mt.EAST_UP),
         ordinate=average_ordinate(ordinates_index, mt.EAST_UP),
-        pm=1,
+        meridian=mt.EAST_UP.meridian,
     )
     # convert azimuth to geon
     azimuth = (int(azimuth / 100) + (azimuth % 100) / 60) / 0.9
@@ -349,9 +349,9 @@ def calculate_measurement_inclination(calculation, hs):
     Calculate a measurement's inclination value using
     Calculate items' elements.
     """
-    return calculation.shift + calculation.pm * (
+    return calculation.shift + calculation.meridian * (
         +calculation.angle
-        + calculation.ud
+        + calculation.direction
         * (hs * np.arcsin(calculation.residual / calculation.f) * 200 / np.pi)
     )
 
@@ -368,17 +368,17 @@ def calculate_meridian_term(calculation, h_b):
     A2 = np.arctan(calculation.ordinate.e / (calculation.ordinate.h + h_b))
     A1 = (200 / np.pi) * (A1)
     A2 = (200 / np.pi) * (A2)
-    meridian_term = calculation.angle + (calculation.pm * A1) - A2
+    meridian_term = calculation.angle + (calculation.meridian * A1) - A2
     return meridian_term
 
 
-def convert_to_geon(angle, include_seconds=True):
+def convert_to_geon(angle, incldirectione_seconds=True):
     """
     Convert angles from measurements to geon
     """
     degrees = int(angle)
     minutes = int((angle % 1) * 100) / 60
-    if include_seconds:
+    if incldirectione_seconds:
         seconds = ((angle * 100) % 1) / 36
     else:
         seconds = 0

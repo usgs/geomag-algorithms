@@ -27,3 +27,33 @@ class MeasurementType(str, enum.Enum):
 
     # scaling
     NORTH_DOWN_SCALE = "NorthDownScale"
+
+    @property
+    def direction(self):
+        if self in [MeasurementType.SOUTH_DOWN, MeasurementType.NORTH_DOWN]:
+            return 1
+        else:
+            return -1
+
+    @property
+    def shift(self):
+        if self == MeasurementType.SOUTH_DOWN:
+            return -200
+        if self == MeasurementType.SOUTH_UP:
+            return 200
+        if self == MeasurementType.NORTH_UP:
+            return 0
+        if self == MeasurementType.NORTH_DOWN:
+            return 400
+
+    @property
+    def meridian(self):
+        if self in [
+            MeasurementType.SOUTH_DOWN,
+            MeasurementType.NORTH_UP,
+            MeasurementType.EAST_UP,
+            MeasurementType.EAST_DOWN,
+        ]:
+            return 1
+        else:
+            return -1
