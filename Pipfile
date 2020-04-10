@@ -20,7 +20,7 @@ authlib = "*"
 cryptography = "*"
 databases = {extras = ["postgresql", "sqlite"],version = "*"}
 fastapi = "*"
-httpx = "==0.12.1"
+httpx = "==0.11.1"
 openpyxl = "*"
 orm = "==0.1.5"
 pydantic = "==1.4"

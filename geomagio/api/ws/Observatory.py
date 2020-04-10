@@ -29,6 +29,18 @@ class Observatory(BaseModel):
                 agency_name = "Japan Meteorological Agency (JMA)"
         return agency_name
 
+    @validator("latitude")
+    def validate_latitude(cls, latitude: float) -> float:
+        if latitude > 90 or latitude < -90:
+            raise ValueError(f"latitude ({latitude}) out of range [-90, 90]")
+        return latitude
+
+    @validator("longitude")
+    def validate_longitude(cls, longitude: float) -> float:
+        if longitude > 360 or longitude < -360:
+            raise ValueError(f"longitude ({longitude}) out of range [-360, 360]")
+        return longitude
+
     @validator("sensor_orientation", always=True)
     def validate_sensor_orientation(cls, sensor_orientation: str, values: Dict) -> str:
         agency = values.get("agency")
@@ -71,8 +83,8 @@ OBSERVATORIES = [
     Observatory(
         id="BRW",
         elevation=10,
-        latitude=203.378,
-        longitude=71.322,
+        latitude=71.322,
+        longitude=203.378,
         name="Barrow",
         agency="USGS",
         declination_base=10589,
@@ -80,8 +92,8 @@ OBSERVATORIES = [
     Observatory(
         id="BRT",
         elevation=10,
-        latitude=203.378,
-        longitude=71.322,
+        latitude=71.322,
+        longitude=203.378,
         name="Barrow Test (ObsRIO)",
         agency="USGS",
         declination_base=10589,
