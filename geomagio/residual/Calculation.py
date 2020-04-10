@@ -34,38 +34,34 @@ def calculate(reading):
     Outputs a list of absolutes containing baseline, absolute,
     and element name. Also reutrns the scale value.
     """
+    # gather oridinates, measuremenets, and metadata objects from reading
+    metadata = reading.metadata
+    ordinates = reading.ordinates
+    ordinate_index = reading.ordinate_index()
+    measurements = reading.measurements
+    measurement_index = reading.measurement_index()
     # define measurement types used to calculate inclination
     inclination_types = [mt.NORTH_DOWN, mt.NORTH_UP, mt.SOUTH_DOWN, mt.SOUTH_UP]
     # get ordinate values across h, e, z, and f for inclination measurement types
     inclination_ordinates = [
-        o for o in reading.ordinates if o.measurement_type in inclination_types
+        o for o in ordinates if o.measurement_type in inclination_types
     ]
     # get average ordinate values across h, e, z, and f
     mean = average_ordinate(inclination_ordinates, None)
     # calculate inclination
     inclination, f = calculate_I(
-        reading.measurement_index(),
-        inclination_ordinates,
-        reading.ordinate_index(),
-        mean,
-        reading.metadata,
+        measurement_index, inclination_ordinates, ordinate_index, mean, metadata,
     )
     # calculate absolutes
     Habs, Zabs = calculate_absolutes(f, inclination)
     # calculate baselines for H and Z
-    Hb, Zb = calculate_baselines(Habs, Zabs, mean, reading.pier_correction)
+    Hb, Zb = calculate_baselines(Habs, Zabs, mean, metadata.pier_correction)
     # calculate scale value
-    scale_ordinates = reading.ordinate_index()[mt.NORTH_DOWN_SCALE]
-    scale_measurements = reading.measurement_index()[mt.NORTH_DOWN_SCALE]
+    scale_ordinates = ordinate_index[mt.NORTH_DOWN_SCALE]
+    scale_measurements = measurement_index[mt.NORTH_DOWN_SCALE]
     scale = calculate_scale(f, scale_ordinates, scale_measurements, inclination,)
     # calculate declination absolute and baseline
-    Db, Dabs = calculate_D(
-        reading.ordinate_index(),
-        reading.measurements,
-        reading.measurement_index(),
-        reading.metadata["mark_azimuth"],
-        Hb,
-    )
+    Db, Dabs = calculate_D(ordinates, measurements, measurement_index, metadata.AZ, Hb,)
 
     # return results as a set of Absolute objects along with the calculated scale value
     resultH = Absolute(element="H", baseline=Hb, absolute=Habs)
