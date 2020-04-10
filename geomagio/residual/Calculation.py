@@ -161,8 +161,8 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     # add 100 if mark up is greater than mark down
     # subtract 100 otherwise
     if (
-        measurements_index["FirstMarkUp"][0].angle
-        < measurements_index["FirstMarkDown"][0].angle
+        measurements_index[mt.FIRST_MARK_UP][0].angle
+        < measurements_index[mt.FIRST_MARK_DOWN][0].angle
     ):
         average_mark += 100
     else:
