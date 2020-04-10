@@ -27,7 +27,7 @@ class Calculate(BaseModel):
     shift: int = None
 
 
-def calculate(Reading):
+def calculate(reading):
     """
     Calculate/recalculate absolute from a Reading object's
     ordinates, measurements, and metadata.
@@ -38,32 +38,32 @@ def calculate(Reading):
     inclination_types = [mt.NORTH_DOWN, mt.NORTH_UP, mt.SOUTH_DOWN, mt.SOUTH_UP]
     # get ordinate values across h, e, z, and f for inclination measurement types
     inclination_ordinates = [
-        o for o in Reading.ordinates if o.measurement_type in inclination_types
+        o for o in reading.ordinates if o.measurement_type in inclination_types
     ]
     # get average ordinate values across h, e, z, and f
     mean = average_ordinate(inclination_ordinates, None)
     # calculate inclination
     inclination, f = calculate_I(
-        Reading.measurement_index(),
+        reading.measurement_index(),
         inclination_ordinates,
-        Reading.ordinate_index(),
+        reading.ordinate_index(),
         mean,
-        Reading.metadata,
+        reading.metadata,
     )
     # calculate absolutes
     Habs, Zabs = calculate_absolutes(f, inclination)
     # calculate baselines for H and Z
-    Hb, Zb = calculate_baselines(Habs, Zabs, mean, Reading.pier_correction)
+    Hb, Zb = calculate_baselines(Habs, Zabs, mean, reading.pier_correction)
     # calculate scale value
-    scale_ordinates = Reading.ordinate_index()["NorthDownScale"]
-    scale_measurements = Reading.measurement_index()["NorthDownScale"]
+    scale_ordinates = reading.ordinate_index()[mt.NORTH_DOWN_SCALE]
+    scale_measurements = reading.measurement_index()[mt.NORTH_DOWN_SCALE]
     scale = calculate_scale(f, scale_ordinates, scale_measurements, inclination,)
     # calculate declination absolute and baseline
     Db, Dabs = calculate_D(
-        Reading.ordinate_index(),
-        Reading.measurements,
-        Reading.measurement_index(),
-        Reading.metadata["mark_azimuth"],
+        reading.ordinate_index(),
+        reading.measurements,
+        reading.measurement_index(),
+        reading.metadata["mark_azimuth"],
         Hb,
     )
 
