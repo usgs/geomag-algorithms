@@ -53,20 +53,22 @@ def calculate(reading):
         measurement_index, inclination_ordinates, ordinate_index, mean, metadata,
     )
     # calculate absolutes
-    Habs, Zabs = calculate_absolutes(f, inclination)
+    h_abs, z_abs = calculate_absolutes(f, inclination)
     # calculate baselines for H and Z
-    Hb, Zb = calculate_baselines(Habs, Zabs, mean, metadata.pier_correction)
+    h_b, z_b = calculate_baselines(h_abs, z_abs, mean, reading.pier_correction)
     # calculate scale value
     scale_ordinates = ordinate_index[mt.NORTH_DOWN_SCALE]
     scale_measurements = measurement_index[mt.NORTH_DOWN_SCALE]
     scale = calculate_scale(f, scale_ordinates, scale_measurements, inclination,)
     # calculate declination absolute and baseline
-    Db, Dabs = calculate_D(ordinates, measurements, measurement_index, metadata.AZ, Hb,)
+    d_b, d_abs = calculate_D(
+        ordinate_index, measurements, measurement_index, metadata["mark_azimuth"], h_b,
+    )
 
     # return results as a set of Absolute objects along with the calculated scale value
-    resultH = Absolute(element="H", baseline=Hb, absolute=Habs)
-    resultD = Absolute(element="D", baseline=Db, absolute=Dabs)
-    resultZ = Absolute(element="Z", baseline=Zb, absolute=Zabs)
+    resultH = Absolute(element="H", baseline=h_b, absolute=h_abs)
+    resultD = Absolute(element="D", baseline=d_b, absolute=d_abs)
+    resultZ = Absolute(element="Z", baseline=z_b, absolute=z_abs)
 
     result = [resultH, resultD, resultZ]
 
@@ -149,7 +151,7 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     return inclination, f
 
 
-def calculate_D(ordinates_index, measurements, measurements_index, AZ, Hb):
+def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b):
     """
     Calculate declination absolute and declination baseline from
     ordinates, measurements, measurement_index(dictionary), azimuth and H baseline
@@ -210,27 +212,27 @@ def calculate_D(ordinates_index, measurements, measurements_index, AZ, Hb):
         pm=1,
     )
     # convert azimuth to geon
-    AZ = (int(AZ / 100) + (AZ % 100) / 60) / 0.9
+    azimuth = (int(azimuth / 100) + (azimuth % 100) / 60) / 0.9
     # gather declination measurements into array
     measurements = [westdown, westup, eastdown, eastup]
     # average meridian terms calculated from each declination measurements
-    meridian = np.average([calculate_meridian_term(i, Hb) for i in measurements])
+    meridian = np.average([calculate_meridian_term(i, h_b) for i in measurements])
     # add subtract average mark angle from average meridian angle and add
     # azimuth(in geon) to get the declination baseline
-    D_b = (meridian - average_mark) + AZ
+    D_b = (meridian - average_mark) + azimuth
     # convert decimal baseline into dms baseline
-    Db = round(D_b * 54, 2)
-    Db_dms = int(Db / 60) * 100 + ((Db / 60) % 1) * 60
+    d_b = round(D_b * 54, 2)
+    d_b_dms = int(d_b / 60) * 100 + ((d_b / 60) % 1) * 60
     # gather first declination measurements' H ans E ordinates
     wd_E_1 = ordinates_index["WestDown"][0].e
     wd_H_1 = ordinates_index["WestDown"][0].h
     # calculate Declination baseline
-    Dabs = D_b + np.arctan(wd_E_1 / (Hb + wd_H_1)) * (200 / np.pi)
-    Dabs = round(Dabs * 54, 1)
+    d_abs = D_b + np.arctan(wd_E_1 / (h_b + wd_H_1)) * (200 / np.pi)
+    d_abs = round(d_abs * 54, 1)
     # convert decimal absolute into dms absolute
-    Dabs_dms = int(Dabs / 60) * 100 + ((Dabs / 60) % 1) * 60
+    d_abs_dms = int(d_abs / 60) * 100 + ((d_abs / 60) % 1) * 60
 
-    return Db_dms, Dabs_dms
+    return d_b_dms, d_abs_dms
 
 
 def calculate_absolutes(f, inclination):
@@ -242,13 +244,13 @@ def calculate_absolutes(f, inclination):
     """
     # convert inclination to radians
     i = (np.pi / 200) * (inclination)
-    Habs = f * np.cos(i)
-    Zabs = f * np.sin(i)
+    h_abs = f * np.cos(i)
+    z_abs = f * np.sin(i)
 
-    return Habs, Zabs
+    return h_abs, z_abs
 
 
-def calculate_baselines(Habs, Zabs, mean, pier_correction):
+def calculate_baselines(h_abs, z_abs, mean, pier_correction):
     """
     Calculate baselines with H and Z absolutes,
     average ordinates across all measurements,
@@ -256,10 +258,10 @@ def calculate_baselines(Habs, Zabs, mean, pier_correction):
     Returns H and Z baselines
     """
     correction = pier_correction / 5
-    Hb = round(np.sqrt(Habs ** 2 - mean.e ** 2) - mean.h, 1) - correction
-    Zb = round(Zabs - mean.z, 1) - correction
+    h_b = round(np.sqrt(h_abs ** 2 - mean.e ** 2) - mean.h, 1) - correction
+    z_b = round(z_abs - mean.z, 1) - correction
 
-    return Hb, Zb
+    return h_b, z_b
 
 
 def calculate_scale(f, ordinates, measurements, inclination):
@@ -350,16 +352,16 @@ def calculate_measurement_inclination(calculation, hs):
     )
 
 
-def calculate_meridian_term(calculation, Hb):
+def calculate_meridian_term(calculation, h_b):
     """
     Calculate meridian value from a measurement type
     using a Calculate object and H's baseline value.
     """
     A1 = np.arcsin(
         calculation.residual
-        / np.sqrt((calculation.ordinate.h + Hb) ** 2 + (calculation.ordinate.e) ** 2)
+        / np.sqrt((calculation.ordinate.h + h_b) ** 2 + (calculation.ordinate.e) ** 2)
     )
-    A2 = np.arctan(calculation.ordinate.e / (calculation.ordinate.h + Hb))
+    A2 = np.arctan(calculation.ordinate.e / (calculation.ordinate.h + h_b))
     A1 = (200 / np.pi) * (A1)
     A2 = (200 / np.pi) * (A2)
     meridian_term = calculation.angle + (calculation.pm * A1) - A2
