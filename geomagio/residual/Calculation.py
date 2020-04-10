@@ -82,7 +82,7 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     Returns inclination angle and calculated average f
     """
     # get first inclination angle, assumed to be the southdown angle
-    Iprime = average_angle(measurements, "SouthDown")
+    Iprime = average_angle(measurements, mt.SOUTH_DOWN)
     if Iprime >= 100:
         Iprime -= 200
     # get multiplier for hempisphere the observatory is located in
@@ -94,36 +94,36 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
         shift=-200,
         ud=1,
         pm=1,
-        angle=average_angle(measurements, "SouthDown"),
-        residual=average_residual(measurements, "SouthDown"),
-        ordinate=average_ordinate(ordinates_index, "SouthDown"),
+        angle=average_angle(measurements, mt.SOUTH_DOWN),
+        residual=average_residual(measurements, mt.SOUTH_DOWN),
+        ordinate=average_ordinate(ordinates_index, mt.SOUTH_DOWN),
     )
 
     southup = Calculate(
         shift=200,
         ud=-1,
         pm=-1,
-        angle=average_angle(measurements, "SouthUp"),
-        residual=average_residual(measurements, "SouthUp"),
-        ordinate=average_ordinate(ordinates_index, "SouthUp"),
+        angle=average_angle(measurements, mt.SOUTH_UP),
+        residual=average_residual(measurements, mt.SOUTH_UP),
+        ordinate=average_ordinate(ordinates_index, mt.SOUTH_UP),
     )
 
     northup = Calculate(
         shift=0,
         ud=-1,
         pm=1,
-        angle=average_angle(measurements, "NorthUp"),
-        residual=average_residual(measurements, "NorthUp"),
-        ordinate=average_ordinate(ordinates_index, "NorthUp"),
+        angle=average_angle(measurements, mt.NORTH_UP),
+        residual=average_residual(measurements, mt.NORTH_UP),
+        ordinate=average_ordinate(ordinates_index, mt.NORTH_UP),
     )
 
     northdown = Calculate(
         shift=400,
         ud=1,
         pm=-1,
-        angle=average_angle(measurements, "NorthDown"),
-        residual=average_residual(measurements, "NorthDown"),
-        ordinate=average_ordinate(ordinates_index, "NorthDown"),
+        angle=average_angle(measurements, mt.NORTH_DOWN),
+        residual=average_residual(measurements, mt.NORTH_DOWN),
+        ordinate=average_ordinate(ordinates_index, mt.NORTH_DOWN),
     )
     # set inclination value for looping = Iprime
     inclination = Iprime
@@ -188,27 +188,27 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     # West facing measurements have a multiplier of -1
     # East facing measurements have a multipllier of 1
     westdown = Calculate(
-        angle=average_angle(measurements_index, "WestDown"),
-        residual=average_residual(measurements_index, "WestDown"),
-        ordinate=average_ordinate(ordinates_index, "WestDown"),
+        angle=average_angle(measurements_index, mt.WEST_DOWN),
+        residual=average_residual(measurements_index, mt.WEST_DOWN),
+        ordinate=average_ordinate(ordinates_index, mt.WEST_DOWN),
         pm=-1,
     )
     westup = Calculate(
-        angle=average_angle(measurements_index, "WestUp"),
-        residual=average_residual(measurements_index, "WestUp"),
-        ordinate=average_ordinate(ordinates_index, "WestUp"),
+        angle=average_angle(measurements_index, mt.WEST_UP),
+        residual=average_residual(measurements_index, mt.WEST_UP),
+        ordinate=average_ordinate(ordinates_index, mt.WEST_UP),
         pm=-1,
     )
     eastdown = Calculate(
-        angle=average_angle(measurements_index, "EastDown"),
-        residual=average_residual(measurements_index, "EastDown"),
-        ordinate=average_ordinate(ordinates_index, "EastDown"),
+        angle=average_angle(measurements_index, mt.EAST_DOWN),
+        residual=average_residual(measurements_index, mt.EAST_DOWN),
+        ordinate=average_ordinate(ordinates_index, mt.EAST_DOWN),
         pm=1,
     )
     eastup = Calculate(
-        angle=average_angle(measurements_index, "EastUp"),
-        residual=average_residual(measurements_index, "EastUp"),
-        ordinate=average_ordinate(ordinates_index, "EastUp"),
+        angle=average_angle(measurements_index, mt.EAST_UP),
+        residual=average_residual(measurements_index, mt.EAST_UP),
+        ordinate=average_ordinate(ordinates_index, mt.EAST_UP),
         pm=1,
     )
     # convert azimuth to geon
@@ -224,8 +224,8 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     d_b = round(D_b * 54, 2)
     d_b_dms = int(d_b / 60) * 100 + ((d_b / 60) % 1) * 60
     # gather first declination measurements' H ans E ordinates
-    wd_E_1 = ordinates_index["WestDown"][0].e
-    wd_H_1 = ordinates_index["WestDown"][0].h
+    wd_E_1 = ordinates_index[mt.WEST_DOWN][0].e
+    wd_H_1 = ordinates_index[mt.WEST_DOWN][0].h
     # calculate Declination baseline
     d_abs = D_b + np.arctan(wd_E_1 / (h_b + wd_H_1)) * (200 / np.pi)
     d_abs = round(d_abs * 54, 1)
