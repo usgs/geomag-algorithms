@@ -6,6 +6,18 @@ from .MeasurementType import MeasurementType as mt
 from pydantic import BaseModel
 
 
+# specify mark measurement types
+MARK_TYPES = [
+    mt.FIRST_MARK_DOWN,
+    mt.FIRST_MARK_UP,
+    mt.SECOND_MARK_DOWN,
+    mt.SECOND_MARK_UP,
+]
+
+# define measurement types used to calculate inclination
+INCLINATION_TYPES = [mt.NORTH_DOWN, mt.NORTH_UP, mt.SOUTH_DOWN, mt.SOUTH_UP]
+
+
 class Calculate(BaseModel):
     """
     Class object for performing calculations.
@@ -40,11 +52,9 @@ def calculate(reading):
     ordinate_index = reading.ordinate_index()
     measurements = reading.measurements
     measurement_index = reading.measurement_index()
-    # define measurement types used to calculate inclination
-    inclination_types = [mt.NORTH_DOWN, mt.NORTH_UP, mt.SOUTH_DOWN, mt.SOUTH_UP]
     # get ordinate values across h, e, z, and f for inclination measurement types
     inclination_ordinates = [
-        o for o in ordinates if o.measurement_type in inclination_types
+        o for o in ordinates if o.measurement_type in INCLINATION_TYPES
     ]
     # get average ordinate values across h, e, z, and f
     mean = average_ordinate(inclination_ordinates, None)
@@ -157,20 +167,14 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     ordinates, measurements, measurement_index(dictionary), azimuth and H baseline
     Returns absolute and baseline for declination.
     """
-    # specify mark measurement types
-    mark_types = [
-        mt.FIRST_MARK_DOWN,
-        mt.FIRST_MARK_UP,
-        mt.SECOND_MARK_DOWN,
-        mt.SECOND_MARK_UP,
-    ]
+
     # average mark angles
     # note that angles are being converted to geon
     average_mark = np.average(
         [
             convert_to_geon(m.angle)
             for m in measurements
-            if m.measurement_type in mark_types
+            if m.measurement_type in MARK_TYPES
         ]
     )
     # add 100 if mark up is greater than mark down
