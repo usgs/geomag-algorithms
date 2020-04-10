@@ -17,6 +17,9 @@ MARK_TYPES = [
 # define measurement types used to calculate inclination
 INCLINATION_TYPES = [mt.NORTH_DOWN, mt.NORTH_UP, mt.SOUTH_DOWN, mt.SOUTH_UP]
 
+# define measurement types used to calculate declination
+DECLINATION_TYPES = [mt.EAST_UP, mt.EAST_DOWN, mt.WEST_UP, mt.WEST_DOWN]
+
 
 class Calculate(BaseModel):
     """
@@ -100,41 +103,18 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     # -1 if observatory is in southern hemisphere
     hs = metadata["hemisphere"]
     # gather calculation objects for each measurement type
-    southdown = Calculate(
-        shift=mt.SOUTH_DOWN.shift,
-        direction=mt.SOUTH_DOWN.direction,
-        meridian=mt.SOUTH_DOWN.meridian,
-        angle=average_angle(measurements, mt.SOUTH_DOWN),
-        residual=average_residual(measurements, mt.SOUTH_DOWN),
-        ordinate=average_ordinate(ordinates_index, mt.SOUTH_DOWN),
-    )
+    inclination_measurements = {
+        m: Calculate(
+            angle=average_angle(measurements, m),
+            residual=average_residual(measurements, m),
+            ordinate=average_ordinate(ordinates_index, m),
+            direction=m.direction,
+            shift=m.shift,
+            meridian=m.meridian,
+        )
+        for m in INCLINATION_TYPES
+    }
 
-    southup = Calculate(
-        shift=mt.SOUTH_UP.shift,
-        direction=mt.SOUTH_UP.direction,
-        meridian=mt.SOUTH_UP.meridian,
-        angle=average_angle(measurements, mt.SOUTH_UP),
-        residual=average_residual(measurements, mt.SOUTH_UP),
-        ordinate=average_ordinate(ordinates_index, mt.SOUTH_UP),
-    )
-
-    northup = Calculate(
-        shift=mt.NORTH_UP.shift,
-        direction=mt.NORTH_UP.direction,
-        meridian=mt.NORTH_UP.meridian,
-        angle=average_angle(measurements, mt.NORTH_UP),
-        residual=average_residual(measurements, mt.NORTH_UP),
-        ordinate=average_ordinate(ordinates_index, mt.NORTH_UP),
-    )
-
-    northdown = Calculate(
-        shift=mt.NORTH_DOWN.shift,
-        direction=mt.NORTH_DOWN.direction,
-        meridian=mt.NORTH_DOWN.meridian,
-        angle=average_angle(measurements, mt.NORTH_DOWN),
-        residual=average_residual(measurements, mt.NORTH_DOWN),
-        ordinate=average_ordinate(ordinates_index, mt.NORTH_DOWN),
-    )
     # set inclination value for looping = Iprime
     inclination = Iprime
     # add one to inclination value to enter the loop
@@ -144,17 +124,18 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
         # set temporary inclination variable to hold previous step's inclination
         Inclination = inclination
         # calculate f for inclination measurement types
-        southdown.f = calculate_f(southdown.ordinate, mean, inclination)
-        northdown.f = calculate_f(northdown.ordinate, mean, inclination)
-        southup.f = calculate_f(southup.ordinate, mean, inclination)
-        northup.f = calculate_f(northup.ordinate, mean, inclination)
-        # gather measurements into array(necessary because f were recalculated)
-        measurements = [southup, southdown, northup, northdown]
+        for m in INCLINATION_TYPES:
+            inclination_measurements[m].f = calculate_f(
+                inclination_measurements[m].ordinate, mean, inclination
+            )
         # average f values for inclination measurement types
-        f = np.average([i.f for i in measurements])
+        f = np.average([inclination_measurements[m].f for m in INCLINATION_TYPES])
         # calculation inclination for each inclination measurement type and average
         inclination = np.average(
-            [calculate_measurement_inclination(m, hs) for m in measurements]
+            [
+                calculate_measurement_inclination(inclination_measurements[m], hs)
+                for m in INCLINATION_TYPES
+            ]
         )
     # loop exits once the difference in average inclination between steps is lower than 0.0001
 
@@ -188,39 +169,25 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
         average_mark -= 100
 
     # gather calculation objects for each declination measurement type
-    # note that the meridian(plus minus) multiplier has been repurposed.
-    # West facing measurements have a multiplier of -1
-    # East facing measurements have a multipllier of 1
-    westdown = Calculate(
-        angle=average_angle(measurements_index, mt.WEST_DOWN),
-        residual=average_residual(measurements_index, mt.WEST_DOWN),
-        ordinate=average_ordinate(ordinates_index, mt.WEST_DOWN),
-        meridian=mt.WEST_DOWN.meridian,
-    )
-    westup = Calculate(
-        angle=average_angle(measurements_index, mt.WEST_UP),
-        residual=average_residual(measurements_index, mt.WEST_UP),
-        ordinate=average_ordinate(ordinates_index, mt.WEST_UP),
-        meridian=mt.WEST_UP.meridian,
-    )
-    eastdown = Calculate(
-        angle=average_angle(measurements_index, mt.EAST_DOWN),
-        residual=average_residual(measurements_index, mt.EAST_DOWN),
-        ordinate=average_ordinate(ordinates_index, mt.EAST_DOWN),
-        meridian=mt.EAST_DOWN.meridian,
-    )
-    eastup = Calculate(
-        angle=average_angle(measurements_index, mt.EAST_UP),
-        residual=average_residual(measurements_index, mt.EAST_UP),
-        ordinate=average_ordinate(ordinates_index, mt.EAST_UP),
-        meridian=mt.EAST_UP.meridian,
-    )
+    declination_measurements = {
+        m: Calculate(
+            angle=average_angle(measurements_index, m),
+            residual=average_residual(measurements_index, m),
+            ordinate=average_ordinate(ordinates_index, m),
+            meridian=m.meridian,
+        )
+        for m in DECLINATION_TYPES
+    }
+
     # convert azimuth to geon
     azimuth = (int(azimuth / 100) + (azimuth % 100) / 60) / 0.9
-    # gather declination measurements into array
-    measurements = [westdown, westup, eastdown, eastup]
     # average meridian terms calculated from each declination measurements
-    meridian = np.average([calculate_meridian_term(i, h_b) for i in measurements])
+    meridian = np.average(
+        [
+            calculate_meridian_term(declination_measurements[m], h_b)
+            for m in DECLINATION_TYPES
+        ]
+    )
     # add subtract average mark angle from average meridian angle and add
     # azimuth(in geon) to get the declination baseline
     D_b = (meridian - average_mark) + azimuth
