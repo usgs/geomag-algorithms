@@ -3,9 +3,10 @@ from .Ordinate import Ordinate
 from .Absolute import Absolute
 from .Angle import to_dms
 from .MeasurementType import MeasurementType as mt
+from pydantic import BaseModel
 
 
-class Calculate(object):
+class Calculate(BaseModel):
     """
     Class object for performing calculations.
     Contains the following:
@@ -17,23 +18,13 @@ class Calculate(object):
     shift: Degree shift in inclination measurements.
     """
 
-    def __init__(
-        self,
-        angle: float = None,
-        residual: float = None,
-        ordinate: Ordinate = None,
-        f: float = None,
-        ud: int = None,
-        shift: int = None,
-        pm: int = None,
-    ):
-        self.angle = angle
-        self.residual = residual
-        self.ordinate = ordinate
-        self.f = f
-        self.ud = ud
-        self.shift = shift
-        self.pm = pm
+    angle: float = None
+    residual: float = None
+    ordinate: Ordinate = None
+    f: float = None
+    ud: int = None
+    pm: int = None
+    shift: int = None
 
 
 def calculate(Reading):
@@ -66,12 +57,7 @@ def calculate(Reading):
     # calculate scale value
     scale_ordinates = Reading.ordinate_index()["NorthDownScale"]
     scale_measurements = Reading.measurement_index()["NorthDownScale"]
-    scale = calculate_scale(
-        f,
-        scale_ordinates,
-        scale_measurements,
-        inclination,
-    )
+    scale = calculate_scale(f, scale_ordinates, scale_measurements, inclination,)
     # calculate declination absolute and baseline
     Db, Dabs = calculate_D(
         Reading.ordinate_index(),
@@ -233,7 +219,7 @@ def calculate_D(ordinates_index, measurements, measurements_index, AZ, Hb):
     measurements = [westdown, westup, eastdown, eastup]
     # average meridian terms calculated from each declination measurements
     meridian = np.average([calculate_meridian_term(i, Hb) for i in measurements])
-    # add subtract average mark angle from average meridian angle and add 
+    # add subtract average mark angle from average meridian angle and add
     # azimuth(in geon) to get the declination baseline
     D_b = (meridian - average_mark) + AZ
     # convert decimal baseline into dms baseline
