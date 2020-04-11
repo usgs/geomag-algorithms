@@ -179,9 +179,9 @@ SPREADSHEET_MEASUREMENTS = [
     },
     {
         "type": mt.NORTH_DOWN,
-        "angle": "D43",
-        "residual": "E43",
-        "time": "B43",
+        "angle": "D44",
+        "residual": "E44",
+        "time": "B44",
         "h": "C57",
         "e": "D57",
         "z": "E57",
@@ -189,13 +189,14 @@ SPREADSHEET_MEASUREMENTS = [
     },
     {
         "type": mt.NORTH_DOWN,
-        "angle": "D44",
-        "residual": "E44",
-        "time": "B44",
+        "angle": "D45",
+        "residual": "E45",
+        "time": "B45",
         "h": "C58",
         "e": "D58",
         "z": "E58",
         "f": "B58",
+        "mask": True,
     },
     # scaling
     {
@@ -355,12 +356,14 @@ class SpreadsheetAbsolutesFactory(object):
                 and parse_relative_time(base_date, sheet[m["time"]].value)
                 or None
             )
+            mask = "mask" in m or False
             measurements.append(
                 Measurement(
                     measurement_type=measurement_type,
                     angle=angle,
                     residual=residual,
                     time=time,
+                    mask=mask,
                 )
             )
         return measurements

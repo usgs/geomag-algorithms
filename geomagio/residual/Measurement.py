@@ -22,3 +22,4 @@ class Measurement(BaseModel):
     angle: float = 0
     residual: float = None
     time: Optional[UTCDateTime] = None
+    mask: bool = None

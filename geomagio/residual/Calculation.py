@@ -270,7 +270,9 @@ def average_angle(measurements, type):
     Compute average angle from a dictionary of
     measurements and specified measurement type.
     """
-    return np.average([convert_to_geon(m.angle) for m in measurements[type]])
+    return np.average(
+        [convert_to_geon(m.angle) for m in measurements[type] if not m.mask]
+    )
 
 
 def average_residual(measurements, type):
@@ -278,7 +280,7 @@ def average_residual(measurements, type):
     Compute average residual from a dictionary
     of measurements and specified measurement type.
     """
-    return np.average([m.residual for m in measurements[type]])
+    return np.average([m.residual for m in measurements[type] if not m.mask])
 
 
 def average_ordinate(ordinates, type):
@@ -288,6 +290,8 @@ def average_ordinate(ordinates, type):
     """
     if type is not None:
         ordinates = ordinates[type]
+        if type is mt.NORTH_DOWN:
+            ordinates = ordinates[0:2]
     o = Ordinate(measurement_type=type)
     avgs = np.average([[o.h, o.e, o.z, o.f] for o in ordinates], axis=0,)
     o.h, o.e, o.z, o.f = avgs
