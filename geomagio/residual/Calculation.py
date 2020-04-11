@@ -193,7 +193,6 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     D_b = (meridian - average_mark) + azimuth
     # convert decimal baseline into dms baseline
     d_b = round(D_b * 54, 2)
-    d_b_dms = int(d_b / 60) * 100 + ((d_b / 60) % 1) * 60
     # gather first declination measurements' H ans E ordinates
     wd_E_1 = ordinates_index[mt.WEST_DOWN][0].e
     wd_H_1 = ordinates_index[mt.WEST_DOWN][0].h
@@ -202,8 +201,9 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     d_abs = round(d_abs * 54, 1)
     # convert decimal absolute into dms absolute
     d_abs_dms = int(d_abs / 60) * 100 + ((d_abs / 60) % 1) * 60
+    d_abs_dec = int(d_abs_dms / 100) + (d_abs / 60) % 1
 
-    return d_b_dms, d_abs_dms
+    return d_b, d_abs_dec
 
 
 def calculate_absolutes(f, inclination):
