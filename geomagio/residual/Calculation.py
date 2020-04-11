@@ -208,8 +208,9 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     # calculate Declination baseline
     d_abs = D_b + np.arctan(wd_E_1 / (h_b + wd_H_1)) * (200 / np.pi)
     d_abs = round(d_abs * 54, 1)
-    # convert decimal absolute into dms absolute
+    # convert absolute into dms
     d_abs_dms = int(d_abs / 60) * 100 + ((d_abs / 60) % 1) * 60
+    # convert absolute into decimal degrees
     d_abs_dec = int(d_abs_dms / 100) + (d_abs / 60) % 1
 
     return d_b, d_abs_dec
