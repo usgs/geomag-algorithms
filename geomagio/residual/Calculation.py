@@ -69,6 +69,15 @@ def calculate(reading):
     h_abs, z_abs = calculate_absolutes(f, inclination)
     # calculate baselines for H and Z
     h_b, z_b = calculate_baselines(h_abs, z_abs, mean, reading.pier_correction)
+    # gather first measurement's ordinates
+    wd_ord = ordinate_index[mt.WEST_DOWN][0]
+    wd_h = wd_ord.h
+    wd_e = wd_ord.e
+    wd_z = wd_ord.z
+    # recalculate absolute value for H
+    h_abs = np.sqrt((h_b + wd_h) ** 2 + (wd_e) ** 2)
+    # recalculate absolute value for Z
+    z_abs = z_b + wd_z
     # calculate scale value
     scale_ordinates = ordinate_index[mt.NORTH_DOWN_SCALE]
     scale_measurements = measurement_index[mt.NORTH_DOWN_SCALE]

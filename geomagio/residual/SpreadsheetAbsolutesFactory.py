@@ -26,7 +26,7 @@ SPREADSHEET_MEASUREMENTS = [
         "time": "B19",
         "h": "F19",
         "e": "G19",
-        "z": "F19",
+        "z": "H19",
         "f": "H19",
     },
     {
@@ -36,7 +36,7 @@ SPREADSHEET_MEASUREMENTS = [
         "time": "B20",
         "h": "F20",
         "e": "G20",
-        "z": "F20",
+        "z": "H20",
         "f": "H20",
     },
     {
