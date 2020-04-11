@@ -46,7 +46,7 @@ SPREADSHEET_MEASUREMENTS = [
         "time": "B21",
         "h": "F21",
         "e": "G21",
-        "z": "F21",
+        "z": "H21",
         "f": "H21",
     },
     {
@@ -56,7 +56,7 @@ SPREADSHEET_MEASUREMENTS = [
         "time": "B22",
         "h": "F22",
         "e": "G22",
-        "z": "F22",
+        "z": "H22",
         "f": "H22",
     },
     {
@@ -66,7 +66,7 @@ SPREADSHEET_MEASUREMENTS = [
         "time": "B23",
         "h": "F23",
         "e": "G23",
-        "z": "F23",
+        "z": "H23",
         "f": "H23",
     },
     {
@@ -76,7 +76,7 @@ SPREADSHEET_MEASUREMENTS = [
         "time": "B24",
         "h": "F24",
         "e": "G24",
-        "z": "F24",
+        "z": "H24",
         "f": "H24",
     },
     {
@@ -86,7 +86,7 @@ SPREADSHEET_MEASUREMENTS = [
         "time": "B25",
         "h": "F25",
         "e": "G25",
-        "z": "F25",
+        "z": "H25",
         "f": "H25",
     },
     {
@@ -96,7 +96,7 @@ SPREADSHEET_MEASUREMENTS = [
         "time": "B26",
         "h": "F26",
         "e": "G26",
-        "z": "F26",
+        "z": "H26",
         "f": "H26",
     },
     # second mark
