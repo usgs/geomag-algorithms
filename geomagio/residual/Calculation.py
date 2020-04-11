@@ -94,7 +94,7 @@ def calculate(reading):
 
     result = [resultH, resultD, resultZ]
 
-    return result, scale
+    return result
 
 
 def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
