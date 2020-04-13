@@ -1,6 +1,7 @@
 import numpy as np
 from .Ordinate import Ordinate
 from .Absolute import Absolute
+from .Angle import from_dms
 from .Angle import to_dms
 from .MeasurementType import MeasurementType as mt
 from pydantic import BaseModel
@@ -88,11 +89,11 @@ def calculate(reading):
     )
 
     # return results as a set of Absolute objects along with the calculated scale value
-    resultH = Absolute(element="H", baseline=h_b, absolute=h_abs)
     resultD = Absolute(element="D", baseline=d_b, absolute=d_abs)
+    resultH = Absolute(element="H", baseline=h_b, absolute=h_abs)
     resultZ = Absolute(element="Z", baseline=z_b, absolute=z_abs)
 
-    result = [resultH, resultD, resultZ]
+    result = [resultD, resultH, resultZ]
 
     return result
 
@@ -211,7 +212,9 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     # convert absolute into dms
     d_abs_dms = int(d_abs / 60) * 100 + ((d_abs / 60) % 1) * 60
     # convert absolute into decimal degrees
-    d_abs_dec = int(d_abs_dms / 100) + (d_abs / 60) % 1
+    d_abs_dec = from_dms(
+        degrees=int(d_abs_dms / 100), minutes=float(str(d_abs_dms)[2::])
+    )
 
     return d_b, d_abs_dec
 
