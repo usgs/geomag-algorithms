@@ -1,51 +1,52 @@
-import datetime
+from datetime import datetime, timedelta, timezone
 import json
 from typing import Dict, Optional
 
+import sqlalchemy
+import sqlalchemy_utc
 
-import orm
 from .common import database, sqlalchemy_metadata
 
 
-class Session(orm.Model):
-    """Model for database sessions.
-    """
-
-    __tablename__ = "session"
-    __database__ = database
-    __metadata__ = sqlalchemy_metadata
-
-    id = orm.Integer(primary_key=True)
-    session_id = orm.String(index=True, max_length=100)
-    data = orm.Text()
-    updated = orm.DateTime(index=True)
+session = sqlalchemy.Table(
+    "session",
+    sqlalchemy_metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("session_id", sqlalchemy.String(length=100), index=True),
+    sqlalchemy.Column("data", sqlalchemy.Text),
+    sqlalchemy.Column("updated", sqlalchemy_utc.UtcDateTime, index=True),
+)
 
 
-async def delete_session(session_id: str):
-    try:
-        session = await Session.objects.get(session_id=session_id)
-        await session.delete()
-    except orm.exceptions.NoMatch:
-        return {}
+async def delete_session(session_id: str) -> None:
+    query = session.delete().where(session.c.session_id == session_id)
+    await database.execute(query)
 
 
 async def get_session(session_id: str) -> str:
-    try:
-        session = await Session.objects.get(session_id=session_id)
-        return session.data
-    except orm.exceptions.NoMatch:
-        return {}
+    query = session.select().where(session.c.session_id == session_id)
+    row = await database.fetch_one(query)
+    return row.data
 
 
-async def remove_expired_sessions(max_age: datetime.timedelta):
-    now = datetime.datetime.now(tz=datetime.timezone.utc)
-    await Session.objects.delete(updated__lt=(now - max_age))
+async def remove_expired_sessions(max_age: timedelta) -> None:
+    threshold = datetime.now(tz=timezone.utc) - max_age
+    query = session.delete().where(session.c.updated < threshold)
+    await database.execute(query)
 
 
-async def save_session(session_id: str, data: str):
-    updated = datetime.datetime.now(tz=datetime.timezone.utc)
-    try:
-        session = await Session.objects.get(session_id=session_id)
-        await session.update(data=data, updated=updated)
-    except orm.exceptions.NoMatch:
-        await Session.objects.create(session_id=session_id, data=data, updated=updated)
+async def save_session(session_id: str, data: str) -> None:
+    updated = datetime.now(tz=timezone.utc)
+    # try update first
+    query = (
+        session.update()
+        .where(session.c.session_id == session_id)
+        .values(data=data, updated=updated)
+    )
+    count = await database.execute(query)
+    if count == 0:
+        # no matching session, insert
+        query = session.insert().values(
+            session_id=session_id, data=data, updated=updated
+        )
+        await database.execute(query)

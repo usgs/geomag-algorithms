@@ -83,8 +83,8 @@ def require_user(allowed_groups: List[str] = None,) -> Callable[[Request, User],
         request: Request, user: Optional[User] = Depends(current_user)
     ) -> User:
         if not user:
-            # not logged in, redirect
-            return RedirectResponse(request.url_for("login"))
+            # not logged in
+            raise HTTPException(status_code=401, detail=request.url_for("login"))
         if allowed_groups is not None and not any(
             g in user.groups for g in allowed_groups
         ):
@@ -92,7 +92,7 @@ def require_user(allowed_groups: List[str] = None,) -> Callable[[Request, User],
                 f"user ({user.email}, sub={user.sub})"
                 f" not member of any allowed group ({allowed_groups})"
             )
-            raise HTTPException(401, "Not Authorized")
+            raise HTTPException(403, detail="Forbidden")
         return user
 
     return verify_groups
@@ -121,13 +121,14 @@ async def authorize(request: Request):
     # add user to session
     userinfo = await oauth.openid.userinfo(token=token)
     request.session["user"] = dict(userinfo)
-    # redirect to original location
-    url = request.session.pop(
-        "after_authorize_redirect",
-        # or fall back to index
-        request.url_for("index"),
+    # redirect
+    return RedirectResponse(
+        url=request.session.pop(
+            "after_authorize_redirect",
+            # fall back to index
+            request.url_for("index"),
+        )
     )
-    return RedirectResponse(url=url)
 
 
 @router.get("/login")
@@ -148,7 +149,13 @@ async def logout(request: Request):
     """
     request.session.pop("token", None)
     request.session.pop("user", None)
-    return RedirectResponse(request.url_for("index"))
+    return RedirectResponse(
+        # referrer when set
+        "Referer" in request.headers
+        and request.headers["Referer"]
+        # otherwise index
+        or request.url_for("index")
+    )
 
 
 @router.get("/user")

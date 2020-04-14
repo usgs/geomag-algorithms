@@ -15,18 +15,16 @@ numpy = "*"
 scipy = "*"
 obspy = ">1.2.0"
 pycurl = "*"
-
 authlib = "*"
 cryptography = "*"
-databases = {extras = ["postgresql", "sqlite"],version = "*"}
+databases = {extras = ["sqlite"],version = "*"}
 fastapi = "*"
 httpx = "==0.11.1"
 openpyxl = "*"
-orm = "==0.1.5"
 pydantic = "==1.4"
 sqlalchemy = "*"
+sqlalchemy-utc = "*"
 uvicorn = "*"
-typesystem = "==0.2.4"
 
 [pipenv]
 allow_prereleases = true
