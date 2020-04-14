@@ -1,93 +1,112 @@
 import datetime
 import enum
 
-import orm
+from obspy import UTCDateTime
+from sqlalchemy import or_, Boolean, Column, Index, Integer, String, Table, Text
+import sqlalchemy_utc
 
-
+from ...metadata import Metadata, MetadataCategory
 from .common import database, sqlalchemy_metadata
 
 
-# known category values as enumeration
-class MetadataCategory(str, enum.Enum):
-    ADJUSTED_MATRIX = "adjusted-matrix"
-    FLAG = "flag"
-    READING = "reading"
+"""Metadata database model.
 
-
-class Metadata(orm.Model):
-    """Metadata database model.
-
-    This class is used for Data flagging and other Metadata.
-
-    Flag example:
-    ```
-    automatic_flag = Metadata(
-        created_by = 'algorithm/version',
-        start_time = UTCDateTime('2020-01-02T00:17:00.1Z'),
-        end_time = UTCDateTime('2020-01-02T00:17:00.1Z'),
-        network = 'NT',
-        station = 'BOU',
-        channel = 'BEU',
-        category = CATEGORY_FLAG,
-        comment = "spike detected",
-        priority = 1,
-        data_valid = False)
-    ```
-
-    Adjusted Matrix example:
-    ```
-    adjusted_matrix = Metadata(
-        created_by = 'algorithm/version',
-        start_time = UTCDateTime('2020-01-02T00:17:00Z'),
-        end_time = None,
-        network = 'NT',
-        station = 'BOU',
-        category = CATEGORY_ADJUSTED_MATRIX,
-        comment = 'automatic adjusted matrix',
-        priority = 1,
-        value = {
-            'parameters': {'x': 1, 'y': 2, 'z': 3}
-            'matrix': [ ... ]
-        }
-    )
-    ```
-    """
-
-    __tablename__ = "metadata"
-    __database__ = database
-    __metadata__ = sqlalchemy_metadata
-
-    id = orm.Integer(primary_key=True)
-
+See pydantic model geomagio.metadata.Metadata
+"""
+metadata = Table(
+    "metadata",
+    sqlalchemy_metadata,
+    ## COLUMNS
+    Column("id", Integer, primary_key=True),
     # author
-    created_by = orm.Text(index=True)
-    created_time = orm.DateTime(default=datetime.datetime.utcnow, index=True)
+    Column("created_by", String(length=255), index=True),
+    Column(
+        "created_time",
+        sqlalchemy_utc.UtcDateTime,
+        default=sqlalchemy_utc.now,
+        index=True,
+    ),
     # reviewer
-    reviewed_by = orm.Text(allow_null=True, index=True)
-    reviewed_time = orm.DateTime(allow_null=True, index=True)
-
+    Column("reviewed_by", String(length=255), index=True, nullable=True),
+    Column("reviewed_time", sqlalchemy_utc.UtcDateTime, index=True, nullable=True),
     # time range
-    starttime = orm.DateTime(allow_null=True, index=True)
-    endtime = orm.DateTime(allow_null=True, index=True)
-    # what metadata applies to
-    # channel/location allow_null for wildcard
-    network = orm.String(index=True, max_length=255)
-    station = orm.String(index=True, max_length=255)
-    channel = orm.String(allow_null=True, index=True, max_length=255)
-    location = orm.String(allow_null=True, index=True, max_length=255)
-
+    Column("starttime", sqlalchemy_utc.UtcDateTime, index=True, nullable=True),
+    Column("endtime", sqlalchemy_utc.UtcDateTime, index=True, nullable=True),
+    # what data metadata references, null for wildcard
+    Column("network", String(length=255), nullable=True),  # indexed below
+    Column("station", String(length=255), nullable=True),  # indexed below
+    Column("channel", String(length=255), nullable=True),  # indexed below
+    Column("location", String(length=255), nullable=True),  # indexed below
     # category (flag, matrix, etc)
-    category = orm.String(index=True, max_length=255)
+    Column("category", String(length=255)),  # indexed below
     # higher priority overrides lower priority
-    priority = orm.Integer(default=1, index=True)
+    Column("priority", Integer, default=1),
     # whether data is valid (primarily for flags)
-    data_valid = orm.Boolean(default=True, index=True)
-    # value
-    metadata = orm.JSON(allow_null=True)
+    Column("data_valid", Boolean, default=True, index=True),
     # whether metadata is valid (based on review)
-    metadata_valid = orm.Boolean(default=True, index=True)
-
+    Column("metadata_valid", Boolean, default=True, index=True),
+    # metadata json blob
+    Column("metadata", Text, nullable=True),
     # general comment
-    comment = orm.Text(allow_null=True)
+    Column("comment", Text, nullable=True),
     # review specific comment
-    review_comment = orm.Text(allow_null=True)
+    Column("review_comment", Text, nullable=True),
+    ## INDICES
+    Index(
+        "index_station_metadata",
+        # sncl
+        "network",
+        "station",
+        "channel",
+        "location",
+        # type
+        "category",
+        # date
+        "starttime",
+        "endtime",
+        # valid
+        "metadata_valid",
+        "data_valid",
+    ),
+    Index(
+        "index_category_time",
+        # type
+        "category",
+        # date
+        "starttime",
+        "endtime",
+    ),
+)
+
+
+async def get_metadata(
+    *,  # make all params keyword
+    network: str,
+    station: str,
+    channel: str = None,
+    location: str = None,
+    category: MetadataCategory = None,
+    starttime: UTCDateTime = None,
+    endtime: UTCDateTime = None,
+    data_valid: bool = None,
+    metadata_valid: bool = None,
+):
+    query = (
+        metadata.select()
+        .where(metadata.c.network.like(network or "%"))
+        .where(metadata.c.station.like(station or "%"))
+        .where(metadata.c.channel.like(channel or "%"))
+        .where(metadata.c.location.like(location or "%"))
+    )
+    if starttime:
+        query = query.where(
+            or_(metadata.c.endtime == None, metadata.c.endtime > starttime.datetime)
+        )
+    if endtime:
+        query = query.where(
+            or_(metadata.c.starttime == None, metadata.c.starttime < endtime.datetime)
+        )
+    if data_valid is not None:
+        query = query.where(metadata.c.data_valid == data_valid)
+    if metadata_valid is not None:
+        query = query.where(metadata.c.metadata_valid == metadata_valid)

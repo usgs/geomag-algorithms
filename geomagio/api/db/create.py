@@ -3,7 +3,8 @@ import sqlalchemy
 from .common import database, sqlalchemy_metadata
 
 # register models with sqlalchemy_metadata by importing
-from .session import Session
+from .metadata import metadata
+from .session import session
 
 
 def create_db():
