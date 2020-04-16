@@ -20,6 +20,6 @@ class Measurement(BaseModel):
 
     measurement_type: MeasurementType
     angle: float = 0
-    residual: float = None
+    residual: float = 0
     time: Optional[UTCDateTime] = None
     mask: bool = None
