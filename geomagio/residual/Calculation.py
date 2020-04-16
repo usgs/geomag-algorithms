@@ -61,15 +61,18 @@ def calculate(reading):
         o for o in ordinates if o.measurement_type in INCLINATION_TYPES
     ]
     # get average ordinate values across h, e, z, and f
-    mean = average_ordinate(inclination_ordinates, None)
+    i_mean = average_ordinate(inclination_ordinates, None)
     # calculate inclination
     inclination, f = calculate_I(
-        measurement_index, inclination_ordinates, ordinate_index, mean, metadata,
+        measurement_index, inclination_ordinates, ordinate_index, i_mean, metadata,
     )
     # calculate absolutes
     h_abs, z_abs = calculate_absolutes(f, inclination)
+    b_mean = average_ordinate(
+        inclination_ordinates[:-1], None
+    )  # excludes scaling measurement
     # calculate baselines for H and Z
-    h_b, z_b = calculate_baselines(h_abs, z_abs, mean, reading.pier_correction)
+    h_b, z_b = calculate_baselines(h_abs, z_abs, b_mean)
     # gather first measurement's ordinates
     wd_ord = ordinate_index[mt.WEST_DOWN][0]
     wd_h = wd_ord.h
@@ -237,16 +240,15 @@ def calculate_absolutes(f, inclination):
     return h_abs, z_abs
 
 
-def calculate_baselines(h_abs, z_abs, mean, pier_correction):
+def calculate_baselines(h_abs, z_abs, mean):
     """
     Calculate baselines with H and Z absolutes,
     average ordinates across all measurements,
     and pier correction(metadata).
     Returns H and Z baselines
     """
-    correction = pier_correction / 5
-    h_b = round(np.sqrt(h_abs ** 2 - mean.e ** 2) - mean.h, 1) - correction
-    z_b = round(z_abs - mean.z, 1) - correction
+    h_b = round(np.sqrt(h_abs ** 2 - mean.e ** 2) - mean.h, 1)
+    z_b = round(z_abs - mean.z, 1)
 
     return h_b, z_b
 
