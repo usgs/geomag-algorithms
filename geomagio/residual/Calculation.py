@@ -152,7 +152,7 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
         )
     # loop exits once the difference in average inclination between steps is lower than 0.0001
 
-    return inclination, f
+    return inclination, f + metadata["pier_correction"]
 
 
 def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b):

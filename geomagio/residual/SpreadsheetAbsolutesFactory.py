@@ -284,9 +284,10 @@ class SpreadsheetAbsolutesFactory(object):
         workbook = openpyxl.load_workbook(path, data_only=True)
         constants_sheet = workbook["constants"]
         measurement_sheet = workbook["measurement"]
+        calculation_sheet = workbook["calculations"]
         summary_sheet = workbook["Summary"]
         metadata = self._parse_metadata(
-            constants_sheet, measurement_sheet, summary_sheet
+            constants_sheet, measurement_sheet, calculation_sheet, summary_sheet
         )
         absolutes = self._parse_absolutes(summary_sheet, metadata["date"])
         measurements = (
@@ -396,6 +397,7 @@ class SpreadsheetAbsolutesFactory(object):
         self,
         constants_sheet: openpyxl.worksheet,
         measurement_sheet: openpyxl.worksheet,
+        calculation_sheet: openpyxl.worksheet,
         summary_sheet: openpyxl.worksheet,
     ) -> Dict:
         """Parse metadata from various sheets.
@@ -417,7 +419,7 @@ class SpreadsheetAbsolutesFactory(object):
             "instrument": f"{summary_sheet['B4'].value}",
             "mark_azimuth": mark_azimuth,
             "observer": measurement_sheet["E8"].value,
-            "pier_correction": constants_sheet["H6"].value,
+            "pier_correction": calculation_sheet["I24"].value,
             "pier_name": summary_sheet["B5"].value,
             "station": measurement_sheet["A8"].value,
             "temperature": constants_sheet["J58"].value,
