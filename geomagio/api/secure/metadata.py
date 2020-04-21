@@ -1,3 +1,18 @@
+"""Module for metadata service.
+
+Uses login.py for user management.
+
+Anyone can access metadata.
+Logged in users can create new metadata.
+Update and delete are restricted based on group membership.
+
+
+Configuration:
+    uses environment variables:
+
+    ADMIN_GROUP           - delete is restricted the admin group.
+    REVIEWER_GROUP        - update is restricted the reviewer group.
+"""
 from typing import List
 
 from fastapi import APIRouter, Body, Depends, Request, Response
@@ -23,7 +38,9 @@ async def create_metadata(
 
 
 @router.delete("/metadata/{id}")
-async def delete_metadata(id: int, user: User = Depends(require_user())):
+async def delete_metadata(
+    id: int, user: User = Depends(require_user(os.getenv("ADMIN_GROUP", "admin")))
+):
     await metadata_table.delete_metadata(id)
 
 
@@ -65,6 +82,8 @@ async def get_metadata_by_id(id: int):
 
 @router.put("/metadata/{id}")
 async def update_metadata(
-    id: int, metadata: Metadata = Body(...), user: User = Depends(require_user()),
+    id: int,
+    metadata: Metadata = Body(...),
+    user: User = Depends(require_user([os.getenv("REVIEWER_GROUP", "reviewer")])),
 ):
     await metadata_table.update_metadata(metadata)
