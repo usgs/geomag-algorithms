@@ -22,7 +22,6 @@ from ...metadata import Metadata, MetadataCategory
 from ..db import metadata_table
 from .login import require_user, User
 from .MetadataQuery import MetadataQuery
-from .MetadataResponse import MetadataResponse
 from ... import pydantic_utcdatetime
 
 # routes for login/logout
