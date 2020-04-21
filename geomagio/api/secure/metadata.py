@@ -13,6 +13,7 @@ Configuration:
     ADMIN_GROUP           - delete is restricted the admin group.
     REVIEWER_GROUP        - update is restricted the reviewer group.
 """
+import os
 from typing import List
 
 from fastapi import APIRouter, Body, Depends, Request, Response
