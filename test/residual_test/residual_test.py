@@ -37,19 +37,19 @@ def test_DED_20140952332():
     assert_almost_equal(
         [original["H"].absolute, original["H"].baseline],
         [result["H"].absolute, result["H"].baseline],
-        decimal=2,
+        decimal=4,
         verbose=True,
     )
     assert_almost_equal(
         [original["D"].absolute, original["D"].baseline],
         [result["D"].absolute, result["D"].baseline],
-        decimal=2,
+        decimal=4,
         verbose=True,
     )
     assert_almost_equal(
         [original["Z"].absolute, original["Z"].baseline],
         [result["Z"].absolute, result["Z"].baseline],
-        decimal=2,
+        decimal=4,
         verbose=True,
     )
 
@@ -73,18 +73,18 @@ def test_BRW_20133650000():
     assert_almost_equal(
         [original["H"].absolute, original["H"].baseline],
         [result["H"].absolute, result["H"].baseline],
-        decimal=2,
+        decimal=4,
         verbose=True,
     )
     assert_almost_equal(
         [original["D"].absolute, original["D"].baseline],
         [result["D"].absolute, result["D"].baseline],
-        decimal=2,
+        decimal=4,
         verbose=True,
     )
     assert_almost_equal(
         [original["Z"].absolute, original["Z"].baseline],
         [result["Z"].absolute, result["Z"].baseline],
-        decimal=2,
+        decimal=4,
         verbose=True,
     )
