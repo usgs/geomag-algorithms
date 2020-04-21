@@ -424,4 +424,5 @@ class SpreadsheetAbsolutesFactory(object):
             "station": measurement_sheet["A8"].value,
             "temperature": constants_sheet["J58"].value,
             "year": year,
+            "precision": measurement_sheet["H8"].value,
         }

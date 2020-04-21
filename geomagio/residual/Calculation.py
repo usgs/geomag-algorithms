@@ -88,7 +88,7 @@ def calculate(reading):
     scale = calculate_scale(f, scale_ordinates, scale_measurements, inclination,)
     # calculate declination absolute and baseline
     d_b, d_abs = calculate_D(
-        ordinate_index, measurements, measurement_index, metadata["mark_azimuth"], h_b,
+        ordinate_index, measurements, measurement_index, metadata, h_b,
     )
 
     # return results as a set of Absolute objects along with the calculated scale value
@@ -108,7 +108,7 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     Returns inclination angle and calculated average f
     """
     # get first inclination angle, assumed to be the southdown angle
-    Iprime = average_angle(measurements, mt.SOUTH_DOWN)
+    Iprime = average_angle(measurements, mt.SOUTH_DOWN, metadata)
     if Iprime >= 100:
         Iprime -= 200
     # get multiplier for hempisphere the observatory is located in
@@ -118,7 +118,7 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     # gather calculation objects for each measurement type
     inclination_measurements = {
         m: Calculate(
-            angle=average_angle(measurements, m),
+            angle=average_angle(measurements, m, metadata),
             residual=average_residual(measurements, m),
             ordinate=average_ordinate(ordinates_index, m),
             direction=m.direction,
@@ -155,7 +155,7 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     return inclination, f + metadata["pier_correction"]
 
 
-def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b):
+def calculate_D(ordinates_index, measurements, measurements_index, metadata, h_b):
     """
     Calculate declination absolute and declination baseline from
     ordinates, measurements, measurement_index(dictionary), azimuth and H baseline
@@ -166,7 +166,7 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     # note that angles are being converted to geon
     average_mark = np.average(
         [
-            convert_to_geon(m.angle)
+            convert_to_geon(m.angle, precision=metadata["precision"])
             for m in measurements
             if m.measurement_type in MARK_TYPES
         ]
@@ -184,7 +184,7 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     # gather calculation objects for each declination measurement type
     declination_measurements = {
         m: Calculate(
-            angle=average_angle(measurements_index, m),
+            angle=average_angle(measurements_index, m, metadata),
             residual=average_residual(measurements_index, m),
             ordinate=average_ordinate(ordinates_index, m),
             meridian=m.meridian,
@@ -193,7 +193,9 @@ def calculate_D(ordinates_index, measurements, measurements_index, azimuth, h_b)
     }
 
     # convert azimuth to geon
-    azimuth = (int(azimuth / 100) + (azimuth % 100) / 60) / 0.9
+    azimuth = (
+        int(metadata["mark_azimuth"] / 100) + (metadata["mark_azimuth"] % 100) / 60
+    ) / 0.9
     # average meridian terms calculated from each declination measurements
     meridian = np.average(
         [
@@ -283,13 +285,17 @@ def calculate_scale(f, ordinates, measurements, inclination):
     return scale_value
 
 
-def average_angle(measurements, type):
+def average_angle(measurements, type, metadata):
     """
     Compute average angle from a dictionary of
     measurements and specified measurement type.
     """
     return np.average(
-        [convert_to_geon(m.angle) for m in measurements[type] if not m.mask]
+        [
+            convert_to_geon(m.angle, precision=metadata["precision"])
+            for m in measurements[type]
+            if not m.mask
+        ]
     )
 
 
@@ -361,13 +367,13 @@ def calculate_meridian_term(calculation, h_b):
     return meridian_term
 
 
-def convert_to_geon(angle, incldirectione_seconds=True):
+def convert_to_geon(angle, precision="DMS"):
     """
     Convert angles from measurements to geon
     """
     degrees = int(angle)
     minutes = int((angle % 1) * 100) / 60
-    if incldirectione_seconds:
+    if precision == "DMS":
         seconds = ((angle * 100) % 1) / 36
     else:
         seconds = 0
