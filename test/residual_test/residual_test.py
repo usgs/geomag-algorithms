@@ -1,10 +1,8 @@
 from geomagio.residual import SpreadsheetAbsolutesFactory
 from numpy.testing import assert_almost_equal
 
-import os
 
-
-def test_calculations():
+def get_calculations():
     """
     Tests functionality of SpreadsheetAbsolutesFactory and recalculation of absolutes
     """
@@ -13,11 +11,11 @@ def test_calculations():
     # Read spreadsheet containing test data
     reading = saf.parse_spreadsheet("etc/residual/DED-20140952332.xlsm")
     # establish original absolute object
-    original = reading.absolutes
+    original = reading.absolutes_index()
     # recalculate absolute object using Calculation.py
     reading.update_absolutes()
     # establish recalculated absolute object
-    result = reading.absolutes
+    result = reading.absolutes_index()
 
 
 def test_DED_20140952332():
@@ -31,37 +29,29 @@ def test_DED_20140952332():
     # Read spreadsheet containing test data
     reading = saf.parse_spreadsheet("etc/residual/DED-20140952332.xlsm")
     # establish original absolute object
-    original = reading.absolutes
+    original = reading.absolutes_index()
     # recalculate absolute object using Calculation.py
     reading.update_absolutes()
     # establish recalculated absolute object
-    result = reading.absolutes
-    # run test for comparison of results to original data given by spreadsheet
-    for i in range(len(result)):
-        original_element = original[i]
-        result_element = result[i]
-        # gather elements' absolutes
-        o_absolute = original_element.absolute
-        r_absolute = result_element.absolute
-        # gather element's baselines
-        o_baseline = original_element.baseline
-        r_baseline = result_element.baseline
-        # test absolute values
-        assert_almost_equal(
-            o_absolute,
-            r_absolute,
-            decimal=4,
-            err_msg="Absolutes not within 4 decimals",
-            verbose=True,
-        )
-        # test baseline values
-        assert_almost_equal(
-            o_baseline,
-            r_baseline,
-            decimal=4,
-            err_msg="Baselines not within 4 decimals",
-            verbose=True,
-        )
+    result = reading.absolutes_index()
+    assert_almost_equal(
+        [original["H"].absolute, original["H"].baseline],
+        [result["H"].absolute, result["H"].baseline],
+        decimal=2,
+        verbose=True,
+    )
+    assert_almost_equal(
+        [original["D"].absolute, original["D"].baseline],
+        [result["D"].absolute, result["D"].baseline],
+        decimal=2,
+        verbose=True,
+    )
+    assert_almost_equal(
+        [original["Z"].absolute, original["Z"].baseline],
+        [result["Z"].absolute, result["Z"].baseline],
+        decimal=2,
+        verbose=True,
+    )
 
 
 def test_BRW_20133650000():
@@ -75,26 +65,26 @@ def test_BRW_20133650000():
     # Read spreadsheet containing test data
     reading = saf.parse_spreadsheet("etc/residual/BRW-20133650000.xlsm")
     # establish original absolute object
-    original = reading.absolutes
+    original = reading.absolutes_index()
     # recalculate absolute object using Calculation.py
     reading.update_absolutes()
     # establish recalculated absolute object
-    result = reading.absolutes
-    # run test for comparison of results to original data given by spreadsheet
-    for i in range(len(result)):
-        original_element = original[i]
-        result_element = result[i]
-        # gather elements' absolutes
-        o_absolute = original_element.absolute
-        r_absolute = result_element.absolute
-        # gather element's baselines
-        o_baseline = original_element.baseline
-        r_baseline = result_element.baseline
-        # test absolute values
-        assert_almost_equal(
-            o_absolute, r_absolute, decimal=2, verbose=True,
-        )
-        # test baseline values
-        assert_almost_equal(
-            o_baseline, r_baseline, decimal=2, verbose=True,
-        )
+    result = reading.absolutes_index()
+    assert_almost_equal(
+        [original["H"].absolute, original["H"].baseline],
+        [result["H"].absolute, result["H"].baseline],
+        decimal=2,
+        verbose=True,
+    )
+    assert_almost_equal(
+        [original["D"].absolute, original["D"].baseline],
+        [result["D"].absolute, result["D"].baseline],
+        decimal=2,
+        verbose=True,
+    )
+    assert_almost_equal(
+        [original["Z"].absolute, original["Z"].baseline],
+        [result["Z"].absolute, result["Z"].baseline],
+        decimal=2,
+        verbose=True,
+    )
