@@ -4,9 +4,10 @@ import uuid
 
 from fastapi import Depends, FastAPI, Request, Response
 
-from ..db.session import delete_session, get_session, save_session
+from ..db.session_table import delete_session, get_session, save_session
 from .encryption import get_fernet
 from .login import current_user, router as login_router, User
+from .metadata import router as metadata_router
 from .SessionMiddleware import SessionMiddleware
 
 
@@ -29,6 +30,7 @@ app.add_middleware(
 
 # include login routes to manage user
 app.include_router(login_router)
+app.include_router(metadata_router)
 
 
 @app.get("/")
