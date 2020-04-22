@@ -207,10 +207,8 @@ def calculate_D(ordinates_index, measurements, measurements_index, metadata, h_b
     # azimuth(in geon) to get the declination baseline
     D_b = (meridian - average_mark) + azimuth
     d_b = round(D_b * 54, 2)
-    # convert baseline into dms
-    d_b_dms = int(d_b / 60) * 100 + (d_b / 60) % 1 * 60
     # convert baseline into decimal degrees
-    d_b_dec = from_dms(degrees=int(d_b_dms / 100), minutes=float(str(d_b_dms)[2::]))
+    d_b_dec = from_dms(minutes=d_b)
     # gather first declination measurements' H ans E ordinates
     wd_E_1 = ordinates_index[mt.WEST_DOWN][0].e
     wd_H_1 = ordinates_index[mt.WEST_DOWN][0].h
@@ -372,10 +370,11 @@ def convert_to_geon(angle, precision="DMS"):
     Convert angles from measurements to geon
     """
     degrees = int(angle)
-    minutes = int((angle % 1) * 100) / 60
     if precision == "DMS":
+        minutes = int((angle % 1) * 100) / 60
         seconds = ((angle * 100) % 1) / 36
     else:
+        minutes = (angle % 1) * 100 / 60
         seconds = 0
     dms = (degrees + minutes + seconds) / 0.9
 
