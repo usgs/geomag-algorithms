@@ -38,13 +38,13 @@ class MeasurementType(str, enum.Enum):
     @property
     def shift(self):
         if self == MeasurementType.SOUTH_DOWN:
-            return -200
+            return -180
         if self == MeasurementType.SOUTH_UP:
-            return 200
+            return 180
         if self == MeasurementType.NORTH_UP:
             return 0
         if self == MeasurementType.NORTH_DOWN:
-            return 400
+            return 360
 
     @property
     def meridian(self):

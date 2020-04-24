@@ -108,9 +108,9 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     Returns inclination angle and calculated average f
     """
     # get first inclination angle, assumed to be the southdown angle
-    Iprime = average_angle(measurements, mt.SOUTH_DOWN, metadata)
-    if Iprime >= 100:
-        Iprime -= 200
+    Iprime = average_angle(measurements, mt.NORTH_UP, metadata)
+    if Iprime >= 90:
+        Iprime -= 180
     # get multiplier for hempisphere the observatory is located in
     # 1 if observatory is in northern hemisphere
     # -1 if observatory is in southern hemisphere
@@ -136,6 +136,7 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
     while abs(Inclination - inclination) > 0.0001:
         # set temporary inclination variable to hold previous step's inclination
         Inclination = inclination
+        inclination *= 180 / np.pi
         # calculate f for inclination measurement types
         for m in INCLINATION_TYPES:
             inclination_measurements[m].f = calculate_f(
@@ -150,8 +151,9 @@ def calculate_I(measurements, ordinates, ordinates_index, mean, metadata):
                 for m in INCLINATION_TYPES
             ]
         )
+        inclination *= np.pi / 180
     # loop exits once the difference in average inclination between steps is lower than 0.0001
-
+    inclination *= 180 / np.pi
     return inclination, f + metadata["pier_correction"]
 
 
@@ -163,10 +165,9 @@ def calculate_D(ordinates_index, measurements, measurements_index, metadata, h_b
     """
 
     # average mark angles
-    # note that angles are being converted to geon
     average_mark = np.average(
         [
-            convert_to_geon(m.angle, precision=metadata["precision"])
+            convert_precision(m.angle, precision=metadata["precision"])
             for m in measurements
             if m.measurement_type in MARK_TYPES
         ]
@@ -177,9 +178,9 @@ def calculate_D(ordinates_index, measurements, measurements_index, metadata, h_b
         measurements_index[mt.FIRST_MARK_UP][0].angle
         < measurements_index[mt.FIRST_MARK_DOWN][0].angle
     ):
-        average_mark += 100
+        average_mark += 90
     else:
-        average_mark -= 100
+        average_mark -= 90
 
     # gather calculation objects for each declination measurement type
     declination_measurements = {
@@ -192,10 +193,10 @@ def calculate_D(ordinates_index, measurements, measurements_index, metadata, h_b
         for m in DECLINATION_TYPES
     }
 
-    # convert azimuth to geon
+    # convert azimuth to decimal degrees
     azimuth = (
         int(metadata["mark_azimuth"] / 100) + (metadata["mark_azimuth"] % 100) / 60
-    ) / 0.9
+    )
     # average meridian terms calculated from each declination measurements
     meridian = np.average(
         [
@@ -204,17 +205,17 @@ def calculate_D(ordinates_index, measurements, measurements_index, metadata, h_b
         ]
     )
     # add subtract average mark angle from average meridian angle and add
-    # azimuth(in geon) to get the declination baseline
+    # azimuth to get the declination baseline
     D_b = (meridian - average_mark) + azimuth
-    d_b = round(D_b * 54, 2)
+    d_b = round(D_b * 60, 2)
     # convert baseline into decimal degrees
     d_b_dec = from_dms(minutes=d_b)
     # gather first declination measurements' H ans E ordinates
     wd_E_1 = ordinates_index[mt.WEST_DOWN][0].e
     wd_H_1 = ordinates_index[mt.WEST_DOWN][0].h
     # calculate Declination baseline
-    d_abs = D_b + np.arctan(wd_E_1 / (h_b + wd_H_1)) * (200 / np.pi)
-    d_abs = round(d_abs * 54, 1)
+    d_abs = D_b + np.arctan(wd_E_1 / (h_b + wd_H_1)) * (180 / np.pi)
+    d_abs = round(d_abs * 60, 1)
     # convert absolute into dms
     d_abs_dms = int(d_abs / 60) * 100 + ((d_abs / 60) % 1) * 60
     # convert absolute into decimal degrees
@@ -233,7 +234,7 @@ def calculate_absolutes(f, inclination):
     Returns baselines for H and Z
     """
     # convert inclination to radians
-    i = (np.pi / 200) * (inclination)
+    i = (np.pi / 180) * (inclination)
     h_abs = f * np.cos(i)
     z_abs = f * np.sin(i)
 
@@ -267,18 +268,18 @@ def calculate_scale(f, ordinates, measurements, inclination):
 
     field_change = (
         (
-            -np.sin(inclination * np.pi / 200) * (second_ord.h - first_ord.h) / f
-            + np.cos(inclination * np.pi / 200) * (second_ord.z - first_ord.z) / f
+            -np.sin(inclination * np.pi / 180) * (second_ord.h - first_ord.h) / f
+            + np.cos(inclination * np.pi / 180) * (second_ord.z - first_ord.z) / f
         )
-        * 200
+        * 180
         / np.pi
     )
 
-    field_change += 0.1852
+    field_change += 0.1668
 
     residual_change = abs(second_measurement.residual - first_measurement.residual)
 
-    scale_value = (f * field_change / residual_change) * np.pi / 200
+    scale_value = (f * field_change / residual_change) * np.pi / 180
 
     return scale_value
 
@@ -290,7 +291,7 @@ def average_angle(measurements, type, metadata):
     """
     return np.average(
         [
-            convert_to_geon(m.angle, precision=metadata["precision"])
+            convert_precision(m.angle, metadata["precision"])
             for m in measurements[type]
             if not m.mask
         ]
@@ -330,8 +331,8 @@ def calculate_f(ordinate, mean, inclination):
     # calculate f using current step's inclination angle
     f = (
         mean.f
-        + (ordinate.h - mean.h) * np.cos(inclination * np.pi / 200)
-        + (ordinate.z - mean.z) * np.sin(inclination * np.pi / 200)
+        + (ordinate.h - mean.h) * np.cos(inclination * np.pi / 180)
+        + (ordinate.z - mean.z) * np.sin(inclination * np.pi / 180)
         + ((ordinate.e) ** 2 - (mean.e) ** 2) / (2 * mean.f)
     )
     return f
@@ -345,7 +346,7 @@ def calculate_measurement_inclination(calculation, hs):
     return calculation.shift + calculation.meridian * (
         +calculation.angle
         + calculation.direction
-        * (hs * np.arcsin(calculation.residual / calculation.f) * 200 / np.pi)
+        * (hs * np.arcsin(calculation.residual / calculation.f) * 180 / np.pi)
     )
 
 
@@ -359,15 +360,15 @@ def calculate_meridian_term(calculation, h_b):
         / np.sqrt((calculation.ordinate.h + h_b) ** 2 + (calculation.ordinate.e) ** 2)
     )
     A2 = np.arctan(calculation.ordinate.e / (calculation.ordinate.h + h_b))
-    A1 = (200 / np.pi) * (A1)
-    A2 = (200 / np.pi) * (A2)
+    A1 = (180 / np.pi) * (A1)
+    A2 = (180 / np.pi) * (A2)
     meridian_term = calculation.angle + (calculation.meridian * A1) - A2
     return meridian_term
 
 
-def convert_to_geon(angle, precision="DMS"):
+def convert_precision(angle, precision="DMS"):
     """
-    Convert angles from measurements to geon
+    Account for precision of instrument in decimal degrees
     """
     degrees = int(angle)
     if precision == "DMS":
@@ -376,6 +377,6 @@ def convert_to_geon(angle, precision="DMS"):
     else:
         minutes = (angle % 1) * 100 / 60
         seconds = 0
-    dms = (degrees + minutes + seconds) / 0.9
+    dms = degrees + minutes + seconds
 
     return dms
