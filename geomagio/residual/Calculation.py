@@ -71,7 +71,7 @@ def calculate_I(reading) -> Tuple[float, float, Measurement]:
         # set temporary inclination variable to hold previous step's inclination
         last_inclination = inclination
         # Update measurement f based on inclination
-        inclination_radians = inclination  # np.radians(inclination)
+        inclination_radians = np.radians(inclination)
         for m in measurements:
             m.f = (
                 mean.f
