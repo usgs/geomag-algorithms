@@ -1,6 +1,7 @@
 import os
 from typing import Dict, List
 
+import numpy
 from obspy.core import UTCDateTime
 import openpyxl
 
@@ -295,6 +296,7 @@ class SpreadsheetAbsolutesFactory(object):
             measurements=measurements,
             metadata=metadata,
             pier_correction=metadata["pier_correction"],
+            scale_value=numpy.degrees(metadata["scale_value"]),
         )
 
     def _parse_absolutes(
@@ -394,6 +396,7 @@ class SpreadsheetAbsolutesFactory(object):
             "observer": measurement_sheet["E8"].value,
             "pier_correction": calculation_sheet["I24"].value,
             "pier_name": summary_sheet["B5"].value,
+            "scale_value": summary_sheet["D33"].value,
             "station": measurement_sheet["A8"].value,
             "temperature": constants_sheet["J58"].value,
             "year": year,

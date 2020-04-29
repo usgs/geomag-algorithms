@@ -23,6 +23,7 @@ class Reading(BaseModel):
     measurements: raw measurements used to compute absolutes.
     metadata: metadata used during absolute calculations.
     pier_correction: pier correction value, nT.
+    scale_value: scale value in decimal degrees.
     """
 
     absolutes: List[Absolute] = []

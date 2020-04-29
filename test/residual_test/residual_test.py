@@ -1,30 +1,35 @@
 from numpy.testing import assert_almost_equal
 import pytest
 
-from geomagio.residual import calculate, SpreadsheetAbsolutesFactory
+from geomagio.residual import calculate, Reading, SpreadsheetAbsolutesFactory
 
 
-def assert_absolutes(original, result):
+def assert_readings_equal(expected: Reading, actual: Reading):
     """
-    Compares calculation results to original absolutes from spreadsheet
+    Compares calculation actuals to expected absolutes from spreadsheet
     """
+    expected_absolutes = {a.element: a for a in expected.absolutes}
+    actual_absolutes = {a.element: a for a in actual.absolutes}
     assert_almost_equal(
-        [original["H"].absolute, original["H"].baseline],
-        [result["H"].absolute, result["H"].baseline],
+        [expected_absolutes["H"].absolute, expected_absolutes["H"].baseline],
+        [actual_absolutes["H"].absolute, actual_absolutes["H"].baseline],
         decimal=4,
         verbose=True,
     )
     assert_almost_equal(
-        [original["D"].absolute, original["D"].baseline],
-        [result["D"].absolute, result["D"].baseline],
+        [expected_absolutes["D"].absolute, expected_absolutes["D"].baseline],
+        [actual_absolutes["D"].absolute, actual_absolutes["D"].baseline],
         decimal=3,
         verbose=True,
     )
     assert_almost_equal(
-        [original["Z"].absolute, original["Z"].baseline],
-        [result["Z"].absolute, result["Z"].baseline],
+        [expected_absolutes["Z"].absolute, expected_absolutes["Z"].baseline],
+        [actual_absolutes["Z"].absolute, actual_absolutes["Z"].baseline],
         decimal=4,
         verbose=True,
+    )
+    assert_almost_equal(
+        expected.scale_value, actual.scale_value, decimal=1, verbose=True
     )
 
 
@@ -36,11 +41,7 @@ def compare_spreadsheet_absolutes(path):
     saf = SpreadsheetAbsolutesFactory()
     # Read spreadsheet containing test data
     reading = saf.parse_spreadsheet(path=path)
-    # establish original absolute object
-    original = {a.element: a for a in reading.absolutes}
-    calculated = calculate(reading)
-    result = {a.element: a for a in calculated.absolutes}
-    return original, result
+    return reading
 
 
 def test_DED_20140952332():
@@ -50,11 +51,9 @@ def test_DED_20140952332():
     Tests calculations for measurements in units of DMS.
     """
     # gather absolute from DED test data and recalculate
-    original, result = compare_spreadsheet_absolutes(
-        path="etc/residual/DED-20140952332.xlsm"
-    )
+    reading = compare_spreadsheet_absolutes(path="etc/residual/DED-20140952332.xlsm")
     # test results with original spreadsheet values
-    assert_absolutes(original, result)
+    assert_readings_equal(reading, calculate(reading))
 
 
 def test_BRW_20133650000():
@@ -64,8 +63,6 @@ def test_BRW_20133650000():
     Tests calculations for measurements in units of DM.
     """
     # gather absolute from DED test data and recalculate
-    original, result = compare_spreadsheet_absolutes(
-        path="etc/residual/BRW-20133650000.xlsm"
-    )
+    reading = compare_spreadsheet_absolutes(path="etc/residual/BRW-20133650000.xlsm")
     # test results with original spreadsheet values
-    assert_absolutes(original, result)
+    assert_readings_equal(reading, calculate(reading))
