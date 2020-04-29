@@ -1,6 +1,7 @@
 import os
 from typing import Dict, List
 
+import numpy
 from obspy.core import UTCDateTime
 import openpyxl
 
@@ -9,7 +10,6 @@ from .Measurement import Measurement
 from .MeasurementType import MeasurementType as mt
 from .Reading import Reading
 from . import Angle
-from .Ordinate import Ordinate
 
 
 SPREADSHEET_MEASUREMENTS = [
@@ -187,17 +187,6 @@ SPREADSHEET_MEASUREMENTS = [
         "z": "E57",
         "f": "B57",
     },
-    {
-        "type": mt.NORTH_DOWN,
-        "angle": "D45",
-        "residual": "E45",
-        "time": "B45",
-        "h": "C58",
-        "e": "D58",
-        "z": "E58",
-        "f": "B58",
-        "mask": True,
-    },
     # scaling
     {
         "type": mt.NORTH_DOWN_SCALE,
@@ -292,22 +281,22 @@ class SpreadsheetAbsolutesFactory(object):
         absolutes = self._parse_absolutes(summary_sheet, metadata["date"])
         measurements = (
             include_measurements
-            and self._parse_measurements(measurement_sheet, metadata["date"],)
+            and self._parse_measurements(
+                measurement_sheet, metadata["date"], metadata["precision"]
+            )
             or None
         )
-        ordinates = (
-            include_measurements
-            and self._parse_ordinates(measurement_sheet, metadata["date"])
-            or None
-        )
+        mark_azimuth = metadata["mark_azimuth"]
         return Reading(
             absolutes=absolutes,
-            azimuth=metadata["mark_azimuth"],
+            azimuth=Angle.from_dms(
+                degrees=int(mark_azimuth / 100.0), minutes=mark_azimuth % 100,
+            ),
             hemisphere=metadata["hemisphere"],
             measurements=measurements,
-            ordinates=ordinates,
             metadata=metadata,
             pier_correction=metadata["pier_correction"],
+            scale_value=numpy.degrees(metadata["scale_value"]),
         )
 
     def _parse_absolutes(
@@ -343,55 +332,41 @@ class SpreadsheetAbsolutesFactory(object):
         return absolutes
 
     def _parse_measurements(
-        self, sheet: openpyxl.worksheet, base_date: str
+        self, sheet: openpyxl.worksheet, base_date: str, precision: str
     ) -> List[Measurement]:
         """Parse measurements from a measurement sheet.
         """
         measurements = []
         for m in SPREADSHEET_MEASUREMENTS:
             measurement_type = m["type"]
-            angle = "angle" in m and sheet[m["angle"]].value or None
+            angle = (
+                "angle" in m
+                and convert_precision(sheet[m["angle"]].value, precision)
+                or None
+            )
             residual = "residual" in m and sheet[m["residual"]].value or None
             time = (
                 "time" in m
                 and parse_relative_time(base_date, sheet[m["time"]].value)
                 or None
             )
-            mask = "mask" in m or False
+            h = "h" in m and sheet[m["h"]].value or None
+            e = "e" in m and sheet[m["e"]].value or None
+            z = "z" in m and sheet[m["z"]].value or None
+            f = "f" in m and sheet[m["f"]].value or None
             measurements.append(
                 Measurement(
                     measurement_type=measurement_type,
                     angle=angle,
                     residual=residual,
                     time=time,
-                    mask=mask,
+                    h=h,
+                    e=e,
+                    z=z,
+                    f=f,
                 )
             )
         return measurements
-
-    def _parse_ordinates(
-        self, sheet: openpyxl.worksheet, base_date: str
-    ) -> List[Ordinate]:
-        """Parse ordinates from a measurement sheet.
-        """
-        ordinates = []
-        for m in SPREADSHEET_MEASUREMENTS:
-            measurement_type = m["type"]
-            h = "h" in m and sheet[m["h"]].value or 0.0
-            e = "e" in m and sheet[m["e"]].value or 0.0
-            z = "z" in m and sheet[m["z"]].value or 0.0
-            f = "f" in m and sheet[m["f"]].value or 0.0
-            time = (
-                "time" in m
-                and parse_relative_time(base_date, sheet[m["time"]].value)
-                or None
-            )
-            ordinates.append(
-                Ordinate(
-                    measurement_type=measurement_type, h=h, e=e, z=z, f=f, time=time,
-                )
-            )
-        return ordinates
 
     def _parse_metadata(
         self,
@@ -421,8 +396,23 @@ class SpreadsheetAbsolutesFactory(object):
             "observer": measurement_sheet["E8"].value,
             "pier_correction": calculation_sheet["I24"].value,
             "pier_name": summary_sheet["B5"].value,
+            "scale_value": summary_sheet["D33"].value,
             "station": measurement_sheet["A8"].value,
             "temperature": constants_sheet["J58"].value,
             "year": year,
             "precision": measurement_sheet["H8"].value,
         }
+
+
+def convert_precision(angle, precision="DMS"):
+    """
+    Account for precision of instrument in decimal degrees
+    """
+    degrees = int(angle)
+    if precision == "DMS":
+        minutes = int((angle % 1) * 100)
+        seconds = ((angle * 100) % 1) * 100
+    else:
+        minutes = (angle % 1) * 100
+        seconds = 0
+    return Angle.from_dms(degrees, minutes, seconds)

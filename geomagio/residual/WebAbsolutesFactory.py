@@ -67,6 +67,10 @@ class WebAbsolutesFactory(object):
             angle=data["angle"],
             residual=0,
             time=data["time"] and UTCDateTime(data["time"]) or None,
+            h=data["h"],
+            e=data["e"],
+            z=data["z"],
+            f=data["f"],
         )
 
     def _parse_metadata(self, data: Mapping) -> Dict:

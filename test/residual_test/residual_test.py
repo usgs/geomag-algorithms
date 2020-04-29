@@ -1,79 +1,68 @@
-from geomagio.residual import SpreadsheetAbsolutesFactory
 from numpy.testing import assert_almost_equal
 import pytest
 
-
-class test_functions:
-    @staticmethod
-    def get_absolutes(tmp_path):
-        """
-        Tests functionality of SpreadsheetAbsolutesFactory and recalculation of absolutes
-        """
-        # establish SpreadsheetAbsolutesFactory for reading test data from Excel
-        saf = SpreadsheetAbsolutesFactory()
-        # Read spreadsheet containing test data
-        reading = saf.parse_spreadsheet(path=tmp_path)
-        # establish original absolute object
-        original = reading.absolutes_index()
-        # recalculate absolute object using Calculation.py
-        reading.update_absolutes()
-        # establish recalculated absolute object
-        result = reading.absolutes_index()
-        return original, result
-
-    @staticmethod
-    def assert_absolutes(original, result):
-        """
-        Compares calculation results to original absolutes from spreadsheet
-        """
-        assert_almost_equal(
-            [original["H"].absolute, original["H"].baseline],
-            [result["H"].absolute, result["H"].baseline],
-            decimal=4,
-            verbose=True,
-        )
-        assert_almost_equal(
-            [original["D"].absolute, original["D"].baseline],
-            [result["D"].absolute, result["D"].baseline],
-            decimal=4,
-            verbose=True,
-        )
-        assert_almost_equal(
-            [original["Z"].absolute, original["Z"].baseline],
-            [result["Z"].absolute, result["Z"].baseline],
-            decimal=4,
-            verbose=True,
-        )
+from geomagio.residual import calculate, Reading, SpreadsheetAbsolutesFactory
 
 
-@pytest.fixture
-def test_session():
-    return test_functions
+def assert_readings_equal(expected: Reading, actual: Reading):
+    """
+    Compares calculation actuals to expected absolutes from spreadsheet
+    """
+    expected_absolutes = {a.element: a for a in expected.absolutes}
+    actual_absolutes = {a.element: a for a in actual.absolutes}
+    assert_almost_equal(
+        [expected_absolutes["H"].absolute, expected_absolutes["H"].baseline],
+        [actual_absolutes["H"].absolute, actual_absolutes["H"].baseline],
+        decimal=4,
+        verbose=True,
+    )
+    assert_almost_equal(
+        [expected_absolutes["D"].absolute, expected_absolutes["D"].baseline],
+        [actual_absolutes["D"].absolute, actual_absolutes["D"].baseline],
+        decimal=3,
+        verbose=True,
+    )
+    assert_almost_equal(
+        [expected_absolutes["Z"].absolute, expected_absolutes["Z"].baseline],
+        [actual_absolutes["Z"].absolute, actual_absolutes["Z"].baseline],
+        decimal=4,
+        verbose=True,
+    )
+    assert_almost_equal(
+        expected.scale_value, actual.scale_value, decimal=1, verbose=True
+    )
 
 
-def test_DED_20140952332(test_session):
+def compare_spreadsheet_absolutes(path):
+    """
+    Tests functionality of SpreadsheetAbsolutesFactory and recalculation of absolutes
+    """
+    # establish SpreadsheetAbsolutesFactory for reading test data from Excel
+    saf = SpreadsheetAbsolutesFactory()
+    # Read spreadsheet containing test data
+    reading = saf.parse_spreadsheet(path=path)
+    return reading
+
+
+def test_DED_20140952332():
     """
     Compare calulations to original absolutes obejct from Spreadsheet.
     Tests gathering of Dedhorse's metadata for use by calculations.
     Tests calculations for measurements in units of DMS.
     """
     # gather absolute from DED test data and recalculate
-    original, result = test_session.get_absolutes(
-        tmp_path="etc/residual/DED-20140952332.xlsm"
-    )
+    reading = compare_spreadsheet_absolutes(path="etc/residual/DED-20140952332.xlsm")
     # test results with original spreadsheet values
-    test_session.assert_absolutes(original, result)
+    assert_readings_equal(reading, calculate(reading))
 
 
-def test_BRW_20133650000(test_session):
+def test_BRW_20133650000():
     """
     Compare calulations to original absolutes obejct from Spreadsheet.
     Tests gathering of BRW's metadata for use by calculations.
     Tests calculations for measurements in units of DM.
     """
-    # gather absolute from BRW test data and recalculate
-    original, result = test_session.get_absolutes(
-        tmp_path="etc/residual/BRW-20133650000.xlsm"
-    )
+    # gather absolute from DED test data and recalculate
+    reading = compare_spreadsheet_absolutes(path="etc/residual/BRW-20133650000.xlsm")
     # test results with original spreadsheet values
-    test_session.assert_absolutes(original, result)
+    assert_readings_equal(reading, calculate(reading))

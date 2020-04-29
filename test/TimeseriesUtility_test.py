@@ -170,6 +170,48 @@ def test_get_merged_gaps():
     assert_equal(gap[1], UTCDateTime("2015-01-01T00:00:07Z"))
 
 
+def test_get_trace_values():
+    """TimeseriesUtility_test.test_get_trace_values()
+    """
+    stream = Stream(
+        [
+            __create_trace("H", [numpy.nan, 1, 1, numpy.nan, numpy.nan]),
+            __create_trace("Z", [0, 0, 0, 1, 1, 1]),
+        ]
+    )
+    for trace in stream:
+        # set time of first sample
+        trace.stats.starttime = UTCDateTime("2015-01-01T00:00:00Z")
+        # set sample rate to 1 second
+        trace.stats.delta = 1
+        trace.stats.npts = len(trace.data)
+    print(stream)
+    print(stream.select(channel="H")[0].times("utcdatetime"))
+    # value that doesn't exist
+    assert_equal(
+        TimeseriesUtility.get_trace_value(
+            traces=stream.select(channel="H"), time=UTCDateTime("2015-01-01T00:00:00Z")
+        ),
+        None,
+    )
+    # value that exists
+    assert_equal(
+        TimeseriesUtility.get_trace_value(
+            traces=stream.select(channel="Z"), time=UTCDateTime("2015-01-01T00:00:00Z")
+        ),
+        0,
+    )
+    # default for value that doesn't exist
+    assert_equal(
+        TimeseriesUtility.get_trace_value(
+            traces=stream.select(channel="H"),
+            time=UTCDateTime("2015-01-01T00:00:03Z"),
+            default=4,
+        ),
+        4,
+    )
+
+
 def test_has_all_channels():
     """TimeseriesUtility_test.test_has_all_channels():
     """
