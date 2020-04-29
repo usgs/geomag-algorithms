@@ -12,12 +12,7 @@ from .MeasurementType import (
     INCLINATION_TYPES,
     MARK_TYPES,
 )
-from .Measurement import (
-    AverageMeasurement,
-    Measurement,
-    average_measurement,
-    measurement_index,
-)
+from .Measurement import AverageMeasurement, Measurement, average_measurement
 from .Reading import Reading
 
 

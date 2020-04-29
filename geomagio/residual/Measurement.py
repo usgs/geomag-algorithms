@@ -92,9 +92,9 @@ def safe_average(l: List[Optional[float]]):
 
 def safe_max(l: List[Optional[float]]):
     values = l and [f for f in l if f] or None
-    return l and numpy.nanmax(values) or None
+    return values and numpy.nanmax(values) or None
 
 
 def safe_min(l: List[Optional[float]]):
     values = l and [f for f in l if f] or None
-    return l and numpy.nanmin(values) or None
+    return values and numpy.nanmin(values) or None
