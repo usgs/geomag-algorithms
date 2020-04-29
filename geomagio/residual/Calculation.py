@@ -242,16 +242,13 @@ def calculate_scale_value(
     """
     inclination_radians = np.radians(inclination)
     m1, m2 = measurements[0], measurements[-1]
-    field_change = (
-        np.degrees(
-            (
-                -np.sin(inclination_radians) * (m2.h - m1.h)
-                + np.cos(inclination_radians) * (m2.z - m1.z)
-            )
-            / corrected_f
+    field_change = np.degrees(
+        (
+            -np.sin(inclination_radians) * (m2.h - m1.h)
+            + np.cos(inclination_radians) * (m2.z - m1.z)
         )
-        + 0.1668
-    )
+        / corrected_f
+    ) + (m2.angle - m1.angle)
     residual_change = m2.residual - m1.residual
     scale_value = corrected_f * field_change / np.abs(residual_change)
     return scale_value
