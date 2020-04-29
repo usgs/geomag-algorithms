@@ -80,8 +80,6 @@ def calculate_D_absolute(
     -------
     D Absolute
     """
-    # mean across all declination measurements
-    mean = average_measurement(measurements, DECLINATION_TYPES)
     # average mark
     average_mark = average_measurement(measurements, MARK_TYPES).angle
     # adjust based on which is larger
