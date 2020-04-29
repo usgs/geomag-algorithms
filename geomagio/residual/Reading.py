@@ -1,12 +1,12 @@
 import collections
 from typing import Dict, List, Optional
+from typing_extensions import Literal
 
 from pydantic import BaseModel
 
 from .Absolute import Absolute
 from .Measurement import AverageMeasurement, Measurement, average_measurement
 from .MeasurementType import MeasurementType
-from .Calculation import calculate
 
 
 class Reading(BaseModel):
@@ -22,18 +22,17 @@ class Reading(BaseModel):
     pier_correction: pier correction value, nT.
     """
 
-    absolutes: Optional[List[Absolute]] = None
+    absolutes: List[Absolute] = []
     azimuth: float = 0
-    hemisphere: float = 1
-    measurements: Optional[List[Measurement]] = []
-    metadata: Optional[Dict] = []
+    hemisphere: Literal[-1, 1] = 1
+    measurements: List[Measurement] = []
+    metadata: Dict = {}
     pier_correction: float = 0
+    scale_value: float = None
 
-    def get_average(self, types: List[MeasurementType]) -> AverageMeasurement:
-        return average_measurement(
-            [m for m in self.measurements if m.measurement_type in types]
-        )
+    def __getitem__(self, measurement_type: MeasurementType):
+        """Provide access to measurements by type.
 
-    def update_absolutes(self):
-        self.absolutes = calculate(self)
-        return self.absolutes
+        Example: reading[MeasurementType.WEST_DOWN]
+        """
+        return [m for m in self.measurements if m.measurement_type == measurement_type]

@@ -17,13 +17,15 @@ obspy = ">1.2.0"
 pycurl = "*"
 authlib = "*"
 cryptography = "*"
-databases = {extras = ["sqlite"],version = "*"}
+databases = {extras = ["postgresql", "sqlite"], version = "*"}
 fastapi = "*"
 httpx = "==0.11.1"
 openpyxl = "*"
 pydantic = "==1.4"
 sqlalchemy = "*"
 sqlalchemy-utc = "*"
+typing = "*"
+typing-extensions = "*"
 uvicorn = "*"
 
 [pipenv]

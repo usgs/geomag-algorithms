@@ -34,15 +34,24 @@ class AverageMeasurement(Measurement):
     endtime: Optional[UTCDateTime] = None
 
 
-def average_measurement(measurements: List[Measurement]) -> AverageMeasurement:
+def average_measurement(
+    measurements: List[Measurement], types: List[MeasurementType] = None
+) -> AverageMeasurement:
     """Calculate average from multiple measurements.
 
-    returns None if measurements is empty or None
-    otherwise returns Measurement
-    - using type from first measurement,
-    - with empty time,
-    - averaging all other values
+    Parameters
+    ----------
+    measurements - source measurements for average
+    types - optional list of types to include, default all
+
+    Returns
+    -------
+    None - if no measurements
+    Otherwise, average of matching measurements.
+        Type is copied from first measurement.
     """
+    if types:
+        measurements = [m for m in measurements if m.measurement_type in types]
     if len(measurements) == 0:
         # no measurements to average
         return None

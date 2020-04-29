@@ -1,6 +1,7 @@
-from geomagio.residual import SpreadsheetAbsolutesFactory
 from numpy.testing import assert_almost_equal
 import pytest
+
+from geomagio.residual import calculate, SpreadsheetAbsolutesFactory
 
 
 def assert_absolutes(original, result):
@@ -37,8 +38,8 @@ def compare_spreadsheet_absolutes(path):
     reading = saf.parse_spreadsheet(path=path)
     # establish original absolute object
     original = {a.element: a for a in reading.absolutes}
-    reading.update_absolutes()
-    result = {a.element: a for a in reading.absolutes}
+    calculated = calculate(reading)
+    result = {a.element: a for a in calculated.absolutes}
     return original, result
 
 
