@@ -276,6 +276,33 @@ def get_channels(stream):
     return [ch for ch in channels]
 
 
+def get_trace_value(traces, time, default=None):
+    """Get a value at a specific time.
+
+    Parameters
+    ----------
+    trace : obspy.core.Trace
+    time : obspy.core.UTCDateTime
+
+    Returns
+    -------
+    nearest time in trace
+    value from trace at nearest time, or None
+    """
+    # array of UTCDateTime values corresponding
+    for trace in traces:
+        times = trace.times("utcdatetime")
+        index = times.searchsorted(time)
+        trace_time = times[index]
+        trace_value = trace.data[index]
+        if trace_time == time:
+            if numpy.isnan(trace_value):
+                return default
+            else:
+                return trace_value
+    return default
+
+
 def has_all_channels(stream, channels, starttime, endtime):
     """Check whether all channels have any data within time range.
 
