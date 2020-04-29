@@ -4,9 +4,8 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel
 
 from .Absolute import Absolute
-from .Measurement import Measurement
+from .Measurement import AverageMeasurement, Measurement, average_measurement
 from .MeasurementType import MeasurementType
-from .Ordinate import Ordinate
 from .Calculation import calculate
 
 
@@ -27,37 +26,14 @@ class Reading(BaseModel):
     azimuth: float = 0
     hemisphere: float = 1
     measurements: Optional[List[Measurement]] = []
-    ordinates: Optional[List[Ordinate]] = []
     metadata: Optional[Dict] = []
     pier_correction: float = 0
 
-    def absolutes_index(self) -> Dict[str, Absolute]:
-        """Generate index of absolutes keyed by element.
-        """
-        return {a.element: a for a in self.absolutes}
+    def get_average(self, types: List[MeasurementType]) -> AverageMeasurement:
+        return average_measurement(
+            [m for m in self.measurements if m.measurement_type in types]
+        )
 
     def update_absolutes(self):
         self.absolutes = calculate(self)
         return self.absolutes
-
-    def measurement_index(self) -> Dict[MeasurementType, List[Measurement]]:
-        """Generate index of measurements keyed by MeasurementType.
-
-        Any missing MeasurementType returns an empty list.
-        There may be multiple measurements of each MeasurementType.
-        """
-        index = collections.defaultdict(list)
-        for m in self.measurements:
-            index[m.measurement_type].append(m)
-        return index
-
-    def ordinate_index(self) -> Dict[MeasurementType, List[Ordinate]]:
-        """Generate index of ordinates keyed by MeasurementType.
-
-        Any missing MeasurementType returns an empty list.
-        There may be multiple ordinates of each MeasurementType.
-        """
-        index = collections.defaultdict(list)
-        for o in self.ordinates:
-            index[o.measurement_type].append(o)
-        return index

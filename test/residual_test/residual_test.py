@@ -14,11 +14,11 @@ class test_functions:
         # Read spreadsheet containing test data
         reading = saf.parse_spreadsheet(path=tmp_path)
         # establish original absolute object
-        original = reading.absolutes_index()
+        original = {a.element: a for a in reading.absolutes}
         # recalculate absolute object using Calculation.py
         reading.update_absolutes()
         # establish recalculated absolute object
-        result = reading.absolutes_index()
+        result = {a.element: a for a in reading.absolutes}
         return original, result
 
     @staticmethod
@@ -35,7 +35,7 @@ class test_functions:
         assert_almost_equal(
             [original["D"].absolute, original["D"].baseline],
             [result["D"].absolute, result["D"].baseline],
-            decimal=4,
+            decimal=3,
             verbose=True,
         )
         assert_almost_equal(
