@@ -87,7 +87,7 @@ def measurement_index(
 
 def safe_average(l: List[Optional[float]]):
     values = l and [f for f in l if f] or None
-    return values and numpy.nanmean(values) or None
+    return values and numpy.nanmean(values) or 0.0
 
 
 def safe_max(l: List[Optional[float]]):
