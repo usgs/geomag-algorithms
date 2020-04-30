@@ -34,7 +34,7 @@ def calculate(reading: Reading) -> Reading:
     inclination, f, mean = calculate_I(
         hemisphere=reading.hemisphere, measurements=reading.measurements
     )
-    corrected_f = f + reading.pier_correction  # TODO: should this be returned?
+    corrected_f = f + reading.pier_correction
     # calculate absolutes
     absoluteH, absoluteZ = calculate_HZ_absolutes(
         corrected_f=corrected_f, inclination=inclination, mean=mean, reference=reference
@@ -46,11 +46,14 @@ def calculate(reading: Reading) -> Reading:
         reference=reference,
     )
     # calculate scale
-    scale_value = calculate_scale_value(
-        corrected_f=corrected_f,
-        inclination=inclination,
-        measurements=reading[mt.NORTH_DOWN_SCALE],
-    )
+    if len(reading[mt.NORTH_DOWN_SCALE]) > 0:
+        scale_value = calculate_scale_value(
+            corrected_f=corrected_f,
+            inclination=inclination,
+            measurements=reading[mt.NORTH_DOWN_SCALE],
+        )
+    else:
+        scale_value = None
     # create new reading object
     calculated = Reading(
         absolutes=[absoluteD, absoluteH, absoluteZ],
@@ -105,6 +108,8 @@ def calculate_D_absolute(
             for m in declination_measurements
         ]
     )
+    if azimuth > 180:
+        azimuth -= 180
     # add subtract average mark angle from average meridian angle and add
     # azimuth to get the declination baseline
     d_b = (meridian - average_mark) + azimuth
