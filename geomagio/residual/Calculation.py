@@ -28,6 +28,12 @@ def calculate(reading: Reading) -> Reading:
     new reading object with calculated absolutes and scale_value.
     NOTE: rest of reading object is shallow copy.
     """
+
+    if len(mt.WEST_DOWN) == 2:
+        null = False
+    else:
+        null = True
+
     # reference measurement, used to adjust absolutes
     reference = reading[mt.WEST_DOWN][0]
     # calculate inclination
@@ -37,7 +43,11 @@ def calculate(reading: Reading) -> Reading:
     corrected_f = f + reading.pier_correction
     # calculate absolutes
     absoluteH, absoluteZ = calculate_HZ_absolutes(
-        corrected_f=corrected_f, inclination=inclination, mean=mean, reference=reference
+        corrected_f=corrected_f,
+        inclination=inclination,
+        mean=mean,
+        reference=reference,
+        null=null,
     )
     absoluteD = calculate_D_absolute(
         azimuth=reading.azimuth,
@@ -46,7 +56,7 @@ def calculate(reading: Reading) -> Reading:
         reference=reference,
     )
     # calculate scale
-    if len(reading[mt.NORTH_DOWN_SCALE]) > 0:
+    if null == False:
         scale_value = calculate_scale_value(
             corrected_f=corrected_f,
             inclination=inclination,
@@ -123,6 +133,7 @@ def calculate_HZ_absolutes(
     corrected_f: float,
     mean: AverageMeasurement,
     reference: Measurement,
+    null: bool,
 ) -> Tuple[Absolute, Absolute]:
     """Calculate H and Z absolutes.
 
@@ -145,8 +156,9 @@ def calculate_HZ_absolutes(
     h_b = round(np.sqrt(h_abs ** 2 - mean.e ** 2) - mean.h, 1)
     z_b = round(z_abs - mean.z, 1)
     # adjust absolutes to reference measurement
-    h_abs = np.sqrt((h_b + reference.h) ** 2 + (reference.e) ** 2)
-    z_abs = z_b + reference.z
+    if null == False:
+        h_abs = np.sqrt((h_b + reference.h) ** 2 + (reference.e) ** 2)
+        z_abs = z_b + reference.z
     # return absolutes
     return (
         Absolute(
