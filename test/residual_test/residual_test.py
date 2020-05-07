@@ -13,19 +13,19 @@ def assert_readings_equal(expected: Reading, actual: Reading):
     assert_almost_equal(
         [expected_absolutes["H"].absolute, expected_absolutes["H"].baseline],
         [actual_absolutes["H"].absolute, actual_absolutes["H"].baseline],
-        decimal=4,
+        decimal=1,
         verbose=True,
     )
     assert_almost_equal(
         [expected_absolutes["D"].absolute, expected_absolutes["D"].baseline],
         [actual_absolutes["D"].absolute, actual_absolutes["D"].baseline],
-        decimal=3,
+        decimal=1,
         verbose=True,
     )
     assert_almost_equal(
         [expected_absolutes["Z"].absolute, expected_absolutes["Z"].baseline],
         [actual_absolutes["Z"].absolute, actual_absolutes["Z"].baseline],
-        decimal=4,
+        decimal=1,
         verbose=True,
     )
     assert_almost_equal(
