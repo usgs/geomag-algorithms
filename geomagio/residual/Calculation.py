@@ -16,7 +16,7 @@ from .Measurement import AverageMeasurement, Measurement, average_measurement
 from .Reading import Reading
 
 
-def calculate(reading: Reading) -> Reading:
+def calculate(reading: Reading, adjust_reference: bool = True) -> Reading:
     """Calculate absolutes and scale value using residual method.
 
     Parameters
@@ -28,14 +28,10 @@ def calculate(reading: Reading) -> Reading:
     new reading object with calculated absolutes and scale_value.
     NOTE: rest of reading object is shallow copy.
     """
-
-    if len(mt.WEST_DOWN) == 2:
-        null = False
-    else:
-        null = True
-
     # reference measurement, used to adjust absolutes
-    reference = reading[mt.WEST_DOWN][0]
+    reference = None
+    if adjust_reference == True:
+        reference = reading[mt.WEST_DOWN][0]
     # calculate inclination
     inclination, f, mean = calculate_I(
         hemisphere=reading.hemisphere, measurements=reading.measurements
@@ -47,16 +43,16 @@ def calculate(reading: Reading) -> Reading:
         inclination=inclination,
         mean=mean,
         reference=reference,
-        null=null,
     )
     absoluteD = calculate_D_absolute(
         azimuth=reading.azimuth,
         h_baseline=absoluteH.baseline,
         measurements=reading.measurements,
         reference=reference,
+        mean=mean,
     )
     # calculate scale
-    if null == False:
+    if reading[mt.NORTH_DOWN_SCALE]:
         scale_value = calculate_scale_value(
             corrected_f=corrected_f,
             inclination=inclination,
@@ -79,6 +75,7 @@ def calculate_D_absolute(
     azimuth: float,
     h_baseline: float,
     reference: Measurement,
+    mean: Measurement,
 ) -> Absolute:
     """Calculate D absolute.
 
@@ -120,12 +117,18 @@ def calculate_D_absolute(
     )
     if azimuth > 180:
         azimuth -= 180
+        shift = -180
+    else:
+        shift = 0.0
     # add subtract average mark angle from average meridian angle and add
     # azimuth to get the declination baseline
     d_b = (meridian - average_mark) + azimuth
     # calculate absolute
-    d_abs = d_b + np.degrees(np.arctan(reference.e / (reference.h + h_baseline)))
-    return Absolute(element="D", absolute=d_abs, baseline=d_b)
+    if reference:
+        d_abs = d_b + np.degrees(np.arctan(reference.e / (reference.h + h_baseline)))
+    else:
+        d_abs = d_b + np.degrees(np.arctan(mean.e / (mean.h + h_baseline)))
+    return Absolute(element="D", absolute=d_abs, baseline=d_b, shift=shift)
 
 
 def calculate_HZ_absolutes(
@@ -133,7 +136,6 @@ def calculate_HZ_absolutes(
     corrected_f: float,
     mean: AverageMeasurement,
     reference: Measurement,
-    null: bool,
 ) -> Tuple[Absolute, Absolute]:
     """Calculate H and Z absolutes.
 
@@ -156,7 +158,7 @@ def calculate_HZ_absolutes(
     h_b = round(np.sqrt(h_abs ** 2 - mean.e ** 2) - mean.h, 1)
     z_b = round(z_abs - mean.z, 1)
     # adjust absolutes to reference measurement
-    if null == False:
+    if reference:
         h_abs = np.sqrt((h_b + reference.h) ** 2 + (reference.e) ** 2)
         z_abs = z_b + reference.z
     # return absolutes

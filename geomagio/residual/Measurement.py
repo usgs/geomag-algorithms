@@ -60,7 +60,7 @@ def average_measurement(
     measurement = AverageMeasurement(
         measurement_type=measurements[0].measurement_type,
         angle=safe_average([m.angle for m in measurements]),
-        residual=safe_average([m.residual for m in measurements]),
+        residual=safe_average([m.residual for m in measurements]) or 0.0,
         time=starttime and UTCDateTime(starttime) or None,
         endtime=endtime and UTCDateTime(endtime) or None,
         h=safe_average([m.h for m in measurements]),
@@ -87,7 +87,7 @@ def measurement_index(
 
 def safe_average(l: List[Optional[float]]):
     values = l and [f for f in l if f] or None
-    return values and numpy.nanmean(values) or 0.0
+    return values and numpy.nanmean(values) or None
 
 
 def safe_max(l: List[Optional[float]]):
