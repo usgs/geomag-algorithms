@@ -98,5 +98,20 @@ def test_BOU_20200422():
         starttime=UTCDateTime("2020-04-22T00:00:00Z"),
         endtime=UTCDateTime("2020-04-23T00:00:00Z"),
     )
-    assert_readings_equal(reading, calculate(reading), 0.1)
-    assert_readings_equal(reading, calculate(reading, False), 0.1)
+
+    assert_readings_equal(reading, calculate(reading, False), 0.0)
+
+
+def test_BOU_20190702():
+    """
+    Compare calulations to original absolutes obejct from web absolutes.
+    Tests gathering of BOU's metadata for use by calculations.
+    Tests calculations for null method measurements in units of DM.
+    """
+    reading = compare_null_absolutes(
+        observatory="BOU",
+        starttime=UTCDateTime("2019-07-02T00:00:00Z"),
+        endtime=UTCDateTime("2019-07-03T00:00:00Z"),
+    )
+
+    assert_readings_equal(reading, calculate(reading, False), 0.0)
