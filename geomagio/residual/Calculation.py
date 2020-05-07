@@ -29,9 +29,7 @@ def calculate(reading: Reading, adjust_reference: bool = True) -> Reading:
     NOTE: rest of reading object is shallow copy.
     """
     # reference measurement, used to adjust absolutes
-    reference = None
-    if adjust_reference == True:
-        reference = reading[mt.WEST_DOWN][0]
+    reference = reading[mt.WEST_DOWN][0]
     # calculate inclination
     inclination, f, mean = calculate_I(
         hemisphere=reading.hemisphere, measurements=reading.measurements
@@ -41,15 +39,14 @@ def calculate(reading: Reading, adjust_reference: bool = True) -> Reading:
     absoluteH, absoluteZ = calculate_HZ_absolutes(
         corrected_f=corrected_f,
         inclination=inclination,
+        reference=adjust_reference and reference or None,
         mean=mean,
-        reference=reference,
     )
     absoluteD = calculate_D_absolute(
         azimuth=reading.azimuth,
         h_baseline=absoluteH.baseline,
         measurements=reading.measurements,
-        reference=reference,
-        mean=mean,
+        reference=adjust_reference and reference or mean,
     )
     # calculate scale
     if reading[mt.NORTH_DOWN_SCALE]:
@@ -75,7 +72,6 @@ def calculate_D_absolute(
     azimuth: float,
     h_baseline: float,
     reference: Measurement,
-    mean: Measurement,
 ) -> Absolute:
     """Calculate D absolute.
 
@@ -115,19 +111,15 @@ def calculate_D_absolute(
             for m in declination_measurements
         ]
     )
+    shift = 0.0
     if azimuth > 180:
         azimuth -= 180
         shift = -180
-    else:
-        shift = 0.0
     # add subtract average mark angle from average meridian angle and add
     # azimuth to get the declination baseline
     d_b = (meridian - average_mark) + azimuth
     # calculate absolute
-    if reference:
-        d_abs = d_b + np.degrees(np.arctan(reference.e / (reference.h + h_baseline)))
-    else:
-        d_abs = d_b + np.degrees(np.arctan(mean.e / (mean.h + h_baseline)))
+    d_abs = d_b + np.degrees(np.arctan(reference.e / (reference.h + h_baseline)))
     return Absolute(element="D", absolute=d_abs, baseline=d_b, shift=shift)
 
 
@@ -155,8 +147,8 @@ def calculate_HZ_absolutes(
     inclination_radians = np.radians(inclination)
     h_abs = corrected_f * np.cos(inclination_radians)
     z_abs = corrected_f * np.sin(inclination_radians)
-    h_b = round(np.sqrt(h_abs ** 2 - mean.e ** 2) - mean.h, 1)
-    z_b = round(z_abs - mean.z, 1)
+    h_b = np.sqrt(h_abs ** 2 - mean.e ** 2) - mean.h
+    z_b = z_abs - mean.z
     # adjust absolutes to reference measurement
     if reference:
         h_abs = np.sqrt((h_b + reference.h) ** 2 + (reference.e) ** 2)
