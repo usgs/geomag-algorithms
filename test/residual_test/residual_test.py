@@ -99,3 +99,4 @@ def test_BOU_20200422():
         endtime=UTCDateTime("2020-04-23T00:00:00Z"),
     )
     assert_readings_equal(reading, calculate(reading), 0.1)
+    assert_readings_equal(reading, calculate(reading, False), 0.1)
