@@ -138,7 +138,7 @@ class AdjustedAlgorithm(Algorithm):
                 raws.append(trace.data)
         raws.append(np.ones_like(stream[0].data))
         raws = np.vstack(raws)
-        adj = np.dot(self.matrix, raws)
+        adj = np.matmul(self.matrix, raws)
         if "F" in inchannels:
             f = stream.select(channel="F")[0]
             fnew = f.data + self.pier_correction
