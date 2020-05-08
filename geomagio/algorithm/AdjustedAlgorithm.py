@@ -21,16 +21,18 @@ class AdjustedAlgorithm(Algorithm):
         statefile=None,
         data_type=None,
         location=None,
+        inchannels=None,
+        outchannels=None,
     ):
-        Algorithm.__init__(
-            self, inchannels=("H", "E", "Z", "F"), outchannels=("X", "Y", "Z", "F")
-        )
+        Algorithm.__init__(self, inchannels=None, outchannels=None)
         # state variables
         self.matrix = matrix
         self.pier_correction = pier_correction
         self.statefile = statefile
         self.data_type = data_type
         self.location = location
+        self.inchannels = inchannels
+        self.outchannels = outchannels
         if matrix is None:
             self.load_state()
 
@@ -141,22 +143,29 @@ class AdjustedAlgorithm(Algorithm):
         """
 
         out = None
+        inchannels = self.inchannels
+        outchannels = self.outchannels
 
-        h = stream.select(channel="H")[0]
-        e = stream.select(channel="E")[0]
-        z = stream.select(channel="Z")[0]
-        f = stream.select(channel="F")[0]
-
-        raws = np.vstack([h.data, e.data, z.data, np.ones_like(h.data)])
+        raws = []
+        for channel in inchannels:
+            if channel != "F":
+                trace = stream.select(channel=channel)[0]
+                raws.append(trace.data)
+        raws.append(np.ones_like(stream[0].data))
+        raws = np.vstack(raws)
         adj = np.dot(self.matrix, raws)
-        fnew = f.data + self.pier_correction
+        if "F" in inchannels:
+            f = stream.select(channel="F")[0]
+            fnew = f.data + self.pier_correction
+            adj[-1] = fnew
 
-        x = self.create_trace("X", h.stats, adj[0])
-        y = self.create_trace("Y", e.stats, adj[1])
-        z = self.create_trace("Z", z.stats, adj[2])
-        f = self.create_trace("F", f.stats, fnew)
+        out = Stream()
 
-        out = Stream([x, y, z, f])
+        for i in range(len(stream)):
+            trace = stream[i]
+            data = adj[i]
+            channel = outchannels[i]
+            out += self.create_trace(channel, trace.stats, data)
 
         return out
 
@@ -172,10 +181,7 @@ class AdjustedAlgorithm(Algorithm):
             The input stream we want to make certain has data for the algorithm
         """
 
-        # collect channels in stream
-        channels = []
-        for trace in stream:
-            channels += trace.stats["channel"]
+        channels = self.inchannels
 
         # if F is available, can produce at least adjusted F
         if "F" in channels and super(AdjustedAlgorithm, self).can_produce_data(
@@ -196,6 +202,16 @@ class AdjustedAlgorithm(Algorithm):
                     for chan in ("H", "E", "Z")
                 ]
             )
+        ):
+            return True
+
+        if np.all(
+            [
+                super(AdjustedAlgorithm, self).can_produce_data(
+                    starttime, endtime, stream.select(channel=chan)
+                )
+                for chan in channels
+            ]
         ):
             return True
 

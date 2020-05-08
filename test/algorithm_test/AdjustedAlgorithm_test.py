@@ -25,7 +25,13 @@ def test_process():
     matrix = None
     pier_correction = None
     # load adjusted data transform matrix and pier correction
-    a = adj(matrix, pier_correction, "etc/adjusted/adjbou_state_.json")
+    a = adj(
+        matrix,
+        pier_correction,
+        "etc/adjusted/adjbou_state_.json",
+        inchannels=["H", "E", "Z", "F"],
+        outchannels=["X", "Y", "Z", "F"],
+    )
 
     # load boulder Jan 16 files from /etc/ directory
     hezf_iaga2002_file = open("etc/adjusted/BOU201601vmin.min")
