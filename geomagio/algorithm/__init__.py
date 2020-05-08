@@ -14,6 +14,7 @@ from .DeltaFAlgorithm import DeltaFAlgorithm
 from .FilterAlgorithm import FilterAlgorithm
 from .SqDistAlgorithm import SqDistAlgorithm
 from .XYZAlgorithm import XYZAlgorithm
+from .DBDTAlgorithm import DBDTAlgorithm
 
 
 # algorithms is used by Controller to auto generate arguments
@@ -25,6 +26,7 @@ algorithms = {
     "filter": FilterAlgorithm,
     "sqdist": SqDistAlgorithm,
     "xyz": XYZAlgorithm,
+    "dbdt": DBDTAlgorithm,
 }
 
 
@@ -39,4 +41,5 @@ __all__ = [
     "FilterAlgorithm",
     "SqDistAlgorithm",
     "XYZAlgorithm",
+    "DBDTAlgorithm",
 ]
