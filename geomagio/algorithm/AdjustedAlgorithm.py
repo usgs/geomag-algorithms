@@ -40,7 +40,7 @@ class AdjustedAlgorithm(Algorithm):
         """Load algorithm state from a file.
         File name is self.statefile.
         """
-        self.matrix = np.eye(4)
+        self.matrix = None
         self.pier_correction = 0
         if self.statefile is None:
             return
@@ -53,23 +53,18 @@ class AdjustedAlgorithm(Algorithm):
             sys.stderr.write("I/O error {0}".format(err))
         if data is None or data == "":
             return
-        self.matrix[0, 0] = np.float64(data["M11"])
-        self.matrix[0, 1] = np.float64(data["M12"])
-        self.matrix[0, 2] = np.float64(data["M13"])
-        self.matrix[0, 3] = np.float64(data["M14"])
-        self.matrix[1, 0] = np.float64(data["M21"])
-        self.matrix[1, 1] = np.float64(data["M22"])
-        self.matrix[1, 2] = np.float64(data["M23"])
-        self.matrix[1, 3] = np.float64(data["M24"])
-        self.matrix[2, 0] = np.float64(data["M31"])
-        self.matrix[2, 1] = np.float64(data["M32"])
-        self.matrix[2, 2] = np.float64(data["M33"])
-        self.matrix[2, 3] = np.float64(data["M34"])
-        self.matrix[3, 0] = np.float64(data["M41"])
-        self.matrix[3, 1] = np.float64(data["M42"])
-        self.matrix[3, 2] = np.float64(data["M43"])
-        self.matrix[3, 3] = np.float64(data["M44"])
-        self.pier_correction = np.float64(data["PC"])
+
+        PC = data.pop("PC")
+        self.pier_correction = np.float64(PC)
+        # excludes PC
+        keys = list(data.keys())
+        # get maximum row/colum number
+        length = int(max(keys)[-1])
+        self.matrix = np.eye(length)
+        for i in range(length):
+            for j in range(length):
+                key = "M" + str(i + 1) + str(j + 1)
+                self.matrix[i, j] = np.float64(data[key])
 
     def save_state(self):
         """Save algorithm state to a file.
@@ -77,25 +72,15 @@ class AdjustedAlgorithm(Algorithm):
         """
         if self.statefile is None:
             return
-        data = {
-            "M11": self.matrix[0, 0],
-            "M12": self.matrix[0, 1],
-            "M13": self.matrix[0, 2],
-            "M14": self.matrix[0, 3],
-            "M21": self.matrix[1, 0],
-            "M22": self.matrix[1, 1],
-            "M23": self.matrix[1, 2],
-            "M24": self.matrix[1, 3],
-            "M31": self.matrix[2, 0],
-            "M32": self.matrix[2, 1],
-            "M33": self.matrix[2, 2],
-            "M34": self.matrix[2, 3],
-            "M41": self.matrix[3, 0],
-            "M42": self.matrix[3, 1],
-            "M43": self.matrix[3, 2],
-            "M44": self.matrix[3, 3],
-            "PC": self.pier_correction,
-        }
+        data = {"PC": self.pier_correction}
+
+        length = len(self.matrix[0, :])
+
+        for i in range(length):
+            for j in range(length):
+                key = "M" + str(i + 1) + str(j + 1)
+                data[key] = self.matrix[i, j]
+
         with open(self.statefile, "w") as f:
             f.write(json.dumps(data))
 
