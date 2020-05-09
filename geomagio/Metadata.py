@@ -70,6 +70,29 @@ _INSTRUMENT_METADATA = [
             "channels": {
                 "U": [
                     {"channel": "U_Volt", "offset": 0, "scale": 100},
+                    {"channel": "U_Bin", "offset": 0, "scale": 506},
+                ],
+                "V": [
+                    {"channel": "V_Volt", "offset": 0, "scale": 100},
+                    {"channel": "V_Bin", "offset": 0, "scale": 505.6},
+                ],
+                "W": [
+                    {"channel": "W_Volt", "offset": 0, "scale": 100},
+                    {"channel": "W_Bin", "offset": 0, "scale": 506},
+                ],
+            },
+        },
+    },
+    {
+        "network": "NT",
+        "station": "FDT",
+        "start_time": None,
+        "end_time": None,
+        "instrument": {
+            "type": "Narod",
+            "channels": {
+                "U": [
+                    {"channel": "U_Volt", "offset": 0, "scale": 100},
                     {"channel": "U_Bin", "offset": 0, "scale": 500},
                 ],
                 "V": [
