@@ -6,13 +6,14 @@ from obspy.core import Stream, Stats
 
 
 class DbDtAlgorithm(Algorithm):
-    def __init__(self, inchannels=None, outchannels=None):
+    def __init__(self, inchannels=None, outchannels=None, interval=None):
         """
         Derivative algorithm that takes derivative of timeseries using second order central differences(numpy.gradient)
         """
         Algorithm.__init__(self, inchannels=None, outchannels=None)
         self.inchannels = inchannels
         self.outchannels = outchannels
+        self.interval = interval
 
     def process(self, stream):
         """
@@ -31,7 +32,7 @@ class DbDtAlgorithm(Algorithm):
         for trace in stream:
             dbdt = np.diff(trace.data)
             stats = Stats(trace.stats)
-            stats.channel = "DBDT-" + stats.channel
+            stats.channel = "{}__DDT".format(stats.channel)
             trace_out = create_empty_trace(
                 starttime=stats.starttime,
                 endtime=stats.endtime,
@@ -46,3 +47,18 @@ class DbDtAlgorithm(Algorithm):
             trace_out.data = dbdt
             out += trace_out
         return out
+
+    def get_interval(self, end):
+        """
+        Adjust time interval for input data.
+        Parameters
+        ----------
+        end : obspy.core.UTCDatetime
+            input endtime
+        Returns
+        -------
+        end : obspy.core.UTCDatetime
+            output endtime
+        """
+        end += self.interval
+        return end
