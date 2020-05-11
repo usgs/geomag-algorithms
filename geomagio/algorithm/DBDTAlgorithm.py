@@ -1,11 +1,11 @@
-from __future__ import absolute_import
-from ..TimeseriesUtility import create_empty_trace, get_interval_from_delta
 from .Algorithm import Algorithm
+from ..TimeseriesUtility import create_empty_trace, get_interval_from_delta
+
 import numpy as np
 from obspy.core import Stream, Stats
 
 
-class DBDTAlgorithm(Algorithm):
+class DbDtAlgorithm(Algorithm):
     def __init__(self, inchannels=None, outchannels=None):
         """
         Derivative algorithm that takes derivative of timeseries using second order central differences(numpy.gradient)
@@ -29,7 +29,7 @@ class DBDTAlgorithm(Algorithm):
         """
         out = Stream()
         for trace in stream:
-            dbdt = np.gradient(trace.data)
+            dbdt = np.diff(trace.data)
             stats = Stats(trace.stats)
             stats.channel = "DBDT-" + stats.channel
             trace_out = create_empty_trace(
