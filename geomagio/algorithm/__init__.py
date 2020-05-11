@@ -10,11 +10,11 @@ from .AlgorithmException import AlgorithmException
 # algorithms
 from .AdjustedAlgorithm import AdjustedAlgorithm
 from .AverageAlgorithm import AverageAlgorithm
+from .DbDtAlgorithm import DbDtAlgorithm
 from .DeltaFAlgorithm import DeltaFAlgorithm
 from .FilterAlgorithm import FilterAlgorithm
 from .SqDistAlgorithm import SqDistAlgorithm
 from .XYZAlgorithm import XYZAlgorithm
-from .DBDTAlgorithm import DBDTAlgorithm
 
 
 # algorithms is used by Controller to auto generate arguments
@@ -22,11 +22,11 @@ algorithms = {
     "identity": Algorithm,
     "adjusted": AdjustedAlgorithm,
     "average": AverageAlgorithm,
+    "dbdt": DbDtAlgorithm,
     "deltaf": DeltaFAlgorithm,
     "filter": FilterAlgorithm,
     "sqdist": SqDistAlgorithm,
     "xyz": XYZAlgorithm,
-    "dbdt": DBDTAlgorithm,
 }
 
 
@@ -37,9 +37,9 @@ __all__ = [
     # algorithms
     "AdjustedAlgorithm",
     "AverageAlgorithm",
+    "DbDtAlgorithm",
     "DeltaFAlgorithm",
     "FilterAlgorithm",
     "SqDistAlgorithm",
     "XYZAlgorithm",
-    "DBDTAlgorithm",
 ]
