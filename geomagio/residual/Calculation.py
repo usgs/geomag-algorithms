@@ -39,8 +39,8 @@ def calculate(reading: Reading, adjust_reference: bool = True) -> Reading:
     absoluteH, absoluteZ = calculate_HZ_absolutes(
         corrected_f=corrected_f,
         inclination=inclination,
-        reference=adjust_reference and reference or None,
         mean=mean,
+        reference=adjust_reference and reference or None,
     )
     absoluteD = calculate_D_absolute(
         azimuth=reading.azimuth,
@@ -49,14 +49,14 @@ def calculate(reading: Reading, adjust_reference: bool = True) -> Reading:
         reference=adjust_reference and reference or mean,
     )
     # calculate scale
-    if reading[mt.NORTH_DOWN_SCALE]:
+    scale_value = None
+    scale_measurements = reading[mt.NORTH_DOWN_SCALE]
+    if scale_measurements:
         scale_value = calculate_scale_value(
             corrected_f=corrected_f,
             inclination=inclination,
-            measurements=reading[mt.NORTH_DOWN_SCALE],
+            measurements=scale_measurements,
         )
-    else:
-        scale_value = None
     # create new reading object
     calculated = Reading(
         absolutes=[absoluteD, absoluteH, absoluteZ],
@@ -86,6 +86,7 @@ def calculate_D_absolute(
     -------
     D Absolute
     """
+    mean = average_measurement(measurements, DECLINATION_TYPES)
     # average mark
     average_mark = average_measurement(measurements, MARK_TYPES).angle
     # adjust based on which is larger
@@ -111,16 +112,22 @@ def calculate_D_absolute(
             for m in declination_measurements
         ]
     )
-    shift = 0.0
+    shift = 0
     if azimuth > 180:
-        azimuth -= 180
         shift = -180
     # add subtract average mark angle from average meridian angle and add
     # azimuth to get the declination baseline
-    d_b = (meridian - average_mark) + azimuth
+    d_b = (meridian - average_mark) + azimuth + shift
     # calculate absolute
     d_abs = d_b + np.degrees(np.arctan(reference.e / (reference.h + h_baseline)))
-    return Absolute(element="D", absolute=d_abs, baseline=d_b, shift=shift)
+    return Absolute(
+        element="D",
+        absolute=d_abs,
+        baseline=d_b,
+        shift=shift,
+        starttime=mean.time,
+        endtime=mean.endtime,
+    )
 
 
 def calculate_HZ_absolutes(
