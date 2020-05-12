@@ -1,19 +1,23 @@
 from .Algorithm import Algorithm
-from ..TimeseriesUtility import create_empty_trace, get_interval_from_delta
+from ..TimeseriesUtility import (
+    create_empty_trace,
+    get_interval_from_delta,
+    get_delta_from_interval,
+)
 
 import numpy as np
 from obspy.core import Stream, Stats
 
 
 class DbDtAlgorithm(Algorithm):
-    def __init__(self, inchannels=None, outchannels=None, interval=None):
+    def __init__(self, inchannels=None, outchannels=None, period=None):
         """
         Derivative algorithm that takes derivative of timeseries using second order central differences(numpy.gradient)
         """
         Algorithm.__init__(self, inchannels=None, outchannels=None)
         self.inchannels = inchannels
         self.outchannels = outchannels
-        self.interval = interval
+        self.period = period
 
     def process(self, stream):
         """
@@ -32,9 +36,9 @@ class DbDtAlgorithm(Algorithm):
         for trace in stream:
             dbdt = np.diff(trace.data)
             stats = Stats(trace.stats)
-            stats.channel = "{}__DDT".format(stats.channel)
+            stats.channel = "{}_DDT".format(stats.channel)
             trace_out = create_empty_trace(
-                starttime=stats.starttime + self.interval,
+                starttime=stats.starttime + self.period,
                 endtime=stats.endtime,
                 observatory=stats.station,
                 type=stats.location,
@@ -48,17 +52,30 @@ class DbDtAlgorithm(Algorithm):
             out += trace_out
         return out
 
-    def get_interval(self, start):
+    def get_input_interval(self, start, end, observatory=None, channels=None):
         """
         Adjust time interval for input data.
         Parameters
         ----------
+        start : obspy.core.UTCDatetime
+            input starttime
         end : obspy.core.UTCDatetime
             input endtime
         Returns
         -------
+        start : obspy.core.UTCDatetime
+            output starttime
         end : obspy.core.UTCDatetime
             output endtime
         """
-        start -= self.interval
-        return start
+        start -= self.period
+        return (start, end)
+
+    def configure(self, arguments):
+        """Configure algorithm using comand line arguments.
+        Parameters
+        ----------
+        arguments: Namespace
+            parsed command line arguments
+        """
+        self.period = get_delta_from_interval(arguments.interval)
