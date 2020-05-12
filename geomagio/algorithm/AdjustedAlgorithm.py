@@ -130,22 +130,23 @@ class AdjustedAlgorithm(Algorithm):
         out = None
         inchannels = self.inchannels
         outchannels = self.outchannels
-
-        raws = []
-        for channel in inchannels:
-            if channel != "F":
-                trace = stream.select(channel=channel)[0]
-                raws.append(trace.data)
+        # Gather input traces in order of user input(inchannels)
+        raws = [
+            stream.select(channel=channel) for channel in inchannels if channel != "F"
+        ]
+        # Append aray of ones as placeholder for F conversions
         raws.append(np.ones_like(stream[0].data))
         raws = np.vstack(raws)
         adj = np.matmul(self.matrix, raws)
+        # only perform pier correction if F exists within inchannels
         if "F" in inchannels:
             f = stream.select(channel="F")[0]
             fnew = f.data + self.pier_correction
+            # replace ones array with pier corrected F
             adj[-1] = fnew
 
         out = Stream()
-
+        # Create new steam with adjusted data in order of user input(outchannels)
         for i in range(len(stream)):
             trace = stream[i]
             data = adj[i]
@@ -190,6 +191,7 @@ class AdjustedAlgorithm(Algorithm):
         ):
             return True
 
+        # If being used for another conversion, check if all channels can produce data
         if np.all(
             [
                 super(AdjustedAlgorithm, self).can_produce_data(
