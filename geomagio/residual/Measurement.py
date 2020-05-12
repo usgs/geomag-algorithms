@@ -60,7 +60,7 @@ def average_measurement(
     measurement = AverageMeasurement(
         measurement_type=measurements[0].measurement_type,
         angle=safe_average([m.angle for m in measurements]),
-        residual=safe_average([m.residual for m in measurements]),
+        residual=safe_average([m.residual for m in measurements]) or 0.0,
         time=starttime and UTCDateTime(starttime) or None,
         endtime=endtime and UTCDateTime(endtime) or None,
         h=safe_average([m.h for m in measurements]),

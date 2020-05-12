@@ -16,7 +16,7 @@ from .Measurement import AverageMeasurement, Measurement, average_measurement
 from .Reading import Reading
 
 
-def calculate(reading: Reading) -> Reading:
+def calculate(reading: Reading, adjust_reference: bool = True) -> Reading:
     """Calculate absolutes and scale value using residual method.
 
     Parameters
@@ -34,23 +34,29 @@ def calculate(reading: Reading) -> Reading:
     inclination, f, mean = calculate_I(
         hemisphere=reading.hemisphere, measurements=reading.measurements
     )
-    corrected_f = f + reading.pier_correction  # TODO: should this be returned?
+    corrected_f = f + reading.pier_correction
     # calculate absolutes
     absoluteH, absoluteZ = calculate_HZ_absolutes(
-        corrected_f=corrected_f, inclination=inclination, mean=mean, reference=reference
+        corrected_f=corrected_f,
+        inclination=inclination,
+        reference=adjust_reference and reference or None,
+        mean=mean,
     )
     absoluteD = calculate_D_absolute(
         azimuth=reading.azimuth,
         h_baseline=absoluteH.baseline,
         measurements=reading.measurements,
-        reference=reference,
+        reference=adjust_reference and reference or mean,
     )
     # calculate scale
-    scale_value = calculate_scale_value(
-        corrected_f=corrected_f,
-        inclination=inclination,
-        measurements=reading[mt.NORTH_DOWN_SCALE],
-    )
+    if reading[mt.NORTH_DOWN_SCALE]:
+        scale_value = calculate_scale_value(
+            corrected_f=corrected_f,
+            inclination=inclination,
+            measurements=reading[mt.NORTH_DOWN_SCALE],
+        )
+    else:
+        scale_value = None
     # create new reading object
     calculated = Reading(
         absolutes=[absoluteD, absoluteH, absoluteZ],
@@ -80,8 +86,6 @@ def calculate_D_absolute(
     -------
     D Absolute
     """
-    # mean across all declination measurements
-    mean = average_measurement(measurements, DECLINATION_TYPES)
     # average mark
     average_mark = average_measurement(measurements, MARK_TYPES).angle
     # adjust based on which is larger
@@ -107,12 +111,16 @@ def calculate_D_absolute(
             for m in declination_measurements
         ]
     )
+    shift = 0.0
+    if azimuth > 180:
+        azimuth -= 180
+        shift = -180
     # add subtract average mark angle from average meridian angle and add
     # azimuth to get the declination baseline
     d_b = (meridian - average_mark) + azimuth
     # calculate absolute
     d_abs = d_b + np.degrees(np.arctan(reference.e / (reference.h + h_baseline)))
-    return Absolute(element="D", absolute=d_abs, baseline=d_b)
+    return Absolute(element="D", absolute=d_abs, baseline=d_b, shift=shift)
 
 
 def calculate_HZ_absolutes(
@@ -139,11 +147,12 @@ def calculate_HZ_absolutes(
     inclination_radians = np.radians(inclination)
     h_abs = corrected_f * np.cos(inclination_radians)
     z_abs = corrected_f * np.sin(inclination_radians)
-    h_b = round(np.sqrt(h_abs ** 2 - mean.e ** 2) - mean.h, 1)
-    z_b = round(z_abs - mean.z, 1)
+    h_b = np.sqrt(h_abs ** 2 - mean.e ** 2) - mean.h
+    z_b = z_abs - mean.z
     # adjust absolutes to reference measurement
-    h_abs = np.sqrt((h_b + reference.h) ** 2 + (reference.e) ** 2)
-    z_abs = z_b + reference.z
+    if reference:
+        h_abs = np.sqrt((h_b + reference.h) ** 2 + (reference.e) ** 2)
+        z_abs = z_b + reference.z
     # return absolutes
     return (
         Absolute(
@@ -242,16 +251,13 @@ def calculate_scale_value(
     """
     inclination_radians = np.radians(inclination)
     m1, m2 = measurements[0], measurements[-1]
-    field_change = (
-        np.degrees(
-            (
-                -np.sin(inclination_radians) * (m2.h - m1.h)
-                + np.cos(inclination_radians) * (m2.z - m1.z)
-            )
-            / corrected_f
+    field_change = np.degrees(
+        (
+            -np.sin(inclination_radians) * (m2.h - m1.h)
+            + np.cos(inclination_radians) * (m2.z - m1.z)
         )
-        + 0.1668
-    )
+        / corrected_f
+    ) + (m2.angle - m1.angle)
     residual_change = m2.residual - m1.residual
     scale_value = corrected_f * field_change / np.abs(residual_change)
     return scale_value
