@@ -130,6 +130,7 @@ class AdjustedAlgorithm(Algorithm):
         out = None
         inchannels = self.inchannels
         outchannels = self.outchannels
+<<<<<<< HEAD
         # Gather input traces in order of user input(inchannels)
         raws = [
             stream.select(channel=channel) for channel in inchannels if channel != "F"
@@ -147,6 +148,24 @@ class AdjustedAlgorithm(Algorithm):
 
         out = Stream()
         # Create new steam with adjusted data in order of user input(outchannels)
+=======
+
+        raws = []
+        for channel in inchannels:
+            if channel != "F":
+                trace = stream.select(channel=channel)[0]
+                raws.append(trace.data)
+        raws.append(np.ones_like(stream[0].data))
+        raws = np.vstack(raws)
+        adj = np.dot(self.matrix, raws)
+        if "F" in inchannels:
+            f = stream.select(channel="F")[0]
+            fnew = f.data + self.pier_correction
+            adj[-1] = fnew
+
+        out = Stream()
+
+>>>>>>> b070a8a254d9e88ce6c09b5f57d6781adddce27b
         for i in range(len(stream)):
             trace = stream[i]
             data = adj[i]
@@ -191,7 +210,10 @@ class AdjustedAlgorithm(Algorithm):
         ):
             return True
 
+<<<<<<< HEAD
         # If being used for another conversion, check if all channels can produce data
+=======
+>>>>>>> b070a8a254d9e88ce6c09b5f57d6781adddce27b
         if np.all(
             [
                 super(AdjustedAlgorithm, self).can_produce_data(
