@@ -134,16 +134,14 @@ class AdjustedAlgorithm(Algorithm):
         raws = [
             stream.select(channel=channel) for channel in inchannels if channel != "F"
         ]
-        # Append aray of ones as placeholder for F conversions
+        # Append aray of ones as for affine matrix
         raws.append(np.ones_like(stream[0].data))
         raws = np.vstack(raws)
-        adj = np.matmul(self.matrix, raws)
-        # only perform pier correction if F exists within inchannels
+        adj = np.matmul(self.matrix, raws)[:-1]
         if "F" in inchannels:
             f = stream.select(channel="F")[0]
             fnew = f.data + self.pier_correction
-            # replace ones array with pier corrected F
-            adj[-1] = fnew
+            adj = np.vstack((adj, fnew))
 
         out = Stream()
         # Create new steam with adjusted data in order of user input(outchannels)
