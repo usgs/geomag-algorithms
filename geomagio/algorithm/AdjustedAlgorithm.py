@@ -21,10 +21,12 @@ class AdjustedAlgorithm(Algorithm):
         statefile=None,
         data_type=None,
         location=None,
-        inchannels=None,
-        outchannels=None,
+        inchannels=["H", "E", "Z", "F"],
+        outchannels=["X", "Y", "Z", "F"],
     ):
-        Algorithm.__init__(self, inchannels=None, outchannels=None)
+        Algorithm.__init__(
+            self, inchannels=["H", "E", "Z", "F"], outchannels=["X", "Y", "Z", "F"]
+        )
         # state variables
         self.matrix = matrix
         self.pier_correction = pier_correction
