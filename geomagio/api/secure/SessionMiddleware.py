@@ -113,6 +113,7 @@ class SessionMiddleware:
         self, message: Message, value: str, max_age: int = None,
     ):
         headers = MutableHeaders(scope=message)
+        headers.append("Cache-Control", "no-cache")
         headers.append(
             "Set-Cookie",
             f"{self.session_cookie}={value};"

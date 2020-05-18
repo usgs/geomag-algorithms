@@ -1,8 +1,8 @@
-import datetime
+from datetime import datetime
 import enum
 
 from obspy import UTCDateTime
-from sqlalchemy import or_, Boolean, Column, Index, Integer, String, Table, Text
+from sqlalchemy import or_, Boolean, Column, Index, Integer, JSON, String, Table, Text
 import sqlalchemy_utc
 
 from ...metadata import Metadata, MetadataCategory
@@ -23,7 +23,7 @@ metadata = Table(
     Column(
         "created_time",
         sqlalchemy_utc.UtcDateTime,
-        default=sqlalchemy_utc.now,
+        default=sqlalchemy_utc.utcnow(),
         index=True,
     ),
     # reviewer
@@ -46,7 +46,7 @@ metadata = Table(
     # whether metadata is valid (based on review)
     Column("metadata_valid", Boolean, default=True, index=True),
     # metadata json blob
-    Column("metadata", Text, nullable=True),
+    Column("metadata", JSON, nullable=True),
     # general comment
     Column("comment", Text, nullable=True),
     # review specific comment
@@ -79,34 +79,62 @@ metadata = Table(
 )
 
 
+async def create_metadata(meta: Metadata) -> Metadata:
+    query = metadata.insert()
+    values = meta.datetime_dict(exclude={"id"}, exclude_none=True)
+    query = query.values(**values)
+    metadata.id = await database.execute(query)
+    return metadata
+
+
+async def delete_metadata(id: int) -> None:
+    query = metadata.delete().where(metadata.c.id == id)
+    await database.execute(query)
+
+
 async def get_metadata(
     *,  # make all params keyword
-    network: str,
-    station: str,
+    id: int = None,
+    network: str = None,
+    station: str = None,
     channel: str = None,
     location: str = None,
     category: MetadataCategory = None,
-    starttime: UTCDateTime = None,
-    endtime: UTCDateTime = None,
+    starttime: datetime = None,
+    endtime: datetime = None,
     data_valid: bool = None,
     metadata_valid: bool = None,
 ):
-    query = (
-        metadata.select()
-        .where(metadata.c.network.like(network or "%"))
-        .where(metadata.c.station.like(station or "%"))
-        .where(metadata.c.channel.like(channel or "%"))
-        .where(metadata.c.location.like(location or "%"))
-    )
+    query = metadata.select()
+    if id is not None:
+        query = query.where(metadata.c.id == id)
+    if category:
+        query = query.where(metadata.c.category == category)
+    if network or station or channel or location:
+        query = (
+            query.where(metadata.c.network.like(network or "%"))
+            .where(metadata.c.station.like(station or "%"))
+            .where(metadata.c.channel.like(channel or "%"))
+            .where(metadata.c.location.like(location or "%"))
+        )
     if starttime:
         query = query.where(
-            or_(metadata.c.endtime == None, metadata.c.endtime > starttime.datetime)
+            or_(metadata.c.endtime == None, metadata.c.endtime > starttime)
         )
     if endtime:
         query = query.where(
-            or_(metadata.c.starttime == None, metadata.c.starttime < endtime.datetime)
+            or_(metadata.c.starttime == None, metadata.c.starttime < endtime)
         )
     if data_valid is not None:
         query = query.where(metadata.c.data_valid == data_valid)
     if metadata_valid is not None:
         query = query.where(metadata.c.metadata_valid == metadata_valid)
+    rows = await database.fetch_all(query)
+    return [Metadata(**row) for row in rows]
+
+
+async def update_metadata(meta: Metadata) -> None:
+    query = metadata.update().where(metadata.c.id == meta.id)
+    values = meta.datetime_dict(exclude={"id"})
+    query = query.values(**values)
+    await database.execute(query)

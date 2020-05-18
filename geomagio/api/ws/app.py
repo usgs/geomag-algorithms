@@ -2,6 +2,7 @@ from typing import Dict, Union
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from obspy import UTCDateTime
 
@@ -22,6 +23,9 @@ VERSION = "version"
 
 
 app = FastAPI(docs_url="/docs", openapi_prefix="/ws")
+
+app.add_middleware(CORSMiddleware, allow_origins=["*"], max_age=86400)
+
 app.include_router(data.router)
 app.include_router(elements.router)
 app.include_router(observatories.router)

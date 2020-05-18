@@ -1,7 +1,8 @@
+from datetime import timezone
 from typing import Dict
 
 from obspy import UTCDateTime
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from .. import pydantic_utcdatetime
 from .MetadataCategory import MetadataCategory
@@ -75,3 +76,14 @@ class Metadata(BaseModel):
     comment: str = None
     # review specific comment
     review_comment: str = None
+
+    def datetime_dict(self, **kwargs):
+        values = self.dict(**kwargs)
+        for key in ["created_time", "reviewed_time", "starttime", "endtime"]:
+            if key in values and values[key] is not None:
+                values[key] = values[key].datetime.replace(tzinfo=timezone.utc)
+        return values
+
+    @validator("created_time")
+    def set_default_created_time(cls, created_time: UTCDateTime = None) -> UTCDateTime:
+        return created_time or UTCDateTime()
