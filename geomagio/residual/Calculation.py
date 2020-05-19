@@ -46,7 +46,7 @@ def calculate(reading: Reading, adjust_reference: bool = True) -> Reading:
         azimuth=reading.azimuth,
         h_baseline=absoluteH.baseline,
         measurements=reading.measurements,
-        reference=adjust_reference and reference or mean,
+        reference=adjust_reference and reference or None,
     )
     # calculate scale
     scale_value = None
@@ -87,6 +87,7 @@ def calculate_D_absolute(
     D Absolute
     """
     mean = average_measurement(measurements, DECLINATION_TYPES)
+    reference = reference or mean
     # average mark
     average_mark = average_measurement(measurements, MARK_TYPES).angle
     # adjust based on which is larger
