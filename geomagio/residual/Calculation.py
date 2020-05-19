@@ -203,7 +203,7 @@ def calculate_I(
         average_measurement(measurements, [t]) for t in INCLINATION_TYPES
     ]
     # get initial inclination angle, assumed to be the southdown angle
-    inclination = average_measurement(measurements, [mt.NORTH_DOWN]).angle
+    inclination = average_measurement(measurements, [mt.SOUTH_DOWN]).angle
     if inclination >= 90:
         inclination -= 180
     # loop until inclination converges
