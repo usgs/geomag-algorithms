@@ -575,6 +575,14 @@ def get_output_factory(args):
     return output_factory
 
 
+def get_realtime_interval(interval_seconds: int) -> Tuple[UTCDateTime, UTCDateTime]:
+    # calculate endtime/starttime
+    now = UTCDateTime()
+    endtime = UTCDateTime(now.year, now.month, now.day, now.hour, now.minute)
+    starttime = endtime - interval_seconds
+    return starttime, endtime
+
+
 def main(args):
     """command line factory for geomag algorithms
 
@@ -619,9 +627,7 @@ def main(args):
             else:
                 args.realtime = 600
         # calculate endtime/starttime
-        now = UTCDateTime()
-        args.endtime = UTCDateTime(now.year, now.month, now.day, now.hour, now.minute)
-        args.starttime = args.endtime - args.realtime
+        args.starttime, args.endtime = get_realtime_interval(args.realtime)
 
     if args.observatory_foreach:
         observatory = args.observatory
