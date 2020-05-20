@@ -16,7 +16,7 @@ def test_construct():
     assert_equal(a.pier_correction, -22)
 
 
-def test_process():
+def test_process_XYZF():
     """algorithm_test.AdjustedAlgorithm_test.test_process()
 
     Check adjusted data processing versus files generated from
@@ -54,3 +54,43 @@ def test_process():
     assert_almost_equal(y.data, y_adj.data, 2)
     assert_almost_equal(z.data, z_adj.data, 2)
     assert_almost_equal(f.data, f_adj.data, 2)
+
+
+def test_process_reverse_polarity():
+    """algorithm_test.AdjustedAlgorithm_test.test_process()
+
+    Check adjusted data processing versus files generated from
+    original script. Tests reverse polarity martix.
+    """
+    matrix = None
+    pier_correction = None
+    # load adjusted data transform matrix and pier correction
+    a = adj(
+        matrix,
+        pier_correction,
+        "etc/adjusted/adjbou_state_HE_.json",
+        inchannels=["H", "E"],
+        outchannels=["H", "E"],
+    )
+
+    # load boulder May 20 files from /etc/ directory
+    he_iaga2002_file = open("etc/adjusted/BOU202005vmin.min")
+    he_iaga2002_string = he_iaga2002_file.read()
+    he_inv_iaga2002_file = open("etc/adjusted/BOU202005adj.min")
+    he_inv_iaga2002_string = he_inv_iaga2002_file.read()
+    factory = i2.IAGA2002Factory()
+    he = factory.parse_string(he_iaga2002_string)
+    he_inv = factory.parse_string(he_inv_iaga2002_string)
+
+    # process hezf (raw) channels with loaded transform
+    adj_bou = a.process(he)
+
+    # unpack channels from loaded adjusted data file
+    h = he_inv.select(channel="H")[0]
+    e = he_inv.select(channel="E")[0]
+    # unpack channels from adjusted processing of raw data
+    h_adj = adj_bou.select(channel="H")[0]
+    e_adj = adj_bou.select(channel="E")[0]
+
+    assert_almost_equal(h.data, h_adj.data, 2)
+    assert_almost_equal(e.data, e_adj.data, 2)
