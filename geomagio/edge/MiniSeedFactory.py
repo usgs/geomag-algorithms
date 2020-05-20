@@ -422,7 +422,7 @@ class MiniSeedFactory(TimeseriesFactory):
             elif suffix == "SV":
                 location_suffix = "V"
             elif suffix == "DDT":
-                location_suffix = "DT"
+                location_suffix = "R"
             elif suffix not in ("Bin", "Volt"):
                 raise TimeseriesFactoryException(
                     'bad channel suffix "%s", wanted "Dist", "SQ", or "SV"' % suffix
