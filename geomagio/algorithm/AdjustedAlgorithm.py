@@ -78,8 +78,8 @@ class AdjustedAlgorithm(Algorithm):
 
         length = len(self.matrix[0, :])
 
-        for i in range(length):
-            for j in range(length):
+        for i in range(0, length):
+            for j in range(0, length):
                 key = "M" + str(i + 1) + str(j + 1)
                 data[key] = self.matrix[i, j]
 
