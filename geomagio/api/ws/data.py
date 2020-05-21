@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from obspy import UTCDateTime, Stream
 from starlette.responses import Response
 
+from ...algorithm.DbDtAlgorithm import DbDtAlgorithm
 from ... import TimeseriesFactory, TimeseriesUtility
 from ...edge import EdgeFactory
 from ...iaga2002 import IAGA2002Writer
@@ -64,16 +65,43 @@ def get_timeseries(data_factory: TimeseriesFactory, query: DataApiQuery) -> Stre
     data_factory: where to read data
     query: parameters for the data to read
     """
+
+    # gather non-dbdt elements first
+    base_elements = [element for element in query.elements if element[1::] != "_DDT"]
+
+    # gather interval
+    interval = TimeseriesUtility.get_interval_from_delta(query.sampling_period)
     # get data
-    timeseries = data_factory.get_timeseries(
+    base_timeseries = data_factory.get_timeseries(
         starttime=query.starttime,
         endtime=query.endtime,
         observatory=query.id,
-        channels=query.elements,
+        channels=base_elements,
         type=query.data_type,
-        interval=TimeseriesUtility.get_interval_from_delta(query.sampling_period),
+        interval=interval,
     )
-    return timeseries
+
+    if "*_DDT" in query.elements:
+        dbdt_elements = [
+            element[0:1] for element in query.elements if element[1::] == "_DDT"
+        ]
+
+        timeseries = data_factory.get_timeseries(
+            starttime=query.starttime,
+            endtime=query.endtime,
+            observatory=query.id,
+            channels=dbdt_elements,
+            type=query.data_type,
+            interval=interval,
+        )
+
+        dbdt_timeseries = DbDtAlgorithm(
+            inchannels=dbdt_elements, outchannels=dbdt_elements + "_DDT"
+        ).process(timeseries)
+
+        base_timeseries += (trace for trace in dbdt_timeseries)
+
+    return base_timeseries
 
 
 router = APIRouter()
