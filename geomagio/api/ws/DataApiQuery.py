@@ -65,6 +65,7 @@ class DataApiQuery(BaseModel):
     elements: List[str] = DEFAULT_ELEMENTS
     sampling_period: SamplingPeriod = SamplingPeriod.MINUTE
     data_type: Union[DataType, str] = DataType.VARIATION
+    dbdt: list = []
     format: OutputFormat = OutputFormat.IAGA2002
 
     @validator("data_type")
@@ -122,6 +123,16 @@ class DataApiQuery(BaseModel):
             starttime = values.get("starttime")
             endtime = starttime + (86400 - 0.001)
         return endtime
+
+    @validator("dbdt", always=True)
+    def validate_dbdt(cls, dbdt: list,) -> list:
+        """Default dbdt based on valid elements.
+        """
+        for channel in dbdt:
+            if channel not in DEFAULT_ELEMENTS:
+                raise ValueError("Specified channel not found in valid elements.")
+
+        return dbdt
 
     @root_validator
     def validate_combinations(cls, values):

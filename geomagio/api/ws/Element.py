@@ -36,7 +36,6 @@ ELEMENTS = [
         id="UK3", abbreviation="T-Fluxgate", name="Fluxgate Temperature", units="°C"
     ),
     Element(id="UK4", abbreviation="T-Outside", name="Outside Temperature", units="°C"),
-    Element(id="DDT", abbreviation="DbDt", name="Time Derivative", units="1/s"),
 ]
 
 ELEMENT_INDEX = {e.id: e for e in ELEMENTS}
