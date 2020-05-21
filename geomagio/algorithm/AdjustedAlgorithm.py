@@ -132,6 +132,9 @@ class AdjustedAlgorithm(Algorithm):
         out = None
         inchannels = self.inchannels
         outchannels = self.outchannels
+        print(inchannels)
+        print(outchannels)
+        print(self.matrix)
         # Gather input traces in order of user input(inchannels)
         raws = [
             stream.select(channel=channel) for channel in inchannels if channel != "F"
@@ -230,3 +233,10 @@ class AdjustedAlgorithm(Algorithm):
         Algorithm.configure(self, arguments)
         self.statefile = arguments.adjusted_statefile
         self.load_state()
+
+        if arguments.inchannels is None:
+            self.inchannels = ["H", "E", "Z", "F"]
+            self.outchannels = ["H", "E", "Z", "F"]
+        else:
+            self.inchannels = arguments.inchannels
+            self.outchannels = arguments.outchannels
