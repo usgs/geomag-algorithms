@@ -239,4 +239,4 @@ class AdjustedAlgorithm(Algorithm):
             self.outchannels = ["H", "E", "Z", "F"]
         else:
             self.inchannels = arguments.inchannels
-            self.outchannels = arguments.outchannels
+            self.outchannels = arguments.outchannels or arguments.inchannels
