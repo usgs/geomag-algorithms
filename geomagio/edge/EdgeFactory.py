@@ -567,7 +567,7 @@ class EdgeFactory(TimeseriesFactory):
                 if channel in dbdt:
                     timeseries[i] = dbdt_stream.select(channel=channel + "_DDT")[0]
 
-        TimeseriesUtility.pad_timeseries(timeseries, starttime, endtime)   
+        TimeseriesUtility.pad_timeseries(timeseries, starttime, endtime)
 
     def _put_channel(
         self, timeseries, observatory, channel, type, interval, starttime, endtime,
