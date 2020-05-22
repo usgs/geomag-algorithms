@@ -21,11 +21,13 @@ class AdjustedAlgorithm(Algorithm):
         statefile=None,
         data_type=None,
         location=None,
-        inchannels=["H", "E", "Z", "F"],
-        outchannels=["X", "Y", "Z", "F"],
+        inchannels=None,
+        outchannels=None,
     ):
+        inchannels = inchannels or ["H", "E", "Z", "F"]
+        outchannels = outchannels or ["X", "Y", "Z", "F"]
         Algorithm.__init__(
-            self, inchannels=["H", "E", "Z", "F"], outchannels=["X", "Y", "Z", "F"]
+            self, inchannels=inchannels, outchannels=outchannels,
         )
         # state variables
         self.matrix = matrix
@@ -132,9 +134,6 @@ class AdjustedAlgorithm(Algorithm):
         out = None
         inchannels = self.inchannels
         outchannels = self.outchannels
-        print(inchannels)
-        print(outchannels)
-        print(self.matrix)
         # Gather input traces in order of user input(inchannels)
         raws = [
             stream.select(channel=channel) for channel in inchannels if channel != "F"
@@ -236,7 +235,8 @@ class AdjustedAlgorithm(Algorithm):
 
         if arguments.inchannels is None:
             self.inchannels = ["H", "E", "Z", "F"]
-            self.outchannels = ["H", "E", "Z", "F"]
+            self.outchannels = ["X", "Y", "Z", "F"]
+
         else:
             self.inchannels = arguments.inchannels
             self.outchannels = arguments.outchannels or arguments.inchannels

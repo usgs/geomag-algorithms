@@ -152,8 +152,8 @@ class Controller(object):
             already read the input to confirm data can be produced.
         """
         algorithm = self._algorithm
-        input_channels = options.inchannels or algorithm.get_input_channels()
-        output_channels = options.outchannels or algorithm.get_output_channels()
+        input_channels = options.inchannels or algorithm.inchannels
+        output_channels = options.outchannels or algorithm.outchannels
         next_starttime = algorithm.get_next_starttime()
         starttime = next_starttime or options.starttime
         endtime = options.endtime
