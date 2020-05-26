@@ -37,6 +37,7 @@ class AdjustedAlgorithm(Algorithm):
         self.location = location
         self.inchannels = inchannels
         self.outchannels = outchannels
+
         if matrix is None:
             self.load_state()
 
@@ -233,10 +234,15 @@ class AdjustedAlgorithm(Algorithm):
         self.statefile = arguments.adjusted_statefile
         self.load_state()
 
-        if arguments.inchannels is None:
-            self.inchannels = ["H", "E", "Z", "F"]
-            self.outchannels = ["X", "Y", "Z", "F"]
-
-        else:
-            self.inchannels = arguments.inchannels
-            self.outchannels = arguments.outchannels or arguments.inchannels
+        self._inchannels = self.inchannels = arguments.inchannels or [
+            "H",
+            "E",
+            "Z",
+            "F",
+        ]
+        self._outchannels = self.outchannels = arguments.outchannels or [
+            "X",
+            "Y",
+            "Z",
+            "F",
+        ]
