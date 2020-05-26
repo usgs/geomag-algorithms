@@ -43,7 +43,7 @@ class AdjustedAlgorithm(Algorithm):
         """Load algorithm state from a file.
         File name is self.statefile.
         """
-        self.matrix = None
+        self.matrix = np.eye(len(self.get_input_channels()))
         self.pier_correction = 0
         if self.statefile is None:
             return
@@ -133,27 +133,34 @@ class AdjustedAlgorithm(Algorithm):
         out = None
         inchannels = self.get_input_channels()
         outchannels = self.get_output_channels()
-        # Gather input traces in order of user input(inchannels)
-        raws = [
-            stream.select(channel=channel) for channel in inchannels if channel != "F"
-        ]
-        # Append aray of ones as for affine matrix
-        raws.append(np.ones_like(stream[0].data))
-        raws = np.vstack(raws)
-        adj = np.matmul(self.matrix, raws)[:-1]
-        if "F" in inchannels:
+        # prepare inputs
+        raws = np.vstack(
+            [
+                stream.select(channel=channel)[0].data
+                for channel in inchannels
+                if channel != "F"
+            ]
+            # add row of ones to inputs
+            + [np.ones_like(stream[0].data)]
+        )
+        # adjust
+        adjusted = np.matmul(self.matrix, raws)
+        # prepare outputs
+        out = Stream(
+            [
+                self.create_trace(
+                    outchannels[i],
+                    stream.select(channel=inchannels[i])[0].stats,
+                    adjusted[i],
+                )
+                for i in range(len(adjusted) - 1)
+            ]
+        )
+        # handle f
+        if "F" in inchannels and "F" in outchannels:
             f = stream.select(channel="F")[0]
-            fnew = f.data + self.pier_correction
-            adj = np.vstack((adj, fnew))
-
-        out = Stream()
-        # Create new steam with adjusted data in order of user input(outchannels)
-        for i in range(len(stream)):
-            trace = stream[i]
-            data = adj[i]
-            channel = outchannels[i]
-            out += self.create_trace(channel, trace.stats, data)
-
+            out += self.create_trace("F", f.stats, f.data + self.pier_correction)
+        # done
         return out
 
     def can_produce_data(self, starttime, endtime, stream):
