@@ -139,8 +139,10 @@ class Algorithm(object):
         arguments: Namespace
             parsed command line arguments
         """
-        self._inchannels = arguments.inchannels
-        self._outchannels = arguments.outchannels or arguments.inchannels
+        self._inchannels = arguments.inchannels or self._inchannels
+        self._outchannels = (
+            arguments.outchannels or self._outchannels or self._inchannels
+        )
 
     @classmethod
     def create_trace(cls, channel, stats, data):

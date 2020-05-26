@@ -35,8 +35,6 @@ class AdjustedAlgorithm(Algorithm):
         self.statefile = statefile
         self.data_type = data_type
         self.location = location
-        self.inchannels = inchannels
-        self.outchannels = outchannels
 
         if matrix is None:
             self.load_state()
@@ -133,8 +131,8 @@ class AdjustedAlgorithm(Algorithm):
         """
 
         out = None
-        inchannels = self.inchannels
-        outchannels = self.outchannels
+        inchannels = self.get_input_channels()
+        outchannels = self.get_output_channels()
         # Gather input traces in order of user input(inchannels)
         raws = [
             stream.select(channel=channel) for channel in inchannels if channel != "F"
@@ -170,7 +168,7 @@ class AdjustedAlgorithm(Algorithm):
             The input stream we want to make certain has data for the algorithm
         """
 
-        channels = self.inchannels
+        channels = self.get_input_channels()
 
         # if F is available, can produce at least adjusted F
         if "F" in channels and super(AdjustedAlgorithm, self).can_produce_data(
@@ -233,16 +231,3 @@ class AdjustedAlgorithm(Algorithm):
         Algorithm.configure(self, arguments)
         self.statefile = arguments.adjusted_statefile
         self.load_state()
-
-        self._inchannels = self.inchannels = arguments.inchannels or [
-            "H",
-            "E",
-            "Z",
-            "F",
-        ]
-        self._outchannels = self.outchannels = arguments.outchannels or [
-            "X",
-            "Y",
-            "Z",
-            "F",
-        ]
