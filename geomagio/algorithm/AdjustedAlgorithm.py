@@ -35,7 +35,7 @@ class AdjustedAlgorithm(Algorithm):
         self.statefile = statefile
         self.data_type = data_type
         self.location = location
-
+        # load matrix with statefile
         if matrix is None:
             self.load_state()
 
@@ -47,33 +47,21 @@ class AdjustedAlgorithm(Algorithm):
         matrix_size = len([c for c in self.get_input_channels() if c != "F"]) + 1
         self.matrix = np.eye(matrix_size)
         self.pier_correction = 0
-
         if self.statefile is None:
             return
-
         data = None
-
         try:
             with open(self.statefile, "r") as f:
                 data = f.read()
                 data = json.loads(data)
         except IOError as err:
             sys.stderr.write("I/O error {0}".format(err))
-
         if data is None or data == "":
             return
-
-        PC = data.pop("PC")
-        self.pier_correction = np.float64(PC)
-        # excludes PC
-        keys = list(data.keys())
-        # get maximum row/colum number
-        length = int(max(keys)[-1])
-        self.matrix = np.eye(length)
-        for i in range(length):
-            for j in range(length):
-                key = "M" + str(i + 1) + str(j + 1)
-                self.matrix[i, j] = np.float64(data[key])
+        for row in range(matrix_size):
+            for col in range(matrix_size):
+                self.matrix[row, col] = np.float64(data[f"M{row+1}{col+1}"])
+        self.pier_correction = np.float64(data["PC"])
 
     def save_state(self):
         """Save algorithm state to a file.
@@ -82,14 +70,11 @@ class AdjustedAlgorithm(Algorithm):
         if self.statefile is None:
             return
         data = {"PC": self.pier_correction}
-
         length = len(self.matrix[0, :])
-
         for i in range(0, length):
             for j in range(0, length):
                 key = "M" + str(i + 1) + str(j + 1)
                 data[key] = self.matrix[i, j]
-
         with open(self.statefile, "w") as f:
             f.write(json.dumps(data))
 
