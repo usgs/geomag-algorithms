@@ -43,17 +43,23 @@ class AdjustedAlgorithm(Algorithm):
         """Load algorithm state from a file.
         File name is self.statefile.
         """
-        self.matrix = np.eye(len(self.get_input_channels()))
+        # Adjusted matrix defaults to identity matrix
+        matrix_size = len([c for c in self.get_input_channels() if c != "F"]) + 1
+        self.matrix = np.eye(matrix_size)
         self.pier_correction = 0
+
         if self.statefile is None:
             return
+
         data = None
+
         try:
             with open(self.statefile, "r") as f:
                 data = f.read()
                 data = json.loads(data)
         except IOError as err:
             sys.stderr.write("I/O error {0}".format(err))
+
         if data is None or data == "":
             return
 
@@ -133,19 +139,15 @@ class AdjustedAlgorithm(Algorithm):
         out = None
         inchannels = self.get_input_channels()
         outchannels = self.get_output_channels()
-        # prepare inputs
         raws = np.vstack(
             [
                 stream.select(channel=channel)[0].data
                 for channel in inchannels
                 if channel != "F"
             ]
-            # add row of ones to inputs
             + [np.ones_like(stream[0].data)]
         )
-        # adjust
         adjusted = np.matmul(self.matrix, raws)
-        # prepare outputs
         out = Stream(
             [
                 self.create_trace(
@@ -156,11 +158,9 @@ class AdjustedAlgorithm(Algorithm):
                 for i in range(len(adjusted) - 1)
             ]
         )
-        # handle f
         if "F" in inchannels and "F" in outchannels:
             f = stream.select(channel="F")[0]
             out += self.create_trace("F", f.stats, f.data + self.pier_correction)
-        # done
         return out
 
     def can_produce_data(self, starttime, endtime, stream):
@@ -178,39 +178,25 @@ class AdjustedAlgorithm(Algorithm):
         channels = self.get_input_channels()
 
         # if F is available, can produce at least adjusted F
-        if "F" in channels and super(AdjustedAlgorithm, self).can_produce_data(
+        if "F" in channels and super().can_produce_data(
             starttime, endtime, stream.select(channel="F")
         ):
+            print("true")
             return True
 
-        # if HEZ are available, can produce at least adjusted XYZ
-        if (
-            "H" in channels
-            and "E" in channels
-            and "Z" in channels
-            and np.all(
-                [
-                    super(AdjustedAlgorithm, self).can_produce_data(
-                        starttime, endtime, stream.select(channel=chan)
-                    )
-                    for chan in ("H", "E", "Z")
-                ]
-            )
-        ):
-            return True
-
-        # If being used for another conversion, check if all channels can produce data
+        # check validity of remaining channels
         if np.all(
             [
-                super(AdjustedAlgorithm, self).can_produce_data(
-                    starttime, endtime, stream.select(channel=chan)
-                )
-                for chan in channels
+                super().can_produce_data(starttime, endtime, stream.select(channel=c))
+                for c in channels
+                if c != "F"
             ]
         ):
+            print("true")
             return True
 
-        # return false if cannot produce adjustded F or XYZ
+        # return false if F or remaining channels cannot produce data
+        print("false")
         return False
 
     @classmethod
