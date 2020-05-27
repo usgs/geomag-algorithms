@@ -166,7 +166,6 @@ class AdjustedAlgorithm(Algorithm):
         if "F" in channels and super().can_produce_data(
             starttime, endtime, stream.select(channel="F")
         ):
-            print("true")
             return True
 
         # check validity of remaining channels
@@ -177,11 +176,9 @@ class AdjustedAlgorithm(Algorithm):
                 if c != "F"
             ]
         ):
-            print("true")
             return True
 
         # return false if F or remaining channels cannot produce data
-        print("false")
         return False
 
     @classmethod
