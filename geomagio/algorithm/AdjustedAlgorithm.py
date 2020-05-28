@@ -21,9 +21,13 @@ class AdjustedAlgorithm(Algorithm):
         statefile=None,
         data_type=None,
         location=None,
+        inchannels=None,
+        outchannels=None,
     ):
+        inchannels = inchannels or ["H", "E", "Z", "F"]
+        outchannels = outchannels or ["X", "Y", "Z", "F"]
         Algorithm.__init__(
-            self, inchannels=("H", "E", "Z", "F"), outchannels=("X", "Y", "Z", "F")
+            self, inchannels=inchannels, outchannels=outchannels,
         )
         # state variables
         self.matrix = matrix
@@ -31,6 +35,7 @@ class AdjustedAlgorithm(Algorithm):
         self.statefile = statefile
         self.data_type = data_type
         self.location = location
+        # load matrix with statefile
         if matrix is None:
             self.load_state()
 
@@ -38,7 +43,9 @@ class AdjustedAlgorithm(Algorithm):
         """Load algorithm state from a file.
         File name is self.statefile.
         """
-        self.matrix = np.eye(4)
+        # Adjusted matrix defaults to identity matrix
+        matrix_size = len([c for c in self.get_input_channels() if c != "F"]) + 1
+        self.matrix = np.eye(matrix_size)
         self.pier_correction = 0
         if self.statefile is None:
             return
@@ -51,22 +58,9 @@ class AdjustedAlgorithm(Algorithm):
             sys.stderr.write("I/O error {0}".format(err))
         if data is None or data == "":
             return
-        self.matrix[0, 0] = np.float64(data["M11"])
-        self.matrix[0, 1] = np.float64(data["M12"])
-        self.matrix[0, 2] = np.float64(data["M13"])
-        self.matrix[0, 3] = np.float64(data["M14"])
-        self.matrix[1, 0] = np.float64(data["M21"])
-        self.matrix[1, 1] = np.float64(data["M22"])
-        self.matrix[1, 2] = np.float64(data["M23"])
-        self.matrix[1, 3] = np.float64(data["M24"])
-        self.matrix[2, 0] = np.float64(data["M31"])
-        self.matrix[2, 1] = np.float64(data["M32"])
-        self.matrix[2, 2] = np.float64(data["M33"])
-        self.matrix[2, 3] = np.float64(data["M34"])
-        self.matrix[3, 0] = np.float64(data["M41"])
-        self.matrix[3, 1] = np.float64(data["M42"])
-        self.matrix[3, 2] = np.float64(data["M43"])
-        self.matrix[3, 3] = np.float64(data["M44"])
+        for row in range(matrix_size):
+            for col in range(matrix_size):
+                self.matrix[row, col] = np.float64(data[f"M{row+1}{col+1}"])
         self.pier_correction = np.float64(data["PC"])
 
     def save_state(self):
@@ -75,25 +69,12 @@ class AdjustedAlgorithm(Algorithm):
         """
         if self.statefile is None:
             return
-        data = {
-            "M11": self.matrix[0, 0],
-            "M12": self.matrix[0, 1],
-            "M13": self.matrix[0, 2],
-            "M14": self.matrix[0, 3],
-            "M21": self.matrix[1, 0],
-            "M22": self.matrix[1, 1],
-            "M23": self.matrix[1, 2],
-            "M24": self.matrix[1, 3],
-            "M31": self.matrix[2, 0],
-            "M32": self.matrix[2, 1],
-            "M33": self.matrix[2, 2],
-            "M34": self.matrix[2, 3],
-            "M41": self.matrix[3, 0],
-            "M42": self.matrix[3, 1],
-            "M43": self.matrix[3, 2],
-            "M44": self.matrix[3, 3],
-            "PC": self.pier_correction,
-        }
+        data = {"PC": self.pier_correction}
+        length = len(self.matrix[0, :])
+        for i in range(0, length):
+            for j in range(0, length):
+                key = "M" + str(i + 1) + str(j + 1)
+                data[key] = self.matrix[i, j]
         with open(self.statefile, "w") as f:
             f.write(json.dumps(data))
 
@@ -141,23 +122,30 @@ class AdjustedAlgorithm(Algorithm):
         """
 
         out = None
-
-        h = stream.select(channel="H")[0]
-        e = stream.select(channel="E")[0]
-        z = stream.select(channel="Z")[0]
-        f = stream.select(channel="F")[0]
-
-        raws = np.vstack([h.data, e.data, z.data, np.ones_like(h.data)])
-        adj = np.dot(self.matrix, raws)
-        fnew = f.data + self.pier_correction
-
-        x = self.create_trace("X", h.stats, adj[0])
-        y = self.create_trace("Y", e.stats, adj[1])
-        z = self.create_trace("Z", z.stats, adj[2])
-        f = self.create_trace("F", f.stats, fnew)
-
-        out = Stream([x, y, z, f])
-
+        inchannels = self.get_input_channels()
+        outchannels = self.get_output_channels()
+        raws = np.vstack(
+            [
+                stream.select(channel=channel)[0].data
+                for channel in inchannels
+                if channel != "F"
+            ]
+            + [np.ones_like(stream[0].data)]
+        )
+        adjusted = np.matmul(self.matrix, raws)
+        out = Stream(
+            [
+                self.create_trace(
+                    outchannels[i],
+                    stream.select(channel=inchannels[i])[0].stats,
+                    adjusted[i],
+                )
+                for i in range(len(adjusted) - 1)
+            ]
+        )
+        if "F" in inchannels and "F" in outchannels:
+            f = stream.select(channel="F")[0]
+            out += self.create_trace("F", f.stats, f.data + self.pier_correction)
         return out
 
     def can_produce_data(self, starttime, endtime, stream):
@@ -172,34 +160,25 @@ class AdjustedAlgorithm(Algorithm):
             The input stream we want to make certain has data for the algorithm
         """
 
-        # collect channels in stream
-        channels = []
-        for trace in stream:
-            channels += trace.stats["channel"]
+        channels = self.get_input_channels()
 
         # if F is available, can produce at least adjusted F
-        if "F" in channels and super(AdjustedAlgorithm, self).can_produce_data(
+        if "F" in channels and super().can_produce_data(
             starttime, endtime, stream.select(channel="F")
         ):
             return True
 
-        # if HEZ are available, can produce at least adjusted XYZ
-        if (
-            "H" in channels
-            and "E" in channels
-            and "Z" in channels
-            and np.all(
-                [
-                    super(AdjustedAlgorithm, self).can_produce_data(
-                        starttime, endtime, stream.select(channel=chan)
-                    )
-                    for chan in ("H", "E", "Z")
-                ]
-            )
+        # check validity of remaining channels
+        if np.all(
+            [
+                super().can_produce_data(starttime, endtime, stream.select(channel=c))
+                for c in channels
+                if c != "F"
+            ]
         ):
             return True
 
-        # return false if cannot produce adjustded F or XYZ
+        # return false if F or remaining channels cannot produce data
         return False
 
     @classmethod
