@@ -514,7 +514,7 @@ def pad_and_trim_trace(trace, starttime, endtime):
             trace.stats.starttime = trace_starttime
     elif trace_starttime > starttime:
         # pad to starttime
-        cnt = round((trace_starttime - starttime) / trace_delta)
+        cnt = int(round((trace_starttime - starttime) / trace_delta, 6))
         if cnt > 0:
             trace.data = numpy.concatenate(
                 [numpy.full(cnt, numpy.nan, dtype=numpy.float64), trace.data]
@@ -528,7 +528,7 @@ def pad_and_trim_trace(trace, starttime, endtime):
         trace.stats.npts = len(trace.data)
     elif trace_endtime < endtime:
         # pad to endtime
-        cnt = round((endtime - trace_endtime) / trace.stats.delta)
+        cnt = int(round((endtime - trace_endtime) / trace.stats.delta, 6))
         if cnt > 0:
             trace.data = numpy.concatenate(
                 [trace.data, numpy.full(cnt, numpy.nan, dtype=numpy.float64)]
