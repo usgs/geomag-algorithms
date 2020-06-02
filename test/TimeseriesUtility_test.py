@@ -425,6 +425,36 @@ def test_pad_and_trim_trace():
     assert_array_equal(trace.data, [numpy.nan, 1, 2, 3, numpy.nan])
 
 
+def test_pad_and_trim_trace_fixfloat():
+    """TimeseriesUtility_test.test_pad_and_trim_trace_fixfloat()
+    This tests whether pad_and_trim_trace() handles a known
+    floating point precision trouble-maker encountered with
+    UTCDateTimes correctly.
+    """
+    trace = _create_trace(
+        numpy.linspace(1, 56, 56), "X", UTCDateTime("2020-05-28T15:53:50.7"), delta=0.1
+    )
+    assert_equal(trace.stats.starttime, UTCDateTime("2020-05-28T15:53:50.7"))
+    assert_equal(trace.stats.endtime, UTCDateTime("2020-05-28T15:53:56.2"))
+    # This should create a 70 sample trace of 10 Hz data, inclusive of the
+    # known startime and endtime. Early versions of pad_and_trim_trace() did
+    # not handle this scenario correctly, returning 68 samples, and missing
+    # both the 1st and last of the expected samples.
+    TimeseriesUtility.pad_and_trim_trace(
+        trace,
+        starttime=UTCDateTime("2020-05-28T15:53:50.0"),
+        endtime=UTCDateTime("2020-05-28T15:53:56.9"),
+    )
+    assert_equal(trace.stats.starttime, UTCDateTime("2020-05-28T15:53:50.0"))
+    assert_equal(trace.stats.endtime, UTCDateTime("2020-05-28T15:53:56.9"))
+    assert_array_equal(
+        trace.data,
+        numpy.concatenate(
+            ([numpy.nan] * 7, numpy.linspace(1, 56, 56), [numpy.nan] * 7)
+        ),
+    )
+
+
 def _create_trace(data, channel, starttime, delta=60.0):
     stats = Stats()
     stats.channel = channel
