@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import sys
 from os import path
 import os
@@ -16,58 +18,75 @@ from geomagio.residual import WebAbsolutesFactory, CalFileFactory
 from geomagio.edge import EdgeFactory
 from geomagio.pcdcp import PCDCPWriter
 
-FILENAME_FORMAT = "./{OBSERVATORY}{YEAR}{MONTH}"
+PCDCP_FILENAME_FORMAT = "{OBSERVATORY}{YEAR}{YEARDAY}"
+CAL_FILENAME_FORMAT = "{OBSERVATORY}{YEAR}PCD.cal"
 
 if len(sys.argv) != 4:
     cmd = sys.argv[0]
-    print("Usage:  {} OBSERVATORY YEAR MONTH".format(cmd), file=sys.stderr)
+    print("Usage:  {} OBSERVATORY YEAR YEARDAY".format(cmd), file=sys.stderr)
     print(
-        "Example:  {} HON 2019 11".format(cmd), file=sys.stderr,
+        "Example:  {} HON 2019 325".format(cmd), file=sys.stderr,
     )
     sys.exit(1)
 
 OBSERVATORY = sys.argv[1]
-YEAR = sys.argv[2]
-MONTH = sys.argv[3]
+YEAR = int(sys.argv[2])
+YEARDAY = int(sys.argv[3])
 
-starttime = UTCDateTime("{}-{}-01T00:00:00".format(YEAR, MONTH))
-end_month = starttime.month + 1
-if end_month == 13:
-    end_month = "01"
-    YEAR += 1
-endtime = UTCDateTime("{}-{}-01T00:00:00".format(YEAR, end_month))
-
-filename = FILENAME_FORMAT.format(
-    OBSERVATORY=OBSERVATORY, YEAR=starttime.year, MONTH=starttime.month
+pcdcp_starttime = datetime(YEAR, 1, 1) + relativedelta(days=+YEARDAY - 1)
+pcdcp_endtime = pcdcp_starttime + relativedelta(days=+1)
+cal_starttime = pcdcp_starttime + relativedelta(months=-1)
+cal_endtime = pcdcp_starttime + relativedelta(months=+2)
+pcdcp_starttime = UTCDateTime(
+    "{}-{}-{}T00:00:00".format(
+        pcdcp_starttime.year, pcdcp_starttime.month, pcdcp_starttime.day
+    )
+)
+pcdcp_endtime = UTCDateTime(
+    "{}-{}-{}T00:00:00".format(
+        pcdcp_endtime.year, pcdcp_endtime.month, pcdcp_endtime.day
+    )
+)
+cal_starttime = UTCDateTime(
+    "{}-{}-{}T00:00:00".format(
+        cal_starttime.year, cal_starttime.month, cal_starttime.day
+    )
+)
+cal_endtime = UTCDateTime(
+    "{}-{}-{}T00:00:00".format(cal_endtime.year, cal_endtime.month, cal_endtime.day)
 )
 
+
+filename = CAL_FILENAME_FORMAT.format(OBSERVATORY=OBSERVATORY, YEAR=cal_starttime.year)
+cal_file_path = ":C\\Calibrat\\{}\\".format(OBSERVATORY)
 readings = WebAbsolutesFactory().get_readings(
     observatory=OBSERVATORY,
-    starttime=starttime,
-    endtime=endtime,
+    starttime=cal_starttime,
+    endtime=cal_endtime,
     include_measurements=True,
 )
 
 calfile = CalFileFactory().format_readings(readings=readings)
 
 print("Writing cal file to {}".format(filename), file=sys.stderr)
-with open(filename + "WebAbsMaster.cal", "wb", -1) as f:
+with open(cal_file_path + filename, "wb", -1) as f:
     f.write(calfile.encode())
 
 pcdcp_channels = ["H", "E", "Z", "F"]
 
+
 e = EdgeFactory()
 ts_second = e.get_timeseries(
-    starttime=starttime,
-    endtime=endtime,
+    starttime=pcdcp_starttime,
+    endtime=pcdcp_endtime,
     observatory=OBSERVATORY,
     channels=pcdcp_channels,
     type="variation",
     interval="second",
 )
 ts_minute = e.get_timeseries(
-    starttime=starttime,
-    endtime=endtime,
+    starttime=pcdcp_starttime,
+    endtime=pcdcp_endtime,
     observatory=OBSERVATORY,
     channels=pcdcp_channels,
     type="variation",
@@ -75,11 +94,25 @@ ts_minute = e.get_timeseries(
 )
 
 pcdcp_w = PCDCPWriter()
-print("Writing raw file to {}".format(filename), file=sys.stderr)
-sec_file = open(filename + ".raw", "wb")
-pcdcp_w.write(sec_file, ts_second, pcdcp_channels)
-sec_file.close()
-print("Writing min file to {}".format(filename), file=sys.stderr)
-min_file = open(filename + ".min", "wb")
+raw_file_path = ":C\\RAW\\{}\\".format(OBSERVATORY)
+raw_filename = (
+    PCDCP_FILENAME_FORMAT.format(
+        OBSERVATORY=OBSERVATORY, YEAR=pcdcp_starttime.year, YEARDAY=YEARDAY
+    )
+    + ".raw"
+)
+min_file_path = ":C\\USGSDCP\\{}\\".format(OBSERVATORY)
+min_filename = (
+    PCDCP_FILENAME_FORMAT.format(
+        OBSERVATORY=OBSERVATORY, YEAR=pcdcp_starttime.year, YEARDAY=YEARDAY
+    )
+    + ".min"
+)
+print("Writing raw file to {}".format(raw_filename), file=sys.stderr)
+raw_file = open(raw_file_path + raw_filename, "wb")
+pcdcp_w.write(raw_file, ts_second, pcdcp_channels)
+raw_file.close()
+print("Writing min file to {}".format(min_filename), file=sys.stderr)
+min_file = open(min_file_path + min_filename, "wb")
 pcdcp_w.write(min_file, ts_minute, pcdcp_channels)
 min_file.close()
