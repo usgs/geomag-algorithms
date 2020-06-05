@@ -20,7 +20,8 @@ def test_prepfiles_raw():
     result_f_data = pcdcp.data["F"]
     result_times = pcdcp.times
 
-    assert_almost_equal(result_h_dat], h_data, decimal=3)
+    assert_almost_equal(result_h_data, h_data, decimal=3)
     assert_almost_equal(result_e_data, e_data, decimal=3)
-    assert_almost_equal(result_z_data], z_data, decimal=3)
+    assert_almost_equal(result_z_data, z_data, decimal=3)
     assert_almost_equal(result_f_data, f_data, decimal=3)
+    assert_almost_equal(result_times, times, decimal=0)
