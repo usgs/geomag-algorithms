@@ -26,8 +26,8 @@ def test_prepfiles_raw():
     assert_almost_equal(result_f_data[0:-1], f_data, decimal=3)
 
 
-def test_prepfiles_raw():
-    # gather raw example file from magproc
+def test_prepfiles_min():
+    # gather min example file from magproc
     pcdcp = PCDCPParser()
     pcdcp.parse(open("etc/prepfiles/CMO2020061.min").read())
     h_data = pcdcp.data["H"]
