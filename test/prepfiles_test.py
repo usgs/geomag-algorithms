@@ -13,7 +13,7 @@ def test_prepfiles_raw():
     f_data = pcdcp.data["F"]
     times = pcdcp.times
 
-    pcdcp.parse(open("etc/prepfiles/CMO202061_cmd.raw").read())
+    pcdcp.parse(open("etc/prepfiles/CMO202061_prep.raw").read())
     result_h_data = pcdcp.data["H"]
     result_e_data = pcdcp.data["E"]
     result_z_data = pcdcp.data["Z"]
@@ -36,7 +36,7 @@ def test_prepfiles_min():
     f_data = pcdcp.data["F"]
     times = pcdcp.times
 
-    pcdcp.parse(open("etc/prepfiles/CMO202061_cmd.min").read())
+    pcdcp.parse(open("etc/prepfiles/CMO202061_prep.min").read())
     result_h_data = pcdcp.data["H"]
     result_e_data = pcdcp.data["E"]
     result_z_data = pcdcp.data["Z"]
