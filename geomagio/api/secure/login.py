@@ -115,8 +115,10 @@ router = APIRouter()
 async def authorize(request: Request):
     """Authorize callback after authenticating using OpenID
     """
+
     # finish login
     token = await oauth.openid.authorize_access_token(request)
+
     request.session["token"] = token
     # add user to session
     userinfo = await oauth.openid.userinfo(token=token)

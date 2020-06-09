@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   web:
     image: usgs/geomag-algorithms:latest
@@ -8,5 +8,5 @@ services:
       - GEOMAG_WEBSERVICE_PORT=8000
       - GEOMAG_VERSION=0.3.1
     ports:
-      - "8000:8000"
+      - '8000:8000'
     entrypoint: /geomag-algorithms/bin/geomag_webservice.py

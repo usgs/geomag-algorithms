@@ -1,15 +1,19 @@
 ARG FROM_IMAGE=usgs/centos:8
 
-FROM $FROM_IMAGE
+FROM ${FROM_IMAGE}
 LABEL maintainer="Jeremy Fee <jmfee@usgs.gov>"
-
 
 # install conda
 ENV PATH /conda/bin:$PATH
+ENV LC_ALL='en_US.UTF-8'
+ENV LANG='en_US.UTF-8'
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 RUN echo 'export PATH=/conda/bin:$PATH' > /etc/profile.d/conda.sh \
     && curl \
-        https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-        -o ~/miniconda.sh \
+    https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+    -o ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p /conda \
     && rm ~/miniconda.sh
 
@@ -19,31 +23,29 @@ RUN conda config --set ssl_verify $SSL_CERT_FILE \
     && conda install --yes jupyter obspy pycurl \
     && conda clean --all -y \
     && export PIP_CERT=$SSL_CERT_FILE \
-    && pip install \
-        authlib \
-        flask \
-        flask-login \
-        flask-migrate \
-        flask-session \
-        flask-sqlalchemy \
-        psycopg2-binary
+    && pip install pipenv
 
-
-# copy library (ignores set in .dockerignore)
-COPY . /geomag-algorithms
-
+RUN yum install -y which && yum clean all
 
 RUN useradd \
-        -c 'Docker image user' \
-        -m \
-        -r \
-        -s /sbin/nologin \
-         geomag_user \
+    -c 'Docker image user' \
+    -m \
+    -r \
+    -s /sbin/nologin \
+    geomag_user \
     && mkdir -p /data \
     && chown -R geomag_user:geomag_user /data
 
 USER geomag_user
+
+# install dependencies via pipenv
 WORKDIR /data
+COPY Pipfile Pipfile.lock /data/
+RUN pipenv install  --site-packages
+
+# copy library (ignores set in .dockerignore)
+COPY . /geomag-algorithms
+
 EXPOSE 8000
 
 # entrypoint needs double quotes
