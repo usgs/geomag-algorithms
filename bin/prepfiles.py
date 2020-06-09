@@ -18,7 +18,6 @@ from geomagio.residual import WebAbsolutesFactory, CalFileFactory
 from geomagio.pcdcp.PCDCPFactory import PCDCPFactory, PCDCP_FILE_PATTERN
 from geomagio.edge.EdgeFactory import EdgeFactory
 
-PCDCP_FILENAME_FORMAT = "{OBSERVATORY}{YEAR}{YEARDAY}"
 CAL_FILENAME_FORMAT = "{OBSERVATORY}{YEAR}PCD.cal"
 
 if len(sys.argv) != 4:
@@ -58,9 +57,6 @@ readings = WebAbsolutesFactory().get_readings(
 )
 
 calfile = CalFileFactory().format_readings(readings=readings)
-
-with open(cal_file_path + filename, "wb") as f:
-    f.write(calfile.encode())
 
 channels = ["H", "E", "Z", "F"]
 
