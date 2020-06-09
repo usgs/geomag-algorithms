@@ -15,8 +15,8 @@ except ImportError:
     sys.path.append(path.normpath(path.join(script_dir, "..")))
 
 from geomagio.residual import WebAbsolutesFactory, CalFileFactory
-from geomagio.edge import EdgeFactory
-from geomagio.pcdcp import PCDCPWriter
+from geomagio.pcdcp.PCDCPFactory import PCDCPFactory, PCDCP_FILE_PATTERN
+from geomagio.edge.EdgeFactory import EdgeFactory
 
 PCDCP_FILENAME_FORMAT = "{OBSERVATORY}{YEAR}{YEARDAY}"
 CAL_FILENAME_FORMAT = "{OBSERVATORY}{YEAR}PCD.cal"
@@ -31,34 +31,25 @@ if len(sys.argv) != 4:
 
 OBSERVATORY = sys.argv[1]
 YEAR = int(sys.argv[2])
-YEARDAY = int(sys.argv[3])
+MONTH = int(sys.argv[3])
 
-pcdcp_starttime = datetime(YEAR, 1, 1) + relativedelta(days=+YEARDAY - 1)
-pcdcp_endtime = pcdcp_starttime + relativedelta(days=+1)
-cal_starttime = pcdcp_starttime + relativedelta(months=-1)
-cal_endtime = pcdcp_starttime + relativedelta(months=+2)
-pcdcp_starttime = UTCDateTime(
-    "{}-{}-{}T00:00:00".format(
-        pcdcp_starttime.year, pcdcp_starttime.month, pcdcp_starttime.day
-    )
-)
-pcdcp_endtime = UTCDateTime(
-    "{}-{}-{}T00:00:00".format(
-        pcdcp_endtime.year, pcdcp_endtime.month, pcdcp_endtime.day
-    )
-)
+starttime = datetime(YEAR, MONTH, 1)
+endtime = starttime + relativedelta(months=+1)
+cal_starttime = starttime + relativedelta(months=-1)
+cal_endtime = endtime + relativedelta(months=+2)
+
+starttime = UTCDateTime(year=starttime.year, month=starttime.month, day=starttime.day)
+endtime = UTCDateTime(year=endtime.year, month=endtime.month, day=endtime.day)
 cal_starttime = UTCDateTime(
-    "{}-{}-{}T00:00:00".format(
-        cal_starttime.year, cal_starttime.month, cal_starttime.day
-    )
+    year=cal_starttime.year, month=cal_starttime.month, day=cal_starttime.day
 )
 cal_endtime = UTCDateTime(
-    "{}-{}-{}T00:00:00".format(cal_endtime.year, cal_endtime.month, cal_endtime.day)
+    year=cal_endtime.year, month=cal_endtime.month, day=cal_endtime.day
 )
 
 
 filename = CAL_FILENAME_FORMAT.format(OBSERVATORY=OBSERVATORY, YEAR=cal_starttime.year)
-cal_file_path = ":C\\Calibrat\\{}\\".format(OBSERVATORY)
+cal_file_path = "file://c:/Calibrat/{}/".format(OBSERVATORY)
 readings = WebAbsolutesFactory().get_readings(
     observatory=OBSERVATORY,
     starttime=cal_starttime,
@@ -68,51 +59,65 @@ readings = WebAbsolutesFactory().get_readings(
 
 calfile = CalFileFactory().format_readings(readings=readings)
 
-print("Writing cal file to {}".format(filename), file=sys.stderr)
-with open(cal_file_path + filename, "wb", -1) as f:
+with open(cal_file_path + filename, "wb") as f:
     f.write(calfile.encode())
 
-pcdcp_channels = ["H", "E", "Z", "F"]
+channels = ["H", "E", "Z", "F"]
 
-
-e = EdgeFactory()
-ts_second = e.get_timeseries(
-    starttime=pcdcp_starttime,
-    endtime=pcdcp_endtime,
+edge_factory = EdgeFactory()
+raw_timeseries = edge_factory.get_timeseries(
     observatory=OBSERVATORY,
-    channels=pcdcp_channels,
+    starttime=starttime,
+    endtime=endtime,
+    channels=channels,
+    interval="second",
+    type="variation",
+)
+
+min_timeseries = edge_factory.get_timeseries(
+    observatory=OBSERVATORY,
+    starttime=starttime,
+    endtime=endtime,
+    channels=channels,
+    interval="minute",
+    type="variation",
+)
+
+RAW_TEMPLATE = "file://c:/RAW/%(OBS)s/" + PCDCP_FILE_PATTERN
+MIN_TEMPLATE = "file://c:/USGSDCP/%(OBS)s/" + PCDCP_FILE_PATTERN
+
+raw_factory = PCDCPFactory(
+    observatory=OBSERVATORY,
+    channels=channels,
     type="variation",
     interval="second",
-)
-ts_minute = e.get_timeseries(
-    starttime=pcdcp_starttime,
-    endtime=pcdcp_endtime,
-    observatory=OBSERVATORY,
-    channels=pcdcp_channels,
-    type="variation",
-    interval="minute",
+    urlInterval=86400,
+    urlTemplate=f"file://{RAW_TEMPLATE}",
 )
 
-pcdcp_w = PCDCPWriter()
-raw_file_path = ":C\\RAW\\{}\\".format(OBSERVATORY)
-raw_filename = (
-    PCDCP_FILENAME_FORMAT.format(
-        OBSERVATORY=OBSERVATORY, YEAR=pcdcp_starttime.year, YEARDAY=YEARDAY
-    )
-    + ".raw"
+raw_factory.put_timeseries(
+    timeseries=raw_timeseries,
+    starttime=starttime,
+    endtime=endtime,
+    interval="second",
+    type="variation",
+    channels=channels,
 )
-min_file_path = ":C\\USGSDCP\\{}\\".format(OBSERVATORY)
-min_filename = (
-    PCDCP_FILENAME_FORMAT.format(
-        OBSERVATORY=OBSERVATORY, YEAR=pcdcp_starttime.year, YEARDAY=YEARDAY
-    )
-    + ".min"
+
+min_factory = PCDCPFactory(
+    observatory=OBSERVATORY,
+    channels=channels,
+    type="variation",
+    interval="minute",
+    urlInterval=86400,
+    urlTemplate=f"file://{MIN_TEMPLATE}",
 )
-print("Writing raw file to {}".format(raw_filename), file=sys.stderr)
-raw_file = open(raw_file_path + raw_filename, "wb")
-pcdcp_w.write(raw_file, ts_second, pcdcp_channels)
-raw_file.close()
-print("Writing min file to {}".format(min_filename), file=sys.stderr)
-min_file = open(min_file_path + min_filename, "wb")
-pcdcp_w.write(min_file, ts_minute, pcdcp_channels)
-min_file.close()
+
+min_factory.put_timeseries(
+    timeseries=min_timeseries,
+    starttime=starttime,
+    endtime=endtime,
+    interval="minute",
+    type="variation",
+    channels=channels,
+)
