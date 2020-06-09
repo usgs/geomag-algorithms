@@ -9,7 +9,7 @@ from .PCDCPWriter import PCDCPWriter
 
 
 # pattern for pcdcp file names
-PCDCP_FILE_PATTERN = "%(obs)s%(y)s%(j)s.%(i)s"
+PCDCP_FILE_PATTERN = "%(OBS)s%(year)s%(julian)s.%(i)s"
 # note: seconds files end in .raw after 2008, .sec or .Sec on or before
 
 
