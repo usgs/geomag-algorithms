@@ -3,13 +3,14 @@ ARG FROM_IMAGE=usgs/centos:8
 FROM ${FROM_IMAGE}
 LABEL maintainer="Jeremy Fee <jmfee@usgs.gov>"
 
-# install conda
+# set environment variables
 ENV PATH /conda/bin:$PATH
 ENV LC_ALL='en_US.UTF-8'
 ENV LANG='en_US.UTF-8'
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# install conda
 RUN echo 'export PATH=/conda/bin:$PATH' > /etc/profile.d/conda.sh \
     && curl \
     https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
