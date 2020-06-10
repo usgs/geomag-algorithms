@@ -15,6 +15,6 @@ if [ $WEBSERVICE = 'false' ]; then
         --port=8000
 
 else
-# run gunicorn server for web service
+    # run gunicorn server for web service
     exec pipenv run gunicorn --bind 0.0.0.0:8000 -w 4 -k uvicorn.workers.UvicornWorker geomagio.api.app:app
 fi
