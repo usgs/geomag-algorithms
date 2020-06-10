@@ -188,13 +188,14 @@ class FilterAlgorithm(Algorithm):
 
         out = Stream()
         for trace in stream:
-            filtered = self.firfilter(trace.data, window, decimation)
             stats = Stats(trace.stats)
-            stats.starttime = stats.starttime + input_sample_period * (numtaps // 2)
-            if stats.starttime.timestamp % output_sample_period != 0:
+            filtered_starttime = stats.starttime + input_sample_period * (numtaps // 2)
+            if filtered_starttime.timestamp % output_sample_period != 0:
                 raise ValueError(
                     "Invalid starttime. Filter is not centered in timeseries."
                 )
+            filtered = self.firfilter(trace.data, window, decimation)
+            stats.starttime = filtered_starttime
             stats.delta = output_sample_period
             stats.npts = len(filtered)
             trace_out = self.create_trace(stats.channel, stats, filtered)
