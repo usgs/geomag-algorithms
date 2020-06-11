@@ -87,6 +87,24 @@ class PCDCPFactory(TimeseriesFactory):
 
         return stream
 
+    def _get_interval_abbreviation(self, interval):
+        """Get abbreviation for a data interval.
+
+        Used by ``TimeseriesFactory._get_url`` to replace ``%(i)s`` in urlTemplate if interval is not seconds.
+        Returns "raw" if interval is seconds.
+
+        Parameters
+        ----------
+        interval : {'minute', 'second'}
+
+        Returns
+        -------
+        abbreviation for ``interval``.
+        """
+        if interval == "second":
+            return "raw"
+        return super()._get_interval_abbreviation(interval)
+
     def write_file(self, fh, timeseries, channels):
         """writes timeseries data to the given file object.
 
