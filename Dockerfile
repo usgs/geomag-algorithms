@@ -4,11 +4,11 @@ FROM ${FROM_IMAGE}
 LABEL maintainer="Jeremy Fee <jmfee@usgs.gov>"
 
 # set environment variables
-ENV PATH /conda/bin:$PATH
-ENV LC_ALL='en_US.UTF-8'
-ENV LANG='en_US.UTF-8'
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PATH /conda/bin:$PATH \
+    LC_ALL='en_US.UTF-8' \
+    LANG='en_US.UTF-8' \
+    PYTHONDONTWRITEBYTECODE 1 \
+    PYTHONUNBUFFERED 1
 
 # install conda
 RUN echo 'export PATH=/conda/bin:$PATH' > /etc/profile.d/conda.sh \
@@ -24,9 +24,8 @@ RUN conda config --set ssl_verify $SSL_CERT_FILE \
     && conda install --yes jupyter obspy pycurl \
     && conda clean --all -y \
     && export PIP_CERT=$SSL_CERT_FILE \
-    && pip install pipenv
-
-RUN yum install -y which && yum clean all
+    && pip install pipenv \
+    && yum install -y which && yum clean all
 
 RUN useradd \
     -c 'Docker image user' \
