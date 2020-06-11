@@ -1,10 +1,9 @@
-from __future__ import absolute_import
+from os import path
+import os
+import sys
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import sys
-from os import path
-import os
 from obspy.core import UTCDateTime
 
 # ensure geomag is on the path before importing
@@ -14,11 +13,13 @@ except ImportError:
     script_dir = path.dirname(path.abspath(__file__))
     sys.path.append(path.normpath(path.join(script_dir, "..")))
 
-from geomagio.residual import WebAbsolutesFactory, CalFileFactory
-from geomagio.pcdcp.PCDCPFactory import PCDCPFactory, PCDCP_FILE_PATTERN
 from geomagio.edge.EdgeFactory import EdgeFactory
+from geomagio.pcdcp import PCDCPFactory, PCDCP_FILE_PATTERN
+from geomagio.residual import WebAbsolutesFactory, CalFileFactory
 
 CAL_FILENAME_FORMAT = "{OBSERVATORY}{YEAR}PCD.cal"
+MIN_TEMPLATE = "file://c:/USGSDCP/%(OBS)s/" + PCDCP_FILE_PATTERN
+RAW_TEMPLATE = "file://c:/RAW/%(OBS)s/" + PCDCP_FILE_PATTERN
 
 if len(sys.argv) != 4:
     cmd = sys.argv[0]
@@ -78,9 +79,6 @@ min_timeseries = edge_factory.get_timeseries(
     interval="minute",
     type="variation",
 )
-
-RAW_TEMPLATE = "file://c:/RAW/%(OBS)s/" + PCDCP_FILE_PATTERN
-MIN_TEMPLATE = "file://c:/USGSDCP/%(OBS)s/" + PCDCP_FILE_PATTERN
 
 raw_factory = PCDCPFactory(
     observatory=OBSERVATORY,
