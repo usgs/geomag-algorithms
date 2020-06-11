@@ -21,4 +21,7 @@ setuptools.setup(
     scripts=["bin/geomag.py", "bin/geomag_webservice.py", "bin/make_cal.py"],
     setup_requires=["setuptools-pipfile",],
     use_pipfile=True,
+    entry_points={
+        "console_scripts": ["magproc-prepfiles=geomagio.processing.magproc:main"],
+    },
 )
