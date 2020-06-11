@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from .Algorithm import Algorithm
 import numpy as np
 import scipy.signal as sps
+import sys
 from numpy.lib import stride_tricks as npls
 from obspy.core import Stream, Stats
 import json
@@ -189,13 +190,31 @@ class FilterAlgorithm(Algorithm):
         out = Stream()
         for trace in stream:
             stats = Stats(trace.stats)
-            filtered_starttime = stats.starttime + input_sample_period * (numtaps // 2)
-            if filtered_starttime.timestamp % output_sample_period != 0:
-                raise ValueError(
-                    "Invalid starttime. Filter is not centered in timeseries."
+            # first output timestamp is in the center of the filter window
+            filter_time_shift = input_sample_period * (numtaps // 2)
+            # data to filter
+            data = trace.data
+            starttime = trace.stats.starttime + filter_time_shift
+            # align with the output period
+            misalignment = starttime.timestamp % output_sample_period
+            if misalignment != 0:
+                # skip incomplete input
+                starttime = (starttime - misalignment) + output_sample_period
+                input_starttime = starttime - filter_time_shift
+                offset = int(
+                    1e-6
+                    + (input_starttime - trace.stats.starttime) / input_sample_period
                 )
-            filtered = self.firfilter(trace.data, window, decimation)
-            stats.starttime = filtered_starttime
+                print(
+                    f"Input misaligned {misalignment}s, skipping {offset} input samples",
+                    file=sys.stderr,
+                )
+                data = data[offset:]
+                # check there is still enough data for filter
+                if len(data) < numtaps:
+                    continue
+            filtered = self.firfilter(data, window, decimation)
+            stats.starttime = starttime
             stats.delta = output_sample_period
             stats.npts = len(filtered)
             trace_out = self.create_trace(stats.channel, stats, filtered)
