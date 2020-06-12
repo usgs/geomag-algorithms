@@ -175,27 +175,51 @@ def test_custom():
 
 def test_starttime_shift():
     """algorithm_test.FilterAlgorithm_test.test_starttime_shift()
-    Tests algorithm for second to minute with misalligned starttime(1 second).
+    Tests algorithm for second to minute with misalligned starttime(16 seconds).
     """
     f = FilterAlgorithm(input_sample_period=1.0, output_sample_period=60.0,)
+    # generation of BOU20200101vsec.sec
+    # starttime = UTCDateTime('2020-01-01T00:00:00Z')
+    # endtime = UTCDateTime('2020-01-01T00:15:00Z')
+    # starttime,endtime = f.get_input_interval(starttime,endtime)
+    # bou = e.get_timeseries(observatory='BOU',interval='second',type='variation',starttime=starttime,endtime=endtime,channels=["H","E","Z","F"])
+    # with open('BOU20200101vsec.sec','wb') as file:
+    #     i2w.write(out=file,timeseries=bou,channels=["H","E","Z","F"])
     with open("etc/filter/BOU20200101vsec.sec", "r") as file:
         iaga = i2.StreamIAGA2002Factory(stream=file)
         bou = iaga.get_timeseries(starttime=None, endtime=None, observatory="BOU")
-    filtered = f.process(bou)
-
-    with open("etc/filter/BOU20200101_filtered_vsec.sec", "r") as file:
+    # generation of BOU20200101_misaligned_vsec.sec
+    # starttime = UTCDateTime('2020-01-01T00:00:16')
+    # endtime = UTCDateTime('2020-01-01T00:15:00Z')
+    # starttime,endtime = f.get_input_interval(starttime,endtime)
+    # bou_misaligned = e.get_timeseries(observatory='BOU',interval='second',type='variation',starttime=starttime,endtime=endtime,channels=["H","E","Z","F"])
+    # with open('BOU20200101_misaligned_vsec.sec','wb') as file:
+    #     i2w.write(out=file,timeseries=bou_misaligned,channels=["H","E","Z","F"])
+    with open("etc/filter/BOU20200101_misaligned_vsec.sec", "r") as file:
         iaga = i2.StreamIAGA2002Factory(stream=file)
-        BOU = iaga.get_timeseries(starttime=None, endtime=None, observatory="BOU")
-
+        bou_misaligned = iaga.get_timeseries(
+            starttime=None, endtime=None, observatory="BOU"
+        )
+    bou_filtered = f.process(bou)
+    bou_misaligned_filtered = f.process(bou_misaligned)
+    # verify filtered data is the same after removal of sample from bou_misaligned
     assert_almost_equal(
-        filtered.select(channel="H")[0].data, BOU.select(channel="H")[0].data, 2
+        bou_filtered.select(channel="H")[0].data[1::],
+        bou_misaligned_filtered.select(channel="H")[0].data,
+        2,
     )
     assert_almost_equal(
-        filtered.select(channel="E")[0].data, BOU.select(channel="E")[0].data, 2
+        bou_filtered.select(channel="E")[0].data[1::],
+        bou_misaligned_filtered.select(channel="E")[0].data,
+        2,
     )
     assert_almost_equal(
-        filtered.select(channel="Z")[0].data, BOU.select(channel="Z")[0].data, 2
+        bou_filtered.select(channel="Z")[0].data[1::],
+        bou_misaligned_filtered.select(channel="Z")[0].data,
+        2,
     )
     assert_almost_equal(
-        filtered.select(channel="F")[0].data, BOU.select(channel="F")[0].data, 2
+        bou_filtered.select(channel="F")[0].data[1::],
+        bou_misaligned_filtered.select(channel="F")[0].data,
+        2,
     )
