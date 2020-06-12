@@ -1,3 +1,4 @@
+import os
 from typing import Dict, Union
 
 from fastapi import FastAPI, Request, Response
@@ -19,10 +20,10 @@ ERROR_CODE_MESSAGES = {
     503: "Service Unavailable",
 }
 
-VERSION = "version"
+VERSION = os.getenv("GEOMAG_VERSION", "version")
 
 
-app = FastAPI(docs_url="/docs", openapi_prefix="/ws")
+app = FastAPI(docs_url="/docs", root_path="/ws")
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], max_age=86400)
 

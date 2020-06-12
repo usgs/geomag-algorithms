@@ -11,7 +11,7 @@ from .metadata import router as metadata_router
 from .SessionMiddleware import SessionMiddleware
 
 
-app = FastAPI()
+app = FastAPI(root_path="/ws/secure")
 
 # NOTE: database used for sessions is started by ..app.app,
 # which mounts this application at /ws/secure

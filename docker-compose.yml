@@ -1,13 +1,13 @@
 version: '3'
 services:
   web:
-    image: usgs/geomag-algorithms:latest
+    build: .
     environment:
-      - DATA_HOST=cwbpub.cr.usgs.gov
-      - DATA_PORT=2060
-      - DATA_TYPE=edge
-      - GEOMAG_WEBSERVICE_PORT=8000
-      - GEOMAG_VERSION=0.3.1
+      # - DATA_HOST=cwbpub.cr.usgs.gov
+      # - DATA_PORT=2060
+      # - DATA_TYPE=edge
+      # - GEOMAG_WEBSERVICE_PORT=8000
+      # - GEOMAG_VERSION=0.3.1
       - WEBSERVICE=true
     ports:
       - '8000:8000'
