@@ -28,7 +28,7 @@ def get_data_factory() -> TimeseriesFactory:
     """
     data_type = os.getenv("DATA_TYPE", "edge")
     data_host = os.getenv("DATA_HOST", "cwbpub.cr.usgs.gov")
-    data_port = os.getenv("DATA_PORT", 2060)
+    data_port = int(os.getenv("DATA_PORT", "2060"))
     if data_type == "edge":
         return EdgeFactory(host=data_host, port=data_port)
     else:
