@@ -1,0 +1,33 @@
+ Format                 IAGA-2002                                    |
+ Source of Data         United States Geological Survey (USGS)       |
+ Station Name           Boulder                                      |
+ IAGA CODE              BOU                                          |
+ Geodetic Latitude      40.137                                       |
+ Geodetic Longitude     254.763                                      |
+ Elevation              1682                                         |
+ Reported               HEZF                                         |
+ Sensor Orientation     HDZF                                         |
+ Digital Sampling       0.01 second                                  |
+ Data Interval Type     Average 1-Second                             |
+ Data Type              variation                                    |
+ # DECBAS               5527    (Baseline declination value in       |
+ # tenths of minutes East (0-216,000)).                              |
+ # CONDITIONS OF USE: The Conditions of Use for data provided        |
+ # through INTERMAGNET and acknowledgement templates can be found at |
+ # www.intermagnet.org                                               |
+DATE       TIME         DOY     BOUH      BOUE      BOUZ      BOUF   |
+2020-01-01 00:01:00.000 001     20826.69    -86.61  46874.63  51814.99
+2020-01-01 00:02:00.000 001     20826.63    -86.56  46874.62  51814.96
+2020-01-01 00:03:00.000 001     20826.58    -86.48  46874.60  51814.93
+2020-01-01 00:04:00.000 001     20826.55    -86.44  46874.59  51814.91
+2020-01-01 00:05:00.000 001     20826.55    -86.44  46874.58  51814.90
+2020-01-01 00:06:00.000 001     20826.65    -86.37  46874.52  51814.89
+2020-01-01 00:07:00.000 001     20826.53    -86.29  46874.54  51814.86
+2020-01-01 00:08:00.000 001     20826.41    -86.22  46874.49  51814.78
+2020-01-01 00:09:00.000 001     20826.44    -86.17  46874.47  51814.77
+2020-01-01 00:10:00.000 001     20826.48    -86.11  46874.45  51814.77
+2020-01-01 00:11:00.000 001     20826.27    -86.10  46874.46  51814.70
+2020-01-01 00:12:00.000 001     20826.28    -86.07  46874.42  51814.66
+2020-01-01 00:13:00.000 001     20826.25    -86.02  46874.40  51814.63
+2020-01-01 00:14:00.000 001     20826.33    -86.05  46874.37  51814.64
+2020-01-01 00:15:00.000 001     20826.44    -86.10  46874.36  51814.67

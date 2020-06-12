@@ -171,3 +171,31 @@ def test_custom():
     assert_almost_equal(u_filt.data, u.data, 2)
     assert_almost_equal(v_filt.data, v.data, 2)
     assert_almost_equal(w_filt.data, w.data, 2)
+
+
+def test_starttime_shift():
+    """algorithm_test.FilterAlgorithm_test.test_starttime_shift()
+    Tests algorithm for second to minute with misalligned starttime(1 second).
+    """
+    f = FilterAlgorithm(input_sample_period=1.0, output_sample_period=60.0,)
+    with open("etc/filter/BOU20200101vsec.sec", "r") as file:
+        iaga = i2.StreamIAGA2002Factory(stream=file)
+        bou = iaga.get_timeseries(starttime=None, endtime=None, observatory="BOU")
+    filtered = f.process(bou)
+
+    with open("etc/filter/BOU20200101_filtered_vsec.sec", "r") as file:
+        iaga = i2.StreamIAGA2002Factory(stream=file)
+        BOU = iaga.get_timeseries(starttime=None, endtime=None, observatory="BOU")
+
+    assert_almost_equal(
+        filtered.select(channel="H")[0].data, BOU.select(channel="H")[0].data, 2
+    )
+    assert_almost_equal(
+        filtered.select(channel="E")[0].data, BOU.select(channel="E")[0].data, 2
+    )
+    assert_almost_equal(
+        filtered.select(channel="Z")[0].data, BOU.select(channel="Z")[0].data, 2
+    )
+    assert_almost_equal(
+        filtered.select(channel="F")[0].data, BOU.select(channel="F")[0].data, 2
+    )
