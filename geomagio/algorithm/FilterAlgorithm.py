@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from .Algorithm import Algorithm
 import numpy as np
 import scipy.signal as sps
-from scipy.interpolate import interp1d
 import sys
 from numpy.lib import stride_tricks as npls
 from obspy.core import Stream, Stats
