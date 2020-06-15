@@ -44,11 +44,8 @@ def write_cal_file(
         endtime=endtime,
         include_measurements=True,
     )
-
-    calfile = CalFileFactory().format_readings(readings=readings)
-
-    with open(base_directory + filename, "wb") as f:
-        f.write(calfile)
+    # write cal file to specified path
+    CalFileFactory().write_file(path=base_directory + filename, readings=readings)
 
 
 def write_raw_file(starttime, endtime, observatory, base_directory="file://c:/RAW/"):

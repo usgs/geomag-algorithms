@@ -48,6 +48,12 @@ class CalFileFactory(object):
         out.write("\n")
         return out.getvalue()
 
+    def write_file(self, path: str, readings: List[Reading]):
+        # generate string holding cal file's contents
+        cal_str = self.format_readings(readings)
+        with open(path, "wb") as f:
+            f.write(cal_str)
+
 
 """
 CAL format example:
