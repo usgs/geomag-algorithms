@@ -12,7 +12,7 @@ from .PCDCPWriter import PCDCPWriter
 __all__ = [
     "PCDCPFactory",
     "PCDCP_FILE_PATTERN",
-    "StreamPCDCPFactory",
     "PCDCPParser",
     "PCDCPWriter",
+    "StreamPCDCPFactory",
 ]
