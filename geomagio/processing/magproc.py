@@ -4,15 +4,16 @@ import sys
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from obspy.core import UTCDateTime
+from obspy.core import UTCDateTime, Stream
 import typer
 
+from ..algorithm.FilterAlgorithm import FilterAlgorithm
 from ..edge.EdgeFactory import EdgeFactory
 from ..pcdcp import PCDCPFactory, PCDCP_FILE_PATTERN
 from ..residual import WebAbsolutesFactory, CalFileFactory
 
 CAL_FILENAME_FORMAT = "{OBSERVATORY}/{OBSERVATORY}{YEAR}PCD.cal"
-MIN_TEMPLATE = "file://c:/USGSDCP/%(OBS)s/" + PCDCP_FILE_PATTERN
+MIN_TEMPLATE = "%(OBS)s/" + PCDCP_FILE_PATTERN
 RAW_TEMPLATE = "%(OBS)s/" + PCDCP_FILE_PATTERN
 
 
@@ -21,14 +22,47 @@ def main():
 
 
 def prepfiles(observatory: str, year: int, month: int):
-    starttime = datetime(year, month, 1)
-    endtime = starttime + relativedelta(months=+1)
+    month_start = datetime(year, month, 1)
+    month_end = month_start + relativedelta(months=1)
 
-    write_cal_file(starttime, endtime, observatory)
+    write_cal_file(
+        starttime=UTCDateTime(month_start - relativedelta(months=1)),
+        endtime=UTCDateTime(month_end + relativedelta(months=1)),
+        observatory=observatory,
+    )
+
+    timeseries_min, timeseries_sec = gather_data(
+        starttime=UTCDateTime(month_start),
+        endtime=UTCDateTime(month_end),
+        observatory=observatory,
+    )
+
+    write_pcdcp_file(
+        starttime=UTCDateTime(month_start),
+        endtime=UTCDateTime(month_end),
+        timeseries=timeseries_sec,
+        observatory=observatory,
+        interval="second",
+        base_directory="file://c:/RAW/",
+        template=RAW_TEMPLATE,
+    )
+
+    write_pcdcp_file(
+        starttime=UTCDateTime(month_start),
+        endtime=UTCDateTime(month_end),
+        timeseries=timeseries_min,
+        observatory=observatory,
+        interval="minute",
+        base_directory="file://c:/USGSDCP/",
+        template=MIN_TEMPLATE,
+    )
 
 
 def write_cal_file(
-    starttime, endtime, observatory, base_directory="file://c:/Calibrat/"
+    starttime: UTCDateTime,
+    endtime: UTCDateTime,
+    observatory: str,
+    base_directory: str = "file://c:/Calibrat/",
 ):
     filename = CAL_FILENAME_FORMAT.format(OBSERVATORY=observatory, YEAR=starttime.year)
     starttime = starttime + relativedelta(months=-1)
@@ -48,74 +82,41 @@ def write_cal_file(
     CalFileFactory().write_file(path=base_directory + filename, readings=readings)
 
 
-def write_raw_file(starttime, endtime, observatory, base_directory="file://c:/RAW/"):
-    starttime = UTCDateTime(
-        year=starttime.year, month=starttime.month, day=starttime.day
-    )
-    endtime = UTCDateTime(year=endtime.year, month=endtime.month, day=endtime.day)
-
-    channels = ["H", "E", "Z", "F"]
-
-    edge_factory = EdgeFactory()
-    raw_timeseries = edge_factory.get_timeseries(
+def gather_data(starttime: UTCDateTime, endtime: UTCDateTime, observatory: str):
+    f = FilterAlgorithm(input_sample_period=1.0, output_sample_period=60.0)
+    f_starttime, f_endtime = f.get_input_interval(starttime, endtime)
+    e = EdgeFactory()
+    timeseries_sec = e.get_timeseries(
+        starttime=f_starttime,
+        endtime=f_endtime,
         observatory=observatory,
-        starttime=starttime,
-        endtime=endtime,
-        channels=channels,
-        interval="second",
+        channels=["H", "E", "Z", "F"],
         type="variation",
+        interval="second",
+    )
+    return (
+        f.process(timeseries_sec),
+        timeseries_sec.trim(starttime=starttime, endtime=endtime),
     )
 
+
+def write_pcdcp_file(
+    starttime: UTCDateTime,
+    endtime: UTCDateTime,
+    timeseries: Stream,
+    observatory: str,
+    interval: str,
+    base_directory: str,
+    template: str = PCDCP_FILE_PATTERN,
+):
     raw_factory = PCDCPFactory(
-        observatory=observatory,
-        channels=channels,
-        type="variation",
-        interval="second",
-        urlInterval=86400,
-        urlTemplate=base_directory + f"{RAW_TEMPLATE}",
+        urlInterval=86400, urlTemplate=base_directory + f"{template}",
     )
 
     raw_factory.put_timeseries(
-        timeseries=raw_timeseries,
+        timeseries=timeseries,
         starttime=starttime,
         endtime=endtime,
-        interval="second",
+        interval=interval,
         type="variation",
-        channels=channels,
-    )
-
-
-def write_min_file(starttime, endtime, observatory, base_directory="file://c:/MIN/"):
-    starttime = UTCDateTime(
-        year=starttime.year, month=starttime.month, day=starttime.day
-    )
-    endtime = UTCDateTime(year=endtime.year, month=endtime.month, day=endtime.day)
-
-    channels = ["H", "E", "Z", "F"]
-
-    min_timeseries = EdgeFactory().get_timeseries(
-        observatory=observatory,
-        starttime=starttime,
-        endtime=endtime,
-        channels=channels,
-        interval="minute",
-        type="variation",
-    )
-
-    min_factory = PCDCPFactory(
-        observatory=observatory,
-        channels=channels,
-        type="variation",
-        interval="minute",
-        urlInterval=86400,
-        urlTemplate=base_directory + f"{MIN_TEMPLATE}",
-    )
-
-    min_factory.put_timeseries(
-        timeseries=min_timeseries,
-        starttime=starttime,
-        endtime=endtime,
-        interval="minute",
-        type="variation",
-        channels=channels,
     )
