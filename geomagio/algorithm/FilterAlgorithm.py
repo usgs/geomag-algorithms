@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from .Algorithm import Algorithm
 import numpy as np
 import scipy.signal as sps
+from scipy.interpolate import interp1d
 import sys
 from numpy.lib import stride_tricks as npls
 from obspy.core import Stream, Stats
@@ -68,12 +69,22 @@ class FilterAlgorithm(Algorithm):
         if data is None or data == "":
             return
 
+        window = data["window"]
+
+        if len(window) % 2 == 0:
+            half = len(window) // 2
+            fill_val = np.average([window[half], window[half + 1]])
+            window1 = window[:half]
+            window1.append(fill_val)
+            window2 = window[half:]
+            window = window1 + window2
+
         self.steps = [
             {
                 "name": "name" in data and data["name"] or "custom",
                 "input_sample_period": self.input_sample_period,
                 "output_sample_period": self.output_sample_period,
-                "window": data["window"],
+                "window": window,
             }
         ]
 
