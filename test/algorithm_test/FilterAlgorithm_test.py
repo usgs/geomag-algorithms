@@ -188,38 +188,15 @@ def test_starttime_shift():
     with open("etc/filter/BOU20200101vsec.sec", "r") as file:
         iaga = i2.StreamIAGA2002Factory(stream=file)
         bou = iaga.get_timeseries(starttime=None, endtime=None, observatory="BOU")
-    # generation of BOU20200101_misaligned_vsec.sec
-    # starttime = UTCDateTime('2020-01-01T00:00:16')
-    # endtime = UTCDateTime('2020-01-01T00:15:00Z')
-    # starttime,endtime = f.get_input_interval(starttime,endtime)
-    # bou_misaligned = e.get_timeseries(observatory='BOU',interval='second',type='variation',starttime=starttime,endtime=endtime,channels=["H","E","Z","F"])
-    # with open('BOU20200101_misaligned_vsec.sec','wb') as file:
-    #     i2w.write(out=file,timeseries=bou_misaligned,channels=["H","E","Z","F"])
-    with open("etc/filter/BOU20200101_misaligned_vsec.sec", "r") as file:
-        iaga = i2.StreamIAGA2002Factory(stream=file)
-        bou_misaligned = iaga.get_timeseries(
-            starttime=None, endtime=None, observatory="BOU"
-        )
+    # gather starttime and endtime from stream
+    starttime = bou[0].stats.starttime
+    endtime = bou[0].stats.endtime
+    # apply offset of 16 seconds to starttime to generate misaligned stream
+    bou_misaligned = bou.trim(starttime=starttime + 16, endtime=endtime)
+    # process both streams with FilterAlgorithm
     bou_filtered = f.process(bou)
     bou_misaligned_filtered = f.process(bou_misaligned)
-    # verify filtered data is the same after removal of sample from bou_misaligned
-    assert_almost_equal(
-        bou_filtered.select(channel="H")[0].data[1::],
-        bou_misaligned_filtered.select(channel="H")[0].data,
-        2,
-    )
-    assert_almost_equal(
-        bou_filtered.select(channel="E")[0].data[1::],
-        bou_misaligned_filtered.select(channel="E")[0].data,
-        2,
-    )
-    assert_almost_equal(
-        bou_filtered.select(channel="Z")[0].data[1::],
-        bou_misaligned_filtered.select(channel="Z")[0].data,
-        2,
-    )
-    assert_almost_equal(
-        bou_filtered.select(channel="F")[0].data[1::],
-        bou_misaligned_filtered.select(channel="F")[0].data,
-        2,
-    )
+    # compare starttimes and dimensions of data to detect correct offset in output
+    len(bou_filtered[0].data) - len(bou_misaligned_filtered[0].data) == (
+        bou_misaligned_filtered[0].stats.starttime - bou_filtered[0].stats.starttime
+    ) / f.output_sample_period
