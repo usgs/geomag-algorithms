@@ -1,11 +1,14 @@
 from __future__ import absolute_import
-from .Algorithm import Algorithm
-import numpy as np
-import scipy.signal as sps
 import sys
+
+import numpy as np
+import json
 from numpy.lib import stride_tricks as npls
 from obspy.core import Stream, Stats
-import json
+import scipy.signal as sps
+from typing import Dict
+
+from .Algorithm import Algorithm
 from .. import TimeseriesUtility
 
 STEPS = [
@@ -68,16 +71,6 @@ class FilterAlgorithm(Algorithm):
         if data is None or data == "":
             return
 
-        window = data["window"]
-
-        if len(window) % 2 == 0:
-            half = len(window) // 2
-            fill_val = np.average([window[half], window[half + 1]])
-            window1 = window[:half]
-            window1.append(fill_val)
-            window2 = window[half:]
-            window = window1 + window2
-
         self.steps = [
             {
                 "name": "name" in data and data["name"] or "custom",
@@ -86,6 +79,8 @@ class FilterAlgorithm(Algorithm):
                 "window": window,
             }
         ]
+        # ensure correctly aligned coefficients in each step
+        self.steps = [_prepare_step(step) for step in steps]
 
     def save_state(self):
         """Save algorithm state to a file.
@@ -115,6 +110,16 @@ class FilterAlgorithm(Algorithm):
                 if self.output_sample_period >= step["output_sample_period"]:
                     steps.append(step)
         return steps
+
+    def _prepare_step(step) -> Dict:
+        if len(step["window"]) % 2 == 1:
+            return step
+        new_window = numpy.array(window)
+        i = len(window) // 2
+        numpy.insert(new_window, i + 1, numpy.average(window[i : i + 2]))
+        new_step = dict(step)
+        new_step["window"] = new_window
+        return new_step
 
     def can_produce_data(self, starttime, endtime, stream):
         """Can Produce data
@@ -196,12 +201,10 @@ class FilterAlgorithm(Algorithm):
         decimation = int(output_sample_period / input_sample_period)
         numtaps = len(window)
         window = window / sum(window)
-
+        # first output timestamp is in the center of the filter window
+        filter_time_shift = input_sample_period * (numtaps // 2)
         out = Stream()
         for trace in stream:
-            stats = Stats(trace.stats)
-            # first output timestamp is in the center of the filter window
-            filter_time_shift = input_sample_period * (numtaps // 2)
             # data to filter
             data = trace.data
             starttime = trace.stats.starttime + filter_time_shift
@@ -216,14 +219,14 @@ class FilterAlgorithm(Algorithm):
                     + (input_starttime - trace.stats.starttime) / input_sample_period
                 )
                 print(
-                    f"Input misaligned {misalignment}s, skipping {offset} input samples",
-                    file=sys.stderr,
+                    f"Skipping {offset} input samples to align output", file=sys.stderr
                 )
                 data = data[offset:]
                 # check there is still enough data for filter
                 if len(data) < numtaps:
                     continue
             filtered = self.firfilter(data, window, decimation)
+            stats = Stats(trace.stats)
             stats.starttime = starttime
             stats.delta = output_sample_period
             stats.npts = len(filtered)
