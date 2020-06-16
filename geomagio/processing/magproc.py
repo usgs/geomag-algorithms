@@ -1,4 +1,3 @@
-from os import path
 import os
 import sys
 
@@ -65,13 +64,6 @@ def write_cal_file(
     base_directory: str = "file://c:/Calibrat/",
 ):
     filename = CAL_FILENAME_FORMAT.format(OBSERVATORY=observatory, YEAR=starttime.year)
-    starttime = starttime + relativedelta(months=-1)
-    endtime = endtime + relativedelta(months=+2)
-    starttime = UTCDateTime(
-        year=starttime.year, month=starttime.month, day=starttime.day
-    )
-    endtime = UTCDateTime(year=endtime.year, month=endtime.month, day=endtime.day)
-    filename = CAL_FILENAME_FORMAT.format(OBSERVATORY=observatory, YEAR=starttime.year)
     readings = WebAbsolutesFactory().get_readings(
         observatory=observatory,
         starttime=starttime,
@@ -110,10 +102,8 @@ def write_pcdcp_file(
     template: str = PCDCP_FILE_PATTERN,
 ):
     raw_factory = PCDCPFactory(
-        urlInterval=86400, urlTemplate=base_directory + f"{template}",
-    )
-
-    raw_factory.put_timeseries(
+        urlInterval=86400, urlTemplate=base_directory + template,
+    ).put_timeseries(
         timeseries=timeseries,
         starttime=starttime,
         endtime=endtime,
