@@ -76,11 +76,11 @@ class FilterAlgorithm(Algorithm):
                 "name": "name" in data and data["name"] or "custom",
                 "input_sample_period": self.input_sample_period,
                 "output_sample_period": self.output_sample_period,
-                "window": window,
+                "window": data["window"],
             }
         ]
         # ensure correctly aligned coefficients in each step
-        self.steps = [_prepare_step(step) for step in steps]
+        self.steps = [self._prepare_step(step) for step in self.steps]
 
     def save_state(self):
         """Save algorithm state to a file.
@@ -111,12 +111,14 @@ class FilterAlgorithm(Algorithm):
                     steps.append(step)
         return steps
 
-    def _prepare_step(step) -> Dict:
-        if len(step["window"]) % 2 == 1:
+    def _prepare_step(self, step) -> Dict:
+        window = step["window"]
+        if len(window) % 2 == 1:
             return step
-        new_window = numpy.array(window)
+        sys.stderr.write("Even number of taps. Appending center coefficient.")
+        new_window = np.array(window)
         i = len(window) // 2
-        numpy.insert(new_window, i + 1, numpy.average(window[i : i + 2]))
+        np.insert(new_window, i + 1, np.average(window[i : i + 2]))
         new_step = dict(step)
         new_step["window"] = new_window
         return new_step
