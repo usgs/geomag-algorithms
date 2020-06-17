@@ -1,8 +1,9 @@
-from geomagio.algorithm import FilterAlgorithm
-from obspy.core import read
-import geomagio.iaga2002 as i2
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_equal
 import numpy as np
+from obspy import read, UTCDateTime
+
+from geomagio.algorithm import FilterAlgorithm
+import geomagio.iaga2002 as i2
 
 
 def test_second():
@@ -178,7 +179,7 @@ def test_starttime_shift():
     """algorithm_test.FilterAlgorithm_test.test_starttime_shift()
     Tests algorithm for second to minute with misalligned starttime(16 seconds).
     """
-    f = FilterAlgorithm(input_sample_period=1.0, output_sample_period=60.0,)
+    f = FilterAlgorithm(input_sample_period=1.0, output_sample_period=60.0)
     # generation of BOU20200101vsec.sec
     # starttime = UTCDateTime('2020-01-01T00:00:00Z')
     # endtime = UTCDateTime('2020-01-01T00:15:00Z')
@@ -188,22 +189,29 @@ def test_starttime_shift():
     with open("etc/filter/BOU20200101vsec.sec", "r") as file:
         iaga = i2.StreamIAGA2002Factory(stream=file)
         bou = iaga.get_timeseries(starttime=None, endtime=None, observatory="BOU")
-    # gather starttime and endtime from stream
-    starttime = bou[0].stats.starttime
-    endtime = bou[0].stats.endtime
-    bou_expected = f.process(bou)
-    bou_padded = bou.trim(starttime=starttime + 15, endtime=endtime - 45)
-    bou_padded_f = f.process(bou_padded)
-    bou_misaligned = bou_padded.trim(starttime=starttime + 16, endtime=endtime - 16)
-    bou_misaligned_f = f.process(bou_misaligned)
-
-    # check starttime allignment
-    (bou_expected[0].stats.starttime, bou_expected[0].stats.endtime) == (
-        bou_padded_f[0].stats.starttime,
-        bou_padded_f[0].stats.endtime,
+    # check initial assumptions
+    assert_equal(bou[0].stats.starttime, UTCDateTime("2020-01-01T00:00:00Z"))
+    assert_equal(bou[0].stats.endtime, UTCDateTime("2020-01-01T00:15:00Z"))
+    # filter should center on minute
+    filtered = f.process(bou)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-01T00:01:00Z"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-01T00:14:00Z"))
+    # remove unneeded data, and verify filter works with exactly the right data
+    precise = bou.trim(
+        starttime=UTCDateTime("2020-01-01T00:00:15Z"),
+        endtime=UTCDateTime("2020-01-01T00:14:45Z"),
     )
-    # check offset in misaligned trace's output
-    len(bou_expected[0].data) == len(bou_misaligned_f[0]) + 2
+    filtered = f.process(precise)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-01T00:01:00Z"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-01T00:14:00Z"))
+    # remove one extra sample (filter no longer has enough to generate first/last)
+    trimmed = bou.trim(
+        starttime=UTCDateTime("2020-01-01T00:00:16Z"),
+        endtime=UTCDateTime("2020-01-01T00:14:44Z"),
+    )
+    filtered = f.process(trimmed)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-01T00:02:00Z"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-01T00:13:00Z"))
 
 
 def test_even_taps():
