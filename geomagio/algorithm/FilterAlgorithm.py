@@ -1,15 +1,15 @@
-from __future__ import absolute_import
+import json
 import sys
+from typing import Dict
 
 import numpy as np
-import json
 from numpy.lib import stride_tricks as npls
 from obspy.core import Stream, Stats
 import scipy.signal as sps
-from typing import Dict
 
 from .Algorithm import Algorithm
 from .. import TimeseriesUtility
+
 
 STEPS = [
     {  # 10 Hz to one second filter
