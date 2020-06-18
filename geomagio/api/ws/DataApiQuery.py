@@ -66,8 +66,6 @@ class DataApiQuery(BaseModel):
     sampling_period: SamplingPeriod = SamplingPeriod.MINUTE
     data_type: Union[DataType, str] = DataType.VARIATION
     format: OutputFormat = OutputFormat.IAGA2002
-    # extensions
-    dbdt: List[str] = []
 
     @validator("data_type")
     def validate_data_type(
@@ -79,15 +77,6 @@ class DataApiQuery(BaseModel):
                 f" Valid values are: {', '.join(list(DataType))}"
             )
         return data_type
-
-    @validator("dbdt", pre=True, always=True)
-    def validate_dbdt(cls, dbdt: List[str]) -> List[str]:
-        if not dbdt:
-            return []
-        if len(dbdt) == 1 and "," in dbdt[0]:
-            dbdt = [e.strip() for e in dbdt[0].split(",")]
-        # values are validated below in validate_combinations
-        return dbdt
 
     @validator("elements", pre=True, always=True)
     def validate_elements(cls, elements: List[str]) -> List[str]:
@@ -136,13 +125,12 @@ class DataApiQuery(BaseModel):
 
     @root_validator
     def validate_combinations(cls, values):
-        starttime, endtime, elements, format, sampling_period, dbdt = (
+        starttime, endtime, elements, format, sampling_period = (
             values.get("starttime"),
             values.get("endtime"),
             values.get("elements"),
             values.get("format"),
             values.get("sampling_period"),
-            values.get("dbdt"),
         )
         if len(elements) > 4 and format == "iaga2002":
             raise ValueError("No more than four elements allowed for iaga2002 format.")
@@ -152,9 +140,5 @@ class DataApiQuery(BaseModel):
         samples = int(len(elements) * (endtime - starttime) / sampling_period)
         if samples > REQUEST_LIMIT:
             raise ValueError(f"Request exceeds limit ({samples} > {REQUEST_LIMIT})")
-        # check dbdt
-        for element in dbdt:
-            if element not in elements:
-                raise ValueError(f"dBdT element {element} not in {elements}")
         # otherwise okay
         return values

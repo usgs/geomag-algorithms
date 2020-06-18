@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from obspy import UTCDateTime
 
-from . import data, elements, observatories
+from . import algorithms, data, elements, observatories
 
 
 ERROR_CODE_MESSAGES = {
@@ -27,6 +27,7 @@ app = FastAPI(docs_url="/docs", root_path="/ws")
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], max_age=86400)
 
+app.include_router(algorithms.router)
 app.include_router(data.router)
 app.include_router(elements.router)
 app.include_router(observatories.router)

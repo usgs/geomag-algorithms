@@ -6,7 +6,6 @@ from obspy import UTCDateTime, Stream
 from starlette.responses import Response
 
 from ... import TimeseriesFactory, TimeseriesUtility
-from ...algorithm import DbDtAlgorithm
 from ...edge import EdgeFactory
 from ...iaga2002 import IAGA2002Writer
 from ...imfjson import IMFJSONWriter
@@ -34,6 +33,74 @@ def get_data_factory() -> TimeseriesFactory:
         return EdgeFactory(host=data_host, port=data_port)
     else:
         return None
+
+
+def get_data_query(
+    id: str = Query(..., title="Observatory code"),
+    starttime: UTCDateTime = Query(
+        None,
+        title="Start Time",
+        description="Time of first requested data. Default is start of current UTC day.",
+    ),
+    endtime: UTCDateTime = Query(
+        None,
+        title="End Time",
+        description="Time of last requested data. Default is starttime plus 24 hours.",
+    ),
+    elements: List[str] = Query(
+        DEFAULT_ELEMENTS,
+        title="Geomagnetic Elements.",
+        description="Either comma separated list of elements, or repeated query parameter"
+        " NOTE: when using 'iaga2002' output format, a maximum of 4 elements is allowed",
+    ),
+    sampling_period: Union[SamplingPeriod, float] = Query(
+        SamplingPeriod.MINUTE,
+        title="data rate",
+        description="Interval in seconds between values.",
+    ),
+    data_type: Union[DataType, str] = Query(
+        DataType.ADJUSTED,
+        alias="type",
+        description="Type of data."
+        " NOTE: the USGS web service also supports specific EDGE location codes."
+        " For example: R0 is 'internet variation'",
+    ),
+    format: OutputFormat = Query(OutputFormat.IAGA2002),
+) -> DataApiQuery:
+    """Define query parameters used for webservice requests.
+
+    Uses DataApiQuery for parsing and validation.
+
+    Parameters
+    -------
+    id
+        observatory iaga code
+    starttime
+        query start
+        default is start of current UTC day.
+    endtime
+        query end
+        default is end of current UTC day.
+    elements
+        geomagnetic elements, or EDGE channel codes
+    sampling_period
+        data rate
+    data_type
+        data processing level
+    format
+        output format
+    """
+    # parse query
+    query = DataApiQuery(
+        id=id,
+        starttime=starttime,
+        endtime=endtime,
+        elements=elements,
+        sampling_period=sampling_period,
+        data_type=data_type,
+        format=format,
+    )
+    return query
 
 
 def format_timeseries(
@@ -74,31 +141,7 @@ def get_timeseries(data_factory: TimeseriesFactory, query: DataApiQuery) -> Stre
         type=query.data_type,
         interval=TimeseriesUtility.get_interval_from_delta(query.sampling_period),
     )
-    return post_process(query, timeseries)
-
-
-def post_process(query: DataApiQuery, timeseries: Stream) -> Stream:
-    """Process timeseries data before it is returned.
-
-    Parameters
-    ----------
-    query: parameters for the data to read
-    timeseries: data that was read
-    """
-    out = timeseries
-    if query.dbdt:
-        out = Stream()
-        dbdt = Stream()
-        for trace in timeseries:
-            if trace.stats.channel in query.dbdt:
-                dbdt += trace
-            else:
-                out += trace
-        out += DbDtAlgorithm().process(dbdt)
-        query.elements = [
-            el in query.dbdt and f"{el}_DT" or el for el in query.elements
-        ]
-    return out
+    return timeseries
 
 
 router = APIRouter()
@@ -106,27 +149,9 @@ router = APIRouter()
 
 @router.get("/data/")
 def get_data(
-    id: str,
-    starttime: UTCDateTime = Query(None),
-    endtime: UTCDateTime = Query(None),
-    elements: List[str] = Query(DEFAULT_ELEMENTS),
-    sampling_period: Union[SamplingPeriod, float] = Query(SamplingPeriod.MINUTE),
-    data_type: Union[DataType, str] = Query(DataType.ADJUSTED, alias="type"),
-    format: OutputFormat = Query(OutputFormat.IAGA2002),
-    dbdt: List[str] = Query([]),
+    query: DataApiQuery = Depends(get_data_query),
     data_factory: TimeseriesFactory = Depends(get_data_factory),
 ) -> Response:
-    # parse query
-    query = DataApiQuery(
-        id=id,
-        starttime=starttime,
-        endtime=endtime,
-        elements=elements,
-        sampling_period=sampling_period,
-        data_type=data_type,
-        format=format,
-        dbdt=dbdt,
-    )
     # read data
     timeseries = get_timeseries(data_factory, query)
     # output response
