@@ -34,11 +34,11 @@ class DbDtAlgorithm(Algorithm):
         """
         out = Stream()
         for trace in stream:
-            dbdt = np.diff(trace.data)
+            dbdt = np.around(np.diff(trace.data), decimals=6)
             stats = Stats(trace.stats)
-            stats.channel = "{}_DDT".format(stats.channel)
+            stats.channel = "{}_DT".format(stats.channel)
             trace_out = create_empty_trace(
-                starttime=stats.starttime + self.period,
+                starttime=stats.starttime + stats.delta,
                 endtime=stats.endtime,
                 observatory=stats.station,
                 type=stats.location,

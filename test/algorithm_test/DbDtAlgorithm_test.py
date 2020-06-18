@@ -10,7 +10,7 @@ def test_process():
     original script
     """
     # initialize DbDt object
-    dbdt = DbDtAlgorithm(inchannels=["H"], outchannels=["H_DDT"], period=60)
+    dbdt = DbDtAlgorithm(inchannels=["H"], outchannels=["H_DT"], period=60)
 
     # load boulder May 20 files from /etc/ directory
     hez_iaga2002_file = open("etc/dbdt/BOU202005vmin.min")
@@ -25,7 +25,7 @@ def test_process():
     result = dbdt.process(hez)
 
     # unpack channels from result
-    rh = result.select(channel="H_DDT")[0]
+    rh = result.select(channel="H_DT")[0]
     # unpack channels from BOU202005dbdt.min
     h = hez_dbdt.select(channel="H")[0]
 

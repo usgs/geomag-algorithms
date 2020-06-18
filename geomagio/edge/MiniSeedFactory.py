@@ -349,7 +349,7 @@ class MiniSeedFactory(TimeseriesFactory):
                 return channel
 
         if suffix is not None:
-            if suffix == "Dist" or suffix == "SQ" or suffix == "SV" or suffix == "DDT":
+            if suffix == "Dist" or suffix == "SQ" or suffix == "SV" or suffix == "DT":
                 # these suffixes modify location code, but use element channel
                 channel = element
             else:
@@ -421,7 +421,7 @@ class MiniSeedFactory(TimeseriesFactory):
                 location_suffix = "Q"
             elif suffix == "SV":
                 location_suffix = "V"
-            elif suffix == "DDT":
+            elif suffix == "DT":
                 location_suffix = "R"
             elif suffix not in ("Bin", "Volt"):
                 raise TimeseriesFactoryException(
