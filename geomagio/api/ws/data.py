@@ -6,6 +6,7 @@ from obspy import UTCDateTime, Stream
 from starlette.responses import Response
 
 from ... import TimeseriesFactory, TimeseriesUtility
+from ...algorithm import DbDtAlgorithm
 from ...edge import EdgeFactory
 from ...iaga2002 import IAGA2002Writer
 from ...imfjson import IMFJSONWriter
@@ -64,7 +65,6 @@ def get_timeseries(data_factory: TimeseriesFactory, query: DataApiQuery) -> Stre
     data_factory: where to read data
     query: parameters for the data to read
     """
-
     # get data
     timeseries = data_factory.get_timeseries(
         starttime=query.starttime,
@@ -72,11 +72,33 @@ def get_timeseries(data_factory: TimeseriesFactory, query: DataApiQuery) -> Stre
         observatory=query.id,
         channels=query.elements,
         type=query.data_type,
-        dbdt=query.dbdt,
         interval=TimeseriesUtility.get_interval_from_delta(query.sampling_period),
     )
+    return post_process(query, timeseries)
 
-    return timeseries
+
+def post_process(query: DataApiQuery, timeseries: Stream) -> Stream:
+    """Process timeseries data before it is returned.
+
+    Parameters
+    ----------
+    query: parameters for the data to read
+    timeseries: data that was read
+    """
+    out = timeseries
+    if query.dbdt:
+        out = Stream()
+        dbdt = Stream()
+        for trace in timeseries:
+            if trace.stats.channel in query.dbdt:
+                dbdt += trace
+            else:
+                out += trace
+        out += DbDtAlgorithm().process(dbdt)
+        query.elements = [
+            el in query.dbdt and f"{el}_DT" or el for el in query.elements
+        ]
+    return out
 
 
 router = APIRouter()
@@ -91,6 +113,7 @@ def get_data(
     sampling_period: Union[SamplingPeriod, float] = Query(SamplingPeriod.MINUTE),
     data_type: Union[DataType, str] = Query(DataType.ADJUSTED, alias="type"),
     format: OutputFormat = Query(OutputFormat.IAGA2002),
+    dbdt: List[str] = Query([]),
     data_factory: TimeseriesFactory = Depends(get_data_factory),
 ) -> Response:
     # parse query
@@ -102,6 +125,7 @@ def get_data(
         sampling_period=sampling_period,
         data_type=data_type,
         format=format,
+        dbdt=dbdt,
     )
     # read data
     timeseries = get_timeseries(data_factory, query)

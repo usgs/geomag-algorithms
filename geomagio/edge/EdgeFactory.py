@@ -22,7 +22,6 @@ from ..TimeseriesFactory import TimeseriesFactory
 from ..TimeseriesFactoryException import TimeseriesFactoryException
 from ..ObservatoryMetadata import ObservatoryMetadata
 from .RawInputClient import RawInputClient
-from ..algorithm.DbDtAlgorithm import DbDtAlgorithm
 
 
 class EdgeFactory(TimeseriesFactory):
@@ -111,7 +110,6 @@ class EdgeFactory(TimeseriesFactory):
         channels=None,
         type=None,
         interval=None,
-        dbdt: list = None,
     ):
         """Get timeseries data
 
@@ -129,8 +127,6 @@ class EdgeFactory(TimeseriesFactory):
             data type.
         interval: {'day', 'hour', 'minute', 'second', 'tenhertz'}
             data interval.
-        dbdt: list
-            list of channels to receive as time derivatives
 
         Returns
         -------
@@ -168,7 +164,7 @@ class EdgeFactory(TimeseriesFactory):
         finally:
             # restore stdout
             sys.stdout = original_stdout
-        self._post_process(timeseries, starttime, endtime, channels, dbdt)
+        self._post_process(timeseries, starttime, endtime, channels)
 
         return timeseries
 
@@ -515,7 +511,7 @@ class EdgeFactory(TimeseriesFactory):
         self._set_metadata(data, observatory, channel, type, interval)
         return data
 
-    def _post_process(self, timeseries, starttime, endtime, channels, dbdt):
+    def _post_process(self, timeseries, starttime, endtime, channels):
         """Post process a timeseries stream after the raw data is
                 is fetched from a waveserver. Specifically changes
                 any MaskedArray to a ndarray with nans representing gaps.
@@ -532,8 +528,6 @@ class EdgeFactory(TimeseriesFactory):
             the endtime of the requested data
         channels: array_like
             list of channels to load
-        dbdt: list
-            list of channels to receive time derivative
 
         Notes: the original timeseries object is changed.
         """
@@ -546,26 +540,6 @@ class EdgeFactory(TimeseriesFactory):
         if "D" in channels:
             for trace in timeseries.select(channel="D"):
                 trace.data = ChannelConverter.get_radians_from_minutes(trace.data)
-
-        if dbdt:
-            # find matching channels from dbdt list
-            dbdt_stream = obspy.core.Stream(
-                [
-                    timeseries.select(channel=channel)[0]
-                    for channel in channels
-                    if channel in dbdt
-                ]
-            )
-            # process matching stream with DbDtAlgorithm
-            dbdt_stream = DbDtAlgorithm(
-                inchannels=dbdt, period=timeseries[0].stats.sampling_rate
-            ).process(dbdt_stream)
-
-            # replace traces from stream in original timeseries
-            for i in range(len(timeseries)):
-                channel = timeseries[i].stats.channel
-                if channel in dbdt:
-                    timeseries[i] = dbdt_stream.select(channel=channel + "_DDT")[0]
 
         TimeseriesUtility.pad_timeseries(timeseries, starttime, endtime)
 
