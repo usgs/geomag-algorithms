@@ -1,3 +1,5 @@
+import json
+
 from numpy.testing import assert_almost_equal, assert_equal
 import numpy as np
 from obspy import read, UTCDateTime
@@ -214,23 +216,25 @@ def test_starttime_shift():
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-01T00:13:00Z"))
 
 
-def test_even_taps():
+def test_prepare_step():
     """algorithm_test.FilterAlgorithm_test.test_custom()
     Tests algorithm for 10Hz to second with custom filter coefficients.
     """
-    f = FilterAlgorithm(
-        input_sample_period=0.1,
-        output_sample_period=1.0,
-        coeff_filename="etc/filter/coeffs.json",
-    )
-    # gather original's window length
-    window = f.steps[0]["window"]
-    original_length = len(window)
-    # remove center coefficient from original window
-    f.steps[0]["window"] = np.delete(window, original_length // 2, 0)
-    # check for even taps in steps' windows, add center coefficient
-    f.steps = [f._prepare_step(step) for step in f.steps]
-    # gather result's window length
-    result_length = len(f.steps[0]["window"])
-    # verify insertion of center coefficient
-    original_length == result_length
+    with open("etc/filter/coeffs.json", "rb") as f:
+        step = json.loads(f.read())
+    f = FilterAlgorithm()
+    numtaps = len(step["window"])
+    half = numtaps // 2
+    # check initial assumption
+    assert_equal(numtaps % 2, 1)
+    # expect step to be unchanged when window has odd length
+    unchanged = f._prepare_step(step)
+    assert_equal(unchanged, step)
+    # expect step to be extended when window has event length
+    even_step = {"window": np.delete(step["window"], numtaps // 2, 0)}
+    assert_equal(len(even_step["window"]) % 2, 0)
+    prepared = f._prepare_step(step)
+    assert_equal(len(prepared["window"]) % 2, 1)
+    # value is inserted in middle
+    assert_equal(prepared["window"][: half + 1], step["window"][: half + 1])
+    assert_equal(prepared["window"][half:], step["window"][half:])
