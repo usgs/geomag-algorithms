@@ -56,6 +56,10 @@ class FilterAlgorithm(Algorithm):
         self.output_sample_period = output_sample_period
         self.steps = steps
         self.load_state()
+        # ensure correctly aligned coefficients in each step
+        self.steps = (
+            self.steps and [self._prepare_step(step) for step in self.steps] or []
+        )
 
     def load_state(self):
         """Load filter coefficients from json file if custom filter is used.
@@ -63,14 +67,11 @@ class FilterAlgorithm(Algorithm):
         """
         if self.coeff_filename is None:
             return
-
         with open(self.coeff_filename, "r") as f:
             data = f.read()
             data = json.loads(data)
-
         if data is None or data == "":
             return
-
         self.steps = [
             {
                 "name": "name" in data and data["name"] or "custom",
@@ -79,8 +80,6 @@ class FilterAlgorithm(Algorithm):
                 "window": data["window"],
             }
         ]
-        # ensure correctly aligned coefficients in each step
-        self.steps = [self._prepare_step(step) for step in self.steps]
 
     def save_state(self):
         """Save algorithm state to a file.
