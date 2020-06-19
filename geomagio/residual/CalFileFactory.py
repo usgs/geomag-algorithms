@@ -52,7 +52,7 @@ class CalFileFactory(object):
         # generate string holding cal file's contents
         cal_str = self.format_readings(readings)
         with open(path, "wb") as f:
-            f.write(cal_str)
+            f.write(cal_str.encode())
 
 
 """
