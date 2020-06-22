@@ -28,6 +28,7 @@ def prepfiles(observatory: str, year: int, month: int):
         starttime=UTCDateTime(month_start - relativedelta(months=1)),
         endtime=UTCDateTime(month_end + relativedelta(months=1)),
         observatory=observatory,
+        base_directory=os.getenv("RAW_DIRECTORY", "file://c:/Calibrat"),
     )
 
     timeseries_min, timeseries_sec = gather_data(
@@ -36,15 +37,19 @@ def prepfiles(observatory: str, year: int, month: int):
         observatory=observatory,
     )
 
+    basedir = os.getenv("RAW_DIRECTORY", "file://c:/RAW")
+
     write_pcdcp_file(
         starttime=UTCDateTime(month_start),
         endtime=UTCDateTime(month_end),
         timeseries=timeseries_sec,
         observatory=observatory,
         interval="second",
-        base_directory="file://c:/RAW/",
-        template=RAW_TEMPLATE,
+        base_directory=basedir,
+        template=os.path.join(basedir, RAW_TEMPLATE),
     )
+
+    basedir = os.getenv("RAW_DIRECTORY", "file://c:/USGSDCP")
 
     write_pcdcp_file(
         starttime=UTCDateTime(month_start),
@@ -52,16 +57,13 @@ def prepfiles(observatory: str, year: int, month: int):
         timeseries=timeseries_min,
         observatory=observatory,
         interval="minute",
-        base_directory="file://c:/USGSDCP/",
-        template=MIN_TEMPLATE,
+        base_directory=basedir,
+        template=os.path.join(basedir, MIN_TEMPLATE),
     )
 
 
 def write_cal_file(
-    starttime: UTCDateTime,
-    endtime: UTCDateTime,
-    observatory: str,
-    base_directory: str = "file://c:/Calibrat/",
+    starttime: UTCDateTime, endtime: UTCDateTime, observatory: str, base_directory: str,
 ):
     filename = CAL_FILENAME_FORMAT.format(OBSERVATORY=observatory, YEAR=starttime.year)
     readings = WebAbsolutesFactory().get_readings(
@@ -71,7 +73,9 @@ def write_cal_file(
         include_measurements=True,
     )
     # write cal file to specified path
-    CalFileFactory().write_file(path=base_directory + filename, readings=readings)
+    CalFileFactory().write_file(
+        path=os.path.join(base_directory, filename), readings=readings
+    )
 
 
 def gather_data(starttime: UTCDateTime, endtime: UTCDateTime, observatory: str):
