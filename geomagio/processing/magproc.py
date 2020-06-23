@@ -14,6 +14,7 @@ from ..residual import WebAbsolutesFactory, CalFileFactory
 CAL_FILENAME_FORMAT = "{OBSERVATORY}/{OBSERVATORY}{YEAR}PCD.cal"
 MIN_TEMPLATE = "%(OBS)s/" + PCDCP_FILE_PATTERN
 RAW_TEMPLATE = "%(OBS)s/" + PCDCP_FILE_PATTERN
+HOR_TEMPLATE = "%(OBS)s/" + PCDCP_FILE_PATTERN
 
 
 def main():
@@ -31,7 +32,7 @@ def prepfiles(observatory: str, year: int, month: int):
         base_directory=os.getenv("RAW_DIRECTORY", "file://c:/Calibrat"),
     )
 
-    timeseries_min, timeseries_sec = gather_data(
+    timeseries_hor, timeseries_min, timeseries_sec = gather_data(
         starttime=UTCDateTime(month_start),
         endtime=UTCDateTime(month_end),
         observatory=observatory,
@@ -59,6 +60,18 @@ def prepfiles(observatory: str, year: int, month: int):
         interval="minute",
         base_directory=basedir,
         template=os.path.join(basedir, MIN_TEMPLATE),
+    )
+
+    basedir = os.getenv("RAW_DIRECTORY", "file://c:/DEG")
+
+    write_pcdcp_file(
+        starttime=UTCDateTime(month_start),
+        endtime=UTCDateTime(month_end),
+        timeseries=timeseries_hor,
+        observatory=observatory,
+        interval="hourly",
+        base_directory=basedir,
+        template=os.path.join(basedir, HOR_TEMPLATE),
     )
 
 
@@ -90,8 +103,22 @@ def gather_data(starttime: UTCDateTime, endtime: UTCDateTime, observatory: str):
         type="variation",
         interval="second",
     )
+    timeseries_min = f.process(timeseries_sec)
+    f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=3600.0)
+    f_starttime, f_endtime = f.get_input_interval(starttime, endtime)
+    timeseries_temp = e.get_timeseries(
+        starttime=f_starttime,
+        endtime=f_endtime,
+        observatory=observatory,
+        channels=["G", "UK1", "UK2", "UK3", "UK4"],
+        type="variation",
+        interval="minute",
+    )
+    timeseries_hor = f.process(timeseries_temp)
+
     return (
-        f.process(timeseries_sec),
+        timeseries_hor,
+        timeseries_min,
         timeseries_sec.trim(starttime=starttime, endtime=endtime),
     )
 
