@@ -6,6 +6,7 @@ from typing import List
 import itertools
 from io import StringIO
 
+from .. import Util
 from .Absolute import Absolute
 from .Reading import Reading
 
@@ -48,10 +49,12 @@ class CalFileFactory(object):
         out.write("\n")
         return out.getvalue()
 
-    def write_file(self, path: str, readings: List[Reading]):
+    def write_file(self, url: str, readings: List[Reading]):
         # generate string holding cal file's contents
         cal_str = self.format_readings(readings)
-        with open(path, "wb") as f:
+
+        url_file = Util.get_file_from_url(url, createParentDirectory=True)
+        with open(url_file, "wb") as f:
             f.write(cal_str.encode())
 
 
