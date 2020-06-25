@@ -11,6 +11,7 @@ from ..algorithm.FilterAlgorithm import FilterAlgorithm
 from ..edge import EdgeFactory
 from ..pcdcp import PCDCPFactory, PCDCP_FILE_PATTERN
 from ..residual import WebAbsolutesFactory, CalFileFactory
+from ..Util import get_intervals
 
 
 CAL_TEMPLATE = "{OBSERVATORY}/{OBSERVATORY}{YEAR}PCD.cal"
@@ -149,39 +150,45 @@ def write_variation_data(
 ):
     algorithm = FilterAlgorithm(input_sample_period=1.0, output_sample_period=60.0)
     factory = EdgeFactory(host=host)
-    # load second data
-    f_starttime, f_endtime = algorithm.get_input_interval(starttime, endtime)
-    print(
-        f"Loading second variation data for {observatory} [{f_starttime}, {f_endtime}]",
-        file=sys.stderr,
-    )
-    timeseries_second = factory.get_timeseries(
-        starttime=f_starttime,
-        endtime=f_endtime,
-        observatory=observatory,
-        channels=["H", "E", "Z", "F"],
-        type="variation",
-        interval="second",
-    )
-    # filter to one minute
-    print(f"Generating one minute variation data for {observatory}", file=sys.stderr)
-    timeseries_minute = algorithm.process(timeseries_second)
-    # write files
-    write_pcdcp_file(
-        starttime=starttime,
-        endtime=endtime,
-        timeseries=timeseries_second,
-        observatory=observatory,
-        interval="second",
-        channels=["H", "E", "Z", "F"],
-        template=second_template,
-    )
-    write_pcdcp_file(
-        starttime=starttime,
-        endtime=endtime,
-        timeseries=timeseries_minute,
-        observatory=observatory,
-        interval="minute",
-        channels=["H", "E", "Z", "F"],
-        template=minute_template,
-    )
+    intervals = get_intervals(starttime, endtime)
+    for interval in intervals:
+        starttime, endtime = interval["start"], interval["end"]
+        # load second data
+        f_starttime, f_endtime = algorithm.get_input_interval(starttime, endtime)
+        print(
+            f"Loading second variation data for {observatory} [{f_starttime}, {f_endtime}]",
+            file=sys.stderr,
+        )
+        timeseries_second = factory.get_timeseries(
+            starttime=f_starttime,
+            endtime=f_endtime,
+            observatory=observatory,
+            channels=["H", "E", "Z", "F"],
+            type="variation",
+            interval="second",
+        )
+        # filter to one minute
+        print(
+            f"Generating one minute variation data for {observatory} [{starttime}, {endtime}]",
+            file=sys.stderr,
+        )
+        timeseries_minute = algorithm.process(timeseries_second)
+        # write files
+        write_pcdcp_file(
+            starttime=starttime,
+            endtime=endtime,
+            timeseries=timeseries_second.trim(starttime, endtime),
+            observatory=observatory,
+            interval="second",
+            channels=["H", "E", "Z", "F"],
+            template=second_template,
+        )
+        write_pcdcp_file(
+            starttime=starttime,
+            endtime=endtime,
+            timeseries=timeseries_minute,
+            observatory=observatory,
+            interval="minute",
+            channels=["H", "E", "Z", "F"],
+            template=minute_template,
+        )
