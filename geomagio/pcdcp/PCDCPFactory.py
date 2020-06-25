@@ -53,6 +53,8 @@ class PCDCPFactory(TimeseriesFactory):
         """
         parser = PCDCPParser()
         parser.parse(data)
+        if not parser.times:
+            return obspy.core.Stream()
 
         # minutes files times are 4 characters long (1440)
         # seconds files times are 5 characters long (86400)
