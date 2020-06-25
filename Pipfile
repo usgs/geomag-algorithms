@@ -21,7 +21,7 @@ databases = {extras = ["postgresql", "sqlite"],version = "*"}
 fastapi = "*"
 httpx = "==0.11.1"
 openpyxl = "*"
-pydantic = "==1.4"
+pydantic = "*"
 sqlalchemy = "*"
 sqlalchemy-utc = "*"
 typing = "*"
