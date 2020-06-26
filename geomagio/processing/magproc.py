@@ -112,32 +112,38 @@ def write_temperature_data(
     algorithm = FilterAlgorithm(input_sample_period=60.0, output_sample_period=3600.0)
     factory = EdgeFactory(host=host)
     # load minute temperature data
-    f_starttime, f_endtime = algorithm.get_input_interval(starttime, endtime)
-    print(
-        f"Loading minute temperature data for {observatory} [{f_starttime}, {f_endtime}]",
-        file=sys.stderr,
-    )
-    timeseries_temp = factory.get_timeseries(
-        starttime=f_starttime,
-        endtime=f_endtime,
-        observatory=observatory,
-        channels=["UK1", "UK2", "UK3", "UK4"],
-        type="variation",
-        interval="minute",
-    )
-    # filter to one hour
-    print(f"Generating hourly temperature data for {observatory}", file=sys.stderr)
-    timeseries_temperature = algorithm.process(timeseries_temp)
-    # write data
-    write_pcdcp_file(
-        starttime=starttime,
-        endtime=endtime,
-        timeseries=timeseries_temperature,
-        observatory=observatory,
-        interval="hourly",
-        channels=["UK1", "UK2", "UK3", "UK4"],
-        template=template,
-    )
+    intervals = get_intervals(starttime, endtime)
+    for interval in intervals:
+        starttime, endtime = interval["start"], interval["end"]
+        f_starttime, f_endtime = algorithm.get_input_interval(starttime, endtime)
+        print(
+            f"Loading minute temperature data for {observatory} [{f_starttime}, {f_endtime}]",
+            file=sys.stderr,
+        )
+        timeseries_temp = factory.get_timeseries(
+            starttime=f_starttime,
+            endtime=f_endtime,
+            observatory=observatory,
+            channels=["UK1", "UK2", "UK3", "UK4"],
+            type="variation",
+            interval="minute",
+        )
+        # filter to one hour
+        print(
+            f"Generating hourly temperature data for {observatory} [{starttime}, {endtime}]",
+            file=sys.stderr,
+        )
+        timeseries_temperature = algorithm.process(timeseries_temp)
+        # write data
+        write_pcdcp_file(
+            starttime=starttime,
+            endtime=endtime,
+            timeseries=timeseries_temperature,
+            observatory=observatory,
+            interval="hourly",
+            channels=["UK1", "UK2", "UK3", "UK4"],
+            template=template,
+        )
 
 
 def write_variation_data(
