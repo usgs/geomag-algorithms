@@ -56,13 +56,13 @@ def prepfiles(
         minute_template="file://" + os.path.join(minute_path, PCDCP_TEMPLATE),
     )
     # Temperature data
-    # write_temperature_data(
-    #     host=edge_host,
-    #     starttime=UTCDateTime(month_start),
-    #     endtime=UTCDateTime(month_end),
-    #     observatory=observatory,
-    #     template="file://" + os.path.join(temperature_path, PCDCP_TEMPLATE),
-    # )
+    write_temperature_data(
+        host=edge_host,
+        starttime=UTCDateTime(month_start),
+        endtime=UTCDateTime(month_end),
+        observatory=observatory,
+        template="file://" + os.path.join(temperature_path, PCDCP_TEMPLATE),
+    )
 
 
 def write_cal_file(

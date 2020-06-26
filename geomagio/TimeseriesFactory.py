@@ -433,6 +433,8 @@ class TimeseriesFactory(object):
             interval_name = "OneMinute"
         elif interval == "second":
             interval_name = "OneSecond"
+        elif interval == "hourly":
+            interval_name = "OneHour"
         else:
             raise TimeseriesFactoryException('Unsupported interval "%s"' % interval)
         return interval_name
