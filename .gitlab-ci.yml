@@ -17,6 +17,8 @@ variables:
   cache: {}
   image: ${DEVOPS_REGISTRY}usgs/conda:latest
   script:
+    # Add conda to path
+    - source /etc/profile.d/conda.sh
     # Install Project Dependencies
     - conda config --add channels conda-forge
     - conda install python=${PYTHON_VERSION} obspy pycurl
