@@ -13,6 +13,44 @@ variables:
 # Templates
 ## --------------------------------------------------
 
+.adjust_image_names:
+  before_script:
+    - IMAGE_NAME=usgs/${APP_NAME}:${CI_COMMIT_REF_SLUG}
+    - IMAGE_NAME=${IMAGE_NAME/:master/:latest}
+    - INTERNAL_IMAGE_NAME=${CI_REGISTRY_IMAGE}/${IMAGE_NAME}
+    - STACK_NAME=${APP_NAME}
+
+.build_docker_image:
+  cache: {}
+  extends:
+    - .adjust_image_names
+  image: ${CODE_REGISTRY}/ghsc/hazdev/cloud-formation/hazdev-build-runner:latest
+  only:
+    - master@ghsc/geomag/geomag-algorithms
+    - production@ghsc/geomag/geomag-algorithms
+    - tags@ghsc/geomag/geomag-algorithms
+  script:
+    - docker build
+      --pull
+      --build-arg APP_NAME=${APP_NAME}
+      --build-arg FROM_IMAGE=${FROM_IMAGE}
+      --build-arg GIT_BRANCH_NAME=${CI_COMMIT_REF_NAME}
+      --build-arg GIT_COMMIT_SHA=${CI_COMMIT_SHA}
+      --tag local/${IMAGE_NAME} .
+
+    - docker tag local/${IMAGE_NAME} ${IMAGE_NAME}
+    - docker push ${IMAGE_NAME}
+    - docker image rm ${IMAGE_NAME}
+
+    - docker tag local/${IMAGE_NAME} ${INTERNAL_IMAGE_NAME}
+    - docker push ${INTERNAL_IMAGE_NAME}
+    - docker image rm ${INTERNAL_IMAGE_NAME}
+  stage: integration
+  tags:
+    - build
+  variables:
+    FROM_IMAGE: ${CODE_REGISTRY}/devops/images/usgs/centos:latest
+
 .check_code:
   cache: {}
   image: ${DEVOPS_REGISTRY}usgs/conda:latest
@@ -59,3 +97,12 @@ Check Python 3.8:
     - .check_code
   variables:
     PYTHON_VERSION: '3.8'
+## --------------------------------------------------
+# Integration Stage
+## --------------------------------------------------
+
+Build Algorithms Docker Image:
+  extends:
+    - .build_docker_image
+  variables:
+    APP_NAME: geomag-algorithms
