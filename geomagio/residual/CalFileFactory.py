@@ -43,7 +43,7 @@ class CalFileFactory(object):
                         absolute, baseline = absolute * 60, baseline * 60
                     out.write(  # this is one line...
                         f"{c.starttime.datetime:%H%M}-{c.endtime.datetime:%H%M}"
-                        f" c{baseline:9.1f}{absolute:9.1f}\n"
+                        f" c{baseline:9.2f}{absolute:9.2f}\n"
                     )
         # add new line to end
         out.write("\n")
