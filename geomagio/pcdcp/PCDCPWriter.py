@@ -41,11 +41,11 @@ class PCDCPWriter(object):
         if stats.delta == 1:
             self.empty_value = PCDCPParser.NINES_RAW
 
-        out.write(str(self._format_header(stats)).encode())
+        out.write(str(self._format_header(stats, channels)).encode())
 
         out.write(str(self._format_data(timeseries, channels, stats)).encode())
 
-    def _format_header(self, stats):
+    def _format_header(self, stats, channels):
         """format headers for PCDCP file
 
         Parameters
@@ -65,10 +65,17 @@ class PCDCPWriter(object):
         yearday = str(stats.starttime.julday).zfill(3)
         date = stats.starttime.strftime("%d-%b-%y")
 
-        # Choose resolution for 1-sec vs 1-min header.
-        resolution = "0.01nT"
-        if stats.delta == 1:
-            resolution = "0.001nT"
+        if channels != ["H", "E", "Z", "F"]:
+            resolution = "Deg-C*10"
+            channel_str = "  ".join(channels)
+            version = " File Version 1.00\n"
+        else:
+            # Choose resolution for 1-sec vs 1-min header.
+            resolution = "0.01nT"
+            if stats.delta == 1:
+                resolution = "0.001nT"
+            channel_str = "".join(channels)
+            version = " File Version 2.00\n"
 
         buf.append(
             observatory
@@ -78,9 +85,11 @@ class PCDCPWriter(object):
             + yearday
             + "  "
             + date
-            + "  HEZF  "
+            + "  "
+            + channel_str
+            + "  "
             + resolution
-            + "  File Version 2.00\n"
+            + version
         )
 
         return "".join(buf)
