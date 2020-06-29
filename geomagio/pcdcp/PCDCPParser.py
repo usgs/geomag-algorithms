@@ -79,7 +79,8 @@ class PCDCPParser(object):
             zip(self.header_fields, line.split(None, len(self.header_fields)))
         )
 
-        self.resolution = float(self.header["resolution"].split("nT")[0])
+        if "nT" in self.header["resolution"]:
+            self.resolution = float(self.header["resolution"].split("nT")[0])
 
         return
 
