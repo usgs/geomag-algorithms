@@ -81,6 +81,8 @@ class PCDCPParser(object):
 
         if "nT" in self.header["resolution"]:
             self.resolution = float(self.header["resolution"].split("nT")[0])
+        else:
+            self.resolution = float(self.header["resolution"].split("*")[1])
 
         return
 

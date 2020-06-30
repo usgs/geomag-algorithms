@@ -35,8 +35,11 @@ class PCDCPFactory(TimeseriesFactory):
     PCDCPParser
     """
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self, temperatures=False, **kwargs,
+    ):
         TimeseriesFactory.__init__(self, **kwargs)
+        self.temperatures = temperatures
 
     def parse_string(self, data, **kwargs):
         """Parse the contents of a string in the format of a pcdcp file.
@@ -118,4 +121,4 @@ class PCDCPFactory(TimeseriesFactory):
         channels : array_like
             list of channels to store
         """
-        PCDCPWriter().write(fh, timeseries, channels)
+        PCDCPWriter(temperatures=self.temperatures).write(fh, timeseries, channels)

@@ -94,8 +94,11 @@ def write_pcdcp_file(
     interval: str,
     channels: List[str],
     template: str = PCDCP_FILE_PATTERN,
+    temperatures=False,
 ):
-    PCDCPFactory(urlInterval=86400, urlTemplate=template).put_timeseries(
+    PCDCPFactory(
+        urlInterval=86400, urlTemplate=template, temperatures=temperatures
+    ).put_timeseries(
         timeseries=timeseries,
         starttime=starttime,
         endtime=endtime,
@@ -143,6 +146,7 @@ def write_temperature_data(
         interval="hourly",
         channels=["UK1", "UK2", "UK3", "UK4"],
         template=template,
+        temperatures=True,
     )
 
 

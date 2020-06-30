@@ -14,8 +14,9 @@ class PCDCPWriter(object):
     """PCDCP writer.
     """
 
-    def __init__(self, empty_value=PCDCPParser.NINES):
+    def __init__(self, empty_value=PCDCPParser.NINES, temperatures=False):
         self.empty_value = empty_value
+        self.temperatures = temperatures
 
     def write(self, out, timeseries, channels):
         """Write timeseries to pcdcp file.
@@ -65,17 +66,17 @@ class PCDCPWriter(object):
         yearday = str(stats.starttime.julday).zfill(3)
         date = stats.starttime.strftime("%d-%b-%y")
 
-        if channels != ["H", "E", "Z", "F"]:
+        if self.temperatures == True:
             resolution = "Deg-C*10"
             channel_str = "  ".join(channels)
-            version = " File Version 1.00\n"
+            version = "1.00"
         else:
             # Choose resolution for 1-sec vs 1-min header.
             resolution = "0.01nT"
             if stats.delta == 1:
                 resolution = "0.001nT"
             channel_str = "".join(channels)
-            version = " File Version 2.00\n"
+            version = "2.00"
 
         buf.append(
             observatory
@@ -89,7 +90,9 @@ class PCDCPWriter(object):
             + channel_str
             + "  "
             + resolution
+            + "  File Version "
             + version
+            + "\n"
         )
 
         return "".join(buf)
@@ -164,6 +167,8 @@ class PCDCPWriter(object):
         time_width = 4
         data_width = 8
         data_multiplier = 100
+        if self.temperatures == True:
+            data_multiplier = 10
         hr_multiplier = 60
         mn_multiplier = 1
         sc_multiplier = 0
