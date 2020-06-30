@@ -15,25 +15,18 @@ variables:
 
 .check_code:
   cache: {}
-  image: usgs/centos:latest
+  image: ${DEVOPS_REGISTRY}usgs/conda:latest
   script:
-    - yum install -y wget which
-    - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH="$HOME/miniconda/bin:$PATH"
-    - conda config --set always_yes yes --set changeps1 no
-    - conda update --yes conda
-    - conda info -a
+    # Add conda to path
+    - source /etc/profile.d/conda.sh
     # Install Project Dependencies
     - conda config --add channels conda-forge
     - conda install python=${PYTHON_VERSION} obspy pycurl
     - pip install pipenv
-    - export LC_ALL=C.UTF-8
-    - export LANG=C.UTF-8
     - pipenv --site-packages install --dev --pre --skip-lock
     # Run Code Checks
     - pipenv run black --check .
-    - pipenv run pytest --cov-report xml:cov.xml --cov=test/
+    - pipenv run pytest --cov-report xml:cov.xml --cov=geomagio
   artifacts:
     paths:
       - cov.xml

@@ -217,13 +217,12 @@ def parse_relative_time(base_date: str, time: str) -> UTCDateTime:
     Arguments
     ---------
     base_date: date when time occurs (YYYYMMDD)
-    time: time on base_date (HHMMSS)
-        left padded with zeros to 6 characters
+    time: time on base_date (HHMMSS) or (HHMM)
     """
     try:
-        return UTCDateTime(f"{base_date}T{time:06}")
+        return UTCDateTime(f"{base_date}T{time}")
     except Exception as e:
-        print(f"error parsing relative date '{base_date}T{time:06}': {e}")
+        print(f"error parsing relative date '{base_date}T{time}': {e}")
         return None
 
 
@@ -255,9 +254,9 @@ class SpreadsheetAbsolutesFactory(object):
         for year in range(starttime.year, endtime.year + 1):
             # start in observatory year directory to scan fewer files
             observatory_directory = os.path.join(
-                self.base_directory, observatory, f"{year}", observatory
+                self.base_directory, observatory, f"{year}"
             )
-            for (dirpath, filenames) in os.walk(observatory_directory):
+            for (dirpath, _, filenames) in os.walk(observatory_directory):
                 for filename in filenames:
                     if start_filename <= filename < end_filename:
                         readings.append(
@@ -284,7 +283,7 @@ class SpreadsheetAbsolutesFactory(object):
             and self._parse_measurements(
                 measurement_sheet, metadata["date"], metadata["precision"]
             )
-            or None
+            or []
         )
         mark_azimuth = metadata["mark_azimuth"]
         return Reading(
