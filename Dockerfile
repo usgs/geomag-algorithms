@@ -3,12 +3,19 @@ ARG FROM_IMAGE=usgs/centos:latest
 FROM ${FROM_IMAGE}
 LABEL maintainer="Jeremy Fee <jmfee@usgs.gov>"
 
+ARG GIT_BRANCH_NAME=none
+ARG GIT_COMMIT_SHA=none
+
 # set environment variables
-ENV LANG='en_US.UTF-8' \
+ENV GIT_BRANCH_NAME=${GIT_BRANCH_NAME} \
+    GIT_COMMIT_SHA=${GIT_COMMIT_SHA} \
+    LANG='en_US.UTF-8' \
     LC_ALL='en_US.UTF-8' \
     PATH=/conda/bin:$PATH \
+    PIP_CERT=${SSL_CERT_FILE} \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    REQUESTS_CA_BUNDLE=${SSL_CERT_FILE}
 
 # install conda
 RUN echo 'export PATH=/conda/bin:$PATH' > /etc/profile.d/conda.sh \
@@ -41,8 +48,8 @@ USER geomag_user
 
 # install dependencies via pipenv
 WORKDIR /data
-COPY Pipfile Pipfile.lock /data/
-RUN pipenv install  --site-packages
+COPY Pipfile /data/
+RUN pipenv --site-packages install --skip-lock
 
 # copy library (ignores set in .dockerignore)
 COPY . /geomag-algorithms

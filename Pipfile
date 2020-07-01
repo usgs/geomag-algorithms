@@ -13,7 +13,7 @@ webtest = "*"
 [packages]
 numpy = "*"
 scipy = "*"
-obspy = ">1.2.0"
+obspy = "*"
 pycurl = "*"
 authlib = "*"
 cryptography = "*"
