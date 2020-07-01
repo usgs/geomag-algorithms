@@ -32,7 +32,6 @@ variables:
   script:
     - docker build
       --pull
-      --build-arg APP_NAME=${APP_NAME}
       --build-arg FROM_IMAGE=${FROM_IMAGE}
       --build-arg GIT_BRANCH_NAME=${CI_COMMIT_REF_NAME}
       --build-arg GIT_COMMIT_SHA=${CI_COMMIT_SHA}
@@ -97,6 +96,7 @@ Check Python 3.8:
     - .check_code
   variables:
     PYTHON_VERSION: '3.8'
+
 ## --------------------------------------------------
 # Integration Stage
 ## --------------------------------------------------
