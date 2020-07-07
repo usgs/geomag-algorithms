@@ -167,8 +167,6 @@ class PCDCPWriter(object):
         time_width = 4
         data_width = 8
         data_multiplier = 100
-        if self.temperatures == True:
-            data_multiplier = 10
         hr_multiplier = 60
         mn_multiplier = 1
         sc_multiplier = 0
@@ -179,6 +177,8 @@ class PCDCPWriter(object):
             hr_multiplier = 3600
             mn_multiplier = 60
             sc_multiplier = 1
+        if self.temperatures:
+            data_multiplier = 10
 
         tt = time.timetuple()
 
@@ -204,7 +204,7 @@ class PCDCPWriter(object):
         )
 
     @classmethod
-    def format(self, timeseries, channels):
+    def format(cls, timeseries, channels):
         """Get an PCDCP formatted string.
 
         Calls write() with a BytesIO, and returns the output.
