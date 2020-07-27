@@ -176,7 +176,7 @@ class AdjustedAlgorithm(Algorithm):
                 return False
 
         # return false if F or remaining channels cannot produce data
-        return True
+        return False
 
     @classmethod
     def add_arguments(cls, parser):
