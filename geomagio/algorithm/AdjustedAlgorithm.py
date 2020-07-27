@@ -169,15 +169,17 @@ class AdjustedAlgorithm(Algorithm):
             return True
 
         # check validity of remaining channels
-        for c in channels:
-            if c != "F" and (
+        if np.all(
+            [
                 super().can_produce_data(starttime, endtime, stream.select(channel=c))
-                == False
-            ):
-                return False
+                for c in channels
+                if c != "F"
+            ]
+        ):
+            return True
 
         # return false if F or remaining channels cannot produce data
-        return True
+        return False
 
     @classmethod
     def add_arguments(cls, parser):
