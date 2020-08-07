@@ -104,8 +104,6 @@ variables:
     - DATA_TYPE=edge
     - GEOMAG_VERSION=0.3.1
     - WEBSERVICE=true
-  ports:
-    - '8000:8000'
 
 .staging:
   only:
