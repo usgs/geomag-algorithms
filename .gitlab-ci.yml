@@ -99,11 +99,11 @@ variables:
 
 .mage:
   variables:
-    - DATA_HOST=cwbpub.cr.usgs.gov
-    - DATA_PORT=2060
-    - DATA_TYPE=edge
-    - GEOMAG_VERSION=0.3.1
-    - WEBSERVICE=true
+    - DATA_HOST: 'cwbpub.cr.usgs.gov'
+    - DATA_PORT: '2060'
+    - DATA_TYPE: 'edge'
+    - GEOMAG_VERSION: '0.3.1'
+    - WEBSERVICE: 'true'
 
 .staging:
   only:
