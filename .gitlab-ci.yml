@@ -75,6 +75,44 @@ variables:
   variables:
     PYTHON_VERSION: 3.8
 
+.deploy:
+  cache: {}
+  extends:
+    - .adjust_image_names
+  image: ${CODE_REGISTRY}/ghsc/hazdev/cloud-formation/hazdev-build-runner:latest
+  script:
+    - git clone ${GENERIC_SWARM_DEPLOY_REPO} generic-deploy
+    - cp -v
+      generic-deploy/default.config.sh
+      generic-deploy/default.funcs.sh
+      generic-deploy/deploy.sh
+      scripts/.
+    - export APP_NAME=${APP_NAME}
+    - export IMAGE_NAME=${IMAGE_NAME}
+    - export REGISTRY=${CI_REGISTRY_IMAGE}
+    - export STACK_NAME=${APP_NAME}
+    - ./scripts/deploy.sh
+  stage: deploy
+  tags:
+    - deploy
+    - swarm
+
+.mage:
+  services:
+    web:
+      variables:
+        - DATA_HOST=cwbpub.cr.usgs.gov
+        - DATA_PORT=2060
+        - DATA_TYPE=edge
+        - GEOMAG_VERSION=0.3.1
+        - WEBSERVICE=true
+      ports:
+        - '8000:8000'
+
+.staging:
+  only:
+    - master@ghsc/geomag/geomag-algorithms
+    - tags@ghsc/geomag/geomag-algorithms
 ## --------------------------------------------------
 # Test Stage
 ## --------------------------------------------------
@@ -106,3 +144,12 @@ Build Algorithms Docker Image:
     - .build_docker_image
   variables:
     APP_NAME: geomag-algorithms
+## --------------------------------------------------
+# Deploy Stage
+## --------------------------------------------------
+
+Deploy Mage01:
+  extends:
+    - .deploy
+    - .staging
+    - .mage
