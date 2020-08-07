@@ -102,8 +102,6 @@ variables:
     DATA_HOST: 'cwbpub.cr.usgs.gov'
     DATA_PORT: '2060'
     DATA_TYPE: 'edge'
-    GEOMAG_VERSION: '0.3.1'
-    WEBSERVICE: 'true'
 
 .staging:
   only:
@@ -140,6 +138,7 @@ Build Algorithms Docker Image:
     - .build_docker_image
   variables:
     APP_NAME: geomag-algorithms
+
 ## --------------------------------------------------
 # Deploy Stage
 ## --------------------------------------------------
