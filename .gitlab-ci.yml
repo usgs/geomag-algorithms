@@ -96,6 +96,8 @@ variables:
   tags:
     - deploy
     - swarm
+  variables:
+    APP_NAME: geomag-algorithms
 
 .mage:
   variables:
@@ -148,3 +150,5 @@ Deploy Mage01:
     - .deploy
     - .staging
     - .mage
+  variables:
+    APP_NAME: geomag-algorithms

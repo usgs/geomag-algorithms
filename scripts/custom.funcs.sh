@@ -11,7 +11,6 @@ preStackDeployHook () {
 ##
 writeYmlFile () {
   local ymlFileName="${APP_NAME}.yml";
-  local configName="assets-$(date +%H%M%S)-$$";
 
   cat <<-EO_YML > ${ymlFileName}
 version: "3.5"
@@ -32,14 +31,12 @@ services:
         order: start-first
         parallelism: 3
     ports:
-      - 8000:8000
+      - 8000
     environment:
       - BASE_HREF=${BASE_HREF}
       - DATA_HOST=${DATA_HOST}
       - DATA_PORT=${DATA_PORT}
       - DATA_TYPE=${DATA_TYPE}
       - SITE_URL=${SITE_URL}
-    configs:
-      - source: ${configName}
 EO_YML
 }
