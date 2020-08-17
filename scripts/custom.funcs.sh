@@ -38,5 +38,6 @@ services:
       - DATA_PORT=${DATA_PORT}
       - DATA_TYPE=${DATA_TYPE}
       - SITE_URL=${SITE_URL}
+      - WEBSERVICE=true
 EO_YML
 }
