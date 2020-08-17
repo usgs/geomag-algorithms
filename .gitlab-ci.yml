@@ -105,6 +105,10 @@ variables:
     DATA_PORT: '2060'
     DATA_TYPE: 'edge'
 
+.mage01:
+  tags:
+    - mage01
+
 .staging:
   only:
     - master@ghsc/geomag/geomag-algorithms
@@ -150,5 +154,6 @@ Deploy Mage01:
     - .deploy
     - .staging
     - .mage
+    - .mage01
   variables:
     APP_NAME: geomag-algorithms
