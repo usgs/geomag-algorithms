@@ -22,4 +22,6 @@ def get_dbdt(
     timeseries = dbdt.process(raw)
     elements = [f"{element}_DT" for element in query.elements]
     # output response
-    return format_timeseries(timeseries=timeseries, format=format, elements=elements)
+    return format_timeseries(
+        timeseries=timeseries, format=query.format, elements=elements
+    )
