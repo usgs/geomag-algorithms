@@ -155,6 +155,6 @@ def get_data(
     # read data
     timeseries = get_timeseries(data_factory, query)
     # output response
-    return format_timesees(
+    return format_timeseries(
         timeseries=timeseries, format=query.format, elements=query.elements
     )
