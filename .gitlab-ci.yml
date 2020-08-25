@@ -111,6 +111,10 @@ variables:
   tags:
     - mage01
 
+.mage02:
+  tags:
+    - mage02
+
 ## --------------------------------------------------
 # Test Stage
 ## --------------------------------------------------
@@ -163,3 +167,12 @@ Deploy Mage01:
     - .mage01
   variables:
     APP_NAME: geomag-algorithms
+
+Deploy Mage02:
+  extends:
+    - .deploy
+    - .production
+    - .mage
+    - .mage02
+  variables:
+    APP_NAME: geomag-plots
