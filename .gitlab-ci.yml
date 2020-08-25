@@ -115,6 +115,22 @@ variables:
   tags:
     - mage02
 
+<<<<<<< HEAD
+=======
+.production:
+  except:
+    - ^.*beta.*$
+    - ^.*-rc.*$
+  only:
+    - tags@ghsc/geomag/geomag-algorithms
+    - production@ghsc/geomag/geomag-algorithms
+  when: manual
+
+.staging:
+  only:
+    - master@ghsc/geomag/geomag-algorithms
+    - tags@ghsc/geomag/geomag-algorithms
+>>>>>>> add production template
 ## --------------------------------------------------
 # Test Stage
 ## --------------------------------------------------
