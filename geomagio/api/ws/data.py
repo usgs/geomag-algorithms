@@ -121,7 +121,8 @@ def format_timeseries(
     else:
         data = IAGA2002Writer.format(timeseries, elements)
         media_type = "text/plain"
-    return Response(data, media_type=media_type)
+    headers = {"allow_origins": "*", "max_age": "86400", "allow_headers": "*"}
+    return Response(data, media_type=media_type, headers=headers)
 
 
 def get_timeseries(data_factory: TimeseriesFactory, query: DataApiQuery) -> Stream:

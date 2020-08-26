@@ -25,8 +25,6 @@ VERSION = os.getenv("GEOMAG_VERSION", "version")
 
 app = FastAPI(docs_url="/docs", root_path="/ws")
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], max_age=86400)
-
 app.include_router(algorithms.router)
 app.include_router(data.router)
 app.include_router(elements.router)
