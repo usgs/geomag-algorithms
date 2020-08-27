@@ -11,8 +11,7 @@ from obspy.core import Stream
 
 
 class PCDCPWriter(object):
-    """PCDCP writer.
-    """
+    """PCDCP writer."""
 
     def __init__(self, empty_value=PCDCPParser.NINES, temperatures=False):
         self.empty_value = empty_value

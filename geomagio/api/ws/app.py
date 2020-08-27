@@ -38,8 +38,7 @@ async def redirect_to_docs():
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    """Value errors are user errors.
-    """
+    """Value errors are user errors."""
     data_format = (
         "format" in request.query_params
         and str(request.query_params["format"])
@@ -50,8 +49,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def server_exception_handler(request: Request, exc: Exception):
-    """Other exceptions are server errors.
-    """
+    """Other exceptions are server errors."""
     data_format = (
         "format" in request.query_params
         and str(request.query_params["format"])
@@ -63,8 +61,7 @@ async def server_exception_handler(request: Request, exc: Exception):
 def format_error(
     status_code: int, exception: str, format: str, request: Request
 ) -> Response:
-    """Assign error_body value based on error format.
-    """
+    """Assign error_body value based on error format."""
     if format == "json":
         return json_error(status_code, exception, request.url)
     else:

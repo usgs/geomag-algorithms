@@ -45,8 +45,7 @@ from starlette.responses import RedirectResponse
 
 
 class User(BaseModel):
-    """Information about a logged in user.
-    """
+    """Information about a logged in user."""
 
     email: str
     sub: str  # unique outh id
@@ -113,8 +112,7 @@ router = APIRouter()
 
 @router.get("/authorize")
 async def authorize(request: Request):
-    """Authorize callback after authenticating using OpenID
-    """
+    """Authorize callback after authenticating using OpenID"""
 
     # finish login
     token = await oauth.openid.authorize_access_token(request)
@@ -135,8 +133,7 @@ async def authorize(request: Request):
 
 @router.get("/login")
 async def login(request: Request):
-    """Redirect to OpenID provider.
-    """
+    """Redirect to OpenID provider."""
     redirect_uri = request.url_for("authorize")
     # save original location
     if "Referer" in request.headers:
@@ -147,8 +144,7 @@ async def login(request: Request):
 
 @router.get("/logout")
 async def logout(request: Request):
-    """Clear session and redirect to index page.
-    """
+    """Clear session and redirect to index page."""
     request.session.pop("token", None)
     request.session.pop("user", None)
     return RedirectResponse(
@@ -162,6 +158,5 @@ async def logout(request: Request):
 
 @router.get("/user")
 async def user(request: Request, user: User = Depends(require_user())) -> User:
-    """Get currently logged in user.
-    """
+    """Get currently logged in user."""
     return user

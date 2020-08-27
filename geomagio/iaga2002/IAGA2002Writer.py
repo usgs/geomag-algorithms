@@ -13,8 +13,7 @@ from . import IAGA2002Parser
 
 
 class IAGA2002Writer(object):
-    """IAGA2002 writer.
-    """
+    """IAGA2002 writer."""
 
     def __init__(
         self,

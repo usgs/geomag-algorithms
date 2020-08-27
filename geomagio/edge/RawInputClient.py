@@ -109,8 +109,7 @@ class RawInputClient:
             raise TimeseriesFactoryException("Tag limited to 10 characters")
 
     def close(self):
-        """close the open sockets
-        """
+        """close the open sockets"""
         if self.socket is not None:
             self.socket.close()
             self.socket = None
@@ -144,7 +143,7 @@ class RawInputClient:
         return str(network + observatory.ljust(5) + channel + location).encode()
 
     def forceout(self):
-        """ force edge to recognize data
+        """force edge to recognize data
         NOTES
         -----
         When sending data to edge it hangs on to the data, until either
@@ -206,7 +205,7 @@ class RawInputClient:
             starttime += nsamp * timeoffset
 
     def _send(self, buf):
-        """ Send a block of data to the Edge/CWB combination.
+        """Send a block of data to the Edge/CWB combination.
 
         PARAMETERS
         ----------

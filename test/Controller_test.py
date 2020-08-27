@@ -21,9 +21,9 @@ from obspy.core import UTCDateTime
 def test_controller():
     """Controller_test.test_controller()
 
-  instantiate the controller, make certain the factories and algorithms
-  are set
-  """
+    instantiate the controller, make certain the factories and algorithms
+    are set
+    """
     inputfactory = TimeseriesFactory()
     outputfactory = TimeseriesFactory()
     algorithm = Algorithm()

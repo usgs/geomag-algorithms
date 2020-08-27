@@ -24,8 +24,7 @@ class MiniSeedInputClient(object):
         self.socket = None
 
     def close(self):
-        """Close socket if open.
-        """
+        """Close socket if open."""
         if self.socket is not None:
             try:
                 self.socket.close()

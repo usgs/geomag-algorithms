@@ -91,7 +91,7 @@ def get_gap_total(gaps, interval):
 
 
 def get_last_time(gaps, endtime):
-    """ Return the last time that a channel has in it.
+    """Return the last time that a channel has in it.
     Parameters
     ----------
     gaps: array
@@ -141,7 +141,7 @@ def get_table_header():
 
 
 def has_gaps(gaps):
-    """ Returns True if gaps dictionary has gaps in it.
+    """Returns True if gaps dictionary has gaps in it.
     Parameters
     ----------
     gaps: dictionary

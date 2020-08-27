@@ -218,7 +218,7 @@ class IMFV283Parser(object):
         return HEADER_SIZE
 
     def _parse_goes_header(self, data):
-        """ parse goes data header
+        """parse goes data header
 
         Parameters
         ----------

@@ -6,8 +6,7 @@ from obspy.core import UTCDateTime
 
 
 def test_imfv122_parse_header__hour_of_day():
-    """imfv122_test.test_imfv122_parse_header__minutes.
-    """
+    """imfv122_test.test_imfv122_parse_header__minutes."""
     parser = IMFV122Parser()
     parser._parse_header(
         "KAK MAY0216 123 03 HDZF A KYO 05381402 000000 RRRRRRRRRRRRRRRR"
@@ -23,8 +22,7 @@ def test_imfv122_parse_header__hour_of_day():
 
 
 def test_imfv122_parse_header__minute_of_day():
-    """imfv122_test.test_imfv122_parse_header__seconds.
-    """
+    """imfv122_test.test_imfv122_parse_header__seconds."""
     parser = IMFV122Parser()
     parser._parse_header(
         "HER JAN0116 001 0123 HDZF R EDI 12440192 -14161 DRRRRRRRRRRRRRRR"
@@ -40,8 +38,7 @@ def test_imfv122_parse_header__minute_of_day():
 
 
 def test_imfv122_parse_data():
-    """imfv122_test.test_imfv122_parse_data.
-    """
+    """imfv122_test.test_imfv122_parse_data."""
     parser = IMFV122Parser()
     parser._parse_header(
         "HER JAN0116 001 0123 HDZF R EDI 12440192 -14161 DRRRRRRRRRRRRRRR"
@@ -63,8 +60,7 @@ def test_imfv122_parse_data():
 
 
 def test_imfv122_post_process():
-    """imfv122_test.test_imfv122_post_process.
-    """
+    """imfv122_test.test_imfv122_post_process."""
     parser = IMFV122Parser()
     parser._parse_header(
         "HER JAN0116 001 0123 HDZF R EDI 12440192 -14161 DRRRRRRRRRRRRRRR"

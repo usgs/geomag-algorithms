@@ -11,8 +11,7 @@ from .Reading import Reading
 
 
 class WebAbsolutesFactory(object):
-    """Read absolutes from web absolutes service.
-    """
+    """Read absolutes from web absolutes service."""
 
     def __init__(
         self, url: str = "https://geomag.usgs.gov/baselines/observation.json.php"
@@ -39,8 +38,7 @@ class WebAbsolutesFactory(object):
             return self.parse_json(data)
 
     def parse_json(self, jsonstr: IO[str]) -> List[Reading]:
-        """Parse readings from the web absolutes JSON format.
-        """
+        """Parse readings from the web absolutes JSON format."""
         readings = []
         response = json.load(jsonstr)
         for data in response["data"]:
@@ -88,8 +86,7 @@ class WebAbsolutesFactory(object):
         }
 
     def _parse_reading(self, metadata: Mapping, data: Mapping) -> Reading:
-        """Parse absolutes and measurements from Reading json.
-        """
+        """Parse absolutes and measurements from Reading json."""
         absolutes = [
             self._parse_absolute(element, data[element])
             for element in ["D", "H", "Z"]

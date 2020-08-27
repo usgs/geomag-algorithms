@@ -10,8 +10,7 @@ from ..TimeseriesFactoryException import TimeseriesFactoryException
 
 
 class IMFJSONWriter(object):
-    """JSON writer.
-    """
+    """JSON writer."""
 
     def write(self, out, timeseries, channels, url=None):
         """Write timeseries to json file.

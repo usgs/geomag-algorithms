@@ -12,8 +12,7 @@ assert_array_equal = numpy.testing.assert_array_equal
 
 
 def test_create_empty_trace():
-    """TimeseriesUtility_test.test_create_empty_trace()
-    """
+    """TimeseriesUtility_test.test_create_empty_trace()"""
     trace1 = _create_trace([1, 1, 1, 1, 1], "H", UTCDateTime("2018-01-01"))
     trace2 = _create_trace([2, 2], "E", UTCDateTime("2018-01-01"))
     observatory = "Test"
@@ -171,8 +170,7 @@ def test_get_merged_gaps():
 
 
 def test_get_trace_values():
-    """TimeseriesUtility_test.test_get_trace_values()
-    """
+    """TimeseriesUtility_test.test_get_trace_values()"""
     stream = Stream(
         [
             __create_trace("H", [numpy.nan, 1, 1, numpy.nan, numpy.nan]),
@@ -213,8 +211,7 @@ def test_get_trace_values():
 
 
 def test_has_all_channels():
-    """TimeseriesUtility_test.test_has_all_channels():
-    """
+    """TimeseriesUtility_test.test_has_all_channels():"""
     nan = numpy.nan
     stream = Stream(
         [
@@ -245,8 +242,7 @@ def test_has_all_channels():
 
 
 def test_has_any_channels():
-    """TimeseriesUtility_test.test_has_any_channels():
-    """
+    """TimeseriesUtility_test.test_has_any_channels():"""
     nan = numpy.nan
     stream = Stream(
         [
@@ -338,8 +334,7 @@ def test_merge_streams():
 
 
 def test_pad_timeseries():
-    """TimeseriesUtility_test.test_pad_timeseries()
-    """
+    """TimeseriesUtility_test.test_pad_timeseries()"""
     trace1 = _create_trace([1, 1, 1, 1, 1], "H", UTCDateTime("2018-01-01"))
     trace2 = _create_trace([2, 2], "E", UTCDateTime("2018-01-01"))
     timeseries = Stream(traces=[trace1, trace2])
@@ -363,8 +358,7 @@ def test_pad_timeseries():
 
 
 def test_pad_and_trim_trace():
-    """TimeseriesUtility_test.test_pad_and_trim_trace()
-    """
+    """TimeseriesUtility_test.test_pad_and_trim_trace()"""
     trace = _create_trace([0, 1, 2, 3, 4], "X", UTCDateTime("2018-01-01"))
     assert_equal(trace.stats.starttime, UTCDateTime("2018-01-01T00:00:00Z"))
     assert_equal(trace.stats.endtime, UTCDateTime("2018-01-01T00:04:00Z"))
