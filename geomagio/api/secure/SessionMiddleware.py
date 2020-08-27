@@ -110,7 +110,10 @@ class SessionMiddleware:
         await self.save_session_callback(session_id, data)
 
     def set_cookie(
-        self, message: Message, value: str, max_age: int = None,
+        self,
+        message: Message,
+        value: str,
+        max_age: int = None,
     ):
         headers = MutableHeaders(scope=message)
         headers.append("Cache-Control")

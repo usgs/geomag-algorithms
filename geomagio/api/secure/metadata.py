@@ -31,7 +31,9 @@ router = APIRouter()
 
 @router.post("/metadata", response_model=Metadata)
 async def create_metadata(
-    request: Request, metadata: Metadata, user: User = Depends(require_user()),
+    request: Request,
+    metadata: Metadata,
+    user: User = Depends(require_user()),
 ):
     metadata = await metadata_table.create_metadata(metadata)
     return Response(metadata, status_code=201, media_type="application/json")

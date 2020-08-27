@@ -69,7 +69,10 @@ def prepfiles(
 
 
 def write_cal_file(
-    starttime: UTCDateTime, endtime: UTCDateTime, observatory: str, template: str,
+    starttime: UTCDateTime,
+    endtime: UTCDateTime,
+    observatory: str,
+    template: str,
 ):
     print(
         f"Loading calibration data for {observatory} [{starttime}, {endtime}]",

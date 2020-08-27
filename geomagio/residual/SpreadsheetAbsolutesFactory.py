@@ -288,7 +288,8 @@ class SpreadsheetAbsolutesFactory(object):
         return Reading(
             absolutes=absolutes,
             azimuth=Angle.from_dms(
-                degrees=int(mark_azimuth / 100.0), minutes=mark_azimuth % 100,
+                degrees=int(mark_azimuth / 100.0),
+                minutes=mark_azimuth % 100,
             ),
             hemisphere=metadata["hemisphere"],
             measurements=measurements,

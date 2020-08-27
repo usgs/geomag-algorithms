@@ -544,7 +544,14 @@ class EdgeFactory(TimeseriesFactory):
         TimeseriesUtility.pad_timeseries(timeseries, starttime, endtime)
 
     def _put_channel(
-        self, timeseries, observatory, channel, type, interval, starttime, endtime,
+        self,
+        timeseries,
+        observatory,
+        channel,
+        type,
+        interval,
+        starttime,
+        endtime,
     ):
         """Put a channel worth of data
 

@@ -67,7 +67,9 @@ async def current_user(request: Request) -> Optional[User]:
     return None
 
 
-def require_user(allowed_groups: List[str] = None,) -> Callable[[Request, User], User]:
+def require_user(
+    allowed_groups: List[str] = None,
+) -> Callable[[Request, User], User]:
     """Create function to verifies user in allowed_groups
 
     Usage example:

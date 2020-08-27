@@ -36,7 +36,9 @@ class PCDCPFactory(TimeseriesFactory):
     """
 
     def __init__(
-        self, temperatures=False, **kwargs,
+        self,
+        temperatures=False,
+        **kwargs,
     ):
         TimeseriesFactory.__init__(self, **kwargs)
         self.temperatures = temperatures
