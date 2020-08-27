@@ -121,7 +121,7 @@ def format_timeseries(
     else:
         data = IAGA2002Writer.format(timeseries, elements)
         media_type = "text/plain"
-    headers = {"allow_origins": "*", "max_age": "86400", "allow_headers": "*"}
+    headers = {"allow_origins": "*", "max_age": "", "allow_headers": "*"}
     return Response(data, media_type=media_type, headers=headers)
 
 
