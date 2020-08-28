@@ -17,18 +17,28 @@ STEPS = [
         "input_sample_period": 0.1,
         "output_sample_period": 1.0,
         "window": sps.firwin(123, 0.25, window="blackman", fs=10.0),
+        "type": "firfilter",
     },
     {  # one second to one minute filter
         "name": "Intermagnet One Minute",
         "input_sample_period": 1.0,
         "output_sample_period": 60.0,
         "window": sps.get_window(window=("gaussian", 15.8734), Nx=91),
+        "type": "firfilter",
     },
     {  # one minute to one hour filter
         "name": "One Hour",
         "input_sample_period": 60.0,
         "output_sample_period": 3600.0,
-        "window": sps.windows.boxcar(91),
+        "window": sps.windows.boxcar(60),
+        "type": "average",
+    },
+    {  # one minute to one hour filter
+        "name": "One Day",
+        "input_sample_period": 60.0,
+        "output_sample_period": 86400,
+        "window": sps.windows.boxcar(1440),
+        "type": "average",
     },
 ]
 
@@ -78,6 +88,7 @@ class FilterAlgorithm(Algorithm):
                 "input_sample_period": self.input_sample_period,
                 "output_sample_period": self.output_sample_period,
                 "window": data["window"],
+                "type": data["type"],
             }
         ]
 
@@ -87,7 +98,7 @@ class FilterAlgorithm(Algorithm):
         """
         if self.coeff_filename is None:
             return
-        data = {"window": list(self.window)}
+        data = {"window": list(self.window), "type": self.type}
         with open(self.coeff_filename, "w") as f:
             f.write(json.dumps(data))
 
@@ -105,16 +116,27 @@ class FilterAlgorithm(Algorithm):
 
         steps = []
         for step in STEPS:
-            if self.input_sample_period <= step["input_sample_period"]:
-                if self.output_sample_period >= step["output_sample_period"]:
-                    steps.append(step)
+            if (
+                self.input_sample_period <= step["input_sample_period"]
+                and self.output_sample_period >= step["output_sample_period"]
+            ):
+                if (
+                    step["type"] == "average"
+                    and step["output_sample_period"] != self.output_sample_period
+                ):
+                    continue
+                steps.append(step)
         return steps
 
     def _prepare_step(self, step) -> Dict:
         window = step["window"]
-        if len(window) % 2 == 1:
+        if step["type"] == "firfilter":
+            factor = 1
+        if step["type"] == "average":
+            factor = 0
+        if len(window) % 2 == factor:
             return step
-        sys.stderr.write("Even number of taps. Appending center coefficient.")
+        sys.stderr.write("Invalid number of taps. Appending center coefficient.")
         new_window = np.array(window)
         i = len(window) // 2
         np.insert(new_window, i + 1, np.average(window[i : i + 2]))
@@ -202,30 +224,18 @@ class FilterAlgorithm(Algorithm):
         decimation = int(output_sample_period / input_sample_period)
         numtaps = len(window)
         window = window / sum(window)
-        # first output timestamp is in the center of the filter window
-        filter_time_shift = input_sample_period * (numtaps // 2)
+        # first output timestamp is in the center of the filter window for firfilters
+        # center output timestamp is in the center of the filter window for averages
+        filter_time_shift = input_sample_period * ((numtaps - 1) / 2)
         out = Stream()
         for trace in stream:
             # data to filter
             data = trace.data
-            starttime = trace.stats.starttime + filter_time_shift
-            # align with the output period
-            misalignment = starttime.timestamp % output_sample_period
-            if misalignment != 0:
-                # skip incomplete input
-                starttime = (starttime - misalignment) + output_sample_period
-                input_starttime = starttime - filter_time_shift
-                offset = int(
-                    1e-6
-                    + (input_starttime - trace.stats.starttime) / input_sample_period
-                )
-                print(
-                    f"Skipping {offset} input samples to align output", file=sys.stderr
-                )
-                data = data[offset:]
-                # check there is still enough data for filter
-                if len(data) < numtaps:
-                    continue
+            starttime, data = self.check_misalignment(
+                step, data, trace.stats.starttime, filter_time_shift
+            )
+            if len(data) < numtaps:
+                continue
             filtered = self.firfilter(data, window, decimation)
             stats = Stats(trace.stats)
             stats.starttime = starttime
@@ -234,6 +244,21 @@ class FilterAlgorithm(Algorithm):
             trace_out = self.create_trace(stats.channel, stats, filtered)
             out += trace_out
         return out
+
+    def check_misalignment(self, step, data, start, shift):
+        starttime = start + shift
+        # align with the output period
+        misalignment = starttime.timestamp % step["output_sample_period"]
+        if step["type"] == "average":
+            misalignment = misalignment - shift
+        if misalignment != 0:
+            # skip incomplete input
+            starttime = (starttime - misalignment) + step["output_sample_period"]
+            input_starttime = starttime - shift
+            offset = int(1e-6 + (input_starttime - start) / step["input_sample_period"])
+            data = data[offset:]
+            # check there is still enough data for filter
+        return starttime, data
 
     @staticmethod
     def firfilter(data, window, step, allowed_bad=0.1):
@@ -306,10 +331,15 @@ class FilterAlgorithm(Algorithm):
         steps = self.get_filter_steps()
         # calculate start/end from step array
         for step in steps:
-            half = len(step["window"]) // 2
-            half_step = half * step["input_sample_period"]
-            start = start - half_step
-            end = end + half_step
+            if step["type"] == "average":
+                intervals = end.timestamp - start.timestamp
+                end = (start + intervals) - step["input_sample_period"]
+                return (start, end)
+
+            shift = len(step["window"]) // 2
+            shift_step = shift * step["input_sample_period"]
+            start = start - shift_step
+            end = end + shift_step
         return (start, end)
 
     @classmethod

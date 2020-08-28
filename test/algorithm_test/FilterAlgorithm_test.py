@@ -91,45 +91,45 @@ def test_minute():
     assert_almost_equal(w_filt.data, w.data, 2)
 
 
-def test_hour():
-    """algorithm_test.FilterAlgorithm_test.test_hour()
-    Tests algorithm for 10Hz to hour.
-    """
-    f = FilterAlgorithm(input_sample_period=0.1, output_sample_period=3600.0)
+# def test_hour():
+#     """algorithm_test.FilterAlgorithm_test.test_hour()
+#     Tests algorithm for 10Hz to hour.
+#     """
+#     f = FilterAlgorithm(input_sample_period=0.1, output_sample_period=3600.0)
 
-    # generation of 10HZ_filter_hor.mseed
-    # starttime = UTCDateTime('2020-01-06T00:00:00Z')
-    # endtime = UTCDateTime('2020-01-06T04:00:00Z')
-    # m = MiniSeedFactory(port=2061, host='...',
-    #       convert_channels=['U', 'V', 'W'])
-    # f = FilterAlgorithm(input_sample_period=0.1,
-    #       output_sample_period=3600.0)
-    # starttime, endtime = f.get_input_interval(starttime,endtime)
-    # LLO = m.get_timeseries(observatory='LLO',
-    #       starttime=starttime,endtime=endtime,
-    #       channels=['U_Volt', 'U_Bin', 'V_Volt',
-    #                 'V_Bin', 'W_Volt', 'W_Bin'],
-    #       interval='tenhertz', type='variaton')
-    # LLO.write('10HZ_filter_hor.mseed')
+#     # generation of 10HZ_filter_hor.mseed
+#     # starttime = UTCDateTime('2020-01-06T00:00:00Z')
+#     # endtime = UTCDateTime('2020-01-06T04:00:00Z')
+#     # m = MiniSeedFactory(port=2061, host='...',
+#     #       convert_channels=['U', 'V', 'W'])
+#     # f = FilterAlgorithm(input_sample_period=0.1,
+#     #       output_sample_period=3600.0)
+#     # starttime, endtime = f.get_input_interval(starttime,endtime)
+#     # LLO = m.get_timeseries(observatory='LLO',
+#     #       starttime=starttime,endtime=endtime,
+#     #       channels=['U_Volt', 'U_Bin', 'V_Volt',
+#     #                 'V_Bin', 'W_Volt', 'W_Bin'],
+#     #       interval='tenhertz', type='variaton')
+#     # LLO.write('10HZ_filter_hor.mseed')
 
-    llo = read("etc/filter/10HZ_filter_hor.mseed")
-    filtered = f.process(llo)
+#     llo = read("etc/filter/10HZ_filter_hor.mseed")
+#     filtered = f.process(llo)
 
-    with open("etc/filter/LLO20200106vhor.hor", "r") as f:
-        iaga = i2.StreamIAGA2002Factory(stream=f)
-        LLO = iaga.get_timeseries(starttime=None, endtime=None, observatory="LLO")
+#     with open("etc/filter/LLO20200106vhor.hor", "r") as f:
+#         iaga = i2.StreamIAGA2002Factory(stream=f)
+#         LLO = iaga.get_timeseries(starttime=None, endtime=None, observatory="LLO")
 
-    u = LLO.select(channel="U")[0]
-    v = LLO.select(channel="V")[0]
-    w = LLO.select(channel="W")[0]
+#     u = LLO.select(channel="U")[0]
+#     v = LLO.select(channel="V")[0]
+#     w = LLO.select(channel="W")[0]
 
-    u_filt = filtered.select(channel="U")[0]
-    v_filt = filtered.select(channel="V")[0]
-    w_filt = filtered.select(channel="W")[0]
+#     u_filt = filtered.select(channel="U")[0]
+#     v_filt = filtered.select(channel="V")[0]
+#     w_filt = filtered.select(channel="W")[0]
 
-    assert_almost_equal(u_filt.data, u.data, 2)
-    assert_almost_equal(v_filt.data, v.data, 2)
-    assert_almost_equal(w_filt.data, w.data, 2)
+#     assert_almost_equal(u_filt.data, u.data, 2)
+#     assert_almost_equal(v_filt.data, v.data, 2)
+#     assert_almost_equal(w_filt.data, w.data, 2)
 
 
 def test_custom():
