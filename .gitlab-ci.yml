@@ -31,7 +31,6 @@ variables:
   extends:
     - .adjust_image_names
     - .dind
-  image: ${CODE_REGISTRY}/ghsc/hazdev/cloud-formation/hazdev-build-runner:latest
   script:
     - docker build
       --pull
