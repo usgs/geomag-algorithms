@@ -175,4 +175,4 @@ Deploy Mage02:
     - .mage
     - .mage02
   variables:
-    APP_NAME: geomag-plots
+    APP_NAME: geomag-algorithms
