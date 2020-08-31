@@ -116,10 +116,6 @@ variables:
   tags:
     - mage01
 
-.staging:
-  only:
-    - master@ghsc/geomag/geomag-algorithms
-    - tags@ghsc/geomag/geomag-algorithms
 ## --------------------------------------------------
 # Test Stage
 ## --------------------------------------------------
