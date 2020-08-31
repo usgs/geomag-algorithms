@@ -31,8 +31,6 @@ variables:
   extends:
     - .adjust_image_names
     - .dind
-    - .production
-    - .staging
   image: ${CODE_REGISTRY}/ghsc/hazdev/cloud-formation/hazdev-build-runner:latest
   script:
     - docker build
@@ -140,9 +138,17 @@ Check Python 3.8:
 # Integration Stage
 ## --------------------------------------------------
 
-Build Algorithms Docker Image:
+Build Staging Docker Image:
   extends:
     - .build_docker_image
+    - .staging
+  variables:
+    APP_NAME: geomag-algorithms
+
+Build Production Docker Image:
+  extends:
+    - .build_docker_image
+    - .production
   variables:
     APP_NAME: geomag-algorithms
 
