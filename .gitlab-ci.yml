@@ -190,7 +190,6 @@ Deploy Mage01:
 Deploy Mage02:
   extends:
     - .deploy
-    - .production
     - .mage
     - .mage02
   variables:
