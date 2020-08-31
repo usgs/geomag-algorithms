@@ -33,8 +33,7 @@ def test_parse_msg_header():
 
 
 def test_parse_goes_header():
-    """imfv283_test.IMFV283Parser_test.test_parse_goes_header()
-    """
+    """imfv283_test.IMFV283Parser_test.test_parse_goes_header()"""
     goes_data = IMFV283Parser()._process_ness_block(
         IMFV283_EXAMPLE_VIC, imfv283_codes.OBSERVATORIES["VIC"], 191
     )

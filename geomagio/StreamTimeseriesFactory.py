@@ -34,8 +34,7 @@ class StreamTimeseriesFactory(TimeseriesFactory):
         type=None,
         interval=None,
     ):
-        """Get timeseries using stream as input.
-        """
+        """Get timeseries using stream as input."""
         if self.stream_data is None:
             # only read stream once
             self.stream_data = self.stream.read()
@@ -55,6 +54,5 @@ class StreamTimeseriesFactory(TimeseriesFactory):
         type=None,
         interval=None,
     ):
-        """Put timeseries using stream as output.
-        """
+        """Put timeseries using stream as output."""
         self.factory.write_file(self.stream, timeseries, channels)

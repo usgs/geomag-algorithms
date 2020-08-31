@@ -35,7 +35,7 @@ STEPS = [
 
 class FilterAlgorithm(Algorithm):
     """
-        Filter Algorithm that filters and downsamples data
+    Filter Algorithm that filters and downsamples data
     """
 
     def __init__(

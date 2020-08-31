@@ -8,8 +8,7 @@ from .session_table import session
 
 
 def create_db():
-    """Create the database using sqlalchemy.
-    """
+    """Create the database using sqlalchemy."""
     engine = sqlalchemy.create_engine(str(database.url))
     sqlalchemy_metadata.create_all(engine)
 

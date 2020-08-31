@@ -4,8 +4,7 @@ from numpy.testing import assert_almost_equal, assert_equal
 
 
 def test_construct():
-    """algorithm_test.AdjustedAlgorithm_test.test_construct()
-    """
+    """algorithm_test.AdjustedAlgorithm_test.test_construct()"""
     # load adjusted data transform matrix and pier correction
     a = adj(statefile="etc/adjusted/adjbou_state_.json")
 

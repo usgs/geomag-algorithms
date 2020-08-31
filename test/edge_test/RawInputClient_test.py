@@ -17,8 +17,7 @@ class MockRawInputClient(RawInputClient):
 
 
 def test_raw_input_client():
-    """edge_test.RawInputClient_test.test_raw_input_client()
-    """
+    """edge_test.RawInputClient_test.test_raw_input_client()"""
     network = "NT"
     station = "BOU"
     channel = "MVH"
@@ -57,8 +56,7 @@ def test_raw_input_client():
 
 
 def test__get_tag():
-    """edge_test.RawInputClient_test.test_raw_input_client()
-    """
+    """edge_test.RawInputClient_test.test_raw_input_client()"""
     network = "NT"
     station = "BOU"
     channel = "MVH"

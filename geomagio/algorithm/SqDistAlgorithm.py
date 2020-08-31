@@ -101,8 +101,7 @@ class SqDistAlgorithm(Algorithm):
         return (start - 3 * 30 * 24 * 60 * 60, end)
 
     def get_next_starttime(self):
-        """Return the next_starttime from the state, if it is set.
-        """
+        """Return the next_starttime from the state, if it is set."""
         return self.next_starttime
 
     def clear_state(self):

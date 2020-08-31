@@ -7,8 +7,7 @@ from obspy.core import UTCDateTime
 
 
 def test_get_file_for_url__throws_exception():
-    """Util_test.test_get_file_for_url__throws_exception()
-    """
+    """Util_test.test_get_file_for_url__throws_exception()"""
     # throws exception for non "file://" urls
     try:
         Util.get_file_from_url("http://someserver/path")
@@ -18,16 +17,14 @@ def test_get_file_for_url__throws_exception():
 
 
 def test_get_file_for_url__parses_file_urls():
-    """Util_test.test_get_file_for_url__parses_file_urls()
-    """
+    """Util_test.test_get_file_for_url__parses_file_urls()"""
     # parses file urls
     f = Util.get_file_from_url("file://./somefile")
     assert_equal(f, "./somefile")
 
 
 def test_get_file_for_url__creates_directories():
-    """Util_test.test_get_file_for_url__creates_directories()
-    """
+    """Util_test.test_get_file_for_url__creates_directories()"""
     # creates directories if requested
     if os.path.isdir("/tmp/_geomag_algorithms_test_"):
         shutil.rmtree("/tmp/_geomag_algorithms_test_")
@@ -41,8 +38,7 @@ def test_get_file_for_url__creates_directories():
 
 
 def test_get_interval__defaults():
-    """Util_test.test_get_interval()
-    """
+    """Util_test.test_get_interval()"""
     starttime = UTCDateTime("2015-01-01T00:00:00Z")
     endtime = UTCDateTime("2015-02-01T00:00:00Z")
     intervals = Util.get_intervals(starttime, endtime)
@@ -50,8 +46,7 @@ def test_get_interval__defaults():
 
 
 def test_get_interval__custom_size():
-    """Util_test.test_get_interval__custom_size()
-    """
+    """Util_test.test_get_interval__custom_size()"""
     starttime = UTCDateTime("2015-01-01T00:00:00Z")
     endtime = UTCDateTime("2015-01-02T00:00:00Z")
     intervals = Util.get_intervals(starttime, endtime, size=3600)
@@ -59,8 +54,7 @@ def test_get_interval__custom_size():
 
 
 def test_get_interval__negative_size():
-    """Util_test.test_get_interval__negative_size()
-    """
+    """Util_test.test_get_interval__negative_size()"""
     starttime = UTCDateTime("2015-01-01T00:00:00Z")
     endtime = UTCDateTime("2015-01-02T00:00:00Z")
     intervals = Util.get_intervals(starttime, endtime, size=-1)
@@ -70,8 +64,7 @@ def test_get_interval__negative_size():
 
 
 def test_get_interval__trim():
-    """Util_test.test_get_interval__trim()
-    """
+    """Util_test.test_get_interval__trim()"""
     starttime = UTCDateTime("2015-01-01T01:00:00Z")
     endtime = UTCDateTime("2015-01-02T00:00:00Z")
     intervals = Util.get_intervals(starttime, endtime, trim=True)

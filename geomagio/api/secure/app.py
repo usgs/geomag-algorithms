@@ -35,8 +35,7 @@ app.include_router(metadata_router)
 
 @app.get("/")
 async def index(request: Request, user: User = Depends(current_user)):
-    """Route to demo user login.
-    """
+    """Route to demo user login."""
     if user:
         link = f"""
             Logged in as {user.email}<br/>

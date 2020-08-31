@@ -19,8 +19,7 @@ Zbuf = []
 
 
 class BinLogWriter(object):
-    """BinLog writer.
-    """
+    """BinLog writer."""
 
     def __init__(self):
         return

@@ -58,7 +58,7 @@ class XYZAlgorithm(Algorithm):
 
     def get_required_channels(self):
         """Only the first two channels are required
-            for the XYZAlgorithm
+        for the XYZAlgorithm
         """
         return self._inchannels[:2]
 

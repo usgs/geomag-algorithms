@@ -24,7 +24,10 @@ ELEMENTS = [
     Element(id="SQ", name="Solar Quiet", units="nT"),
     Element(id="SV", name="Solar Variation", units="nT"),
     Element(
-        id="UK1", abbreviation="T-Electric", name="Electronics Temperature", units="°C",
+        id="UK1",
+        abbreviation="T-Electric",
+        name="Electronics Temperature",
+        units="°C",
     ),
     Element(
         id="UK2",

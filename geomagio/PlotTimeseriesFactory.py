@@ -6,8 +6,7 @@ from .TimeseriesFactory import TimeseriesFactory
 
 
 class PlotTimeseriesFactory(TimeseriesFactory):
-    """TimeseriesFactory that generates a plot.
-    """
+    """TimeseriesFactory that generates a plot."""
 
     def __init__(self, *args, **kwargs):
         TimeseriesFactory.__init__(self, *args, **kwargs)
@@ -21,8 +20,7 @@ class PlotTimeseriesFactory(TimeseriesFactory):
         type=None,
         interval=None,
     ):
-        """This factory does not support get_timeseries.
-        """
+        """This factory does not support get_timeseries."""
         raise NotImplementedError('"get_timeseries" not implemented')
 
     def put_timeseries(

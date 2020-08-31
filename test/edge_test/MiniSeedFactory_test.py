@@ -8,22 +8,19 @@ from geomagio.edge import MiniSeedFactory
 
 
 def test__get_edge_network():
-    """edge_test.MiniSeedFactory_test.test__get_edge_network()
-    """
+    """edge_test.MiniSeedFactory_test.test__get_edge_network()"""
     # _get_edge_network should always return NT for use by USGS geomag
     assert_equal(MiniSeedFactory()._get_edge_network(" ", " ", " ", " "), "NT")
 
 
 def test__get_edge_station():
-    """edge_test.MiniSeedFactory_test.test__get_edge_station()
-    """
+    """edge_test.MiniSeedFactory_test.test__get_edge_station()"""
     # _get_edge_station will return the observatory code passed in.
     assert_equal(MiniSeedFactory()._get_edge_station("BOU", " ", " ", " "), "BOU")
 
 
 def test__get_edge_channel():
-    """edge_test.MiniSeedFactory_test.test__get_edge_channel()
-    """
+    """edge_test.MiniSeedFactory_test.test__get_edge_channel()"""
     # Call private function _get_edge_channel, make certain
     # it gets back the appropriate 2 character code.
     factory = MiniSeedFactory()
@@ -39,8 +36,7 @@ def test__get_edge_channel():
 
 
 def test__get_edge_location():
-    """edge_test.MiniSeedFactory_test.test__get_edge_location()
-    """
+    """edge_test.MiniSeedFactory_test.test__get_edge_location()"""
     # Call _get_edge_location, make certain it returns the correct edge
     # location code.
     assert_equal(MiniSeedFactory()._get_edge_location("", "", "variation", ""), "R0")
@@ -51,8 +47,7 @@ def test__get_edge_location():
 
 
 def test__get_interval_code():
-    """edge_test.MiniSeedFactory_test.test__get_interval_code()
-    """
+    """edge_test.MiniSeedFactory_test.test__get_interval_code()"""
     assert_equal(MiniSeedFactory()._get_interval_code("day"), "P")
     assert_equal(MiniSeedFactory()._get_interval_code("hour"), "R")
     assert_equal(MiniSeedFactory()._get_interval_code("minute"), "U")
@@ -73,8 +68,7 @@ class MockMiniSeedInputClient(object):
 
 
 def test__put_timeseries():
-    """edge_test.MiniSeedFactory_test.test__put_timeseries()
-    """
+    """edge_test.MiniSeedFactory_test.test__put_timeseries()"""
     trace1 = __create_trace([0, 1, 2, 3, numpy.nan, 5, 6, 7, 8, 9], channel="H")
     client = MockMiniSeedInputClient()
     factory = MiniSeedFactory()
@@ -97,8 +91,7 @@ def test__put_timeseries():
 
 
 def test__set_metadata():
-    """edge_test.MiniSeedFactory_test.test__set_metadata()
-    """
+    """edge_test.MiniSeedFactory_test.test__set_metadata()"""
     # Call _set_metadata with 2 traces,  and make certain the stats get
     # set for both traces.
     trace1 = Trace()

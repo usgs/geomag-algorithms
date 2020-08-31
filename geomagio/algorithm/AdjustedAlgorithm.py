@@ -27,7 +27,9 @@ class AdjustedAlgorithm(Algorithm):
         inchannels = inchannels or ["H", "E", "Z", "F"]
         outchannels = outchannels or ["X", "Y", "Z", "F"]
         Algorithm.__init__(
-            self, inchannels=inchannels, outchannels=outchannels,
+            self,
+            inchannels=inchannels,
+            outchannels=outchannels,
         )
         # state variables
         self.matrix = matrix

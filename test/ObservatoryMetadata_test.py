@@ -46,8 +46,7 @@ DATA_INTERVAL_TYPE = {
 
 
 def test_set_metadata():
-    """ObservatoryMetadata_test.test_set_metadata()
-    """
+    """ObservatoryMetadata_test.test_set_metadata()"""
     # Test set_metadata by passing in a stats class, and looking
     # for parameters that are both passed in, and aquired from the default
     # metadata.
