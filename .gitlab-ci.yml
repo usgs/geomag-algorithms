@@ -32,10 +32,6 @@ variables:
     - .adjust_image_names
     - .dind
   image: ${CODE_REGISTRY}/ghsc/hazdev/cloud-formation/hazdev-build-runner:latest
-  only:
-    - master@ghsc/geomag/geomag-algorithms
-    - production@ghsc/geomag/geomag-algorithms
-    - tags@ghsc/geomag/geomag-algorithms
   script:
     - docker build
       --pull
