@@ -1,0 +1,26 @@
+ Format                 IAGA-2002                                    |
+ Source of Data         United States Geological Survey (USGS)       |
+ Station Name           Boulder                                      |
+ IAGA CODE              BOU                                          |
+ Geodetic Latitude      40.137                                       |
+ Geodetic Longitude     254.763                                      |
+ Elevation              1682                                         |
+ Reported               HEZF                                         |
+ Sensor Orientation     HDZF                                         |
+ Digital Sampling       0.01 second                                  |
+ Data Interval Type     filtered 1-minute (00:15-01:45)              |
+ Data Type              variation                                    |
+ # DECBAS               5527    (Baseline declination value in       |
+ # tenths of minutes East (0-216,000)).                              |
+ # Vector 1-minute values are computed from 1-second values using    |
+ # the INTERMAGNET gaussian filter centered on the minute. Scalar    |
+ # 1-minute values are computed from 1-second values using the       |
+ # INTERMAGNET gaussian filter centered on the minute.               |
+ # CONDITIONS OF USE: The Conditions of Use for data provided        |
+ # through INTERMAGNET and acknowledgement templates can be found at |
+ # www.intermagnet.org                                               |
+DATE       TIME         DOY     BOUH      BOUE      BOUZ      BOUF   |
+2020-08-31 00:29:30.000 244     20778.61    -99.10  46814.71  51737.42
+2020-08-31 01:29:30.000 244     20777.91   -102.77  46814.63  51737.11
+2020-08-31 02:29:30.000 244     20789.41    -96.59  46814.35  51741.37
+2020-08-31 03:29:30.000 244     20813.68    -73.96  46808.12  51745.12
