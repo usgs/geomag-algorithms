@@ -31,6 +31,13 @@ app.include_router(elements.router)
 app.include_router(observatories.router)
 
 
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Process-Time"] = "45"
+    return response
+
+
 @app.get("/", include_in_schema=False)
 async def redirect_to_docs():
     return RedirectResponse("/ws/docs")
