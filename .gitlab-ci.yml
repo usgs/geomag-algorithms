@@ -116,6 +116,7 @@ variables:
     - mage02
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 .production:
   except:
@@ -126,6 +127,8 @@ variables:
     - production@ghsc/geomag/geomag-algorithms
   when: manual
 
+=======
+>>>>>>> remove production template
 .staging:
   only:
     - master@ghsc/geomag/geomag-algorithms
