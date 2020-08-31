@@ -1,6 +1,6 @@
 ARG FROM_IMAGE=usgs/centos:latest
 
-FROM ${FROM_IMAGE}
+FROM ${FROM_IMAGE} as conda
 LABEL maintainer="Jeremy Fee <jmfee@usgs.gov>"
 
 ARG GIT_BRANCH_NAME=none
@@ -34,6 +34,29 @@ RUN conda config --set ssl_verify $SSL_CERT_FILE \
     && pip install pipenv 'virtualenv!=20.0.22' \
     && yum install -y which \
     && yum clean all
+
+
+################################################################################
+## Development image
+
+# build by running
+# docker build -t geomag-algorithms-development --target development .
+
+FROM conda as development
+
+# install dependencies via pipenv
+WORKDIR /geomag-algorithms
+COPY Pipfile /geomag-algorithms
+RUN pipenv --site-packages install --dev --skip-lock
+
+# copy library (ignores set in .dockerignore)
+COPY . /geomag-algorithms
+
+
+################################################################################
+## Production image
+
+FROM conda
 
 RUN useradd \
     -c 'Docker image user' \
