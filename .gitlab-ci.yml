@@ -1,3 +1,9 @@
+---
+include:
+  - project: 'ghsc/hazdev/pipeline-build-template'
+    ref: 'master'
+    file: 'templates/library.yml'
+
 image: ${DEVOPS_REGISTRY}usgs/centos:latest
 
 stages:
