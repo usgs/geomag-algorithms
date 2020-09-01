@@ -32,9 +32,10 @@ app.include_router(observatories.router)
 
 
 @app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
+async def add_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["X-Process-Time"] = "45"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Cache-Control"] = "864000"
     return response
 
 

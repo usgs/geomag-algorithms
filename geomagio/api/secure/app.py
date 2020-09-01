@@ -33,6 +33,14 @@ app.include_router(login_router)
 app.include_router(metadata_router)
 
 
+@app.middleware("http")
+async def add_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 @app.get("/")
 async def index(request: Request, user: User = Depends(current_user)):
     """Route to demo user login."""
