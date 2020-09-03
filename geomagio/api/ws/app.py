@@ -34,11 +34,11 @@ app.include_router(observatories.router)
 @app.middleware("http")
 async def add_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "*"
     response.headers[
         "Access-Control-Allow-Headers"
     ] = "accept, origin, authorization, content-type"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Cache-Control"] = "max-age=60"
     return response
 
