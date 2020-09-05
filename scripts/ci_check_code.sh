@@ -1,4 +1,4 @@
-#! /bin/bash -x
+#! /bin/bash -ex
 
 PYTHON_VERSION=${PYTHON_VERSION:-"3.8"}
 
