@@ -1,9 +1,3 @@
----
-include:
-  - project: 'ghsc/hazdev/pipeline-build-template'
-    ref: 'master'
-    file: 'templates/library.yml'
-
 image: ${DEVOPS_REGISTRY}usgs/centos:latest
 
 stages:
@@ -14,6 +8,14 @@ stages:
 variables:
   CI_REGISTRY: ${CODE_REGISTRY}
   CI_REGISTRY_IMAGE: ${CODE_REGISTRY_IMAGE}
+  # docker variables
+  FROM_IMAGE: ${CODE_REGISTRY}/devops/images/usgs/centos:latest
+  # environment variables
+  APP_NAME: geomag-algorithms
+  DATA_HOST: 'cwbpub.cr.usgs.gov'
+  DATA_PORT: '2060'
+  DATA_TYPE: 'edge'
+
 
 ## --------------------------------------------------
 # Templates
@@ -30,7 +32,11 @@ variables:
   cache: {}
   extends:
     - .adjust_image_names
-    - .dind
+  image: docker:19.03-git
+  only:
+    - master@ghsc/geomag/geomag-algorithms
+    - production@ghsc/geomag/geomag-algorithms
+    - tags@ghsc/geomag/geomag-algorithms
   script:
     - docker build
       --pull
@@ -46,11 +52,11 @@ variables:
     - docker tag local/${IMAGE_NAME} ${INTERNAL_IMAGE_NAME}
     - docker push ${INTERNAL_IMAGE_NAME}
     - docker image rm ${INTERNAL_IMAGE_NAME}
+  services:
+    - docker:19.03-dind
   stage: integration
   tags:
     - build
-  variables:
-    FROM_IMAGE: ${CODE_REGISTRY}/devops/images/usgs/centos:latest
 
 .check_code:
   cache: {}
@@ -89,6 +95,7 @@ variables:
       generic-deploy/default.funcs.sh
       generic-deploy/deploy.sh
       scripts/.
+
     - export APP_NAME=${APP_NAME}
     - export IMAGE_NAME=${IMAGE_NAME}
     - export REGISTRY=${CI_REGISTRY_IMAGE}
@@ -98,8 +105,6 @@ variables:
   tags:
     - deploy
     - swarm
-  variables:
-    APP_NAME: geomag-algorithms
 
 .mage:
   variables:
@@ -107,13 +112,20 @@ variables:
     DATA_PORT: '2060'
     DATA_TYPE: 'edge'
 
-.mage01:
-  tags:
-    - mage01
+.staging:
+  only:
+    - master@ghsc/geomag/geomag-plots
+    - tags@ghsc/geomag/geomag-plots
 
-.mage02:
-  tags:
-    - mage02
+.production:
+  except:
+    - ^.*beta.*$
+    - ^.*-rc.*$
+  only:
+    - tags@ghsc/geomag/geomag-plots
+    - production@ghsc/geomag/geomag-plots
+  when: manual
+
 
 ## --------------------------------------------------
 # Test Stage
@@ -137,23 +149,20 @@ Check Python 3.8:
   variables:
     PYTHON_VERSION: '3.8'
 
+
 ## --------------------------------------------------
 # Integration Stage
 ## --------------------------------------------------
 
-Build Staging Docker Image:
+Build Docker Image:
   extends:
     - .build_docker_image
-    - .staging
   variables:
     APP_NAME: geomag-algorithms
 
-Build Production Docker Image:
-  extends:
-    - .build_docker_image
-    - .production
-  variables:
-    APP_NAME: geomag-algorithms
+
+# TODO: Penetration testing (e.g. OWASP ZAP etc...)
+
 
 ## --------------------------------------------------
 # Deploy Stage
@@ -163,8 +172,10 @@ Deploy Mage01:
   extends:
     - .deploy
     - .staging
-    - .mage
-    - .mage01
+  tags:
+    - deploy
+    - swarm
+    - mage01
   variables:
     APP_NAME: geomag-algorithms
 
@@ -172,7 +183,54 @@ Deploy Mage02:
   extends:
     - .deploy
     - .production
-    - .mage
-    - .mage02
+  tags:
+    - deploy
+    - swarm
+    - mage02
+  variables:
+    APP_NAME: geomag-algorithms
+
+
+Deploy Algorithms Production01:
+  extends:
+    - .deploy
+    - .production
+  tags:
+    - deploy
+    - swarm
+    - production01
+  variables:
+    APP_NAME: geomag-algorithms
+
+Deploy Algorithms Production02:
+  extends:
+    - .deploy
+    - .production
+  tags:
+    - deploy
+    - swarm
+    - production02
+  variables:
+    APP_NAME: geomag-algorithms
+
+Deploy Algorithms Staging01:
+  extends:
+    - .deploy
+    - .staging
+  tags:
+    - deploy
+    - swarm
+    - staging01
+  variables:
+    APP_NAME: geomag-algorithms
+
+Deploy Algorithms Staging02:
+  extends:
+    - .deploy
+    - .staging
+  tags:
+    - deploy
+    - swarm
+    - staging02
   variables:
     APP_NAME: geomag-algorithms
