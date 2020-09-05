@@ -62,16 +62,8 @@ variables:
   cache: {}
   image: ${DEVOPS_REGISTRY}usgs/conda:latest
   script:
-    # Add conda to path
-    - source /etc/profile.d/conda.sh
-    # Install Project Dependencies
-    - conda config --add channels conda-forge
-    - conda install python=${PYTHON_VERSION} obspy pycurl
-    - pip install pipenv
-    - pipenv --site-packages install --dev --pre --skip-lock
-    # Run Code Checks
-    - pipenv run black --check .
-    - pipenv run pytest --cov-report xml:cov.xml --cov=geomagio
+    - export PYTHON_VERSION=${PYTHON_VERSION:-3.8}
+    - scripts/ci_check_code.sh
   artifacts:
     paths:
       - cov.xml
@@ -80,8 +72,6 @@ variables:
   stage: test
   tags:
     - development
-  variables:
-    PYTHON_VERSION: 3.8
 
 .deploy:
   cache: {}
@@ -134,20 +124,23 @@ variables:
 Check Python 3.6:
   extends:
     - .check_code
-  variables:
-    PYTHON_VERSION: '3.6'
+  script:
+    - export PYTHON_VERSION=3.6
+    - scripts/ci_check_code.sh
 
 Check Python 3.7:
   extends:
     - .check_code
-  variables:
-    PYTHON_VERSION: '3.7'
+  script:
+    - export PYTHON_VERSION=3.7
+    - scripts/ci_check_code.sh
 
 Check Python 3.8:
   extends:
     - .check_code
-  variables:
-    PYTHON_VERSION: '3.8'
+  script:
+    - export PYTHON_VERSION=3.8
+    - scripts/ci_check_code.sh
 
 
 ## --------------------------------------------------
