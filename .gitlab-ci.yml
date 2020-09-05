@@ -114,16 +114,16 @@ variables:
 
 .staging:
   only:
-    - master@ghsc/geomag/geomag-plots
-    - tags@ghsc/geomag/geomag-plots
+    - master@ghsc/geomag/geomag-algorithms
+    - tags@ghsc/geomag/geomag-algorithms
 
 .production:
   except:
     - ^.*beta.*$
     - ^.*-rc.*$
   only:
-    - tags@ghsc/geomag/geomag-plots
-    - production@ghsc/geomag/geomag-plots
+    - tags@ghsc/geomag/geomag-algorithms
+    - production@ghsc/geomag/geomag-algorithms
   when: manual
 
 
