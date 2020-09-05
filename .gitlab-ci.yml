@@ -9,6 +9,7 @@ variables:
   CI_REGISTRY: ${CODE_REGISTRY}
   CI_REGISTRY_IMAGE: ${CODE_REGISTRY_IMAGE}
   # docker variables
+  DOCKER_DRIVER: overlay2
   FROM_IMAGE: ${CODE_REGISTRY}/devops/images/usgs/centos:latest
   # environment variables
   APP_NAME: geomag-algorithms
