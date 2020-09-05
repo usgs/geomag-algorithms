@@ -1,6 +1,6 @@
 #! /bin/bash -x
 
-$PYTHON_VERSION=${PYTHON_VERSION:-"3.8"}
+PYTHON_VERSION=${PYTHON_VERSION:-"3.8"}
 
 
 if [ -f "/etc/profile.d/conda.sh" ]; then
