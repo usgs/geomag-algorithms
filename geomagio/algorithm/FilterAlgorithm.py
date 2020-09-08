@@ -43,6 +43,12 @@ STEPS = [
 ]
 
 
+def get_step_time_shift(step):
+    input_sample_period = step["input_sample_period"]
+    numtaps = len(step["window"])
+    return input_sample_period * ((numtaps - 1) / 2)
+
+
 class FilterAlgorithm(Algorithm):
     """
     Filter Algorithm that filters and downsamples data
@@ -226,13 +232,13 @@ class FilterAlgorithm(Algorithm):
         window = window / sum(window)
         # first output timestamp is in the center of the filter window for firfilters
         # center output timestamp is in the center of the filter window for averages
-        filter_time_shift = input_sample_period * ((numtaps - 1) / 2)
+        shift = get_step_time_shift(step)
         out = Stream()
         for trace in stream:
             # data to filter
             data = trace.data
             starttime, data = self.check_misalignment(
-                step, data, trace.stats.starttime, filter_time_shift
+                step, data, trace.stats.starttime, shift
             )
             if len(data) < numtaps:
                 continue
@@ -336,7 +342,7 @@ class FilterAlgorithm(Algorithm):
                 end = (start + intervals) - step["input_sample_period"]
                 return (start, end)
 
-            shift = len(step["window"]) // 2
+            shift = get_step_time_shift(step)
             shift_step = shift * step["input_sample_period"]
             start = start - shift_step
             end = end + shift_step
