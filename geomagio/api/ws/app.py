@@ -20,7 +20,7 @@ ERROR_CODE_MESSAGES = {
     503: "Service Unavailable",
 }
 
-METADATA_ENDPOINT = os.getenv("METADATA_ENDPOINT", False)
+METADATA_ENDPOINT = bool(os.getenv("METADATA_ENDPOINT", False))
 VERSION = os.getenv("GEOMAG_VERSION", "version")
 
 
@@ -31,7 +31,7 @@ app.include_router(data.router)
 app.include_router(elements.router)
 app.include_router(observatories.router)
 
-if METADATA_ENDPOINT == True:
+if METADATA_ENDPOINT:
     app.include_router(metadata.router)
 
 
