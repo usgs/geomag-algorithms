@@ -20,6 +20,7 @@ ERROR_CODE_MESSAGES = {
     503: "Service Unavailable",
 }
 
+metadata_endpoint = os.getenv("METADATA_ENDPOINT", False)
 VERSION = os.getenv("GEOMAG_VERSION", "version")
 
 
@@ -28,8 +29,10 @@ app = FastAPI(docs_url="/docs", root_path="/ws")
 app.include_router(algorithms.router)
 app.include_router(data.router)
 app.include_router(elements.router)
-app.include_router(metadata.router)
 app.include_router(observatories.router)
+
+if metadata_endpoint == True:
+    app.include_router(metadata.router)
 
 
 @app.middleware("http")
