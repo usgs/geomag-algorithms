@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from obspy import UTCDateTime
 
-from . import algorithms, data, elements, observatories
+from . import algorithms, data, elements, metadata, observatories
 
 
 ERROR_CODE_MESSAGES = {
@@ -20,6 +20,7 @@ ERROR_CODE_MESSAGES = {
     503: "Service Unavailable",
 }
 
+METADATA_ENDPOINT = bool(os.getenv("METADATA_ENDPOINT", False))
 VERSION = os.getenv("GEOMAG_VERSION", "version")
 
 
@@ -29,6 +30,9 @@ app.include_router(algorithms.router)
 app.include_router(data.router)
 app.include_router(elements.router)
 app.include_router(observatories.router)
+
+if METADATA_ENDPOINT:
+    app.include_router(metadata.router)
 
 
 @app.middleware("http")
