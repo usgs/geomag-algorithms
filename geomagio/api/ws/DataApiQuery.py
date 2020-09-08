@@ -7,35 +7,12 @@ from pydantic import BaseModel, root_validator, validator
 
 from ... import pydantic_utcdatetime
 from .Element import ELEMENTS, ELEMENT_INDEX
+from .Observatory import OBSERVATORY_INDEX
+
 
 DEFAULT_ELEMENTS = ["X", "Y", "Z", "F"]
 REQUEST_LIMIT = 345600
 VALID_ELEMENTS = [e.id for e in ELEMENTS]
-
-VALID_OBSERVATORIES = [
-    "BDT",
-    "BOU",
-    "BRT",
-    "BRW",
-    "BSL",
-    "CMO",
-    "CMT",
-    "DED",
-    "DHT",
-    "FDT",
-    "FRD",
-    "FRN",
-    "GUA",
-    "HON",
-    "NEW",
-    "SHU",
-    "SIT",
-    "SJG",
-    "SJT",
-    "TST",
-    "TUC",
-    "USGS",
-]
 
 
 class DataType(str, enum.Enum):
@@ -43,6 +20,10 @@ class DataType(str, enum.Enum):
     ADJUSTED = "adjusted"
     QUASI_DEFINITIVE = "quasi-definitive"
     DEFINITIVE = "definitive"
+
+    @classmethod
+    def values(cls) -> List[str]:
+        return [t.value for t in cls]
 
 
 class OutputFormat(str, enum.Enum):
@@ -71,10 +52,10 @@ class DataApiQuery(BaseModel):
     def validate_data_type(
         cls, data_type: Union[DataType, str]
     ) -> Union[DataType, str]:
-        if data_type not in DataType and len(data_type) != 2:
+        if data_type not in DataType.values() and len(data_type) != 2:
             raise ValueError(
                 f"Bad data type value '{data_type}'."
-                f" Valid values are: {', '.join(list(DataType))}"
+                f" Valid values are: {', '.join(DataType.values())}"
             )
         return data_type
 
@@ -94,10 +75,10 @@ class DataApiQuery(BaseModel):
 
     @validator("id")
     def validate_id(cls, id: str) -> str:
-        if id not in VALID_OBSERVATORIES:
+        if id not in OBSERVATORY_INDEX:
             raise ValueError(
                 f"Bad observatory id '{id}'."
-                f" Valid values are: {', '.join(VALID_OBSERVATORIES)}."
+                f" Valid values are: {', '.join(sorted(OBSERVATORY_INDEX.keys()))}."
             )
         return id
 
