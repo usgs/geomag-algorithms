@@ -3,6 +3,7 @@ import json
 from numpy.testing import assert_almost_equal, assert_equal
 import numpy as np
 from obspy import read, UTCDateTime
+import pytest
 
 from geomagio.algorithm import FilterAlgorithm
 import geomagio.iaga2002 as i2
@@ -259,9 +260,9 @@ def test_starttime_shift():
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-01T00:13:00Z"))
 
 
-def test_prepare_step():
-    """algorithm_test.FilterAlgorithm_test.test_custom()
-    Tests algorithm for 10Hz to second with custom filter coefficients.
+def test_validate_steps():
+    """algorithm_test.FilterAlgorithm_test.test_validate_steps()
+    Validates algorithm steps 10 Hz to second with custom coefficients.
     """
     with open("etc/filter/coeffs.json", "rb") as f:
         step = json.loads(f.read())
@@ -270,14 +271,14 @@ def test_prepare_step():
     half = numtaps // 2
     # check initial assumption
     assert_equal(numtaps % 2, 1)
-    # expect step to be unchanged when window has odd length
-    unchanged = f._prepare_step(step)
-    assert_equal(unchanged, step)
-    # expect step to be extended when window has event length
-    even_step = {"window": np.delete(step["window"], numtaps // 2, 0)}
-    assert_equal(len(even_step["window"]) % 2, 0)
-    prepared = f._prepare_step(step)
-    assert_equal(len(prepared["window"]) % 2, 1)
-    # value is inserted in middle
-    assert_equal(prepared["window"][: half + 1], step["window"][: half + 1])
-    assert_equal(prepared["window"][half:], step["window"][half:])
+    f._validate_steps()
+    # expect step to raise a value error when window has an even length
+    f.steps = [
+        {
+            "window": np.delete(step["window"], numtaps // 2, 0),
+            "type": "firfilter",
+        }
+    ]
+    assert_equal(len(f.steps[0]["window"]) % 2, 0)
+    with pytest.raises(ValueError):
+        f._validate_steps()

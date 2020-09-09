@@ -72,10 +72,9 @@ class FilterAlgorithm(Algorithm):
         self.output_sample_period = output_sample_period
         self.steps = steps
         self.load_state()
-        # ensure correctly aligned coefficients in each step
-        self.steps = (
-            self.steps and [self._prepare_step(step) for step in self.steps] or []
-        )
+        #  ensure correctly aligned coefficients in each step
+        self.steps = self.steps or []
+        self._validate_steps()
 
     def load_state(self):
         """Load filter coefficients from json file if custom filter is used.
@@ -134,21 +133,10 @@ class FilterAlgorithm(Algorithm):
                 steps.append(step)
         return steps
 
-    def _prepare_step(self, step) -> Dict:
-        window = step["window"]
-        if step["type"] == "firfilter":
-            factor = 1
-        if step["type"] == "average":
-            factor = 0
-        if len(window) % 2 == factor:
-            return step
-        sys.stderr.write("Invalid number of taps. Appending center coefficient.")
-        new_window = np.array(window)
-        i = len(window) // 2
-        np.insert(new_window, i + 1, np.average(window[i : i + 2]))
-        new_step = dict(step)
-        new_step["window"] = new_window
-        return new_step
+    def _validate_steps(self):
+        for step in self.steps:
+            if step["type"] == "firfilter" and len(step["window"]) % 2 != 1:
+                raise ValueError("Firfilter requires an odd number of coefficients")
 
     def can_produce_data(self, starttime, endtime, stream):
         """Can Produce data
