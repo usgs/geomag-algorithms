@@ -265,6 +265,33 @@ def test_starttime_shift():
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-01T00:13:00Z"))
 
 
+def test_align_trace():
+    """algorithm_test.FilterAlgorithm_test.test_align_trace()
+    Tests algorithm for minute to hour with expected behavior, trailing samples, and missing samples
+    """
+    f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=3600.0)
+    bou = read("etc/filter/hor_filter_min.mseed")
+    # check intial assumptions
+    precise = f.process(bou)
+    assert_equal(precise[0].stats.starttime, UTCDateTime("2020-08-31T00:29:30"))
+    assert_equal(precise[0].stats.endtime, UTCDateTime("2020-08-31T03:29:30"))
+    # check for filtered product producing the correct interval with trailing samples
+    trimmed = bou.copy().trim(
+        starttime=UTCDateTime("2020-08-31T01:00:00"),
+        endtime=UTCDateTime("2020-08-31T02:04:00"),
+    )
+    filtered = f.process(trimmed)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-31T01:29:30"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-31T01:29:30"))
+    # test for skipped sample when not enough data is given for first interval
+    trimmed = bou.copy().trim(
+        starttime=UTCDateTime("2020-08-31T01:30:00"), endtime=bou[0].stats.endtime
+    )
+    filtered = f.process(trimmed)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-31T02:29:30"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-31T03:29:30"))
+
+
 def test_validate_steps():
     """algorithm_test.FilterAlgorithm_test.test_validate_steps()
     Validates algorithm steps 10 Hz to second with custom coefficients.
