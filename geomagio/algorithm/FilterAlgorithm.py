@@ -49,6 +49,20 @@ def get_step_time_shift(step):
     return input_sample_period * ((numtaps - 1) / 2)
 
 
+def get_valid_interval(step, start, end):
+    # get first interval
+    interval_start = start - (start.timestamp % step["output_sample_period"])
+    start = interval_start
+    interval_end = start + step["output_sample_period"] - step["input_sample_period"]
+    while end > interval_end:
+        interval_start = interval_end + step["input_sample_period"]
+        interval_end = (
+            interval_start + step["output_sample_period"] - step["input_sample_period"]
+        )
+    end = interval_end - step["output_sample_period"]
+    return start, end
+
+
 class FilterAlgorithm(Algorithm):
     """
     Filter Algorithm that filters and downsamples data
@@ -328,17 +342,16 @@ class FilterAlgorithm(Algorithm):
             end of input required to generate requested output.
         """
         steps = self.get_filter_steps()
+        steps = np.flip(steps)
         # calculate start/end from step array
         for step in steps:
             if step["type"] == "average":
-                intervals = end.timestamp - start.timestamp
-                end = (start + intervals) - step["input_sample_period"]
-                return (start, end)
-
-            shift = get_step_time_shift(step)
-            shift_step = shift * step["input_sample_period"]
-            start = start - shift_step
-            end = end + shift_step
+                start, end = get_valid_interval(step, start, end)
+            else:
+                shift = get_step_time_shift(step)
+                shift_step = shift * step["input_sample_period"]
+                start = start - shift_step
+                end = end + shift_step
         return (start, end)
 
     @classmethod
