@@ -223,23 +223,22 @@ class FilterAlgorithm(Algorithm):
         shift = get_step_time_shift(step)
         out = Stream()
         for trace in stream:
+            self.align_trace(step, trace)
             # data to filter
             data = trace.data
-            starttime, data = self.check_misalignment(
-                step, data, trace.stats.starttime, shift
-            )
-            if len(data) < numtaps:
-                continue
             filtered = self.firfilter(data, window, decimation)
             stats = Stats(trace.stats)
-            stats.starttime = starttime
             stats.delta = output_sample_period
             stats.npts = len(filtered)
             trace_out = self.create_trace(stats.channel, stats, filtered)
             out += trace_out
         return out
 
-    def check_misalignment(self, step, data, start, shift):
+    def align_trace(self, step, trace):
+        start = trace.stats.starttime
+        numtaps = len(step["window"])
+        shift = get_step_time_shift(step)
+        data = trace.data
         starttime = start + shift
         # align with the output period
         misalignment = starttime.timestamp % step["output_sample_period"]
@@ -247,12 +246,18 @@ class FilterAlgorithm(Algorithm):
             misalignment = misalignment - shift
         if misalignment != 0:
             # skip incomplete input
-            starttime = (starttime - misalignment) + step["output_sample_period"]
+            starttime = starttime - misalignment
+            if misalignment > 0:
+                starttime += step["output_sample_period"]
             input_starttime = starttime - shift
             offset = int(1e-6 + (input_starttime - start) / step["input_sample_period"])
             data = data[offset:]
-            # check there is still enough data for filter
-        return starttime, data
+            # check that there is still enough data to filter
+            if len(data) < numtaps:
+                data = []
+                starttime = starttime - step["input_sample_period"]
+        trace.stats.starttime = starttime
+        trace.data = data
 
     @staticmethod
     def firfilter(data, window, step, allowed_bad=0.1):
