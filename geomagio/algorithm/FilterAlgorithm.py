@@ -44,16 +44,42 @@ STEPS = [
 
 
 def get_step_time_shift(step):
+    """Calculates the time shift generated in each filtering step
+
+    Parameters
+    ----------
+    step: dict
+        Dictionary object holding information about a given filter step
+    Returns
+    -------
+    shift: float
+        Time shift value
+    """
     input_sample_period = step["input_sample_period"]
     numtaps = len(step["window"])
-    return input_sample_period * ((numtaps - 1) / 2)
+    shift = input_sample_period * ((numtaps - 1) / 2)
+    return shift
 
 
 def get_valid_interval(step, start, end):
+    """Searches for a valid interval to process averaging steps
+
+    Parameters
+    ----------
+    step: dict
+        Dictionary object holding information about a given filter step
+    Returns
+    -------
+    start: UTCDateTime
+        starttime of valid interval
+    end: UTCDateTime
+        endtime of valid interval
+    """
     # get first interval
     interval_start = start - (start.timestamp % step["output_sample_period"])
     start = interval_start
     interval_end = start + step["output_sample_period"] - step["input_sample_period"]
+    # update interval endtime until it reaches the interval end belongs to
     while end > interval_end:
         interval_start = interval_end + step["input_sample_period"]
         interval_end = (
@@ -148,6 +174,7 @@ class FilterAlgorithm(Algorithm):
         return steps
 
     def _validate_steps(self):
+        """Verifies whether or not firfirlter steps have an odd number of coefficients"""
         for step in self.steps:
             if step["type"] == "firfilter" and len(step["window"]) % 2 != 1:
                 raise ValueError("Firfilter requires an odd number of coefficients")
@@ -249,6 +276,14 @@ class FilterAlgorithm(Algorithm):
         return out
 
     def align_trace(self, step, trace):
+        """Aligns trace to handle trailing or missing values.
+        Parameters
+        ----------
+        step: dict
+            Dictionary object holding information about a given filter step
+        trace: obspy.core.trace
+            trace holding data and stats(starttime/endtime) to manipulate in alignment
+        """
         start = trace.stats.starttime
         numtaps = len(step["window"])
         shift = get_step_time_shift(step)
