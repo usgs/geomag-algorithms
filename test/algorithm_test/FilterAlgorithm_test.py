@@ -49,7 +49,8 @@ def test_second():
     assert_almost_equal(u_filt.data, u.data, 2)
     assert_almost_equal(v_filt.data, v.data, 2)
     assert_almost_equal(w_filt.data, w.data, 2)
-    assert_equal(filtered[0].times(), LLO[0].times())
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-06T00:00:00Z"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-06T04:00:00Z"))
 
 
 def test_minute():
@@ -91,7 +92,8 @@ def test_minute():
     assert_almost_equal(u_filt.data, u.data, 2)
     assert_almost_equal(v_filt.data, v.data, 2)
     assert_almost_equal(w_filt.data, w.data, 2)
-    assert_equal(filtered[0].times(), LLO[0].times())
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-06T00:00:00Z"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-06T04:00:00Z"))
 
 
 def test_hour():
@@ -134,7 +136,8 @@ def test_hour():
     assert_almost_equal(e_filt.data, e.data, 2)
     assert_almost_equal(z_filt.data, z.data, 2)
     assert_almost_equal(f_filt.data, f.data, 2)
-    assert_equal(filtered[0].times(), BOU[0].times())
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-31T00:29:30"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-31T03:29:30"))
 
 
 def test_day():
@@ -177,7 +180,8 @@ def test_day():
     assert_almost_equal(e_filt.data, e.data, 2)
     assert_almost_equal(z_filt.data, z.data, 2)
     assert_almost_equal(f_filt.data, f.data, 2)
-    assert_equal(filtered[0].times(), BOU[0].times())
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-27T11:59:30"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-30T11:59:30"))
 
 
 def test_custom():
@@ -223,7 +227,8 @@ def test_custom():
     assert_almost_equal(u_filt.data, u.data, 2)
     assert_almost_equal(v_filt.data, v.data, 2)
     assert_almost_equal(w_filt.data, w.data, 2)
-    assert_equal(filtered[0].times(), LLO[0].times())
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-06T00:00:00Z"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-06T04:00:00Z"))
 
 
 def test_starttime_shift():
