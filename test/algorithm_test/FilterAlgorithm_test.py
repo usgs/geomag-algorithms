@@ -292,7 +292,7 @@ def test_align_trace():
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-31T03:29:30"))
 
 
-def test_validate_steps():
+def test_validate_step():
     """algorithm_test.FilterAlgorithm_test.test_validate_steps()
     Validates algorithm steps 10 Hz to second with custom coefficients.
     """
@@ -303,14 +303,12 @@ def test_validate_steps():
     half = numtaps // 2
     # check initial assumption
     assert_equal(numtaps % 2, 1)
-    f._validate_steps()
+    f._validate_step(step)
     # expect step to raise a value error when window has an even length
-    f.steps = [
-        {
-            "window": np.delete(step["window"], numtaps // 2, 0),
-            "type": "firfilter",
-        }
-    ]
-    assert_equal(len(f.steps[0]["window"]) % 2, 0)
+    step = {
+        "window": np.delete(step["window"], numtaps // 2, 0),
+        "type": "firfilter",
+    }
+    assert_equal(len(step["window"]) % 2, 0)
     with pytest.raises(ValueError):
-        f._validate_steps()
+        f._validate_step(step)

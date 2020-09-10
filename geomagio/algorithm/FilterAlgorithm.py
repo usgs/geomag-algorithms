@@ -114,7 +114,8 @@ class FilterAlgorithm(Algorithm):
         self.load_state()
         #  ensure correctly aligned coefficients in each step
         self.steps = self.steps or []
-        self._validate_steps()
+        for step in self.steps:
+            self._validate_step(step)
 
     def load_state(self):
         """Load filter coefficients from json file if custom filter is used.
@@ -173,11 +174,10 @@ class FilterAlgorithm(Algorithm):
                 steps.append(step)
         return steps
 
-    def _validate_steps(self):
+    def _validate_step(self, step):
         """Verifies whether or not firfirlter steps have an odd number of coefficients"""
-        for step in self.steps:
-            if step["type"] == "firfilter" and len(step["window"]) % 2 != 1:
-                raise ValueError("Firfilter requires an odd number of coefficients")
+        if step["type"] == "firfilter" and len(step["window"]) % 2 != 1:
+            raise ValueError("Firfilter requires an odd number of coefficients")
 
     def can_produce_data(self, starttime, endtime, stream):
         """Can Produce data
