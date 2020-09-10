@@ -87,34 +87,6 @@ def get_nearest_time(step, output_time, left=True):
     }
 
 
-def get_valid_interval(step, start, end):
-    """Searches for a valid interval to process averaging steps
-
-    Parameters
-    ----------
-    step: dict
-        Dictionary object holding information about a given filter step
-    Returns
-    -------
-    start: UTCDateTime
-        starttime of valid interval
-    end: UTCDateTime
-        endtime of valid interval
-    """
-    # get first interval
-    interval_start = start - (start.timestamp % step["output_sample_period"])
-    start = interval_start
-    interval_end = start + step["output_sample_period"] - step["input_sample_period"]
-    # update interval endtime until it reaches the interval end belongs to
-    while end > interval_end:
-        interval_start = interval_end + step["input_sample_period"]
-        interval_end = (
-            interval_start + step["output_sample_period"] - step["input_sample_period"]
-        )
-    end = interval_end - step["output_sample_period"]
-    return start, end
-
-
 class FilterAlgorithm(Algorithm):
     """
     Filter Algorithm that filters and downsamples data
