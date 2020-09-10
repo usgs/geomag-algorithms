@@ -71,10 +71,11 @@ def get_nearest_time(step, output_time, left=True):
     # position center of filter, data around interval
     half_width = get_step_time_shift(step)
     if step["type"] == "average":
-        interval_end = interval_start + step["output_sample_period"]
         filter_center = interval_start + half_width
         data_start = interval_start
-        data_end = interval_end - step["input_sample_period"]
+        data_end = (interval_start + step["output_sample_period"]) - step[
+            "input_sample_period"
+        ]
     else:
         filter_center = interval_start
         data_start = filter_center - half_width
@@ -261,15 +262,14 @@ class FilterAlgorithm(Algorithm):
         shift = get_step_time_shift(step)
         out = Stream()
         for trace in stream:
-            self.align_trace(step, trace)
-            # data to filter
-            data = trace.data
+            starttime, data = self.align_trace(step, trace)
             # check that there is still enough data to filter
             if len(data) < numtaps:
                 continue
             filtered = self.firfilter(data, window, decimation)
             stats = Stats(trace.stats)
             stats.delta = output_sample_period
+            stats.starttime = starttime
             stats.npts = len(filtered)
             trace_out = self.create_trace(stats.channel, stats, filtered)
             out += trace_out
@@ -283,6 +283,12 @@ class FilterAlgorithm(Algorithm):
             Dictionary object holding information about a given filter step
         trace: obspy.core.trace
             trace holding data and stats(starttime/endtime) to manipulate in alignment
+        Returns
+        -------
+        filter_start["time"]: UTCDateTime
+            shifted time for filtered output
+        data: numpy array
+            trimmed data if input trace is misaligned
         """
         data = trace.data
         start = trace.stats.starttime
@@ -301,8 +307,7 @@ class FilterAlgorithm(Algorithm):
                 + (filter_start["data_start"] - start) / step["input_sample_period"]
             )
             data = data[offset:]
-        trace.stats.starttime = filter_start["time"]
-        trace.data = data
+        return filter_start["time"], data
 
     @staticmethod
     def firfilter(data, window, step, allowed_bad=0.1):
