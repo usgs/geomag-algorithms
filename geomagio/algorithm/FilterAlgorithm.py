@@ -75,7 +75,7 @@ def get_nearest_time(step, output_time, left=True):
         interval_end = interval_start + step["output_sample_period"]
         filter_center = interval_start + half_width
         data_start = interval_start
-        data_end = interval_end
+        data_end = interval_end - step["input_sample_period"]
     else:
         filter_center = interval_start
         data_start = filter_center - half_width
@@ -401,6 +401,7 @@ class FilterAlgorithm(Algorithm):
         input_end : UTCDateTime
             end of input required to generate requested output.
         """
+        print("get_input_interval")
         steps = self.get_filter_steps()
         # calculate start/end from inverted step array
         for step in reversed(steps):
