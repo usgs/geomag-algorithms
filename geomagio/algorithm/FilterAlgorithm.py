@@ -62,7 +62,6 @@ def get_step_time_shift(step):
 
 
 def get_nearest_time(step, output_time, left=True):
-    size = step["output_sample_period"]
     interval_start = output_time - (
         output_time.timestamp % step["output_sample_period"]
     )
@@ -373,7 +372,6 @@ class FilterAlgorithm(Algorithm):
         input_end : UTCDateTime
             end of input required to generate requested output.
         """
-        print("get_input_interval")
         steps = self.get_filter_steps()
         # calculate start/end from inverted step array
         for step in reversed(steps):
