@@ -267,6 +267,9 @@ class FilterAlgorithm(Algorithm):
             self.align_trace(step, trace)
             # data to filter
             data = trace.data
+            # check that there is still enough data to filter
+            if len(data) < numtaps:
+                continue
             filtered = self.firfilter(data, window, decimation)
             stats = Stats(trace.stats)
             stats.delta = output_sample_period
@@ -301,10 +304,6 @@ class FilterAlgorithm(Algorithm):
             input_starttime = starttime - shift
             offset = int(1e-6 + (input_starttime - start) / step["input_sample_period"])
             data = data[offset:]
-            # check that there is still enough data to filter
-            if len(data) < numtaps:
-                data = []
-                starttime = starttime - step["input_sample_period"]
         trace.stats.starttime = starttime
         trace.data = data
 
