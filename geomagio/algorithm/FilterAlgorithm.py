@@ -61,6 +61,32 @@ def get_step_time_shift(step):
     return shift
 
 
+def get_nearest_time(step, output_time, left=True):
+    size = step["output_sample_period"]
+    interval_start = output_time - (
+        output_time.timestamp % step["output_sample_period"]
+    )
+    # shift interval right if needed
+    if interval_start != output_time and not left:
+        interval_start += step["output_sample_period"]
+    # position center of filter, data around interval
+    half_width = get_step_time_shift(step)
+    if step["type"] == "average":
+        interval_end = interval_start + step["output_sample_period"]
+        filter_center = interval_start + half_width
+        data_start = interval_start
+        data_end = interval_end
+    else:
+        filter_center = interval_start
+        data_start = filter_center - half_width
+        data_end = filter_center + half_width
+    return {
+        "time": filter_center,
+        "data_start": data_start,
+        "data_end": data_end,
+    }
+
+
 def get_valid_interval(step, start, end):
     """Searches for a valid interval to process averaging steps
 
@@ -376,16 +402,11 @@ class FilterAlgorithm(Algorithm):
             end of input required to generate requested output.
         """
         steps = self.get_filter_steps()
-        steps = np.flip(steps)
-        # calculate start/end from step array
-        for step in steps:
-            if step["type"] == "average":
-                start, end = get_valid_interval(step, start, end)
-            else:
-                shift = get_step_time_shift(step)
-                shift_step = shift * step["input_sample_period"]
-                start = start - shift_step
-                end = end + shift_step
+        # calculate start/end from inverted step array
+        for step in reversed(steps):
+            start_interval = get_nearest_time(step=step, output_time=start, left=False)
+            end_interval = get_nearest_time(step=step, output_time=end, left=True)
+            start, end = start_interval["data_start"], end_interval["data_end"]
         return (start, end)
 
     @classmethod
