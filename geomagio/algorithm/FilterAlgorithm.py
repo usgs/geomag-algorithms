@@ -43,24 +43,6 @@ STEPS = [
 ]
 
 
-def get_step_time_shift(step):
-    """Calculates the time shift generated in each filtering step
-
-    Parameters
-    ----------
-    step: dict
-        Dictionary object holding information about a given filter step
-    Returns
-    -------
-    shift: float
-        Time shift value
-    """
-    input_sample_period = step["input_sample_period"]
-    numtaps = len(step["window"])
-    shift = input_sample_period * ((numtaps - 1) / 2)
-    return shift
-
-
 def get_nearest_time(step, output_time, left=True):
     interval_start = output_time - (
         output_time.timestamp % step["output_sample_period"]
@@ -85,6 +67,24 @@ def get_nearest_time(step, output_time, left=True):
         "data_start": data_start,
         "data_end": data_end,
     }
+
+
+def get_step_time_shift(step):
+    """Calculates the time shift generated in each filtering step
+
+    Parameters
+    ----------
+    step: dict
+        Dictionary object holding information about a given filter step
+    Returns
+    -------
+    shift: float
+        Time shift value
+    """
+    input_sample_period = step["input_sample_period"]
+    numtaps = len(step["window"])
+    shift = input_sample_period * ((numtaps - 1) / 2)
+    return shift
 
 
 class FilterAlgorithm(Algorithm):
@@ -257,9 +257,6 @@ class FilterAlgorithm(Algorithm):
         decimation = int(output_sample_period / input_sample_period)
         numtaps = len(window)
         window = window / sum(window)
-        # first output timestamp is in the center of the filter window for firfilters
-        # center output timestamp is in the center of the filter window for averages
-        shift = get_step_time_shift(step)
         out = Stream()
         for trace in stream:
             starttime, data = self.align_trace(step, trace)
