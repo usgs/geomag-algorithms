@@ -285,24 +285,24 @@ class FilterAlgorithm(Algorithm):
         trace: obspy.core.trace
             trace holding data and stats(starttime/endtime) to manipulate in alignment
         """
-        start = trace.stats.starttime
-        numtaps = len(step["window"])
-        shift = get_step_time_shift(step)
         data = trace.data
-        starttime = start + shift
-        # align with the output period
-        misalignment = starttime.timestamp % step["output_sample_period"]
-        if step["type"] == "average":
-            misalignment = misalignment - shift
-        if misalignment != 0:
-            # skip incomplete input
-            starttime = starttime - misalignment
-            if misalignment > 0:
-                starttime += step["output_sample_period"]
-            input_starttime = starttime - shift
-            offset = int(1e-6 + (input_starttime - start) / step["input_sample_period"])
+        start = trace.stats.starttime
+        filter_start = get_nearest_time(step=step, output_time=start, left=False)
+        while filter_start["data_start"] < start:
+            # filter needs more data, shift one output right
+            filter_start = get_nearest_time(
+                step=step,
+                output_time=filter_start["time"] + step["output_sample_period"],
+                left=False,
+            )
+
+        if start != filter_start["data_start"]:
+            offset = int(
+                1e-6
+                + (filter_start["data_start"] - start) / step["input_sample_period"]
+            )
             data = data[offset:]
-        trace.stats.starttime = starttime
+        trace.stats.starttime = filter_start["time"]
         trace.data = data
 
     @staticmethod
