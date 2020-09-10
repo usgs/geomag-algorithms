@@ -5,7 +5,7 @@ import numpy as np
 from obspy import read, UTCDateTime
 import pytest
 
-from geomagio.algorithm import FilterAlgorithm
+from geomagio.algorithm.FilterAlgorithm import FilterAlgorithm, get_nearest_time
 import geomagio.iaga2002 as i2
 
 
@@ -103,8 +103,8 @@ def test_hour():
     f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=3600.0)
 
     # generation of hor_filter_min.mseed
-    # starttime = UTCDateTime("2020-01-31T00:00:00Z")
-    # endtime = UTCDateTime("2020-01-31T04:00:00Z")
+    # starttime = UTCDateTime("2020-08-31T00:00:00Z")
+    # endtime = UTCDateTime("2020-08-31T03:00:00Z")
     # e = EdgeFactory()
     # f = FilterAlgorithm(input_sample_period=60.0,
     #       output_sample_period=3600.0)
@@ -147,8 +147,8 @@ def test_day():
     f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=86400.0)
 
     # generation of day_filter_min.mseed
-    # starttime = UTCDateTime("2020-01-31T00:00:00Z")
-    # endtime = UTCDateTime("2020-01-31T04:00:00Z")
+    # starttime = UTCDateTime("2020-08-27T00:00:00Z")
+    # endtime = UTCDateTime("2020-08-30T00:00:00Z")
     # e = EdgeFactory()
     # f = FilterAlgorithm(input_sample_period=60.0,
     #       output_sample_period=86400.0)
@@ -276,25 +276,45 @@ def test_align_trace():
     """
     f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=3600.0)
     bou = read("etc/filter/hor_filter_min.mseed")
+    step = f.get_filter_steps()[0]
     # check intial assumptions
-    precise = f.process(bou)
-    assert_equal(precise[0].stats.starttime, UTCDateTime("2020-08-31T00:29:30"))
-    assert_equal(precise[0].stats.endtime, UTCDateTime("2020-08-31T03:29:30"))
+    starttime, _ = f.align_trace(step, bou[0])
+    assert_equal(starttime, UTCDateTime("2020-08-31T00:29:30"))
     # check for filtered product producing the correct interval with trailing samples
     trimmed = bou.copy().trim(
         starttime=UTCDateTime("2020-08-31T01:00:00"),
         endtime=UTCDateTime("2020-08-31T02:04:00"),
     )
-    filtered = f.process(trimmed)
-    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-31T01:29:30"))
-    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-31T01:29:30"))
+    starttime, _ = f.align_trace(step, trimmed[0])
+    assert_equal(starttime, UTCDateTime("2020-08-31T01:29:30"))
     # test for skipped sample when not enough data is given for first interval
     trimmed = bou.copy().trim(
         starttime=UTCDateTime("2020-08-31T01:30:00"), endtime=bou[0].stats.endtime
     )
-    filtered = f.process(trimmed)
-    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-31T02:29:30"))
-    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-31T03:29:30"))
+    starttime, _ = f.align_trace(step, trimmed[0])
+    assert_equal(starttime, UTCDateTime("2020-08-31T02:29:30"))
+
+
+def test_get_nearest__oneday_average():
+    f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=86400.0)
+    step = f.get_filter_steps()[0]
+    time = UTCDateTime("2020-08-20T01:00:00")
+    aligned = get_nearest_time(step=step, output_time=time)
+    # filter is average for day, should be first/last minute samples of 2020-08-20
+    assert_equal(aligned["data_start"], UTCDateTime("2020-08-20T00:00:00"))
+    assert_equal(aligned["time"], UTCDateTime("2020-08-20T11:59:30"))
+    assert_equal(aligned["data_end"], UTCDateTime("2020-08-20T23:59:00"))
+
+
+def test_get_nearest__intermagnet_minute():
+    f = FilterAlgorithm(input_sample_period=1.0, output_sample_period=60.0)
+    step = f.get_filter_steps()[0]
+    time = UTCDateTime("2020-08-20T01:00:13")
+    aligned = get_nearest_time(step=step, output_time=time)
+    # filter uses 91 samples, should be 01:00:00 +/- 45 seconds
+    assert_equal(aligned["data_start"], UTCDateTime("2020-08-20T00:59:15"))
+    assert_equal(aligned["time"], UTCDateTime("2020-08-20T01:00:00"))
+    assert_equal(aligned["data_end"], UTCDateTime("2020-08-20T01:00:45"))
 
 
 def test_validate_step():
