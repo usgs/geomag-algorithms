@@ -1,4 +1,4 @@
-ARG FROM_IMAGE=usgs/centos:latest
+ARG FROM_IMAGE=usgs/centos:7
 
 FROM ${FROM_IMAGE} as conda
 LABEL maintainer="Jeremy Fee <jmfee@usgs.gov>"
