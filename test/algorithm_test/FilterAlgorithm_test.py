@@ -3,8 +3,9 @@ import json
 from numpy.testing import assert_almost_equal, assert_equal
 import numpy as np
 from obspy import read, UTCDateTime
+import pytest
 
-from geomagio.algorithm import FilterAlgorithm
+from geomagio.algorithm.FilterAlgorithm import FilterAlgorithm, get_nearest_time
 import geomagio.iaga2002 as i2
 
 
@@ -48,6 +49,8 @@ def test_second():
     assert_almost_equal(u_filt.data, u.data, 2)
     assert_almost_equal(v_filt.data, v.data, 2)
     assert_almost_equal(w_filt.data, w.data, 2)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-06T00:00:00Z"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-06T04:00:00Z"))
 
 
 def test_minute():
@@ -89,47 +92,96 @@ def test_minute():
     assert_almost_equal(u_filt.data, u.data, 2)
     assert_almost_equal(v_filt.data, v.data, 2)
     assert_almost_equal(w_filt.data, w.data, 2)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-06T00:00:00Z"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-06T04:00:00Z"))
 
 
 def test_hour():
     """algorithm_test.FilterAlgorithm_test.test_hour()
-    Tests algorithm for 10Hz to hour.
+    Tests algorithm for 1min to hour.
     """
-    f = FilterAlgorithm(input_sample_period=0.1, output_sample_period=3600.0)
+    f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=3600.0)
 
-    # generation of 10HZ_filter_hor.mseed
-    # starttime = UTCDateTime('2020-01-06T00:00:00Z')
-    # endtime = UTCDateTime('2020-01-06T04:00:00Z')
-    # m = MiniSeedFactory(port=2061, host='...',
-    #       convert_channels=['U', 'V', 'W'])
-    # f = FilterAlgorithm(input_sample_period=0.1,
+    # generation of hor_filter_min.mseed
+    # starttime = UTCDateTime("2020-08-31T00:00:00Z")
+    # endtime = UTCDateTime("2020-08-31T03:00:00Z")
+    # e = EdgeFactory()
+    # f = FilterAlgorithm(input_sample_period=60.0,
     #       output_sample_period=3600.0)
     # starttime, endtime = f.get_input_interval(starttime,endtime)
-    # LLO = m.get_timeseries(observatory='LLO',
+    # BOU = e.get_timeseries(observatory='BOU',
     #       starttime=starttime,endtime=endtime,
-    #       channels=['U_Volt', 'U_Bin', 'V_Volt',
-    #                 'V_Bin', 'W_Volt', 'W_Bin'],
-    #       interval='tenhertz', type='variaton')
-    # LLO.write('10HZ_filter_hor.mseed')
+    #       channels=["H", "E", "Z", "F"],
+    #       interval="minute", type='variaton')
+    # LLO.write('hour_filter_min.mseed')
 
-    llo = read("etc/filter/10HZ_filter_hor.mseed")
-    filtered = f.process(llo)
+    bou = read("etc/filter/hor_filter_min.mseed")
+    filtered = f.process(bou)
 
-    with open("etc/filter/LLO20200106vhor.hor", "r") as f:
+    with open("etc/filter/BOU20200831vhor.hor", "r") as f:
         iaga = i2.StreamIAGA2002Factory(stream=f)
-        LLO = iaga.get_timeseries(starttime=None, endtime=None, observatory="LLO")
+        BOU = iaga.get_timeseries(starttime=None, endtime=None, observatory="BOU")
 
-    u = LLO.select(channel="U")[0]
-    v = LLO.select(channel="V")[0]
-    w = LLO.select(channel="W")[0]
+    h = BOU.select(channel="H")[0]
+    e = BOU.select(channel="E")[0]
+    z = BOU.select(channel="Z")[0]
+    f = BOU.select(channel="F")[0]
 
-    u_filt = filtered.select(channel="U")[0]
-    v_filt = filtered.select(channel="V")[0]
-    w_filt = filtered.select(channel="W")[0]
+    h_filt = filtered.select(channel="H")[0]
+    e_filt = filtered.select(channel="E")[0]
+    z_filt = filtered.select(channel="Z")[0]
+    f_filt = filtered.select(channel="F")[0]
 
-    assert_almost_equal(u_filt.data, u.data, 2)
-    assert_almost_equal(v_filt.data, v.data, 2)
-    assert_almost_equal(w_filt.data, w.data, 2)
+    assert_almost_equal(h_filt.data, h.data, 2)
+    assert_almost_equal(e_filt.data, e.data, 2)
+    assert_almost_equal(z_filt.data, z.data, 2)
+    assert_almost_equal(f_filt.data, f.data, 2)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-31T00:29:30"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-31T03:29:30"))
+
+
+def test_day():
+    """algorithm_test.FilterAlgorithm_test.test_hour()
+    Tests algorithm for 1min to day.
+    """
+    f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=86400.0)
+
+    # generation of day_filter_min.mseed
+    # starttime = UTCDateTime("2020-08-27T00:00:00Z")
+    # endtime = UTCDateTime("2020-08-30T00:00:00Z")
+    # e = EdgeFactory()
+    # f = FilterAlgorithm(input_sample_period=60.0,
+    #       output_sample_period=86400.0)
+    # starttime, endtime = f.get_input_interval(starttime,endtime)
+    # BOU = e.get_timeseries(observatory='BOU',
+    #       starttime=starttime,endtime=endtime,
+    #       channels=["H", "E", "Z", "F"],
+    #       interval="minute", type='variaton')
+    # LLO.write('day_filter_min.mseed')
+
+    bou = read("etc/filter/day_filter_min.mseed")
+    filtered = f.process(bou)
+
+    with open("etc/filter/BOU20200831vday.day", "r") as f:
+        iaga = i2.StreamIAGA2002Factory(stream=f)
+        BOU = iaga.get_timeseries(starttime=None, endtime=None, observatory="BOU")
+
+    h = BOU.select(channel="H")[0]
+    e = BOU.select(channel="E")[0]
+    z = BOU.select(channel="Z")[0]
+    f = BOU.select(channel="F")[0]
+
+    h_filt = filtered.select(channel="H")[0]
+    e_filt = filtered.select(channel="E")[0]
+    z_filt = filtered.select(channel="Z")[0]
+    f_filt = filtered.select(channel="F")[0]
+
+    assert_almost_equal(h_filt.data, h.data, 2)
+    assert_almost_equal(e_filt.data, e.data, 2)
+    assert_almost_equal(z_filt.data, z.data, 2)
+    assert_almost_equal(f_filt.data, f.data, 2)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-27T11:59:30"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-30T11:59:30"))
 
 
 def test_custom():
@@ -175,6 +227,8 @@ def test_custom():
     assert_almost_equal(u_filt.data, u.data, 2)
     assert_almost_equal(v_filt.data, v.data, 2)
     assert_almost_equal(w_filt.data, w.data, 2)
+    assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-06T00:00:00Z"))
+    assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-06T04:00:00Z"))
 
 
 def test_starttime_shift():
@@ -216,9 +270,62 @@ def test_starttime_shift():
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-01T00:13:00Z"))
 
 
-def test_prepare_step():
-    """algorithm_test.FilterAlgorithm_test.test_custom()
-    Tests algorithm for 10Hz to second with custom filter coefficients.
+def test_align_trace():
+    """algorithm_test.FilterAlgorithm_test.test_align_trace()
+    Tests algorithm for minute to hour with expected behavior, trailing samples, and missing samples
+    """
+    f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=3600.0)
+    bou = read("etc/filter/hor_filter_min.mseed")
+    step = f.get_filter_steps()[0]
+    # check intial assumptions
+    starttime, _ = f.align_trace(step, bou[0])
+    assert_equal(starttime, UTCDateTime("2020-08-31T00:29:30"))
+    # check for filtered product producing the correct interval with trailing samples
+    trimmed = bou.copy().trim(
+        starttime=UTCDateTime("2020-08-31T01:00:00"),
+        endtime=UTCDateTime("2020-08-31T02:04:00"),
+    )
+    starttime, _ = f.align_trace(step, trimmed[0])
+    assert_equal(starttime, UTCDateTime("2020-08-31T01:29:30"))
+    # test for skipped sample when not enough data is given for first interval
+    trimmed = bou.copy().trim(
+        starttime=UTCDateTime("2020-08-31T01:30:00"), endtime=bou[0].stats.endtime
+    )
+    starttime, _ = f.align_trace(step, trimmed[0])
+    assert_equal(starttime, UTCDateTime("2020-08-31T02:29:30"))
+
+
+def test_get_nearest__oneday_average():
+    """algorithm_test.FilterAlgorithm_test.test_get_nearest__oneday_average()
+    Tests get_nearest_time for minute to day
+    """
+    f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=86400.0)
+    step = f.get_filter_steps()[0]
+    time = UTCDateTime("2020-08-20T01:00:00")
+    aligned = get_nearest_time(step=step, output_time=time)
+    # filter is average for day, should be first/last minute samples of 2020-08-20
+    assert_equal(aligned["data_start"], UTCDateTime("2020-08-20T00:00:00"))
+    assert_equal(aligned["time"], UTCDateTime("2020-08-20T11:59:30"))
+    assert_equal(aligned["data_end"], UTCDateTime("2020-08-20T23:59:00"))
+
+
+def test_get_nearest__intermagnet_minute():
+    """algorithm_test.FilterAlgorithm_test.test_get_nearest__intermagnet_minute()
+    Tests get_nearest_time for second to minute
+    """
+    f = FilterAlgorithm(input_sample_period=1.0, output_sample_period=60.0)
+    step = f.get_filter_steps()[0]
+    time = UTCDateTime("2020-08-20T01:00:13")
+    aligned = get_nearest_time(step=step, output_time=time)
+    # filter uses 91 samples, should be 01:00:00 +/- 45 seconds
+    assert_equal(aligned["data_start"], UTCDateTime("2020-08-20T00:59:15"))
+    assert_equal(aligned["time"], UTCDateTime("2020-08-20T01:00:00"))
+    assert_equal(aligned["data_end"], UTCDateTime("2020-08-20T01:00:45"))
+
+
+def test_validate_step():
+    """algorithm_test.FilterAlgorithm_test.test_validate_steps()
+    Validates algorithm steps 10 Hz to second with custom coefficients.
     """
     with open("etc/filter/coeffs.json", "rb") as f:
         step = json.loads(f.read())
@@ -227,14 +334,12 @@ def test_prepare_step():
     half = numtaps // 2
     # check initial assumption
     assert_equal(numtaps % 2, 1)
-    # expect step to be unchanged when window has odd length
-    unchanged = f._prepare_step(step)
-    assert_equal(unchanged, step)
-    # expect step to be extended when window has event length
-    even_step = {"window": np.delete(step["window"], numtaps // 2, 0)}
-    assert_equal(len(even_step["window"]) % 2, 0)
-    prepared = f._prepare_step(step)
-    assert_equal(len(prepared["window"]) % 2, 1)
-    # value is inserted in middle
-    assert_equal(prepared["window"][: half + 1], step["window"][: half + 1])
-    assert_equal(prepared["window"][half:], step["window"][half:])
+    f._validate_step(step)
+    # expect step to raise a value error when window has an even length
+    step = {
+        "window": np.delete(step["window"], numtaps // 2, 0),
+        "type": "firfilter",
+    }
+    assert_equal(len(step["window"]) % 2, 0)
+    with pytest.raises(ValueError):
+        f._validate_step(step)
