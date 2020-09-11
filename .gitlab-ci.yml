@@ -3,6 +3,7 @@ image: ${DEVOPS_REGISTRY}usgs/centos:latest
 stages:
   - test
   - integration
+  - scan
   - deploy
 
 variables:
@@ -13,10 +14,9 @@ variables:
   FROM_IMAGE: ${CODE_REGISTRY}/devops/images/usgs/centos:latest
   # environment variables
   APP_NAME: geomag-algorithms
-  DATA_HOST: 'cwbpub.cr.usgs.gov'
-  DATA_PORT: '2060'
-  DATA_TYPE: 'edge'
-
+  DATA_HOST: "cwbpub.cr.usgs.gov"
+  DATA_PORT: "2060"
+  DATA_TYPE: "edge"
 
 ## --------------------------------------------------
 # Templates
@@ -99,9 +99,9 @@ variables:
 
 .mage:
   variables:
-    DATA_HOST: 'cwbpub.cr.usgs.gov'
-    DATA_PORT: '2060'
-    DATA_TYPE: 'edge'
+    DATA_HOST: "cwbpub.cr.usgs.gov"
+    DATA_PORT: "2060"
+    DATA_TYPE: "edge"
 
 .staging:
   only:
@@ -116,7 +116,6 @@ variables:
     - tags@ghsc/geomag/geomag-algorithms
     - production@ghsc/geomag/geomag-algorithms
   when: manual
-
 
 ## --------------------------------------------------
 # Test Stage
@@ -143,7 +142,6 @@ Check Python 3.8:
     - export PYTHON_VERSION=3.8
     - scripts/ci_check_code.sh
 
-
 ## --------------------------------------------------
 # Integration Stage
 ## --------------------------------------------------
@@ -154,9 +152,36 @@ Build Docker Image:
   variables:
     APP_NAME: geomag-algorithms
 
+## --------------------------------------------------
+# Scanning Stage (e.g. OWASP ZAP etc...)
+## --------------------------------------------------
 
-# TODO: Penetration testing (e.g. OWASP ZAP etc...)
-
+Scan Docker Image:
+  cache: {}
+  extends:
+    - .adjust_image_names
+  image: docker:19.03-git
+  only:
+    - master@ghsc/geomag/geomag-algorithms
+    - production@ghsc/geomag/geomag-algorithms
+    - tags@ghsc/geomag/geomag-algorithms
+  script:
+    # install trivy
+    - apk add --update-cache --upgrade curl rpm
+    - VERSION=$(
+      curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | \
+      grep '"tag_name":' | \
+      sed -E 's/.*"v([^"]+)".*/\1/'
+      )
+    - wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION}/trivy_${VERSION}_Linux-64bit.tar.gz
+    - tar zxvf trivy_${VERSION}_Linux-64bit.tar.gz
+    # run trivy
+    - trivy --exit-code 0 --no-progress ${INTERNAL_IMAGE}
+  services:
+    - docker:19.03-dind
+  stage: scan
+  tags:
+    - build
 
 ## --------------------------------------------------
 # Deploy Stage
@@ -183,7 +208,6 @@ Deploy Mage02:
     - mage02
   variables:
     APP_NAME: geomag-algorithms
-
 
 Deploy Algorithms Production01:
   extends:
