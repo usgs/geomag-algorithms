@@ -17,3 +17,4 @@ pipenv --site-packages install --dev --pre --skip-lock
 # Run Code Checks
 pipenv run black --check .
 pipenv run pytest --cov-report xml:cov.xml --cov=geomagio
+pipenv run safety check
