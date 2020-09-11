@@ -296,6 +296,9 @@ def test_align_trace():
 
 
 def test_get_nearest__oneday_average():
+    """algorithm_test.FilterAlgorithm_test.test_get_nearest__oneday_average()
+    Tests get_nearest_time for minute to day
+    """
     f = FilterAlgorithm(input_sample_period=60.0, output_sample_period=86400.0)
     step = f.get_filter_steps()[0]
     time = UTCDateTime("2020-08-20T01:00:00")
@@ -307,6 +310,9 @@ def test_get_nearest__oneday_average():
 
 
 def test_get_nearest__intermagnet_minute():
+    """algorithm_test.FilterAlgorithm_test.test_get_nearest__intermagnet_minute()
+    Tests get_nearest_time for second to minute
+    """
     f = FilterAlgorithm(input_sample_period=1.0, output_sample_period=60.0)
     step = f.get_filter_steps()[0]
     time = UTCDateTime("2020-08-20T01:00:13")
