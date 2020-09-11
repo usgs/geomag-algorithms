@@ -171,7 +171,7 @@ Scan Docker Image:
     - wget https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz
     - tar zxvf trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz
     # run trivy
-    - ./trivy image --exit-code 0 --no-progress ${INTERNAL_IMAGE}
+    - ./trivy image --exit-code 0 --no-progress ${INTERNAL_IMAGE_NAME}
   services:
     - docker:19.03-dind
   stage: scan
