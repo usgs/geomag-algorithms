@@ -1,6 +1,8 @@
 .coverage
 .DS_Store
 .git
-node_modules
-*.pyc
+.pytest_cache
 coverage.xml
+node_modules
+test
+*.pyc

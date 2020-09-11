@@ -4,10 +4,12 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+bandit = "*"
 black = "==20.8b1"
 pre-commit = "*"
 pytest = "*"
 pytest-cov = "*"
+safety = "*"
 webtest = "*"
 
 [packages]
