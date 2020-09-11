@@ -167,7 +167,7 @@ Scan Docker Image:
     - tags@ghsc/geomag/geomag-algorithms
   script:
     # install trivy
-    - apk add --update-cache --upgrade curl rpm
+    - apk add --update-cache --upgrade curl grep rpm sed
     - VERSION=$(
       curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | \
       grep '"tag_name":' | \
@@ -176,7 +176,7 @@ Scan Docker Image:
     - wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION}/trivy_${VERSION}_Linux-64bit.tar.gz
     - tar zxvf trivy_${VERSION}_Linux-64bit.tar.gz
     # run trivy
-    - trivy --exit-code 0 --no-progress ${INTERNAL_IMAGE}
+    - ./trivy --exit-code 0 --no-progress ${INTERNAL_IMAGE}
   services:
     - docker:19.03-dind
   stage: scan
