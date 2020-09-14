@@ -379,6 +379,8 @@ class EdgeFactory(TimeseriesFactory):
                 location = "Q0"
             elif type == "definitive":
                 location = "D0"
+            elif len(type) == 2:
+                location = type
         return location
 
     def _get_edge_network(self, observatory, channel, type, interval):
