@@ -9,7 +9,7 @@ if ssl_cert_file:
 
 setuptools.setup(
     name="geomag-algorithms",
-    version="1.0.0",
+    version="1.1.0",
     description="USGS Geomag Algorithms Library",
     url="https://github.com/usgs/geomag-algorithms",
     packages=setuptools.find_packages(exclude=["test*"]),
