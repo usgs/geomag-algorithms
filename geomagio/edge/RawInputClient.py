@@ -160,7 +160,7 @@ class RawInputClient:
 
         PARAMETERS
         ----------
-        interval: {'daily', 'hourly', 'minute', 'second'}
+        interval: {'day', 'hour', 'minute', 'second'}
             data interval.
         trace: obspy.core.trace
 
