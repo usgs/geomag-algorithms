@@ -35,7 +35,7 @@ def get_observatories() -> Dict:
 
 
 @router.get("/observatories/{id}")
-async def get_observatory_by_id(id: str):
+async def get_observatory_by_id(id: str) -> Dict:
     for o in OBSERVATORIES:
         if o.id == id:
             return {
