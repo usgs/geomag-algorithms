@@ -31,7 +31,7 @@ class TimeseriesFactory(object):
     type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
         default data type, optional.
         default 'variation'.
-    interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+    interval : {'day', 'hour', 'minute', 'month, 'second'}
         data interval, optional.
         default 'minute'.
     urlTemplate : str
@@ -90,7 +90,7 @@ class TimeseriesFactory(object):
         type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
             data type, optional.
             uses default if unspecified.
-        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+        interval : {'day', 'hour', 'minute', 'month', 'second'}
             data interval, optional.
             uses default if unspecified.
 
@@ -196,7 +196,7 @@ class TimeseriesFactory(object):
         type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
             data type, optional.
             uses default if unspecified.
-        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+        interval : {'day', 'hour', 'minute', 'month', 'second'}
             data interval, optional.
             uses default if unspecified.
         Raises
@@ -339,7 +339,7 @@ class TimeseriesFactory(object):
         type : {'variation', 'reported', 'provisional', 'adjusted',
                 'quasi-definitive', 'definitive'}
             data type.
-        interval : {'minute', 'second', 'hourly', 'daily'}
+        interval : {'minute', 'second', 'hour', 'day'}
             data interval.
         channels : list
             list of data channels being requested
@@ -384,7 +384,7 @@ class TimeseriesFactory(object):
 
         Parameters
         ----------
-        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+        interval : {'day', 'hour', 'minute', 'month', 'second'}
 
         Returns
         -------
@@ -395,14 +395,15 @@ class TimeseriesFactory(object):
         TimeseriesFactoryException
             if ``interval`` is not supported.
         """
+
         interval_abbr = None
-        if interval == "daily":
+        if interval == "day":
             interval_abbr = "day"
-        elif interval == "hourly":
+        elif interval == "hour":
             interval_abbr = "hor"
         elif interval == "minute":
             interval_abbr = "min"
-        elif interval == "monthly":
+        elif interval == "month":
             interval_abbr = "mon"
         elif interval == "second":
             interval_abbr = "sec"
@@ -433,7 +434,7 @@ class TimeseriesFactory(object):
             interval_name = "OneMinute"
         elif interval == "second":
             interval_name = "OneSecond"
-        elif interval == "hourly":
+        elif interval == "hour":
             interval_name = "OneHour"
         else:
             raise TimeseriesFactoryException('Unsupported interval "%s"' % interval)

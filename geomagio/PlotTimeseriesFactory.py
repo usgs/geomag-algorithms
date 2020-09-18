@@ -50,7 +50,7 @@ class PlotTimeseriesFactory(TimeseriesFactory):
         type : {'definitive', 'provisional', 'quasi-definitive', 'variation'}
             data type, optional.
             uses default if unspecified.
-        interval : {'daily', 'hourly', 'minute', 'monthly', 'second'}
+        interval : {'day', 'hour', 'minute', 'month', 'second'}
             data interval, optional.
             uses default if unspecified.
         Raises
