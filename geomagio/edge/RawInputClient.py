@@ -160,7 +160,7 @@ class RawInputClient:
 
         PARAMETERS
         ----------
-        interval: {'daily', 'hourly', 'minute', 'second'}
+        interval: {'day', 'hour', 'minute', 'second'}
             data interval.
         trace: obspy.core.trace
 
@@ -181,11 +181,11 @@ class RawInputClient:
             nsamp = DAYMINUTES
             timeoffset = 60
             samplerate = 1.0 / 60
-        elif interval == "hourly":
+        elif interval == "hour":
             nsamp = MAXINPUTSIZE
             timeoffset = 3600
             samplerate = 1.0 / 3600
-        elif interval == "daily":
+        elif interval == "day":
             nsamp = MAXINPUTSIZE
             timeoffset = 86400
             samplerate = 1.0 / 86400

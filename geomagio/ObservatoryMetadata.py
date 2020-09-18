@@ -619,7 +619,7 @@ DEFAULT_METADATA = {
                 "data_interval_type": "1-minute calculated",
                 "filter_comments": [],
             },
-            "hourly": {"data_interval_type": "1-hour calculated"},
+            "hour": {"data_interval_type": "1-hour calculated"},
         },
     },
     "BLC": {
