@@ -51,6 +51,24 @@ class Observatory(BaseModel):
                 sensor_orientation = "HDZF"
         return sensor_orientation
 
+    def to_json(self) -> str:
+        return {
+            "type": "Feature",
+            "id": self.id,
+            "properties": {
+                "name": self.name,
+                "agency": self.agency,
+                "agency_name": self.agency_name,
+                "sensor_orientation": self.sensor_orientation,
+                "sensor_sampling_rate": 0.01,
+                "declination_base": self.declination_base,
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [self.longitude, self.latitude, self.elevation],
+            },
+        }
+
 
 OBSERVATORIES = [
     Observatory(
