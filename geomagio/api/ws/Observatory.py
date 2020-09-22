@@ -51,7 +51,7 @@ class Observatory(BaseModel):
                 sensor_orientation = "HDZF"
         return sensor_orientation
 
-    def to_json(self) -> str:
+    def geojson(self) -> Dict:
         return {
             "type": "Feature",
             "id": self.id,

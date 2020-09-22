@@ -141,7 +141,6 @@ async def login(request: Request):
     if "Referer" in request.headers:
         request.session["after_authorize_redirect"] = request.headers["Referer"]
     # redirect to openid login
-
     return await oauth.openid.authorize_redirect(request, redirect_uri)
 
 
