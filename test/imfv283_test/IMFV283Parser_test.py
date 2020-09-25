@@ -26,10 +26,13 @@ def test_parse_msg_header():
     """imfv283_test.IMFV283Parser_test.test_parse_msg_header()
 
     Call the _parse_header method with a header.
-    Verify the header name and value are split at the correct column.
+    Verify the header names and values are split at the correct columns.
     """
     header = IMFV283Parser()._parse_msg_header(IMFV283_EXAMPLE_VIC)
+    assert_equal(header["daps_platform"], b"75C2A3A8")
     assert_equal(header["obs"], "VIC")
+    assert_equal(header["transmission_time"], b"14023012741")
+    assert_equal(header["data_len"], 191)
 
 
 def test_parse_goes_header():
@@ -39,6 +42,11 @@ def test_parse_goes_header():
     )
     goes_header = IMFV283Parser()._parse_goes_header(goes_data)
     assert_equal(goes_header["day"], 23)
+    assert_equal(goes_header["minute"], 73)
+    assert_equal(type(goes_header["minute"]), int)
+    assert_equal(goes_header["offset"], bytearray(b"\x96\x86\xbd\xc1"))
+    assert_equal(goes_header["orient"], 0.0)
+    assert_equal(goes_header["scale"], [1, 1, 1, 1])
 
 
 def test_estimate_data_time__correct_doy():
