@@ -17,10 +17,13 @@ numpy = "*"
 scipy = "*"
 obspy = "*"
 pycurl = "==7.43.0.5"
+
+# web service dependencies
 authlib = "*"
 cryptography = "*"
-databases = {extras = ["postgresql", "sqlite"],version = "*"}
+databases = {extras=["postgresql", "sqlite"], version = "*"}
 fastapi = "*"
+gunicorn = "*"
 httpx = "==0.11.1"
 openpyxl = "*"
 pydantic = "*"
@@ -28,8 +31,7 @@ sqlalchemy = "*"
 sqlalchemy-utc = "*"
 typing = "*"
 typing-extensions = "*"
-uvicorn = "*"
-gunicorn = "*"
+uvicorn = {extras=["standard"], version="*"}
 
 [pipenv]
 allow_prereleases = true
