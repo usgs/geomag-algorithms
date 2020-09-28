@@ -232,7 +232,8 @@ class IMFV283Parser(object):
         """
         header = {}
 
-        # day of year and minute of day are combined into 3 bytes
+        # day of year and minute of day are each 12 bits:
+        # input bytes AB CD EF => day = DAB, minute = EFC
         header["day"] = ((data[1] & 0xF) << 8) + data[0]
         header["minute"] = ((data[2] & 0xFF) << 4) + ((data[1] & 0xF0) >> 4)
 
