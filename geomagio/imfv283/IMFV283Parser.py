@@ -233,7 +233,7 @@ class IMFV283Parser(object):
         header = {}
 
         # day of year and minute of day are combined into 3 bytes
-        header["day"] = data[0] + ((data[1] & 0xF) << 8)
+        header["day"] = ((data[1] & 0xF) << 8) + data[0]
         header["minute"] = ((data[2] & 0xFF) << 4) + ((data[1] & 0xF0) >> 4)
 
         # offset values for each channel are in bytes 3,4,5,6 respectively.
