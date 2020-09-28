@@ -21,6 +21,12 @@ IMFV283_EXAMPLE_FRD = (
     + b"@cVAjT@[CAVW@cWAjT@[CAVT@cWAjU@[AAVO@cYAjV@Z}AVK@c[AjV"
 )
 
+IMFV283_EXAMPLE_SJT = (
+    b"75C1E7AC20259002641G44-3NN027EXE00191`@OA@BWGbx{"
+    + b"x@@Bh\x7fD`@@@@@@@@@@@@@@@@@@@@@@@@@@@FDODdV}X_yxAGHODlV~L_z|AG"
+    + b"tODPV\x7f@_{pAxLOC`V\x7fp_|pAxPOBdV@D`}dAxdOAxVAX`~lAx`O@|VAp`\x7fXAyDO@tVCd`@\\Bx`O\x7fXUC|`APByDO\x7fdUEd`AtBx`O~\\UEp`BXBGtO}PUFP`CHB \n75C1E7AC20259001441G44-3NN027EXE00191`@LA@BWGbx{x@@Bh\x7fD`@@@@@@@@@@@@@@@@@@@@@@@@@@@\x7fhN{XU\x7fh_zPA\x7fPN|pU~P_xxA\x7fDN}xU|p_GpA@dO@pV||_FtA@hOA\\Vz|_FDAADOAxV{\\_FpABXOCXV{T_F`ABxODTV{L_F|ACpODxV{x_GPADLODpV|X_GxADpODhV|x_xlAEHODdV|x_yHA \n75C1E7AC20259000241G44-3NN027EXE00191`@IAEfWGby{x@@Bh\x7fD`@@@@@@@@@@@@@@@@@@@@@@@@@@@BxO{pT|h@y|BC@O|XT|t@yhBCDO}DT{p@xpBBpO}dT{H@ydBB`O\x7fLTyh@FHBAPO@PUGL@CxBAHOB\\UFL@BLBADOD\\UCh@\x7fdA@LOEHUB|@~|A@pOGdUB`@}dA\x7fxNx\\UAd@|hA\x7flNytU@H@{PA \n75C1E7AC20258235041G45-3NN027EXE00191`@JAEbWGby{x@@Bh\x7fD`@@@@@@@@@@@@@@@@@@@@@@@@@@@C|O{hT~D@{PBC`O{HT}h@{PBCtO{\\T}|@{TBCXOztT}X@{TBDPO{xT~`@{TBCdO{`T}p@z|BC@OzxT|x@z|BCPO{HT}\\@{DBC\\O{@T}t@{XBC\\O{XT}|@{HBCTO{lT}h@zhBB|O{\\T}H@z\\B \n"
+)
+
 
 def test_parse_msg_header():
     """imfv283_test.IMFV283Parser_test.test_parse_msg_header()
@@ -41,6 +47,7 @@ def test_parse_goes_header():
         IMFV283_EXAMPLE_VIC, imfv283_codes.OBSERVATORIES["VIC"], 191
     )
     goes_header = IMFV283Parser()._parse_goes_header(goes_data)
+
     assert_equal(goes_header["day"], 23)
     assert_equal(goes_header["minute"], 73)
     assert_equal(type(goes_header["minute"]), int)
