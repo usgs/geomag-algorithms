@@ -28,7 +28,7 @@ RUN echo 'export PATH=/conda/bin:$PATH' > /etc/profile.d/conda.sh \
 # install dependencies via conda
 RUN conda config --set ssl_verify $SSL_CERT_FILE \
     && conda config --add channels conda-forge \
-    && conda install --yes jupyter obspy pycurl \
+    && conda install --yes python=3.7 jupyter obspy pycurl \
     && conda clean --all -y \
     && export PIP_CERT=$SSL_CERT_FILE \
     && pip install pipenv 'virtualenv!=20.0.22' \
