@@ -46,6 +46,8 @@ def create_empty_trace(
     trace_starttime = obspy.core.UTCDateTime(
         numpy.ceil(starttime.timestamp / delta) * delta
     )
+    if delta > 60.0:
+        trace_starttime += (delta - 60) / 2
     stats.starttime = trace_starttime
     stats.delta = delta
     # Calculate number of valid samples up to or before endtime
