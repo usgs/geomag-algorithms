@@ -6,6 +6,7 @@ import struct
 import sys
 from datetime import datetime
 from ..TimeseriesFactoryException import TimeseriesFactoryException
+import logging
 from obspy.core import UTCDateTime
 from time import sleep
 
@@ -425,12 +426,24 @@ class RawInputClient:
             secs: int
             usecs: int
         """
+        usecs = time.microsecond / 100000
+        # round microseconds to nearest microsecond(whole number)
+        rounded_usecs = int(round(usecs, 0))
+        # add warning to log if residual microsecond values are received
+        if rounded_usecs != usecs:
+            logging.warning(
+                "residual microsecond values encountered, rounding to nearest microsecond"
+            )
+        # in the case that microseconds rounds up, account for next second
+        if rounded_usecs == 10:
+            time += 1
+            rounded_usecs = 0
+        # establish rest of date
         yr = time.year
         doy = time.datetime.timetuple().tm_yday
         secs = time.hour * 3600 + time.minute * 60 + time.second
-        usecs = time.microsecond
 
-        return (yr, doy, secs, usecs)
+        return (yr, doy, secs, rounded_usecs)
 
     def _open_socket(self):
         """Open a socket
