@@ -97,9 +97,10 @@ def test__get_time_values(caplog):
     residual_time = UTCDateTime(2020, 10, 6, 23, 59, 59, 999999)
     r_yr, r_doy, r_secs, r_usecs = client._get_time_values(residual_time)
     # check if input microsecond value changes within function
+    message = caplog.messages[0]
     assert_equal(
-        caplog.text,
-        "WARNING  root:RawInputClient.py:434 residual microsecond values encountered, rounding to nearest microsecond\n",
+        message,
+        "residual microsecond values encountered, rounding to nearest microsecond",
     )
     e_yr, e_doy, e_secs, e_usecs = client._get_time_values(expected_time)
     # test if residual result matches expected result
