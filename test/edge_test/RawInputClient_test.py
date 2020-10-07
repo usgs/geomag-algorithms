@@ -91,20 +91,46 @@ def test__get_time_values(caplog):
         location=location,
         network=network,
     )
-    # define expected date from _get_time_values
-    expected_time = UTCDateTime(2020, 10, 7, 0, 0, 0, 0)
-    # define date with residual microseconds
-    residual_time = UTCDateTime(2020, 10, 6, 23, 59, 59, 999999)
-    r_yr, r_doy, r_secs, r_usecs = client._get_time_values(residual_time)
-    # check if input microsecond value changes within function
-    message = caplog.messages[0]
-    assert_equal(
-        message,
-        "residual microsecond values encountered, rounding to nearest microsecond",
-    )
-    e_yr, e_doy, e_secs, e_usecs = client._get_time_values(expected_time)
-    # test if residual result matches expected result
-    assert_equal(e_yr, r_yr)
-    assert_equal(e_doy, r_doy)
-    assert_equal(e_secs, r_secs)
-    assert_equal(e_usecs, r_usecs)
+
+    # test rounding up of microsecond value
+    time = UTCDateTime("2020-10-07T00:00:15.196855Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 281)
+    assert_equal(secs, 15)
+    assert_equal(usecs, 197000)
+    # test rounding down of microsecond value
+    time = UTCDateTime("2020-10-07T00:00:15.196455Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 281)
+    assert_equal(secs, 15)
+    assert_equal(usecs, 196000)
+    # test top of second adjustment
+    time = UTCDateTime("2020-10-07T00:00:00.999999Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 281)
+    assert_equal(secs, 1)
+    assert_equal(usecs, 0)
+    # test top of day adjustment
+    time = UTCDateTime("2020-10-07T23:59:59.999999Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 282)
+    assert_equal(secs, 0)
+    assert_equal(usecs, 0)
+    # assert if previous 4 tests generate 4 warning messages
+    assert_equal(len(caplog.messages), 4)
+
+    # clear warnings from log
+    caplog.clear()
+    # test ideal case
+    time = UTCDateTime("2020-10-07T00:00:00.232000Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 281)
+    assert_equal(secs, 0)
+    assert_equal(usecs, 232000)
+    # assert if previous test does not generate a warning message
+    assert_equal(len(caplog.messages), 0)
