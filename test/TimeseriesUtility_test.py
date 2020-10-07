@@ -449,6 +449,22 @@ def test_pad_and_trim_trace_fixfloat():
     )
 
 
+def test_round_usecs():
+    """TimeseriesUtility_test.test_round_usecs()
+    This tests whether microsecond values are rounded or
+    not depending on residual microsecond values
+    """
+    # test case with no residual microseconds
+    time = TimeseriesUtility.round_usecs(UTCDateTime("2020-10-07T00:00:00Z"))
+    assert_equal(time, UTCDateTime("2020-10-07T00:00:00Z"))
+    # test case with residual microseconds
+    time = TimeseriesUtility.round_usecs(UTCDateTime("2020-10-07T00:00:00.995600Z"))
+    assert_equal(time, UTCDateTime("2020-10-07T00:00:00.996000Z"))
+    # test case with rounding to next second
+    time = TimeseriesUtility.round_usecs(UTCDateTime("2020-10-07T00:00:00.9995Z"))
+    assert_equal(time, UTCDateTime("2020-10-07T00:00:01.000Z"))
+
+
 def _create_trace(data, channel, starttime, delta=60.0):
     stats = Stats()
     stats.channel = channel

@@ -535,3 +535,28 @@ def pad_and_trim_trace(trace, starttime, endtime):
             trace.data = numpy.concatenate(
                 [trace.data, numpy.full(cnt, numpy.nan, dtype=numpy.float64)]
             )
+
+
+def round_usecs(time):
+    """Rounds residual microseconds to milliseconds.
+
+    Parameters
+    ----------
+    time: UTCDateTime
+        time containing microsecond values
+
+    Returns
+    ----------
+    time: UTCDateTime
+        time containing rounded(or non-rounded) microsecond values
+    """
+    usecs = time.microsecond
+    # round microseconds to nearest millisecond
+    rounded_usecs = int(round(usecs / 1000, 0)) * 1000
+    # reset microseconds to 0 at top of second, add second to input time
+    if rounded_usecs > 999000:
+        rounded_usecs = 0
+        time += 1
+    if rounded_usecs != usecs:
+        time = time.replace(microsecond=rounded_usecs)
+    return time

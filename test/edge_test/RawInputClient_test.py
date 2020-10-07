@@ -1,6 +1,8 @@
 """Tests for RawInputClient.py"""
 
 import numpy
+from datetime import datetime
+import logging
 from obspy.core import Stats, Trace, UTCDateTime
 from geomagio.edge import EdgeFactory, RawInputClient
 from numpy.testing import assert_equal
@@ -56,7 +58,7 @@ def test_raw_input_client():
 
 
 def test__get_tag():
-    """edge_test.RawInputClient_test.test_raw_input_client()"""
+    """edge_test.RawInputClient_test.test__get_tag()"""
     network = "NT"
     station = "BOU"
     channel = "MVH"
@@ -72,3 +74,63 @@ def test__get_tag():
     )
     tag_send = client._get_tag()
     assert_equal(tag_send is not None, True)
+
+
+def test__get_time_values(caplog):
+    """edge_test.RawInputClient_test.test__get_time_values()"""
+    network = "NT"
+    station = "BOU"
+    channel = "MVH"
+    location = "R0"
+    client = MockRawInputClient(
+        tag="tag",
+        host="host",
+        port="port",
+        station=station,
+        channel=channel,
+        location=location,
+        network=network,
+    )
+
+    # test rounding up of microsecond value
+    time = UTCDateTime("2020-10-07T00:00:15.196855Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 281)
+    assert_equal(secs, 15)
+    assert_equal(usecs, 197000)
+    # test rounding down of microsecond value
+    time = UTCDateTime("2020-10-07T00:00:15.196455Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 281)
+    assert_equal(secs, 15)
+    assert_equal(usecs, 196000)
+    # test top of second adjustment
+    time = UTCDateTime("2020-10-07T00:00:00.999999Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 281)
+    assert_equal(secs, 1)
+    assert_equal(usecs, 0)
+    # test top of day adjustment
+    time = UTCDateTime("2020-10-07T23:59:59.999999Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 282)
+    assert_equal(secs, 0)
+    assert_equal(usecs, 0)
+    # assert if previous 4 tests generate 4 warning messages
+    assert_equal(len(caplog.messages), 4)
+
+    # clear warnings from log
+    caplog.clear()
+    # test ideal case
+    time = UTCDateTime("2020-10-07T00:00:00.232000Z")
+    yr, doy, secs, usecs = client._get_time_values(time)
+    assert_equal(yr, 2020)
+    assert_equal(doy, 281)
+    assert_equal(secs, 0)
+    assert_equal(usecs, 232000)
+    # assert if previous test does not generate a warning message
+    assert_equal(len(caplog.messages), 0)
