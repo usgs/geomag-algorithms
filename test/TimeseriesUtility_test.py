@@ -460,6 +460,9 @@ def test_round_usecs():
     # test case with residual microseconds
     time = TimeseriesUtility.round_usecs(UTCDateTime("2020-10-07T00:00:00.995600Z"))
     assert_equal(time, UTCDateTime("2020-10-07T00:00:00.996000Z"))
+    # test case with rounding to next second
+    time = TimeseriesUtility.round_usecs(UTCDateTime("2020-10-07T00:00:00.9995Z"))
+    assert_equal(time, UTCDateTime("2020-10-07T00:00:01.000Z"))
 
 
 def _create_trace(data, channel, starttime, delta=60.0):

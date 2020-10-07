@@ -550,9 +550,9 @@ def round_usecs(time):
     time: UTCDateTime
         time containing rounded(or non-rounded) microsecond values
     """
-    usecs = time.microsecond / 1000
+    usecs = time.microsecond
     # round microseconds to nearest millisecond
-    rounded_usecs = int(round(usecs, 0)) * 1000
+    rounded_usecs = int(round(usecs / 1000, 0)) * 1000
     # reset microseconds to 0 at top of second, add second to input time
     if rounded_usecs > 999000:
         rounded_usecs = 0
