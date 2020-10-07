@@ -557,5 +557,6 @@ def round_usecs(time):
     if rounded_usecs > 999000:
         rounded_usecs = 0
         time += 1
-    time.microsecond = rounded_usecs
+    if rounded_usecs != usecs:
+        time = time.replace(microsecond=rounded_usecs)
     return time
