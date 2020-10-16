@@ -51,6 +51,8 @@ def test_second():
     assert_almost_equal(w_filt.data, w.data, 2)
     assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-06T00:00:00Z"))
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-06T04:00:00Z"))
+    assert_equal(u_filt.stats.data_interval, "second")
+    assert_equal(u_filt.stats.data_interval_type, "Average 1-Second")
 
 
 def test_minute():
@@ -94,6 +96,10 @@ def test_minute():
     assert_almost_equal(w_filt.data, w.data, 2)
     assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-06T00:00:00Z"))
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-06T04:00:00Z"))
+    assert_equal(filtered[0].stats.data_interval, "minute")
+    assert_equal(
+        filtered[0].stats.data_interval_type, "filtered 1-minute (00:15-01:45)"
+    )
 
 
 def test_hour():
@@ -138,6 +144,8 @@ def test_hour():
     assert_almost_equal(f_filt.data, f.data, 2)
     assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-31T00:29:30"))
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-31T03:29:30"))
+    assert_equal(filtered[0].stats.data_interval, "hour")
+    assert_equal(filtered[0].stats.data_interval_type, "filtered 1-hour")
 
 
 def test_day():
@@ -182,6 +190,8 @@ def test_day():
     assert_almost_equal(f_filt.data, f.data, 2)
     assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-08-27T11:59:30"))
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-08-30T11:59:30"))
+    assert_equal(filtered[0].stats.data_interval, "day")
+    assert_equal(filtered[0].stats.data_interval_type, "filtered 1-day")
 
 
 def test_custom():
@@ -229,6 +239,8 @@ def test_custom():
     assert_almost_equal(w_filt.data, w.data, 2)
     assert_equal(filtered[0].stats.starttime, UTCDateTime("2020-01-06T00:00:00Z"))
     assert_equal(filtered[0].stats.endtime, UTCDateTime("2020-01-06T04:00:00Z"))
+    assert_equal(filtered[0].stats.data_interval, "second")
+    assert_equal(filtered[0].stats.data_interval_type, "filtered custom interval")
 
 
 def test_starttime_shift():

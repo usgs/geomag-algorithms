@@ -55,6 +55,34 @@ def test_create_empty_trace():
     TimeseriesUtility.pad_timeseries(timeseries, starttime - 90, endtime + 90)
     assert_equal(len(trace3.data), trace3.stats.npts)
     assert_equal(timeseries[0].stats.starttime, timeseries[2].stats.starttime)
+    # test hourly/daily starttime shift
+    hour_trace = TimeseriesUtility.create_empty_trace(
+        starttime=trace1.stats.starttime,
+        endtime=trace1.stats.endtime,
+        observatory=observatory,
+        channel="F",
+        type="variation",
+        interval="hour",
+        network=network,
+        station=trace1.stats.station,
+        location=location,
+    )
+
+    assert_equal(hour_trace.stats.starttime, UTCDateTime("2018-01-01T00:29:30Z"))
+
+    day_trace = TimeseriesUtility.create_empty_trace(
+        starttime=trace1.stats.starttime,
+        endtime=trace1.stats.endtime,
+        observatory=observatory,
+        channel="F",
+        type="variation",
+        interval="day",
+        network=network,
+        station=trace1.stats.station,
+        location=location,
+    )
+
+    assert_equal(day_trace.stats.starttime, UTCDateTime("2018-01-01T11:59:30Z"))
 
 
 def test_get_stream_gaps():

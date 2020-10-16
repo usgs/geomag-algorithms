@@ -51,7 +51,7 @@ STEPS = [
     {  # one minute to one hour filter
         "name": "One Day",
         "data_interval": "day",
-        "data_interval_type": "filtered 1-Day",
+        "data_interval_type": "filtered 1-day",
         "input_sample_period": 60.0,
         "output_sample_period": 86400,
         "window": sps.windows.boxcar(1440),
