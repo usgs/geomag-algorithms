@@ -98,6 +98,30 @@ variables:
     - deploy
     - swarm
 
+.deploy-library:
+  extends:
+    - .deploy
+  image: "docker:stable-git"
+  script:
+    - PREFIX_LENGTH=${#REQUIRED_PREFIX};
+    - if [[ "${APP_DEPLOY_DIR:0:${PREFIX_LENGTH}}" != "${REQUIRED_PREFIX}" ]]; then
+        echo "APP_DEPLOY_DIR does not contain correct path";
+        exit 255;
+      fi
+    - if [ ! -d "${APP_DEPLOY_DIR}" ]; then
+        cd "$(dirname "${APP_DEPLOY_DIR}")";
+        git clone "${CI_REPOSITORY_URL}" "$(basename "${APP_DEPLOY_DIR}")";
+      fi
+    - cd "${APP_DEPLOY_DIR}";
+    - git checkout "${CI_COMMIT_REF_NAME}" || git checkout -b "${CI_COMMIT_REF_NAME}";
+    - git pull --ff-only "${CI_REPOSITORY_URL}" "${CI_COMMIT_REF_NAME}";
+  stage: deploy
+  variables:
+    APP_DEPLOY_DIR: ''
+    REQUIRED_PREFIX: '/efs/www/apps/'
+    CI_REPOSITORY_URL: 'https://code.usgs.gov/ghsc/geomag/geomag-algorithms'
+
+
 .mage:
   variables:
     DATA_HOST: "cwbpub.cr.usgs.gov"
