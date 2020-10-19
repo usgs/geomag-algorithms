@@ -117,8 +117,8 @@ variables:
     - git pull --ff-only "${CI_REPOSITORY_URL}" "${CI_COMMIT_REF_NAME}";
   stage: deploy
   variables:
-    APP_DEPLOY_DIR: ''
-    REQUIRED_PREFIX: '/efs/www/apps/'
+    APP_DEPLOY_DIR: '/home/geomag_user/geomag-algorithms'
+    REQUIRED_PREFIX: '/home/geomag_user/geomag-algorithms'
     CI_REPOSITORY_URL: 'https://code.usgs.gov/ghsc/geomag/geomag-algorithms'
 
 
