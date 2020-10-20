@@ -216,6 +216,17 @@ Mage01 Library:
   variables:
     APP_NAME: geomag-algorithms
 
+Mage02 Library:
+  extends:
+    - .deploy-library
+    - .staging
+  tags:
+    - deploy
+    - swarm
+    - mage02
+  variables:
+    APP_NAME: geomag-algorithms
+
 Mage01 Web Service:
   extends:
     - .deploy
