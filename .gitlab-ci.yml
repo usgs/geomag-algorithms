@@ -117,8 +117,8 @@ variables:
     - git pull --ff-only "${CI_REPOSITORY_URL}" "${CI_COMMIT_REF_NAME}";
   stage: deploy
   variables:
-    APP_DEPLOY_DIR: '/home/geomag_user/geomag-algorithms'
-    REQUIRED_PREFIX: '/home/geomag_user/geomag-algorithms'
+    APP_DEPLOY_DIR: '/geomag/geomag-algorithms'
+    REQUIRED_PREFIX: '/geomag'
     CI_REPOSITORY_URL: 'https://code.usgs.gov/ghsc/geomag/geomag-algorithms'
 
 
@@ -206,18 +206,7 @@ Scan Docker Image:
 # Deploy Stage
 ## --------------------------------------------------
 
-Deploy Mage01:
-  extends:
-    - .deploy
-    - .staging
-  tags:
-    - deploy
-    - swarm
-    - mage01
-  variables:
-    APP_NAME: geomag-algorithms
-
-Deploy Library Mage01:
+Deploy Mage01 Library:
   extends:
     - .deploy-library
     - .staging
@@ -228,7 +217,18 @@ Deploy Library Mage01:
   variables:
     APP_NAME: geomag-algorithms
 
-Deploy Mage02:
+Deploy Mage01 Web Service:
+  extends:
+    - .deploy
+    - .staging
+  tags:
+    - deploy
+    - swarm
+    - mage01
+  variables:
+    APP_NAME: geomag-algorithms
+
+Deploy Mage02 Web Service:
   extends:
     - .deploy
     - .production
@@ -239,7 +239,7 @@ Deploy Mage02:
   variables:
     APP_NAME: geomag-algorithms
 
-Deploy Algorithms Production01:
+Deploy Production01 Web Service:
   extends:
     - .deploy
     - .production
@@ -250,7 +250,7 @@ Deploy Algorithms Production01:
   variables:
     APP_NAME: geomag-algorithms
 
-Deploy Algorithms Production02:
+Deploy Production02 Web Service:
   extends:
     - .deploy
     - .production
@@ -261,7 +261,7 @@ Deploy Algorithms Production02:
   variables:
     APP_NAME: geomag-algorithms
 
-Deploy Algorithms Staging01:
+Deploy Staging01 Web Service:
   extends:
     - .deploy
     - .staging
@@ -272,7 +272,7 @@ Deploy Algorithms Staging01:
   variables:
     APP_NAME: geomag-algorithms
 
-Deploy Algorithms Staging02:
+Deploy Staging02 Web Service:
   extends:
     - .deploy
     - .staging
