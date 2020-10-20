@@ -187,7 +187,7 @@ class Controller(object):
             )
         processed = algorithm.process(timeseries)
         # trim if --no-trim is not set
-        if options.output_interval not in [None, "tenhertz", "second", "minute"]:
+        if options.output_interval in ["hour", "day"]:
             starttime = processed[0].stats.starttime
             endtime = processed[0].stats.endtime
         if not options.no_trim:
