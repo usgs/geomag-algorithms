@@ -153,8 +153,10 @@ class FilterAlgorithm(Algorithm):
                     self.output_sample_period
                 ),
                 "data_interval_type": "filtered custom interval",
-                "filter_comments": [
-                    "Data produced by filter utilizing custom coefficients and intervals."
+                "filter_comments": "filter_comments" in data
+                and data["filter_comments"]
+                or [
+                    "{ Data produced by filter utilizing custom coefficients and intervals. }"
                 ],
                 "input_sample_period": self.input_sample_period,
                 "output_sample_period": self.output_sample_period,
