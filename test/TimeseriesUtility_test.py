@@ -84,6 +84,21 @@ def test_create_empty_trace():
 
     assert_equal(day_trace.stats.starttime, UTCDateTime("2018-01-01T11:59:30Z"))
 
+    short_trace = TimeseriesUtility.create_empty_trace(
+        starttime=trace1.stats.starttime,
+        endtime=trace1.stats.starttime + 1,
+        observatory=observatory,
+        channel="F",
+        type="variation",
+        interval="day",
+        network=network,
+        station=trace1.stats.station,
+        location=location,
+    )
+
+    assert_equal(short_trace.stats.starttime, UTCDateTime("2018-01-01T11:59:30Z"))
+    assert_equal(short_trace.stats.endtime, UTCDateTime("2018-01-02T11:59:30Z"))
+
 
 def test_get_stream_gaps():
     """TimeseriesUtility_test.test_get_stream_gaps()
