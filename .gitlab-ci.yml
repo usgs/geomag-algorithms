@@ -1,9 +1,9 @@
 image: ${DEVOPS_REGISTRY}usgs/centos:latest
 
-cache:
-  paths:
-    # cache pip installed dependencies, see PIP_CACHE_DIR variable below
-    - .cache/pip
+#cache:
+#  paths:
+#    # cache pip installed dependencies, see PIP_CACHE_DIR variable below
+#    - .cache/pip
 
 stages:
   - test
@@ -14,7 +14,7 @@ stages:
 variables:
   CI_REGISTRY: ${CODE_REGISTRY}
   CI_REGISTRY_IMAGE: ${CODE_REGISTRY_IMAGE}
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+#  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   TRIVY_VERSION: "0.11.0"
   # docker variables
   DOCKER_DRIVER: overlay2
