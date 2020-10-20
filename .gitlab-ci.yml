@@ -119,8 +119,6 @@ variables:
   variables:
     APP_DEPLOY_DIR: '/geomag/geomag-algorithms'
     REQUIRED_PREFIX: '/geomag'
-    CI_REPOSITORY_URL: 'https://code.usgs.gov/ghsc/geomag/geomag-algorithms'
-
 
 .mage:
   variables:
