@@ -1,8 +1,11 @@
-language: python
-python:
-  - 3.6
-  - 3.7
-  - 3.8
+language: minimal
+# run in container
+arch: arm64
+dist: focal
+env:
+  - PYTHON_VERSION=3.6
+  - PYTHON_VERSION=3.7
+  - PYTHON_VERSION=3.8
 install:
   ## courtesy of http://conda.pydata.org/docs/travis.html
   - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
@@ -13,9 +16,6 @@ install:
   - conda update --yes conda
   - conda info -a
 script:
-  # use conda
-  - source ~/virtualenv/python3.7/bin/deactivate
-  - source $HOME/miniconda/bin/activate base
   # pass PYTHON_VERSION to check code script
   - export PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
   # run linting and tests
