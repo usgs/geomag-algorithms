@@ -13,7 +13,11 @@ install:
   - conda update --yes conda
   - conda info -a
 script:
+  # activate conda environment
+  - source activate
+  # pass PYTHON_VERSION to check code script
   - export PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
+  # run linting and tests
   - scripts/ci_check_code.sh
 after_success:
   - bash <(curl -s https://codecov.io/bash)
