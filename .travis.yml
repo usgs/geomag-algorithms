@@ -1,6 +1,6 @@
 language: minimal
 # run in container
-arch: arm64
+arch: amd64
 dist: focal
 env:
   - PYTHON_VERSION=3.6
