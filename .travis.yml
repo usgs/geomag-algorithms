@@ -14,7 +14,7 @@ install:
   - conda info -a
 script:
   # activate conda environment
-  - source activate
+  - conda activate
   # pass PYTHON_VERSION to check code script
   - export PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
   # run linting and tests
