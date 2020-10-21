@@ -13,8 +13,9 @@ install:
   - conda update --yes conda
   - conda info -a
 script:
-  # point pipenv to conda
-  - export PIPENV_PYTHON=$HOME/miniconda/bin/python
+  # use conda
+  - source ~/virtualenv/python3.7/bin/deactivate
+  - source $HOME/miniconda/bin/activate base
   # pass PYTHON_VERSION to check code script
   - export PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
   # run linting and tests
