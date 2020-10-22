@@ -13,7 +13,7 @@ conda config --add channels conda-forge
 conda install python=${PYTHON_VERSION} obspy pycurl
 pip install pipenv
 pipenv --site-packages install --dev --pre --skip-lock
-
+pipenv run which python
 # Run Code Checks
 pipenv run black --check .
 pipenv run pytest --cov-report xml:cov.xml --cov=geomagio

@@ -1,27 +1,24 @@
-language: python
-python:
-  - 3.6
-  - 3.7
-before_install:
+language: minimal
+# run in container
+arch: amd64
+dist: focal
+env:
+  - PYTHON_VERSION=3.6
+  - PYTHON_VERSION=3.7
+  - PYTHON_VERSION=3.8
+install:
   ## courtesy of http://conda.pydata.org/docs/travis.html
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-    wget https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update --yes conda
   - conda info -a
-install:
-  - conda config --add channels conda-forge
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION obspy pycurl black pytest pytest-cov webtest pydantic openpyxl
-  - source activate test-environment
-  - pip install authlib flask flask-login flask-migrate flask-session flask-sqlalchemy psycopg2-binary
 script:
-  - black --check .
-  - pytest
+  # pass PYTHON_VERSION to check code script
+  - export PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
+  # run linting and tests
+  - scripts/ci_check_code.sh
 after_success:
   - bash <(curl -s https://codecov.io/bash)
