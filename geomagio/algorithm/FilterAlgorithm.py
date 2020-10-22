@@ -15,49 +15,49 @@ STEPS = [
     {  # 10 Hz to one second filter
         "name": "10Hz",
         "data_interval": "second",
-        "data_interval_type": "Average 1-Second",
+        "data_interval_type": "1-second",
         "input_sample_period": 0.1,
         "output_sample_period": 1.0,
         "window": sps.firwin(123, 0.25, window="blackman", fs=10.0),
         "type": "firfilter",
         "filter_comments": [
-            "Vector 1-second values are computed from 0.1-second values using the INTERMAGNET blackman filter centered on the second. Scalar 1-second values are computed from 0.1-second values using the INTERMAGNET blackman filter centered on the second. "
+            "Vector 1-second values are computed from 10 Hz values centered on the start of the second. Uses a centered Blackman filter."
         ],
     },
     {  # one second to one minute filter
         "name": "Intermagnet One Minute",
         "data_interval": "minute",
-        "data_interval_type": "filtered 1-minute (00:15-01:45)",
+        "data_interval_type": "1-minute",
         "input_sample_period": 1.0,
         "output_sample_period": 60.0,
         "window": sps.get_window(window=("gaussian", 15.8734), Nx=91),
         "type": "firfilter",
         "filter_comments": [
-            "Vector 1-minute values are computed from 1-second values using the INTERMAGNET gaussian filter centered on the minute. Scalar 1-minute values are computed from 1-second values using the INTERMAGNET gaussian filter centered on the minute. "
+            "Scalar and Vector 1-minute values are computed from 1-second values centered on the start of the minute. Uses the centered INTERMAGNET gausian filter."
         ],
     },
     {  # one minute to one hour filter
         "name": "One Hour",
         "data_interval": "hour",
-        "data_interval_type": "filtered 1-hour",
+        "data_interval_type": "1-hour (00-59)",
         "input_sample_period": 60.0,
         "output_sample_period": 3600.0,
         "window": sps.windows.boxcar(60),
         "type": "average",
         "filter_comments": [
-            "Vector 1-hour values are computed from 1-minute values using a boxcar filter centered on the nearest half-hour. Scalar 1-hour values are computed from 1-minute values using a boxcar filter centered on the nearest half-hour. "
+            "Scalar and Vector 1-hour values are computed from average of 1-minute values in the hour (00-59)",
         ],
     },
-    {  # one minute to one hour filter
+    {  # one minute to one day filter
         "name": "One Day",
         "data_interval": "day",
-        "data_interval_type": "filtered 1-day",
+        "data_interval_type": "1-day (00:00-23:59)",
         "input_sample_period": 60.0,
         "output_sample_period": 86400,
         "window": sps.windows.boxcar(1440),
         "type": "average",
         "filter_comments": [
-            "Vector 1-day values are computed from 1-minute values using a boxcar filter centered on the nearest half-day. Scalar 1-day values are computed from 1-minute values using a boxcar filter centered on the nearest half-day. "
+            "Scalar and Vector 1-day values are computed from average of 1-minute values in the day (00:00-23:59)",
         ],
     },
 ]
