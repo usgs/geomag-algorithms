@@ -24,24 +24,27 @@ METADATA = {
         },
         "interval_specific": {
             "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
+                "data_interval_type": "1-minute",
                 "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
+                    "Scalar and Vector 1-minute values are computed from 1-second values centered on the start of the minute. Uses the centered INTERMAGNET gausian filter."
                 ],
             },
-            "second": {"data_interval_type": "Average 1-Second"},
+            "second": {
+                "data_interval_type": "1-second",
+                "filter_comments": [
+                    "Vector 1-second values are computed from 10 Hz values centered on the start of the second. Uses a centered Blackman filter."
+                ],
+            },
         },
     }
 }
 
 
 DATA_INTERVAL_TYPE = {
-    "minute": {"data_interval_type": "filtered 1-minute (00:29-01:30) "},
-    "second": {"data_interval_type": "filtered 1-Second"},
+    "day": {"data_interval_type": "1-day"},
+    "hour": {"data_interval_type": "1-hour"},
+    "minute": {"data_interval_type": "1-minute"},
+    "second": {"data_interval_type": "1-second"},
 }
 
 
@@ -65,4 +68,4 @@ def test_set_metadata():
     observatorymetadata.set_metadata(stats, "BOU", "MVH", "quasi-definitive", "second")
     assert_equal(stats["declination_base"], 20000)
     print(stats)
-    assert_equal(stats["data_interval_type"], "Average 1-Second")
+    assert_equal(stats["data_interval_type"], "1-second")
