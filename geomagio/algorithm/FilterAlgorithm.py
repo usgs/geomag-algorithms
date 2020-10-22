@@ -156,7 +156,7 @@ class FilterAlgorithm(Algorithm):
                 "filter_comments": "filter_comments" in data
                 and data["filter_comments"]
                 or [
-                    "{ Data produced by filter utilizing custom coefficients and intervals. }"
+                    "Data produced by filter utilizing custom coefficients and intervals."
                 ],
                 "input_sample_period": self.input_sample_period,
                 "output_sample_period": self.output_sample_period,
