@@ -219,7 +219,7 @@ Mage01 Library:
 Mage02 Library:
   extends:
     - .deploy-library
-    - .staging
+    - .production
   tags:
     - deploy
     - swarm
