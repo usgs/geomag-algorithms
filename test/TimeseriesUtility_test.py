@@ -97,7 +97,7 @@ def test_create_empty_trace():
     )
 
     assert_equal(short_trace.stats.starttime, UTCDateTime("2018-01-01T11:59:30Z"))
-    assert_equal(short_trace.stats.endtime, UTCDateTime("2018-01-02T11:59:30Z"))
+    assert_equal(short_trace.stats.endtime, short_trace.stats.starttime)
 
 
 def test_get_stream_gaps():

@@ -51,9 +51,9 @@ def create_empty_trace(
         trace_starttime += (delta - 60) / 2
         if trace_starttime > endtime:
             sys.stderr.write(
-                "Starttime greater than endtime, shifting endtime to next sample"
+                "Starttime greater than endtime, adjusting request to one sample"
             )
-            endtime = trace_starttime + delta
+            endtime = trace_starttime
     stats.starttime = trace_starttime
     stats.delta = delta
     # Calculate number of valid samples up to or before endtime
