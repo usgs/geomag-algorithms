@@ -941,8 +941,10 @@ DEFAULT_METADATA = {
 
 
 DEFAULT_INTERVAL_SPECIFIC = {
-    "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45) "},
-    "second": {"data_interval_type": "Average 1-Second"},
+    "day": {"data_interval_type": "1-day"},
+    "hour": {"data_interval_type": "1-hour"},
+    "minute": {"data_interval_type": "1-minute"},
+    "second": {"data_interval_type": "1-second"},
 }
 
 
