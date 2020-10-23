@@ -4,6 +4,32 @@ from geomagio import ObservatoryMetadata
 from numpy.testing import assert_equal
 import obspy.core
 
+DEFAULT_INTERVAL_SPECIFIC = {
+    "day": {
+        "data_interval_type": "1-day (00:00-23:59)",
+        "filter_comments": [
+            "Scalar and Vector 1-day values are computed from average of 1-minute values in the day (00:00-23:59)",
+        ],
+    },
+    "hour": {
+        "data_interval_type": "1-hour (00-59)",
+        "filter_comments": [
+            "Scalar and Vector 1-hour values are computed from average of 1-minute values in the hour (00-59)",
+        ],
+    },
+    "minute": {
+        "data_interval_type": "1-minute",
+        "filter_comments": [
+            "Scalar and Vector 1-minute values are computed from 1 Hz values using an INTERMAGNET gaussian filter centered on the start of the minute (00:30-01:30)."
+        ],
+    },
+    "second": {
+        "data_interval_type": "1-second",
+        "filter_comments": [
+            "Vector 1-second values are computed from 10 Hz values using a Blackman filter (123 taps, cutoff 0.25Hz) centered on the start of the second."
+        ],
+    },
+}
 
 METADATA = {
     "BOU": {
@@ -22,20 +48,7 @@ METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "1-minute",
-                "filter_comments": [
-                    "Scalar and Vector 1-minute values are computed from 1-second values centered on the start of the minute. Uses the centered INTERMAGNET gausian filter."
-                ],
-            },
-            "second": {
-                "data_interval_type": "1-second",
-                "filter_comments": [
-                    "Vector 1-second values are computed from 10 Hz values centered on the start of the second. Uses a centered Blackman filter."
-                ],
-            },
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     }
 }
 
