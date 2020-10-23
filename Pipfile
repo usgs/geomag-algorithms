@@ -16,7 +16,7 @@ webtest = "*"
 numpy = "*"
 scipy = "*"
 obspy = "*"
-pycurl = "==7.43.0.5"
+pycurl = "*"
 
 # web service dependencies
 authlib = "*"
