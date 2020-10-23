@@ -21,7 +21,7 @@ STEPS = [
         "window": sps.firwin(123, 0.25, window="blackman", fs=10.0),
         "type": "firfilter",
         "filter_comments": [
-            "Vector 1-second values are computed from 10 Hz values centered on the start of the second. Uses a centered Blackman filter."
+            "Vector 1-second values are computed from 10 Hz values using a Blackman filter (123 taps, cutoff 0.25Hz) centered on the start of the second."
         ],
     },
     {  # one second to one minute filter
@@ -33,7 +33,7 @@ STEPS = [
         "window": sps.get_window(window=("gaussian", 15.8734), Nx=91),
         "type": "firfilter",
         "filter_comments": [
-            "Scalar and Vector 1-minute values are computed from 1-second values centered on the start of the minute. Uses the centered INTERMAGNET gausian filter."
+            "Scalar and Vector 1-minute values are computed from 1 Hz values using an INTERMAGNET gaussian filter centered on the start of the minute (00:30-01:30)."
         ],
     },
     {  # one minute to one hour filter
