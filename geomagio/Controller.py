@@ -707,7 +707,7 @@ def parse_args(args):
         const=True,
         help="""
                 Run the last N seconds.
-                Default 172800 (last) when interval is day,
+                Default 172800 (last 2 days) when interval is day,
                 Default 7200 (last 2 hours) when interval is hour,
                 Default 3600 (last hour) when interval is minute,
                 Default 600 (last 10 minutes) otherwise.
