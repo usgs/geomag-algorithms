@@ -100,19 +100,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "data_interval_type": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BRT": {
         "metadata": {
@@ -130,19 +118,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "data_interval_type": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BSL": {
         "metadata": {
@@ -177,7 +153,8 @@ DEFAULT_METADATA = {
             "conditions_of_use": "The Conditions of Use for data provided"
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
-        }
+        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "CMT": {
         "metadata": {
@@ -194,7 +171,8 @@ DEFAULT_METADATA = {
             "conditions_of_use": "The Conditions of Use for data provided"
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
-        }
+        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "DED": {
         "metadata": {
@@ -338,10 +316,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "NEW": {
         "metadata": {
@@ -449,13 +424,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "1-minute calculated",
-                "filter_comments": [],
-            },
-            "hour": {"data_interval_type": "1-hour calculated"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BLC": {
         "metadata": {
@@ -473,10 +442,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BRD": {
         "metadata": {
@@ -494,10 +460,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "CBB": {
         "metadata": {
@@ -515,10 +478,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "EUA": {
         "metadata": {
@@ -536,10 +496,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "FCC": {
         "metadata": {
@@ -557,10 +514,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "HAD": {
         "metadata": {
@@ -578,10 +532,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "HER": {
         "metadata": {
@@ -599,10 +550,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "IQA": {
         "metadata": {
@@ -620,10 +568,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "MEA": {
         "metadata": {
@@ -641,10 +586,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "OTT": {
         "metadata": {
@@ -662,10 +604,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "RES": {
         "metadata": {
@@ -683,10 +622,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "SNK": {
         "metadata": {
@@ -704,10 +640,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "STJ": {
         "metadata": {
@@ -725,10 +658,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "VIC": {
         "metadata": {
@@ -746,10 +676,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "YKC": {
         "metadata": {
@@ -767,10 +694,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
 }
 
