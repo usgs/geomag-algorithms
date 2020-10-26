@@ -11,7 +11,7 @@ import itertools
 import json
 import os
 import sys
-import urllib2
+import urllib.request
 
 
 ############################################################################
@@ -54,7 +54,7 @@ url = (
 
 try:
     print(f"Loading data from web service\n\t{url}", file=sys.stderr)
-    response = urllib2.urlopen(
+    response = urllib.request.urlopen(
         url,
         # allow environment certificate bundle override
         cafile=os.environ.get("SSL_CERT_FILE"),
@@ -125,7 +125,7 @@ calfile.append("")
 filename = FILENAME_FORMAT.format(OBSERVATORY=OBSERVATORY, YEAR=YEAR)
 print("Writing cal file to {}".format(filename), file=sys.stderr)
 with open(filename, "wb", -1) as f:
-    f.write(os.linesep.join(calfile))
+    f.write(os.linesep.join(calfile).encode())
 
 
 """
