@@ -186,6 +186,8 @@ class Controller(object):
                 timeseries=timeseries, renames=options.rename_input_channel
             )
         processed = algorithm.process(timeseries)
+        # for averaging filter steps, return data with aligned starttime/endtime
+        # if no data is available, return empty trace with aligned starttime/endtime
         if options.output_interval in ["hour", "day"]:
             starttime = processed[0].stats.starttime
             endtime = processed[0].stats.endtime
