@@ -14,31 +14,51 @@ from .. import TimeseriesUtility
 STEPS = [
     {  # 10 Hz to one second filter
         "name": "10Hz",
+        "data_interval": "second",
+        "data_interval_type": "1-second",
         "input_sample_period": 0.1,
         "output_sample_period": 1.0,
         "window": sps.firwin(123, 0.25, window="blackman", fs=10.0),
         "type": "firfilter",
+        "filter_comments": [
+            "Vector 1-second values are computed from 10 Hz values using a Blackman filter (123 taps, cutoff 0.25Hz) centered on the start of the second."
+        ],
     },
     {  # one second to one minute filter
         "name": "Intermagnet One Minute",
+        "data_interval": "minute",
+        "data_interval_type": "1-minute",
         "input_sample_period": 1.0,
         "output_sample_period": 60.0,
         "window": sps.get_window(window=("gaussian", 15.8734), Nx=91),
         "type": "firfilter",
+        "filter_comments": [
+            "Scalar and Vector 1-minute values are computed from 1 Hz values using an INTERMAGNET gaussian filter centered on the start of the minute (00:30-01:30)."
+        ],
     },
     {  # one minute to one hour filter
         "name": "One Hour",
+        "data_interval": "hour",
+        "data_interval_type": "1-hour (00-59)",
         "input_sample_period": 60.0,
         "output_sample_period": 3600.0,
         "window": sps.windows.boxcar(60),
         "type": "average",
+        "filter_comments": [
+            "Scalar and Vector 1-hour values are computed from average of 1-minute values in the hour (00-59)",
+        ],
     },
-    {  # one minute to one hour filter
+    {  # one minute to one day filter
         "name": "One Day",
+        "data_interval": "day",
+        "data_interval_type": "1-day (00:00-23:59)",
         "input_sample_period": 60.0,
         "output_sample_period": 86400,
         "window": sps.windows.boxcar(1440),
         "type": "average",
+        "filter_comments": [
+            "Scalar and Vector 1-day values are computed from average of 1-minute values in the day (00:00-23:59)",
+        ],
     },
 ]
 
@@ -129,6 +149,15 @@ class FilterAlgorithm(Algorithm):
         self.steps = [
             {
                 "name": "name" in data and data["name"] or "custom",
+                "data_interval": TimeseriesUtility.get_interval_from_delta(
+                    self.output_sample_period
+                ),
+                "data_interval_type": "filtered custom interval",
+                "filter_comments": "filter_comments" in data
+                and data["filter_comments"]
+                or [
+                    "Data produced by filter utilizing custom coefficients and intervals."
+                ],
                 "input_sample_period": self.input_sample_period,
                 "output_sample_period": self.output_sample_period,
                 "window": data["window"],
@@ -268,6 +297,9 @@ class FilterAlgorithm(Algorithm):
             filtered = self.firfilter(data, window, decimation)
             stats = Stats(trace.stats)
             stats.delta = output_sample_period
+            stats.data_interval = step["data_interval"]
+            stats.data_interval_type = step["data_interval_type"]
+            stats.filter_comments = step["filter_comments"]
             stats.starttime = starttime
             stats.npts = len(filtered)
             trace_out = self.create_trace(stats.channel, stats, filtered)

@@ -1,5 +1,32 @@
 """Factory that loads metadata for an observatory"""
 
+# default metadata for available time intervals
+DEFAULT_INTERVAL_SPECIFIC = {
+    "day": {
+        "data_interval_type": "1-day (00:00-23:59)",
+        "filter_comments": [
+            "Scalar and Vector 1-day values are computed from average of 1-minute values in the day (00:00-23:59)",
+        ],
+    },
+    "hour": {
+        "data_interval_type": "1-hour (00-59)",
+        "filter_comments": [
+            "Scalar and Vector 1-hour values are computed from average of 1-minute values in the hour (00-59)",
+        ],
+    },
+    "minute": {
+        "data_interval_type": "1-minute",
+        "filter_comments": [
+            "Scalar and Vector 1-minute values are computed from 1 Hz values using an INTERMAGNET gaussian filter centered on the start of the minute (00:30-01:30)."
+        ],
+    },
+    "second": {
+        "data_interval_type": "1-second",
+        "filter_comments": [
+            "Vector 1-second values are computed from 10 Hz values using a Blackman filter (123 taps, cutoff 0.25Hz) centered on the start of the second."
+        ],
+    },
+}
 
 # default metadata for the 14 USGS observatories.
 DEFAULT_METADATA = {
@@ -19,19 +46,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BOU": {
         "metadata": {
@@ -49,19 +64,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "TST": {
         "metadata": {
@@ -79,19 +82,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BRW": {
         "metadata": {
@@ -109,19 +100,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "data_interval_type": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BRT": {
         "metadata": {
@@ -139,19 +118,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "data_interval_type": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BSL": {
         "metadata": {
@@ -169,19 +136,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "CMO": {
         "metadata": {
@@ -198,7 +153,8 @@ DEFAULT_METADATA = {
             "conditions_of_use": "The Conditions of Use for data provided"
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
-        }
+        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "CMT": {
         "metadata": {
@@ -215,7 +171,8 @@ DEFAULT_METADATA = {
             "conditions_of_use": "The Conditions of Use for data provided"
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
-        }
+        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "DED": {
         "metadata": {
@@ -233,19 +190,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "DHT": {
         "metadata": {
@@ -263,19 +208,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "FRD": {
         "metadata": {
@@ -293,19 +226,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "FDT": {
         "metadata": {
@@ -323,19 +244,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "FRN": {
         "metadata": {
@@ -353,19 +262,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "GUA": {
         "metadata": {
@@ -383,19 +280,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "HON": {
         "metadata": {
@@ -413,19 +298,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "KAK": {
         "metadata": {
@@ -443,10 +316,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "NEW": {
         "metadata": {
@@ -464,19 +334,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "SHU": {
         "metadata": {
@@ -494,19 +352,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "SIT": {
         "metadata": {
@@ -524,19 +370,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "SJG": {
         "metadata": {
@@ -554,19 +388,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "TUC": {
         "metadata": {
@@ -584,19 +406,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "USGS": {
         "metadata": {
@@ -614,13 +424,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "1-minute calculated",
-                "filter_comments": [],
-            },
-            "hour": {"data_interval_type": "1-hour calculated"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BLC": {
         "metadata": {
@@ -638,10 +442,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "BRD": {
         "metadata": {
@@ -659,10 +460,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "CBB": {
         "metadata": {
@@ -680,10 +478,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "EUA": {
         "metadata": {
@@ -701,10 +496,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "FCC": {
         "metadata": {
@@ -722,10 +514,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "HAD": {
         "metadata": {
@@ -743,10 +532,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "HER": {
         "metadata": {
@@ -764,10 +550,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "IQA": {
         "metadata": {
@@ -785,10 +568,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "MEA": {
         "metadata": {
@@ -806,10 +586,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "OTT": {
         "metadata": {
@@ -827,10 +604,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "RES": {
         "metadata": {
@@ -848,10 +622,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "SNK": {
         "metadata": {
@@ -869,10 +640,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "STJ": {
         "metadata": {
@@ -890,10 +658,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "VIC": {
         "metadata": {
@@ -911,10 +676,7 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
     "YKC": {
         "metadata": {
@@ -932,17 +694,8 @@ DEFAULT_METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45)"},
-            "second": {"data_interval_type": ""},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     },
-}
-
-
-DEFAULT_INTERVAL_SPECIFIC = {
-    "minute": {"data_interval_type": "filtered 1-minute (00:15-01:45) "},
-    "second": {"data_interval_type": "Average 1-Second"},
 }
 
 

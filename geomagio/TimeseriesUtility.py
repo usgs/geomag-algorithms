@@ -2,6 +2,7 @@
 from builtins import range
 from datetime import datetime
 import math
+import sys
 import numpy
 import obspy.core
 
@@ -46,6 +47,13 @@ def create_empty_trace(
     trace_starttime = obspy.core.UTCDateTime(
         numpy.ceil(starttime.timestamp / delta) * delta
     )
+    if delta > 60.0:
+        trace_starttime += (delta - 60) / 2
+        if trace_starttime > endtime:
+            sys.stderr.write(
+                "Starttime greater than endtime, adjusting request to one sample"
+            )
+            endtime = trace_starttime
     stats.starttime = trace_starttime
     stats.delta = delta
     # Calculate number of valid samples up to or before endtime

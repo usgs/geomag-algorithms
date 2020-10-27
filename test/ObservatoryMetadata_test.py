@@ -1,6 +1,6 @@
 """Tests for ObservatoryMetadata.py"""
 
-from geomagio import ObservatoryMetadata
+from geomagio.ObservatoryMetadata import ObservatoryMetadata, DEFAULT_INTERVAL_SPECIFIC
 from numpy.testing import assert_equal
 import obspy.core
 
@@ -22,26 +22,16 @@ METADATA = {
             + " through INTERMAGNET and acknowledgement templates"
             + " can be found at www.intermagnet.org",
         },
-        "interval_specific": {
-            "minute": {
-                "data_interval_type": "filtered 1-minute (00:15-01:45) ",
-                "filter_comments": [
-                    "Vector 1-minute values are computed"
-                    + " from 1-second values using the INTERMAGNET gaussian"
-                    + " filter centered on the minute. Scalar 1-minute values"
-                    + " are computed from 1-second values using the"
-                    + " INTERMAGNET gaussian filter centered on the minute. "
-                ],
-            },
-            "second": {"data_interval_type": "Average 1-Second"},
-        },
+        "interval_specific": DEFAULT_INTERVAL_SPECIFIC,
     }
 }
 
 
 DATA_INTERVAL_TYPE = {
-    "minute": {"data_interval_type": "filtered 1-minute (00:29-01:30) "},
-    "second": {"data_interval_type": "filtered 1-Second"},
+    "day": {"data_interval_type": "1-day"},
+    "hour": {"data_interval_type": "1-hour"},
+    "minute": {"data_interval_type": "1-minute"},
+    "second": {"data_interval_type": "1-second"},
 }
 
 
@@ -65,4 +55,4 @@ def test_set_metadata():
     observatorymetadata.set_metadata(stats, "BOU", "MVH", "quasi-definitive", "second")
     assert_equal(stats["declination_base"], 20000)
     print(stats)
-    assert_equal(stats["data_interval_type"], "Average 1-Second")
+    assert_equal(stats["data_interval_type"], "1-second")

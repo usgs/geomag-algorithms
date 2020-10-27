@@ -490,7 +490,11 @@ def main(args):
     if args.realtime:
         if args.realtime is True:
             # convert interval to number of seconds
-            if args.interval == "minute":
+            if args.interval == "day":
+                args.realtime = 172800
+            elif args.interval == "hour":
+                args.realtime = 7200
+            elif args.interval == "minute":
                 args.realtime = 3600
             else:
                 args.realtime = 600
@@ -700,6 +704,8 @@ def parse_args(args):
         const=True,
         help="""
                 Run the last N seconds.
+                Default 172800 (last 2 days) when interval is day,
+                Default 7200 (last 2 hours) when interval is hour,
                 Default 3600 (last hour) when interval is minute,
                 Default 600 (last 10 minutes) otherwise.
                 """,
