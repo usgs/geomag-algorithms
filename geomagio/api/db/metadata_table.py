@@ -102,6 +102,8 @@ async def get_metadata(
     category: MetadataCategory = None,
     starttime: datetime = None,
     endtime: datetime = None,
+    created_after: datetime = None,
+    created_before: datetime = None,
     data_valid: bool = None,
     metadata_valid: bool = None,
 ):
@@ -110,6 +112,7 @@ async def get_metadata(
         query = query.where(metadata.c.id == id)
     if category:
         query = query.where(metadata.c.category == category)
+
     if network or station or channel or location:
         query = (
             query.where(metadata.c.network.like(network or "%"))
@@ -125,6 +128,12 @@ async def get_metadata(
         query = query.where(
             or_(metadata.c.starttime == None, metadata.c.starttime < endtime)
         )
+
+    if created_before and created_after:
+        query = query.where(
+            or_(metadata.c.created_time.between(created_after, created_before))
+        )
+
     if data_valid is not None:
         query = query.where(metadata.c.data_valid == data_valid)
     if metadata_valid is not None:
