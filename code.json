@@ -3,9 +3,9 @@
       "name": "geomag-algorithms",
       "organization": "U.S. Geological Survey",
       "description": "Library for processing Geomagnetic timeseries data.",
-      "version": "1.2.1",
+      "version": "1.3.0",
       "status": "Development",
-  
+
       "permissions": {
         "usageType": "openSource",
         "licenses": [
@@ -15,27 +15,26 @@
           }
         ]
       },
-  
+
       "homepageURL": "https://code.usgs.gov/ghsc/geomag/geomag-algorithms",
       "downloadURL": "https://code.usgs.gov/ghsc/geomag/geomag-algorithms/-/archive/master/geomag-algorithms-master.zip",
       "disclaimerURL": "https://code.usgs.gov/ghsc/geomag/geomag-algorithms/raw/master/DISCLAIMER.md",
       "repositoryURL": "https://code.usgs.gov/ghsc/geomag/geomag-algorithms.git",
       "vcs": "git",
-  
+
       "laborHours": 0,
-  
+
       "tags": ["usgs", "geomagnetism", "timeseries", "processing"],
-  
+
       "languages": ["Shell", "Python"],
-  
+
       "contact": {
         "name": "HazDev Team",
         "email": "gs-haz_dev_team_group@usgs.gov"
       },
-  
+
       "date": {
-        "metadataLastUpdated": "2020-10-07"
+        "metadataLastUpdated": "2020-11-05"
       }
     }
   ]
-  
