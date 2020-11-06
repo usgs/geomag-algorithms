@@ -52,8 +52,8 @@ updateRouting () {
         proxy_set_header X-Client-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
-        # clean up any redirects sent by proxy
-        proxy_redirect http://\$proxy_host${path} https://\$host${path};
+        # keep redirects on https
+        proxy_redirect http://\$host:\$port https://\$host;
       }
 		EO_SERVER_SNIP
     # ^^ Note: TAB indentation required
