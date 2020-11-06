@@ -53,7 +53,7 @@ updateRouting () {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
         # clean up any redirects sent by proxy
-        proxy_redirect http://${proxy_host}${path} https://\$host${path};
+        proxy_redirect http://\$proxy_host${path} https://\$host${path};
       }
 		EO_SERVER_SNIP
     # ^^ Note: TAB indentation required
