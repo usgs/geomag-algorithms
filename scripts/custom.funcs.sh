@@ -99,7 +99,7 @@ services:
       - 8000
     environment:
       - BASE_HREF=${BASE_HREF}
-      - DATA_HOST=${TARGET_HOSTNAME}
+      - DATA_HOST=${DATA_HOST}
       - DATA_PORT=${DATA_PORT}
       - DATA_TYPE=${DATA_TYPE}
       - SITE_URL=${SITE_URL}

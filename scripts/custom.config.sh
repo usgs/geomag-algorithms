@@ -8,3 +8,7 @@ export SERVICE_MAP=(
 export DATA_HOST=${DATA_HOST:-cwbpub.cr.usgs.gov};
 export DATA_PORT=${DATA_PORT:-2060};
 export DATA_TYPE=${DATA_TYPE:-edge};
+
+if [[ $TARGET_HOSTNAME == *"mage"* ]]; then
+  export DATA_HOST=${TARGET_HOSTNAME}
+fi
