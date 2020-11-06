@@ -1,9 +1,7 @@
 import os
-from typing import Dict, Union
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from obspy import UTCDateTime
 
@@ -78,13 +76,22 @@ def format_error(
     status_code: int, exception: str, format: str, request: Request
 ) -> Response:
     """Assign error_body value based on error format."""
+    # These urls are embedded in responses
+    # and app usually runs behind reverse proxy
+    url = str(request.url)
+    usage = f"http://{request.headers['host']}/ws/docs"
+    if "x-forwarded-proto" in request.headers:
+        proto = f"{request.headers['x-forwarded-proto']}:"
+        url = url.replace("http:", proto)
+        usage = usage.replace("http:", proto)
+    # serve error
     if format == "json":
-        return json_error(status_code, exception, request.url)
+        return json_error(code=status_code, error=exception, url=url, usage=usage)
     else:
-        return text_error(status_code, exception, request.url)
+        return text_error(code=status_code, error=exception, url=url, usage=usage)
 
 
-def json_error(code: int, error: Exception, url: str) -> Response:
+def json_error(code: int, error: Exception, url: str, usage: str) -> Response:
     """Format json error message.
 
     Returns
@@ -100,7 +107,8 @@ def json_error(code: int, error: Exception, url: str) -> Response:
                 "status": code,
                 "error": str(error),
                 "generated": f"{UTCDateTime().isoformat()}Z",
-                "url": str(url),
+                "url": url,
+                "usage": usage,
                 "version": VERSION,
             },
         },
@@ -108,7 +116,7 @@ def json_error(code: int, error: Exception, url: str) -> Response:
     )
 
 
-def text_error(code: int, error: Exception, url: str) -> Response:
+def text_error(code: int, error: Exception, url: str, usage: str = "") -> Response:
     """Format error message as plain text
 
     Returns
@@ -120,7 +128,7 @@ def text_error(code: int, error: Exception, url: str) -> Response:
 
 {error}
 
-Usage details are available from
+Usage details are available from {usage}
 
 Request:
 {url}
