@@ -5,6 +5,71 @@ preStackDeployHook () {
   writeYmlFile;
 }
 
+
+##
+# override the default updateRouting, which adds a trailing slash...
+##
+updateRouting () {
+  local appName=$1; shift;
+  local stackName=$1; shift;
+  local serviceMap=$@;
+
+  local dir="$(pwd -P)";
+  local stamp=$(date);
+
+  local configFile="${dir}/${appName}.conf";
+  local serverFile="${dir}/${appName}.server";
+  local upstreamIdx=0;
+
+  debug "Re-routing traffic to ${stackName} stack.";
+  echo "# Auto generated ${stamp} for ${stackName}" > $configFile;
+  echo "# Auto generated ${stamp} for ${stackName}" > $serverFile;
+
+  for service in ${serviceMap[@]}; do
+    local name="${stackName}_$(echo $service | awk -F: '{print $2}')";
+    local upstreamName="${name}_${upstreamIdx}";
+    local path="$(echo $service | awk -F: '{print $1}')";
+    local port=$(getPublishedPort $name 2> /dev/null);
+
+    if [ -z "${port}" ]; then
+      # No port exposed. Continue.
+      debug "No port exposed for ${name}. Not routing. Moving on.";
+      continue;
+    fi
+
+    echo "upstream ${upstreamName} {" >> $configFile;
+    for host in ${TARGET_HOSTS[@]}; do
+      echo "  server ${host}:${port};" >> $configFile;
+    done
+    echo "}" >> $configFile;
+
+    cat <<- EO_SERVER_SNIP >> $serverFile
+      # do not include trailing slash here, map can if needed
+      location ${path} {
+        proxy_pass http://${upstreamName};
+        proxy_connect_timeout 5s;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Client-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        # clean up any redirects sent by proxy
+        proxy_redirect http://${proxy_host}${path} https://\$host${path};
+      }
+		EO_SERVER_SNIP
+    # ^^ Note: TAB indentation required
+
+    upstreamIdx=$((upstreamIdx + 1));
+  done
+
+  if [ $(configsDiffer ${appName} ${configFile} ${serverFile}) ]; then
+    debug "Updating configuration for ${appName}";
+    routerConfig --update ${appName} ${configFile} ${serverFile};
+  else
+    debug "${appName} configuration not changed. Skipping router update.";
+  fi
+}
+
+
 ##
 # Write a customized YML file for deploying the stack. Necessary because
 # by default, YML files do not allow variables for defining configs.
