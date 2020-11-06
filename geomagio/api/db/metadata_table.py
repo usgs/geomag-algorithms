@@ -128,9 +128,9 @@ async def get_metadata(
             or_(metadata.c.starttime == None, metadata.c.starttime < endtime)
         )
     if created_after:
-        query = query.where(metadata.c.starttime > created_after)
+        query = query.where(metadata.c.created_time > created_after)
     if created_before:
-        query = query = query.where(metadata.c.endtime < created_before)
+        query = query = query.where(metadata.c.created_time < created_before)
     if data_valid is not None:
         query = query.where(metadata.c.data_valid == data_valid)
     if metadata_valid is not None:
