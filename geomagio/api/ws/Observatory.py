@@ -171,7 +171,7 @@ OBSERVATORIES = [
         declination_base=209690,
     ),
     Observatory(
-        id="FRT",
+        id="FDT",
         elevation=69,
         latitude=38.205,
         longitude=282.627,
