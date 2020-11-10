@@ -108,17 +108,18 @@ async def get_metadata(
     metadata_valid: bool = None,
 ):
     query = metadata.select()
-    if id is not None:
+    if id:
         query = query.where(metadata.c.id == id)
     if category:
         query = query.where(metadata.c.category == category)
-    if network or station or channel or location:
-        query = (
-            query.where(metadata.c.network.like(network or "%"))
-            .where(metadata.c.station.like(station or "%"))
-            .where(metadata.c.channel.like(channel or "%"))
-            .where(metadata.c.location.like(location or "%"))
-        )
+    if network:
+        query = query.where(metadata.c.network == network)
+    if station:
+        query = query.where(metadata.c.station.like(station or "%"))
+    if channel:
+        query = query.where(metadata.c.channel.like(channel or "%"))
+    if location:
+        query = query.where(metadata.c.location.like(location or "%"))
     if starttime:
         query = query.where(
             or_(metadata.c.endtime == None, metadata.c.endtime > starttime)
@@ -135,6 +136,8 @@ async def get_metadata(
         query = query.where(metadata.c.data_valid == data_valid)
     if metadata_valid is not None:
         query = query.where(metadata.c.metadata_valid == metadata_valid)
+    print(query)
+    print(network)
     rows = await database.fetch_all(query)
     return [Metadata(**row) for row in rows]
 
