@@ -83,8 +83,8 @@ async def create_metadata(meta: Metadata) -> Metadata:
     query = metadata.insert()
     values = meta.datetime_dict(exclude={"id"}, exclude_none=True)
     query = query.values(**values)
-    metadata.id = await database.execute(query)
-    return metadata
+    meta.id = await database.execute(query)
+    return meta
 
 
 async def delete_metadata(id: int) -> None:
@@ -136,7 +136,6 @@ async def get_metadata(
         query = query.where(metadata.c.data_valid == data_valid)
     if metadata_valid is not None:
         query = query.where(metadata.c.metadata_valid == metadata_valid)
-
     rows = await database.fetch_all(query)
     return [Metadata(**row) for row in rows]
 

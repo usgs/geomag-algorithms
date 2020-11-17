@@ -35,7 +35,7 @@ async def create_metadata(
     metadata: Metadata,
     user: User = Depends(require_user()),
 ):
-    created_metadata = await metadata_table.create_metadata(metadata)
+    metadata = await metadata_table.create_metadata(metadata)
     return Response(metadata.json(), status_code=201, media_type="application/json")
 
 
