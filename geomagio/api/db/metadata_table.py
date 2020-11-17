@@ -136,8 +136,7 @@ async def get_metadata(
         query = query.where(metadata.c.data_valid == data_valid)
     if metadata_valid is not None:
         query = query.where(metadata.c.metadata_valid == metadata_valid)
-    print(query)
-    print(network)
+
     rows = await database.fetch_all(query)
     return [Metadata(**row) for row in rows]
 
