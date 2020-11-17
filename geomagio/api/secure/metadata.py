@@ -35,8 +35,9 @@ async def create_metadata(
     metadata: Metadata,
     user: User = Depends(require_user()),
 ):
-    metadata = await metadata_table.create_metadata(metadata)
-    return Response(metadata, status_code=201, media_type="application/json")
+    created_metadata = await metadata_table.create_metadata(metadata)
+    print(metadata.to_json())
+    return Response(metadata.to_json(), status_code=201, media_type="application/json")
 
 
 @router.delete("/metadata/{id}")

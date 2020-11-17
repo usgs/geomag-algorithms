@@ -1,4 +1,5 @@
 from datetime import timezone
+import json
 from typing import Dict
 
 from obspy import UTCDateTime
@@ -87,3 +88,6 @@ class Metadata(BaseModel):
     @validator("created_time")
     def set_default_created_time(cls, created_time: UTCDateTime = None) -> UTCDateTime:
         return created_time or UTCDateTime()
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
