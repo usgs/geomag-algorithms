@@ -568,32 +568,3 @@ def round_usecs(time):
     if rounded_usecs != usecs:
         time = time.replace(microsecond=rounded_usecs)
     return time
-
-
-def get_previous_interval(interval: str):
-    """Gets previous available interval from input interval.
-
-    Parameters
-    ----------
-    interval: str
-        string containing current interval
-
-    Returns
-    ----------
-    interval: str
-        string containing previous available interval
-    """
-    current_delta = get_delta_from_interval(interval)
-    if interval == "second":
-        return "tenhertz"
-
-    elif interval == "minute":
-        return "second"
-
-    elif interval in ["hour", "day"]:
-        return "minute"
-
-    else:
-        raise ValueError(
-            "Method cannot determine intervals smaller than ten hertz or larger than one minute"
-        )
