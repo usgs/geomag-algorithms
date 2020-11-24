@@ -424,7 +424,7 @@ def get_output_factory(args):
     elif output_type == "miniseed":
         # TODO: deal with other miniseed arguments
         locationcode = args.outlocationcode or args.locationcode or None
-        output_factory = edge.EdgeFactory(
+        output_factory = edge.MiniSeedFactory(
             host=args.output_host,
             port=args.output_read_port,
             write_port=args.output_port,
