@@ -48,7 +48,7 @@ class MiniSeedInputClient(object):
             attempts += 1
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect(self.host, self.port)
+                s.connect((self.host, self.port))
                 break
             except socket.error as e:
                 if attempts >= max_attempts:
@@ -73,4 +73,4 @@ class MiniSeedInputClient(object):
         buf = io.BytesIO()
         stream.write(buf, format="MSEED")
         # send data
-        self.socket.sendall(buf)
+        self.socket.sendall(buf.read())
