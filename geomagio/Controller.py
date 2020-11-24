@@ -384,15 +384,13 @@ class Controller(object):
             if output_gap[0] == starttime:
                 # found fillable gap at start, recurse to previous interval
                 interval = endtime - starttime
-                gap_starttime = starttime - interval
-                gap_endtime = starttime - 1
-                options.starttime = starttime
-                options.endtime = endtime
+                recurse_starttime = starttime - interval
+                recurse_endtime = starttime - 1
                 self.run_as_update(
                     observatory=observatory,
                     output_observatory=output_observatory,
-                    starttime=gap_starttime,
-                    endtime=gap_endtime,
+                    starttime=recurse_starttime,
+                    endtime=recurse_endtime,
                     input_channels=input_channels,
                     output_channels=output_channels,
                     no_trim=no_trim,
