@@ -25,7 +25,8 @@ setuptools.setup(
     use_pipfile=True,
     entry_points={
         "console_scripts": [
-            "magproc-prepfiles=geomagio.processing.magproc:main, update-legacy=geomagio.processing.update_legacy:main"
+            "magproc-prepfiles=geomagio.processing.magproc:main",
+            "update-legacy=geomagio.processing.update_legacy:main",
         ],
     },
 )
