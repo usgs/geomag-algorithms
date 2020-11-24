@@ -46,8 +46,7 @@ def obsrio_second(
     output_factory: Optional[TimeseriesFactory] = None,
     realtime_interval: int = 600,
 ):
-    """Copy 1Hz miniseed F to 1Hz legacy F.
-    """
+    """Copy 1Hz miniseed F to 1Hz legacy F."""
     starttime, endtime = get_realtime_interval(realtime_interval)
     controller = Controller(
         algorithm=Algorithm(),
@@ -74,8 +73,7 @@ def obsrio_temperatures(
     output_factory: Optional[TimeseriesFactory] = None,
     realtime_interval: int = 600,
 ):
-    """Filter temperatures 1Hz miniseed (LK1-4) to 1 minute legacy (UK1-4).
-    """
+    """Filter temperatures 1Hz miniseed (LK1-4) to 1 minute legacy (UK1-4)."""
     starttime, endtime = get_realtime_interval(realtime_interval)
     controller = Controller(
         algorithm=FilterAlgorithm(input_sample_period=1, output_sample_period=60),
@@ -106,8 +104,7 @@ def obsrio_tenhertz(
     output_factory: Optional[TimeseriesFactory] = None,
     realtime_interval: int = 600,
 ):
-    """Filter 10Hz miniseed U,V,W to 1Hz legacy H,E,Z.
-    """
+    """Filter 10Hz miniseed U,V,W to 1Hz legacy H,E,Z."""
     starttime, endtime = get_realtime_interval(realtime_interval)
     # filter 10Hz U,V,W to H,E,Z
     controller = Controller(
@@ -131,3 +128,15 @@ def obsrio_tenhertz(
             rename_output_channel=((input_channel, output_channel),),
             update_limit=10,
         )
+
+
+def update_legacy(
+    observatory: str,
+    input_factory: Optional[TimeseriesFactory] = None,
+    output_factory: Optional[TimeseriesFactory] = None,
+    realtime_interval: int = 86400,
+):
+    obsrio_tenhertz(observatory, realtime_interval, input_factory, output_factory)
+    obsrio_second(observatory, realtime_interval, input_factory, output_factory)
+    obsrio_minute(observatory, realtime_interval, input_factory, output_factory)
+    obsrio_temperatures(observatory, realtime_interval, input_factory, output_factory)
