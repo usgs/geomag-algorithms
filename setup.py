@@ -27,7 +27,6 @@ setuptools.setup(
         "console_scripts": [
             "magproc-prepfiles=geomagio.processing.magproc:main",
             "update-legacy=geomagio.processing.update_legacy:main",
-            "geomagio-process=geomagio.processing:main",
         ],
     },
 )
