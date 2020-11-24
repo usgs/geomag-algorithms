@@ -240,6 +240,9 @@ class Controller(object):
         rename_input_channel: list of input channel renames
         rename_output_channel: list of output channel renames
         """
+        # ensure realtime is a valid value:
+        if realtime <= 0:
+            realtime = False
         algorithm = self._algorithm
         input_channels = input_channels or algorithm.get_input_channels()
         output_channels = output_channels or algorithm.get_output_channels()
