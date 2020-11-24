@@ -1,11 +1,12 @@
 import os
-from typing import Optional
+from typing import List, Optional
 
 import numpy
 
 from ..algorithm import (
     Algorithm,
     AdjustedAlgorithm,
+    AverageAlgorithm,
     DeltaFAlgorithm,
     SqDistAlgorithm,
     XYZAlgorithm,
@@ -64,6 +65,50 @@ def adjusted(
         endtime=endtime,
         input_channels=("H", "E", "Z", "F"),
         output_channels=("X", "Y", "Z", "F"),
+        realtime=realtime_interval,
+        update_limit=10,
+    )
+
+
+def average(
+    observatories: List[str],
+    input_channel: str,
+    input_factory: Optional[TimeseriesFactory] = None,
+    interval: str = "second",
+    output_channel: str = None,
+    output_factory: Optional[TimeseriesFactory] = None,
+    output_observatory: str = "USGS",
+    realtime_interval: int = 600,
+):
+    """Run Average algorithm.
+
+    Parameters
+    ----------
+    observatories: input observatories to calculate
+    input_channel: channel from multiple observatories to average
+    input_factory: where to read, should be configured with data_type and interval
+    interval: data interval
+    output_channel: channel to write (defaults to input_channel).
+    output_factory: where to write, should be configured with data_type and interval
+    output_observatory: observatory where output is written
+    realtime_interval: window in seconds
+
+    Uses update_limit=10.
+    """
+    starttime, endtime = get_realtime_interval(realtime_interval)
+    controller = Controller(
+        algorithm=AverageAlgorithm(observatories=observatories, channel=output_channel),
+        inputFactory=input_factory or get_edge_factory(),
+        inputInterval=interval,
+        outputFactory=output_factory or get_edge_factory(),
+        outputInterval=interval,
+    )
+    controller.run_as_update(
+        observatory=observatories,
+        output_observatory=(output_observatory,),
+        starttime=starttime,
+        endtime=endtime,
+        output_channels=(output_channel or input_channel,),
         realtime=realtime_interval,
         update_limit=10,
     )
