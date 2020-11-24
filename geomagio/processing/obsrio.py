@@ -13,6 +13,7 @@ def obsrio_minute(
     input_factory: Optional[TimeseriesFactory] = None,
     output_factory: Optional[TimeseriesFactory] = None,
     realtime_interval: int = 600,
+    update_limit: int = 10,
 ):
     """Filter 1Hz legacy H,E,Z,F to 1 minute legacy.
 
@@ -36,7 +37,7 @@ def obsrio_minute(
             input_channels=(channel,),
             output_channels=(channel,),
             realtime=realtime_interval,
-            update_limit=10,
+            update_limit=update_limit,
         )
 
 
@@ -45,6 +46,7 @@ def obsrio_second(
     input_factory: Optional[TimeseriesFactory] = None,
     output_factory: Optional[TimeseriesFactory] = None,
     realtime_interval: int = 600,
+    update_limit: int = 10,
 ):
     """Copy 1Hz miniseed F to 1Hz legacy F."""
     starttime, endtime = get_realtime_interval(realtime_interval)
@@ -63,7 +65,7 @@ def obsrio_second(
         input_channels=("F",),
         output_channels=("F",),
         realtime=realtime_interval,
-        update_limit=10,
+        update_limit=update_limit,
     )
 
 
@@ -71,7 +73,7 @@ def obsrio_temperatures(
     observatory: str,
     input_factory: Optional[TimeseriesFactory] = None,
     output_factory: Optional[TimeseriesFactory] = None,
-    realtime_interval: int = 600,
+    update_limit: int = 10,
 ):
     """Filter temperatures 1Hz miniseed (LK1-4) to 1 minute legacy (UK1-4)."""
     starttime, endtime = get_realtime_interval(realtime_interval)
@@ -94,7 +96,7 @@ def obsrio_temperatures(
             output_channels=(output_channel,),
             realtime=realtime_interval,
             rename_output_channel=((input_channel, output_channel),),
-            update_limit=10,
+            update_limit=update_limit,
         )
 
 
@@ -103,6 +105,7 @@ def obsrio_tenhertz(
     input_factory: Optional[TimeseriesFactory] = None,
     output_factory: Optional[TimeseriesFactory] = None,
     realtime_interval: int = 600,
+    update_limit: int = 10,
 ):
     """Filter 10Hz miniseed U,V,W to 1Hz legacy H,E,Z."""
     starttime, endtime = get_realtime_interval(realtime_interval)
@@ -126,7 +129,7 @@ def obsrio_tenhertz(
             output_channels=(output_channel,),
             realtime=realtime_interval,
             rename_output_channel=((input_channel, output_channel),),
-            update_limit=10,
+            update_limit=update_limit,
         )
 
 
@@ -135,8 +138,17 @@ def update_legacy(
     input_factory: Optional[TimeseriesFactory] = None,
     output_factory: Optional[TimeseriesFactory] = None,
     realtime_interval: int = 86400,
+    update_limit: int = 7,
 ):
-    obsrio_tenhertz(observatory, realtime_interval, input_factory, output_factory)
-    obsrio_second(observatory, realtime_interval, input_factory, output_factory)
-    obsrio_minute(observatory, realtime_interval, input_factory, output_factory)
-    obsrio_temperatures(observatory, realtime_interval, input_factory, output_factory)
+    obsrio_tenhertz(
+        observatory, realtime_interval, input_factory, output_factory, update_limit
+    )
+    obsrio_second(
+        observatory, realtime_interval, input_factory, output_factory, update_limit
+    )
+    obsrio_minute(
+        observatory, realtime_interval, input_factory, output_factory, update_limit
+    )
+    obsrio_temperatures(
+        observatory, realtime_interval, input_factory, output_factory, update_limit
+    )
