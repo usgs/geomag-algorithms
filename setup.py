@@ -18,7 +18,6 @@ setuptools.setup(
         "Source": "https://github.com/usgs/geomag-algorithms",
     },
     python_requires=">=3.6, <4",
-    console_scripts=["geomagio-process=geomagio.processing:main"],
     scripts=["bin/geomag.py", "bin/geomag_webservice.py", "bin/make_cal.py"],
     setup_requires=[
         "setuptools-pipfile",
@@ -28,6 +27,7 @@ setuptools.setup(
         "console_scripts": [
             "magproc-prepfiles=geomagio.processing.magproc:main",
             "update-legacy=geomagio.processing.update_legacy:main",
+            "geomagio-process=geomagio.processing:main",
         ],
     },
 )
