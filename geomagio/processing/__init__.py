@@ -1,3 +1,3 @@
-"""
-Required file for initializing entrypoints within processing workflow
-"""
+from .main import main
+
+__all__ = ["main"]

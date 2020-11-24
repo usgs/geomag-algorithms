@@ -47,10 +47,19 @@ class Controller(object):
         recursively backup so it can update all missing data.
     """
 
-    def __init__(self, inputFactory, outputFactory, algorithm):
-        self._inputFactory = inputFactory
+    def __init__(
+        self,
+        inputFactory,
+        outputFactory,
+        algorithm,
+        inputInterval: Optional[str] = None,
+        outputInterval: Optional[str] = None,
+    ):
         self._algorithm = algorithm
+        self._inputFactory = inputFactory
+        self._inputInterval = inputInterval
         self._outputFactory = outputFactory
+        self._outputInterval = outputInterval
 
     def _get_input_timeseries(self, observatory, channels, starttime, endtime):
         """Get timeseries from the input factory for requested options.
@@ -90,6 +99,7 @@ class Controller(object):
                 starttime=input_start,
                 endtime=input_end,
                 channels=channels,
+                interval=self._inputInterval,
             )
         return timeseries
 
@@ -137,7 +147,11 @@ class Controller(object):
         timeseries = Stream()
         for obs in observatory:
             timeseries += self._outputFactory.get_timeseries(
-                observatory=obs, starttime=starttime, endtime=endtime, channels=channels
+                observatory=obs,
+                starttime=starttime,
+                endtime=endtime,
+                channels=channels,
+                interval=self._outputInterval,
             )
         return timeseries
 
