@@ -83,8 +83,8 @@ async def create_metadata(meta: Metadata) -> Metadata:
     query = metadata.insert()
     values = meta.datetime_dict(exclude={"id"}, exclude_none=True)
     query = query.values(**values)
-    metadata.id = await database.execute(query)
-    return metadata
+    meta.id = await database.execute(query)
+    return meta
 
 
 async def delete_metadata(id: int) -> None:
@@ -102,21 +102,24 @@ async def get_metadata(
     category: MetadataCategory = None,
     starttime: datetime = None,
     endtime: datetime = None,
+    created_after: datetime = None,
+    created_before: datetime = None,
     data_valid: bool = None,
     metadata_valid: bool = None,
 ):
     query = metadata.select()
-    if id is not None:
+    if id:
         query = query.where(metadata.c.id == id)
     if category:
         query = query.where(metadata.c.category == category)
-    if network or station or channel or location:
-        query = (
-            query.where(metadata.c.network.like(network or "%"))
-            .where(metadata.c.station.like(station or "%"))
-            .where(metadata.c.channel.like(channel or "%"))
-            .where(metadata.c.location.like(location or "%"))
-        )
+    if network:
+        query = query.where(metadata.c.network == network)
+    if station:
+        query = query.where(metadata.c.station == station)
+    if channel:
+        query = query.where(metadata.c.channel.like(channel))
+    if location:
+        query = query.where(metadata.c.location.like(location))
     if starttime:
         query = query.where(
             or_(metadata.c.endtime == None, metadata.c.endtime > starttime)
@@ -125,6 +128,10 @@ async def get_metadata(
         query = query.where(
             or_(metadata.c.starttime == None, metadata.c.starttime < endtime)
         )
+    if created_after:
+        query = query.where(metadata.c.created_time > created_after)
+    if created_before:
+        query = query.where(metadata.c.created_time < created_before)
     if data_valid is not None:
         query = query.where(metadata.c.data_valid == data_valid)
     if metadata_valid is not None:

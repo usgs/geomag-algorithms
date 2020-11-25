@@ -12,6 +12,8 @@ class MetadataQuery(BaseModel):
     category: MetadataCategory = None
     starttime: UTCDateTime = None
     endtime: UTCDateTime = None
+    created_after: UTCDateTime = None
+    created_before: UTCDateTime = None
     network: str = None
     station: str = None
     channel: str = None
@@ -21,11 +23,7 @@ class MetadataQuery(BaseModel):
 
     def datetime_dict(self, **kwargs):
         values = self.dict(**kwargs)
-        for key in ["starttime", "endtime"]:
+        for key in ["starttime", "endtime", "created_after", "created_before"]:
             if key in values and values[key] is not None:
                 values[key] = values[key].datetime.replace(tzinfo=timezone.utc)
         return values
-
-    @validator("starttime")
-    def set_default_starttime(cls, starttime: UTCDateTime = None) -> UTCDateTime:
-        return starttime or UTCDateTime() - 30 * 86400
