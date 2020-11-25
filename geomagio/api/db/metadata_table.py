@@ -115,11 +115,11 @@ async def get_metadata(
     if network:
         query = query.where(metadata.c.network == network)
     if station:
-        query = query.where(metadata.c.station.like(station or "%"))
+        query = query.where(metadata.c.station == station)
     if channel:
-        query = query.where(metadata.c.channel.like(channel or "%"))
+        query = query.where(metadata.c.channel.like(channel))
     if location:
-        query = query.where(metadata.c.location.like(location or "%"))
+        query = query.where(metadata.c.location.like(location))
     if starttime:
         query = query.where(
             or_(metadata.c.endtime == None, metadata.c.endtime > starttime)
