@@ -73,6 +73,7 @@ def obsrio_temperatures(
     observatory: str,
     input_factory: Optional[TimeseriesFactory] = None,
     output_factory: Optional[TimeseriesFactory] = None,
+    realtime_interval: int = 600,
     update_limit: int = 10,
 ):
     """Filter temperatures 1Hz miniseed (LK1-4) to 1 minute legacy (UK1-4)."""
