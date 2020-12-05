@@ -68,10 +68,9 @@ variables:
 
 .check_code:
   artifacts:
-    paths:
-      - cov.xml
     reports:
-      junit: cov.xml
+      cobertura: cov.xml
+      junit: junit.xml
   before_script:
     # install dependencies
     - pipenv --site-packages install --dev --pre --skip-lock
@@ -80,7 +79,7 @@ variables:
   script:
     # run checks
     - pipenv run black --check .
-    - pipenv run pytest --cov-report xml:cov.xml --cov=geomagio
+    - pipenv run pytest --cov=geomagio --cov-report xml:cov.xml --junitxml junit.xml
     - pipenv run safety check
   stage: test
   tags:
