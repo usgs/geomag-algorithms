@@ -18,7 +18,7 @@ variables:
   TRIVY_VERSION: "0.13.0"
   # docker variables
   DOCKER_DRIVER: overlay2
-  FROM_IMAGE: ${CODE_REGISTRY}/devops/images/usgs/centos:7
+  FROM_IMAGE: ${CODE_REGISTRY}/devops/images/usgs/obspy:3.8
   # environment variables
   APP_NAME: geomag-algorithms
   DATA_HOST: "cwbpub.cr.usgs.gov"
@@ -67,15 +67,20 @@ variables:
     - build
 
 .check_code:
-  image: ${DEVOPS_REGISTRY}usgs/conda:latest
-  script:
-    - export PYTHON_VERSION=${PYTHON_VERSION:-3.8}
-    - scripts/ci_check_code.sh
   artifacts:
-    paths:
-      - cov.xml
     reports:
-      junit: cov.xml
+      cobertura: cov.xml
+      junit: junit.xml
+  before_script:
+    # install dependencies
+    - pipenv --site-packages install --dev --pre --skip-lock
+    - pipenv run which python
+  image: ${DEVOPS_REGISTRY}usgs/obspy:latest
+  script:
+    # run checks
+    - pipenv run black --check .
+    - pipenv run pytest --cov=geomagio --cov-report xml:cov.xml --junitxml junit.xml
+    - pipenv run safety check
   stage: test
   tags:
     - development
@@ -148,23 +153,12 @@ variables:
 Check Python 3.6:
   extends:
     - .check_code
-  script:
-    - export PYTHON_VERSION=3.6
-    - scripts/ci_check_code.sh
-
-Check Python 3.7:
-  extends:
-    - .check_code
-  script:
-    - export PYTHON_VERSION=3.7
-    - scripts/ci_check_code.sh
+  image: ${DEVOPS_REGISTRY}usgs/obspy:3
 
 Check Python 3.8:
   extends:
     - .check_code
-  script:
-    - export PYTHON_VERSION=3.8
-    - scripts/ci_check_code.sh
+  image: ${DEVOPS_REGISTRY}usgs/obspy:3.8
 
 ## --------------------------------------------------
 # Integration Stage

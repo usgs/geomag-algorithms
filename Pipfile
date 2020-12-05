@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 bandit = "*"
 black = "==20.8b1"
+jupyter = "*"
 pre-commit = "*"
 pytest = "*"
 pytest-cov = "*"
