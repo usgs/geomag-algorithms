@@ -78,6 +78,7 @@ variables:
     - pipenv run which python
   image: ${DEVOPS_REGISTRY}usgs/obspy:latest
   script:
+    # run checks
     - pipenv run black --check .
     - pipenv run pytest --cov-report xml:cov.xml --cov=geomagio
     - pipenv run safety check

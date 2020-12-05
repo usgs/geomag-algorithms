@@ -5,7 +5,7 @@ LABEL maintainer="Jeremy Fee <jmfee@usgs.gov>"
 
 ARG GIT_BRANCH_NAME=none
 ARG GIT_COMMIT_SHA=none
-ARG WEBSERVICE="true"
+ARG WEBSERVICE="false"
 
 # set environment variables
 ENV GIT_BRANCH_NAME=${GIT_BRANCH_NAME} \
@@ -27,13 +27,7 @@ USER geomag_user
 # install dependencies via pipenv
 WORKDIR /data
 COPY Pipfile /data/
-RUN if [ "${WEBSERVICE}" = "true" ]; then \
-        # only install production packages for webservice
-        pipenv --site-packages install --skip-lock; \
-    else \
-        # install everything
-        pipenv --site-packages install --dev --skip-lock; \
-    fi
+RUN pipenv --site-packages install --dev --skip-lock
 
 # copy library (ignores set in .dockerignore)
 COPY . /geomag-algorithms
