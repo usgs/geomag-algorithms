@@ -7,9 +7,10 @@ export WEBSERVICE=${WEBSERVICE:-false}
 export PYTHONPATH=/geomag-algorithms
 
 
-if [ $WEBSERVICE = 'false' ]; then
+if [ "${WEBSERVICE}" = "false" ]; then
   # run jupyter notebook server
-  exec jupyter notebook \
+  exec pipenv run jupyter \
+      notebook \
       --ip='*' \
       --notebook-dir=/data \
       --no-browser \
