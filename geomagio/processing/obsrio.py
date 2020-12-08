@@ -21,7 +21,7 @@ def filter_realtime(
     realtime_interval: int = 600,
     update_limit: int = 10,
 ):
-    """Filter 10Hz miniseed, 1 second and one minute data.
+    """Filter 10Hz miniseed, 1 second, one minute, and temperature data.
     Defaults set for realtime processing; can also be implemented to update legacy data"""
     obsrio_tenhertz(
         observatory, realtime_interval, input_factory, output_factory, update_limit
