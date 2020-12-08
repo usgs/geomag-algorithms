@@ -1,11 +1,17 @@
 import os
 from typing import Optional
 
+import typer
+
 from ..algorithm import Algorithm, FilterAlgorithm
 from ..edge import EdgeFactory, MiniSeedFactory
 from ..Controller import Controller, get_realtime_interval
 from ..TimeseriesFactory import TimeseriesFactory
 from .factory import get_edge_factory, get_miniseed_factory
+
+
+def main():
+    typer.run(filter_realtime)
 
 
 def obsrio_minute(
@@ -202,26 +208,3 @@ def obsrio_day(
             rename_output_channel=((input_channel, output_channel),),
             update_limit=update_limit,
         )
-
-
-def filter_realtime(
-    observatory: str,
-    input_factory: Optional[TimeseriesFactory] = None,
-    output_factory: Optional[TimeseriesFactory] = None,
-    realtime_interval: int = 600,
-    update_limit: int = 10,
-):
-    """Filter 10Hz miniseed, 1 second and one minute data.
-    Defaults set for realtime processing; can also be implemented to update legacy data"""
-    obsrio_tenhertz(
-        observatory, realtime_interval, input_factory, output_factory, update_limit
-    )
-    obsrio_second(
-        observatory, realtime_interval, input_factory, output_factory, update_limit
-    )
-    obsrio_minute(
-        observatory, realtime_interval, input_factory, output_factory, update_limit
-    )
-    obsrio_temperatures(
-        observatory, realtime_interval, input_factory, output_factory, update_limit
-    )
