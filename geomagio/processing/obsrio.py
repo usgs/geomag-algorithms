@@ -44,7 +44,7 @@ def obsrio_day(
     realtime_interval: int = 86400,
     update_limit: int = 7,
 ):
-    """Filter 1 second edge H,E,Z,F to 1 day U,V,W,F."""
+    """Filter 1 second edge H,E,Z,F to 1 day miniseed U,V,W,F."""
     starttime, endtime = get_realtime_interval(realtime_interval)
     # filter 10Hz U,V,W to H,E,Z
     controller = Controller(
@@ -79,7 +79,7 @@ def obsrio_hour(
     realtime_interval: int = 600,
     update_limit: int = 10,
 ):
-    """Filter 1 second edge H,E,Z,F to 1 hour U,V,W,F."""
+    """Filter 1 second edge H,E,Z,F to 1 hour miniseed U,V,W,F."""
     starttime, endtime = get_realtime_interval(realtime_interval)
     # filter 10Hz U,V,W to H,E,Z
     controller = Controller(
