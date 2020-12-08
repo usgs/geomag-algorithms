@@ -14,6 +14,99 @@ def main():
     typer.run(filter_realtime)
 
 
+def filter_realtime(
+    observatory: str,
+    input_factory: Optional[TimeseriesFactory] = None,
+    output_factory: Optional[TimeseriesFactory] = None,
+    realtime_interval: int = 600,
+    update_limit: int = 10,
+):
+    """Filter 10Hz miniseed, 1 second and one minute data.
+    Defaults set for realtime processing; can also be implemented to update legacy data"""
+    obsrio_tenhertz(
+        observatory, realtime_interval, input_factory, output_factory, update_limit
+    )
+    obsrio_second(
+        observatory, realtime_interval, input_factory, output_factory, update_limit
+    )
+    obsrio_minute(
+        observatory, realtime_interval, input_factory, output_factory, update_limit
+    )
+    obsrio_temperatures(
+        observatory, realtime_interval, input_factory, output_factory, update_limit
+    )
+
+
+def obsrio_day(
+    observatory: str,
+    input_factory: Optional[TimeseriesFactory] = None,
+    output_factory: Optional[TimeseriesFactory] = None,
+    realtime_interval: int = 86400,
+    update_limit: int = 7,
+):
+    """Filter 1 second edge H,E,Z,F to 1 day U,V,W,F."""
+    starttime, endtime = get_realtime_interval(realtime_interval)
+    # filter 10Hz U,V,W to H,E,Z
+    controller = Controller(
+        algorithm=FilterAlgorithm(
+            input_sample_period=60.0, output_sample_period=86400.0
+        ),
+        inputFactory=input_factory or get_edge_factory(data_type="variation"),
+        inputInterval="minute",
+        outputFactory=output_factory or get_miniseed_factory(data_type="variation"),
+        outputInterval="day",
+    )
+    renames = {"H": "U", "E": "V", "Z": "W", "F": "F"}
+    for input_channel in renames.keys():
+        output_channel = renames[input_channel]
+        controller.run_as_update(
+            observatory=(observatory,),
+            output_observatory=(observatory,),
+            starttime=starttime,
+            endtime=endtime,
+            input_channels=(input_channel,),
+            output_channels=(output_channel,),
+            realtime=realtime_interval,
+            rename_output_channel=((input_channel, output_channel),),
+            update_limit=update_limit,
+        )
+
+
+def obsrio_hour(
+    observatory: str,
+    input_factory: Optional[TimeseriesFactory] = None,
+    output_factory: Optional[TimeseriesFactory] = None,
+    realtime_interval: int = 600,
+    update_limit: int = 10,
+):
+    """Filter 1 second edge H,E,Z,F to 1 hour U,V,W,F."""
+    starttime, endtime = get_realtime_interval(realtime_interval)
+    # filter 10Hz U,V,W to H,E,Z
+    controller = Controller(
+        algorithm=FilterAlgorithm(
+            input_sample_period=60.0, output_sample_period=3600.0
+        ),
+        inputFactory=input_factory or get_edge_factory(data_type="variation"),
+        inputInterval="minute",
+        outputFactory=output_factory or get_miniseed_factory(data_type="variation"),
+        outputInterval="hour",
+    )
+    renames = {"H": "U", "E": "V", "Z": "W", "F": "F"}
+    for input_channel in renames.keys():
+        output_channel = renames[input_channel]
+        controller.run_as_update(
+            observatory=(observatory,),
+            output_observatory=(observatory,),
+            starttime=starttime,
+            endtime=endtime,
+            input_channels=(input_channel,),
+            output_channels=(output_channel,),
+            realtime=realtime_interval,
+            rename_output_channel=((input_channel, output_channel),),
+            update_limit=update_limit,
+        )
+
+
 def obsrio_minute(
     observatory: str,
     input_factory: Optional[TimeseriesFactory] = None,
@@ -125,76 +218,6 @@ def obsrio_tenhertz(
         outputInterval="second",
     )
     renames = {"U": "H", "V": "E", "W": "Z"}
-    for input_channel in renames.keys():
-        output_channel = renames[input_channel]
-        controller.run_as_update(
-            observatory=(observatory,),
-            output_observatory=(observatory,),
-            starttime=starttime,
-            endtime=endtime,
-            input_channels=(input_channel,),
-            output_channels=(output_channel,),
-            realtime=realtime_interval,
-            rename_output_channel=((input_channel, output_channel),),
-            update_limit=update_limit,
-        )
-
-
-def obsrio_hour(
-    observatory: str,
-    input_factory: Optional[TimeseriesFactory] = None,
-    output_factory: Optional[TimeseriesFactory] = None,
-    realtime_interval: int = 600,
-    update_limit: int = 10,
-):
-    """Filter 1 second edge H,E,Z,F to 1 hour U,V,W,F."""
-    starttime, endtime = get_realtime_interval(realtime_interval)
-    # filter 10Hz U,V,W to H,E,Z
-    controller = Controller(
-        algorithm=FilterAlgorithm(
-            input_sample_period=60.0, output_sample_period=3600.0
-        ),
-        inputFactory=input_factory or get_edge_factory(data_type="variation"),
-        inputInterval="minute",
-        outputFactory=output_factory or get_miniseed_factory(data_type="variation"),
-        outputInterval="hour",
-    )
-    renames = {"H": "U", "E": "V", "Z": "W", "F": "F"}
-    for input_channel in renames.keys():
-        output_channel = renames[input_channel]
-        controller.run_as_update(
-            observatory=(observatory,),
-            output_observatory=(observatory,),
-            starttime=starttime,
-            endtime=endtime,
-            input_channels=(input_channel,),
-            output_channels=(output_channel,),
-            realtime=realtime_interval,
-            rename_output_channel=((input_channel, output_channel),),
-            update_limit=update_limit,
-        )
-
-
-def obsrio_day(
-    observatory: str,
-    input_factory: Optional[TimeseriesFactory] = None,
-    output_factory: Optional[TimeseriesFactory] = None,
-    realtime_interval: int = 86400,
-    update_limit: int = 7,
-):
-    """Filter 1 second edge H,E,Z,F to 1 day U,V,W,F."""
-    starttime, endtime = get_realtime_interval(realtime_interval)
-    # filter 10Hz U,V,W to H,E,Z
-    controller = Controller(
-        algorithm=FilterAlgorithm(
-            input_sample_period=60.0, output_sample_period=86400.0
-        ),
-        inputFactory=input_factory or get_edge_factory(data_type="variation"),
-        inputInterval="minute",
-        outputFactory=output_factory or get_miniseed_factory(data_type="variation"),
-        outputInterval="day",
-    )
-    renames = {"H": "U", "E": "V", "Z": "W", "F": "F"}
     for input_channel in renames.keys():
         output_channel = renames[input_channel]
         controller.run_as_update(
