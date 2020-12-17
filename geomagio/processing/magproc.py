@@ -146,7 +146,7 @@ def write_temperature_data(
         endtime=endtime,
         timeseries=timeseries_temperature,
         observatory=observatory,
-        interval="hourly",
+        interval="hour",
         channels=["UK1", "UK2", "UK3", "UK4"],
         template=template,
         temperatures=True,
