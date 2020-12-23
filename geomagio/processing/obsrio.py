@@ -1,15 +1,12 @@
 import os
 from typing import Optional
 
-from argparse import Namespace
 import typer
 
 from ..algorithm import Algorithm, FilterAlgorithm
 from ..edge import EdgeFactory, MiniSeedFactory
 from ..Controller import (
     Controller,
-    get_input_factory,
-    get_output_factory,
     get_realtime_interval,
 )
 from ..TimeseriesFactory import TimeseriesFactory
@@ -22,10 +19,10 @@ def main():
 
 def filter_realtime(
     observatory: str,
-    input_factory: str = "miniseed",
+    input_factory: Optional[str] = None,
     host: str = "127.0.0.1",
     port: str = 2061,
-    output_factory: str = "edge",
+    output_factory: Optional[str] = None,
     write_port: int = 2061,
     realtime_interval: int = 600,
     update_limit: int = 10,
@@ -33,26 +30,43 @@ def filter_realtime(
     """Filter 10Hz miniseed, 1 second, one minute, and temperature data.
     Defaults set for realtime processing; can also be implemented to update legacy data"""
 
-    args = Namespace()
-    args.input = input_factory
-    args.input_host = host
-    args.input_port = port
-    args.output = output_factory
-    args.output_port = write_port
-    input_factory = get_input_factory(args)
-    output_factory = get_output_factory(args)
+    if input_factory == "miniseed":
+        input_factory = MiniSeedFactory(host=host, port=port)
+    elif input_factory == "edge":
+        input_factory = EdgeFactory(host=host, port=port)
+
+    if output_factory == "miniseed":
+        output_factory = MiniSeedFactory(host=host, port=write_port)
+    elif output_factory == "edge":
+        output_factory = EdgeFactory(host=host, port=write_port)
 
     obsrio_tenhertz(
-        observatory, realtime_interval, input_factory, output_factory, update_limit
+        observatory=observatory,
+        input_factory=input_factory,
+        output_factory=output_factory,
+        realtime_interval=realtime_interval,
+        update_limit=update_limit,
     )
     obsrio_second(
-        observatory, realtime_interval, input_factory, output_factory, update_limit
+        observatory=observatory,
+        input_factory=input_factory,
+        output_factory=output_factory,
+        realtime_interval=realtime_interval,
+        update_limit=update_limit,
     )
     obsrio_minute(
-        observatory, realtime_interval, input_factory, output_factory, update_limit
+        observatory=observatory,
+        input_factory=input_factory,
+        output_factory=output_factory,
+        realtime_interval=realtime_interval,
+        update_limit=update_limit,
     )
     obsrio_temperatures(
-        observatory, realtime_interval, input_factory, output_factory, update_limit
+        observatory=observatory,
+        input_factory=input_factory,
+        output_factory=output_factory,
+        realtime_interval=realtime_interval,
+        update_limit=update_limit,
     )
 
 
