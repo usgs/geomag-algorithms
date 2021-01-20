@@ -23,7 +23,12 @@ def filter_realtime(
     host: str = "127.0.0.1",
     port: str = 2061,
     output_factory: Optional[str] = None,
-    write_port: int = 2061,
+    output_port: int = typer.Option(
+        2061, help="Port where output factory writes data."
+    ),
+    output_read_port: int = typer.Option(
+        2061, help="Port where output factory reads data"
+    ),
     realtime_interval: int = 600,
     update_limit: int = 10,
 ):
@@ -36,9 +41,13 @@ def filter_realtime(
         input_factory = EdgeFactory(host=host, port=port)
 
     if output_factory == "miniseed":
-        output_factory = MiniSeedFactory(host=host, port=write_port)
+        output_factory = MiniSeedFactory(
+            host=host, port=output_read_port, write_port=output_port
+        )
     elif output_factory == "edge":
-        output_factory = EdgeFactory(host=host, port=write_port)
+        output_factory = EdgeFactory(
+            host=host, port=output_read_port, write_port=output_port
+        )
 
     obsrio_tenhertz(
         observatory=observatory,
