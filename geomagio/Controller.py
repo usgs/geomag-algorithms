@@ -335,9 +335,8 @@ class Controller(object):
             period, oldest to newest.
         """
         # If an update_limit is set, make certain we don't step past it.
-        if update_limit != 0:
-            if update_count >= update_limit:
-                return
+        if update_limit > 0 and update_count >= update_limit:
+            return
         algorithm = self._algorithm
         if algorithm.get_next_starttime() is not None:
             raise AlgorithmException("Stateful algorithms cannot use run_as_update")
